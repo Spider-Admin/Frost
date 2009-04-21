@@ -37,11 +37,12 @@
  */
 
 package frost.messaging.freetalk.gui.messagetreetable;
+
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.messaging.frost.*;
+import frost.messaging.freetalk.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -179,34 +180,34 @@ public class FreetalkMessageTreeTableModel extends DefaultTreeModel implements F
      */
     public Object getValueAt(final Object node, final int column) {
 
-        if( node instanceof FrostMessageObject ) {
-            final FrostMessageObject mo = (FrostMessageObject)node;
-            if( mo.isDummy() ) {
-                // show no text for dummy msgs
+        if( node instanceof FreetalkMessage ) {
+            final FreetalkMessage mo = (FreetalkMessage)node;
+//            if( mo.isDummy() ) {
+//                // show no text for dummy msgs
+//                switch(column) {
+//                    case COLUMN_INDEX_FLAGGED: return Boolean.FALSE;
+//                    case COLUMN_INDEX_STARRED: return Boolean.FALSE;
+//                    // 2 is tree+subject column
+//                    case COLUMN_INDEX_FROM: return "";
+//                    case COLUMN_INDEX_INDEX: return "";
+//                    case COLUMN_INDEX_JUNK: return Boolean.FALSE;
+//                    case COLUMN_INDEX_SIG: return "";
+//                    case COLUMN_INDEX_DATE: return "";
+//                    default: return "*ERR*";
+//                }
+//            } else {
                 switch(column) {
                     case COLUMN_INDEX_FLAGGED: return Boolean.FALSE;
                     case COLUMN_INDEX_STARRED: return Boolean.FALSE;
                     // 2 is tree+subject column
-                    case COLUMN_INDEX_FROM: return "";
-                    case COLUMN_INDEX_INDEX: return "";
+                    case COLUMN_INDEX_FROM: return mo.getAuthor();
+                    case COLUMN_INDEX_INDEX: return Integer.toString(mo.getMsgIndex());
                     case COLUMN_INDEX_JUNK: return Boolean.FALSE;
-                    case COLUMN_INDEX_SIG: return "";
-                    case COLUMN_INDEX_DATE: return "";
-                    default: return "*ERR*";
-                }
-            } else {
-                switch(column) {
-                    case COLUMN_INDEX_FLAGGED: return Boolean.valueOf(mo.isFlagged());
-                    case COLUMN_INDEX_STARRED: return Boolean.valueOf(mo.isStarred());
-                    // 2 is tree+subject column
-                    case COLUMN_INDEX_FROM: return mo.getFromName();
-                    case COLUMN_INDEX_INDEX: return Integer.toString(mo.getIndex());
-                    case COLUMN_INDEX_JUNK: return Boolean.valueOf(mo.isJunk());
-                    case COLUMN_INDEX_SIG: return mo.getMessageStatusString();
+                    case COLUMN_INDEX_SIG: return "---";
                     case COLUMN_INDEX_DATE: return mo.getDateAndTimeString();
                     default: return "*ERR*";
                 }
-            }
+//            }
         } else {
             return "*ERR*";
         }

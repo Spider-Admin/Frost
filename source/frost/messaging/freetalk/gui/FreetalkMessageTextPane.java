@@ -34,7 +34,7 @@ import frost.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.gui.*;
-import frost.messaging.frost.*;
+import frost.messaging.freetalk.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
@@ -58,7 +58,7 @@ public class FreetalkMessageTextPane extends JPanel {
     private PopupMenuHyperLink popupMenuHyperLink = null;
     private PopupMenuTofText popupMenuTofText = null;
 
-    private FrostMessageObject selectedMessage;
+    private FreetalkMessage selectedMessage;
 
     private final MainFrame mainFrame = MainFrame.getInstance();
 
@@ -151,7 +151,7 @@ public class FreetalkMessageTextPane extends JPanel {
     /**
      * Called if a message is selected.
      */
-    public void update_messageSelected(final FrostMessageObject msg) {
+    public void update_messageSelected(final FreetalkMessage msg) {
 
         selectedMessage = msg;
 
@@ -159,10 +159,10 @@ public class FreetalkMessageTextPane extends JPanel {
             textHighlighter.removeHighlights(messageTextArea);
         }
 
-        final List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+        final List<FreetalkFileAttachment> fileAttachments = selectedMessage.getFileAttachments();
         attachedFilesModel.setData(fileAttachments);
 
-        final int textViewHeight = positionDividers(fileAttachments.size());
+//        final int textViewHeight = positionDividers(fileAttachments.size());
 
         setMessageText(selectedMessage.getContent());
 
@@ -170,32 +170,32 @@ public class FreetalkMessageTextPane extends JPanel {
         messageBodyScrollPane.getVerticalScrollBar().setValue(0);
 
         // for search messages don't scroll down to begin of text
-        if( searchMessagesConfig == null ) {
-            int pos = selectedMessage.getIdLinePos();
-            final int len = selectedMessage.getIdLineLen();
-            if( pos > -1 && len > 10 ) {
-                // highlite id line if there are valid infos abpout the idline in message
-                idLineTextHighlighter.highlight(messageTextArea, pos, len, true);
-            } else {
-                // fallback
-                pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
-            }
-
-            if( pos >= 0 ) {
-                // scroll to begin of reply
-                final int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
-                final int s = textViewHeight; // messageBodyScrollPane.getViewport().getHeight();
-                final int v = s/h - 1; // how many lines are visible?
-
-                pos = calculateCaretPosition(messageTextArea, pos, v);
-
-                messageTextArea.getCaret().setDot(pos);
-            } else {
-                // scroll to end of message
-                pos = selectedMessage.getContent().length();
-                messageTextArea.getCaret().setDot(pos);
-            }
-        }
+//        if( searchMessagesConfig == null ) {
+//            int pos = selectedMessage.getIdLinePos();
+//            final int len = selectedMessage.getIdLineLen();
+//            if( pos > -1 && len > 10 ) {
+//                // highlite id line if there are valid infos abpout the idline in message
+//                idLineTextHighlighter.highlight(messageTextArea, pos, len, true);
+//            } else {
+//                // fallback
+//                pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
+//            }
+//
+//            if( pos >= 0 ) {
+//                // scroll to begin of reply
+//                final int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
+//                final int s = textViewHeight; // messageBodyScrollPane.getViewport().getHeight();
+//                final int v = s/h - 1; // how many lines are visible?
+//
+//                pos = calculateCaretPosition(messageTextArea, pos, v);
+//
+//                messageTextArea.getCaret().setDot(pos);
+//            } else {
+//                // scroll to end of message
+//                pos = selectedMessage.getContent().length();
+//                messageTextArea.getCaret().setDot(pos);
+//            }
+//        }
 
         messageBodyScrollPane.getVerticalScrollBar().setValueIsAdjusting(false);
 
@@ -478,8 +478,6 @@ public class FreetalkMessageTextPane extends JPanel {
             } else {
                 add(saveAttachmentItem);
             }
-//            addSeparator();
-//            add(cancelItem);
 
             super.show(invoker, x, y);
         }
@@ -488,9 +486,9 @@ public class FreetalkMessageTextPane extends JPanel {
          * Adds either the selected or all files from the attachmentTable to downloads table.
          */
         private void downloadAttachments() {
-            final Iterator<FileAttachment> it = getItems().iterator();
+            final Iterator<FreetalkFileAttachment> it = getItems().iterator();
             while (it.hasNext()) {
-                final FileAttachment fa = it.next();
+                final FreetalkFileAttachment fa = it.next();
                 String filename = fa.getFilename();
                 // maybe convert html codes (e.g. %2c -> , )
                 if( filename.indexOf("%") > 0 ) {
@@ -511,17 +509,17 @@ public class FreetalkMessageTextPane extends JPanel {
         /**
          * Returns a list of all items to process, either selected ones or all.
          */
-        private List<FileAttachment> getItems() {
-            List<FileAttachment> items = null;
+        private List<FreetalkFileAttachment> getItems() {
+            List<FreetalkFileAttachment> items = null;
             final int[] selectedRows = filesTable.getSelectedRows();
             if (selectedRows.length == 0) {
                 // If no rows are selected, add all attachments to download table
-                items = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+                items = selectedMessage.getFileAttachments();
             } else {
-                final LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-                items = new LinkedList<FileAttachment>();
+                final List<FreetalkFileAttachment> attachments = selectedMessage.getFileAttachments();
+                items = new LinkedList<FreetalkFileAttachment>();
                 for( final int element : selectedRows ) {
-                    final FileAttachment fo = (FileAttachment) attachments.get(element);
+                    final FreetalkFileAttachment fo = attachments.get(element);
                     items.add(fo);
                 }
             }

@@ -53,9 +53,8 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.fileTransfer.common.*;
-import frost.identities.*;
+import frost.messaging.freetalk.*;
 import frost.messaging.frost.*;
-import frost.util.*;
 import frost.util.gui.*;
 
 /**
@@ -182,8 +181,8 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
         return true;
     }
 
-    public FrostMessageObject getRootNode() {
-        return (FrostMessageObject)((DefaultTreeModel)tree.getModel()).getRoot();
+    public FreetalkMessage getRootNode() {
+        return (FreetalkMessage)((DefaultTreeModel)tree.getModel()).getRoot();
     }
 
     public void setNewRootNode(final TreeNode t) {
@@ -207,24 +206,24 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
         }
     }
 
-    public void expandThread(final boolean expand, final FrostMessageObject msg) {
-        if( msg == null ) {
-            return;
-        }
-        // find msgs rootmsg
-        final FrostMessageObject threadRootMsg = msg.getThreadRootMessage();
-        if( threadRootMsg == null ) {
-            return;
-        }
-        if( SwingUtilities.isEventDispatchThread() ) {
-            expandAll(new TreePath(threadRootMsg.getPath()), expand);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    expandAll(new TreePath(threadRootMsg.getPath()), expand);
-                }
-            });
-        }
+    public void expandThread(final boolean expand, final FreetalkMessage msg) {
+//        if( msg == null ) {
+//            return;
+//        }
+//        // find msgs rootmsg
+//        final FreetalkMessage threadRootMsg = msg.getThreadRootMessage();
+//        if( threadRootMsg == null ) {
+//            return;
+//        }
+//        if( SwingUtilities.isEventDispatchThread() ) {
+//            expandAll(new TreePath(threadRootMsg.getPath()), expand);
+//        } else {
+//            SwingUtilities.invokeLater(new Runnable() {
+//                public void run() {
+//                    expandAll(new TreePath(threadRootMsg.getPath()), expand);
+//                }
+//            });
+//        }
     }
 
     private void expandAll(final TreePath parent, boolean expand) {
@@ -505,19 +504,20 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
     	    Color foreground;
 
             final FreetalkTreeTableModelAdapter model = (FreetalkTreeTableModelAdapter)FreetalkMessageTreeTable.this.getModel();
-            final FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
+            final FreetalkMessage msg = (FreetalkMessage)model.getRow(row);
 
             // first set font, bold for new msg or normal
-            if (msg.isNew()) {
-                setFont(boldFont);
-            } else {
-                setFont(normalFont);
-            }
+//            if (msg.isNew()) {
+//                setFont(boldFont);
+//            } else {
+//                setFont(normalFont);
+//            }
 
             // now set foreground color
-            if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
-                foreground = Color.RED;
-            } else if (msg.containsAttachments()) {
+//            if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
+//                foreground = Color.RED;
+//            } else
+            if (msg.getFileAttachments() != null) {
                 foreground = Color.BLUE;
             } else {
                 foreground = Color.BLACK;
@@ -531,7 +531,7 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
                 foreground = table.getSelectionForeground();
             }
 
-            setDeleted(msg.isDeleted());
+//            setDeleted(msg.isDeleted());
 
     	    visibleRow = row;
     	    setBackground(background);
@@ -549,55 +549,55 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
         		}
 
                 dtcr.setBorder(null);
-                if( ((FrostMessageObject)msg.getParent()).isRoot() ) {
-                    final boolean[] hasUnreadOrMarked = msg.hasUnreadOrMarkedChilds();
-                    final boolean hasUnread = hasUnreadOrMarked[0];
-                    final boolean hasMarked = hasUnreadOrMarked[1];
-                    if( hasUnread && !hasMarked ) {
-                        // unread and no marked
-                        dtcr.setBorder(borderUnreadMsgsInThread);
-                    } else if( !hasUnread && hasMarked ) {
-                        // no unread and marked
-                        dtcr.setBorder(borderMarkedMsgsInThread);
-                    } else if( !hasUnread && !hasMarked ) {
-                        // nothing
-                        dtcr.setBorder(borderEmpty);
-                    } else {
-                        // both
-                        dtcr.setBorder(borderUnreadAndMarkedMsgsInThread);
-                    }
-                }
+//                if( ((FrostMessageObject)msg.getParent()).isRoot() ) {
+//                    final boolean[] hasUnreadOrMarked = msg.hasUnreadOrMarkedChilds();
+//                    final boolean hasUnread = hasUnreadOrMarked[0];
+//                    final boolean hasMarked = hasUnreadOrMarked[1];
+//                    if( hasUnread && !hasMarked ) {
+//                        // unread and no marked
+//                        dtcr.setBorder(borderUnreadMsgsInThread);
+//                    } else if( !hasUnread && hasMarked ) {
+//                        // no unread and marked
+//                        dtcr.setBorder(borderMarkedMsgsInThread);
+//                    } else if( !hasUnread && !hasMarked ) {
+//                        // nothing
+//                        dtcr.setBorder(borderEmpty);
+//                    } else {
+//                        // both
+//                        dtcr.setBorder(borderUnreadAndMarkedMsgsInThread);
+//                    }
+//                }
 
-                final ImageIcon icon;
-                if( msg.isDummy() ) {
-                    icon = messageDummyIcon;
-//                    dtcr.setToolTipText(null);
-                    if( msg.getSubject() != null && msg.getSubject().length() > 0 ) {
-                        setToolTipText(msg.getSubject());
-                    } else {
-                        setToolTipText(null);
-                    }
-                } else {
-                    if( msg.isNew() ) {
-                        if( msg.isReplied() ) {
-                            icon = messageNewRepliedIcon;
-                        } else {
-                            icon = messageNewIcon;
-                        }
-                    } else {
-                        if( msg.isReplied() ) {
-                            icon = messageReadRepliedIcon;
-                        } else {
-                            icon = messageReadIcon;
-                        }
-                    }
-//                    dtcr.setToolTipText(msg.getSubject());
-                    setToolTipText(msg.getSubject());
-                }
-                dtcr.setIcon(icon);
-                dtcr.setLeafIcon(icon);
-                dtcr.setOpenIcon(icon);
-                dtcr.setClosedIcon(icon);
+//                final ImageIcon icon;
+//                if( msg.isDummy() ) {
+//                    icon = messageDummyIcon;
+////                    dtcr.setToolTipText(null);
+//                    if( msg.getSubject() != null && msg.getSubject().length() > 0 ) {
+//                        setToolTipText(msg.getSubject());
+//                    } else {
+//                        setToolTipText(null);
+//                    }
+//                } else {
+//                    if( msg.isNew() ) {
+//                        if( msg.isReplied() ) {
+//                            icon = messageNewRepliedIcon;
+//                        } else {
+//                            icon = messageNewIcon;
+//                        }
+//                    } else {
+//                        if( msg.isReplied() ) {
+//                            icon = messageReadRepliedIcon;
+//                        } else {
+//                            icon = messageReadIcon;
+//                        }
+//                    }
+////                    dtcr.setToolTipText(msg.getSubject());
+//                    setToolTipText(msg.getSubject());
+//                }
+//                dtcr.setIcon(icon);
+//                dtcr.setLeafIcon(icon);
+//                dtcr.setOpenIcon(icon);
+//                dtcr.setClosedIcon(icon);
     	    }
 
     	    return this;
@@ -848,11 +848,11 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
 
             final FreetalkTreeTableModelAdapter model = (FreetalkTreeTableModelAdapter) getModel();
             Object obj = model.getRow(row);
-            if( !(obj instanceof FrostMessageObject) ) {
+            if( !(obj instanceof FreetalkMessage) ) {
                 return this; // paranoia
             }
 
-            final FrostMessageObject msg = (FrostMessageObject) obj;
+            final FreetalkMessage msg = (FreetalkMessage) obj;
             obj = null;
 
             // get the original model column index (maybe columns were reordered by user)
@@ -862,52 +862,53 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
             if( column == FreetalkMessageTreeTableModel.COLUMN_INDEX_FROM ) {
                 // FROM
                 // first set font, bold for new msg or normal
-                if (msg.isNew()) {
-                    setFont(boldFont);
-                }
+//                if (msg.isNew()) {
+//                    setFont(boldFont);
+//                }
                 // now set color
                 if (!isSelected) {
-                    if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
-                        setForeground(Color.RED);
-                    } else if (msg.containsAttachments()) {
+//                    if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
+//                        setForeground(Color.RED);
+//                    } else
+                    if (msg.getFileAttachments() != null) {
                         setForeground(Color.BLUE);
                     }
                 }
-                if( !msg.isDummy() ) {
-                    if( msg.isSignatureStatusVERIFIED() ) {
-                        final Identity id = msg.getFromIdentity();
-                        if( id == null ) {
-                            logger.severe("getFromidentity() is null for fromName: '"+msg.getFromName()+"', "+
-                                    "board="+msg.getBoard().getName()+", msgDate="+msg.getDateAndTimeString()+
-                                    ", index="+msg.getIndex());
-                            setToolTipText((String)value);
-                        } else {
-                            // build informative tooltip
-                            final StringBuilder sb = new StringBuilder();
-                            sb.append("<html>");
-                            sb.append((String)value);
-                            sb.append("<br>Last seen: ");
-                            sb.append(DateFun.FORMAT_DATE_VISIBLE.print(id.getLastSeenTimestamp()));
-                            sb.append("  ");
-                            sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
-                            sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
-                            sb.append("</html>");
-                            setToolTipText(sb.toString());
-
-                            // provide colored icons
-                            if( indicateLowReceivedMessages ) {
-                                final int receivedMsgCount = id.getReceivedMessageCount();
-                                if( receivedMsgCount <= indicateLowReceivedMessagesCountRed ) {
-                                    setIcon(receivedOneMessage);
-                                } else if( receivedMsgCount <= indicateLowReceivedMessagesCountLightRed ) {
-                                    setIcon(receivedFiveMessages);
-                                }
-                            }
-                        }
-                    } else {
-                        setToolTipText((String)value);
-                    }
-                }
+//                if( !msg.isDummy() ) {
+//                    if( msg.isSignatureStatusVERIFIED() ) {
+//                        final Identity id = msg.getFromIdentity();
+//                        if( id == null ) {
+//                            logger.severe("getFromidentity() is null for fromName: '"+msg.getFromName()+"', "+
+//                                    "board="+msg.getBoard().getName()+", msgDate="+msg.getDateAndTimeString()+
+//                                    ", index="+msg.getIndex());
+//                            setToolTipText((String)value);
+//                        } else {
+//                            // build informative tooltip
+//                            final StringBuilder sb = new StringBuilder();
+//                            sb.append("<html>");
+//                            sb.append((String)value);
+//                            sb.append("<br>Last seen: ");
+//                            sb.append(DateFun.FORMAT_DATE_VISIBLE.print(id.getLastSeenTimestamp()));
+//                            sb.append("  ");
+//                            sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
+//                            sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
+//                            sb.append("</html>");
+//                            setToolTipText(sb.toString());
+//
+//                            // provide colored icons
+//                            if( indicateLowReceivedMessages ) {
+//                                final int receivedMsgCount = id.getReceivedMessageCount();
+//                                if( receivedMsgCount <= indicateLowReceivedMessagesCountRed ) {
+//                                    setIcon(receivedOneMessage);
+//                                } else if( receivedMsgCount <= indicateLowReceivedMessagesCountLightRed ) {
+//                                    setIcon(receivedFiveMessages);
+//                                }
+//                            }
+//                        }
+//                    } else {
+//                        setToolTipText((String)value);
+//                    }
+//                }
             } else if( column == FreetalkMessageTreeTableModel.COLUMN_INDEX_INDEX ) {
                 // index column, right aligned
                 setHorizontalAlignment(SwingConstants.RIGHT);
@@ -916,31 +917,31 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
             } else if( column == FreetalkMessageTreeTableModel.COLUMN_INDEX_SIG ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
-                final Font f;
-                if( msg.isSignatureStatusVERIFIED_V2() ) {
-                    f = boldFont;
-                } else {
-                    f = boldItalicFont;
-                }
-                if( msg.isMessageStatusGOOD() ) {
-                    setFont(f);
-                    setForeground(col_good);
-                } else if( msg.isMessageStatusCHECK() ) {
-                    setFont(f);
-                    setForeground(col_check);
-                } else if( msg.isMessageStatusOBSERVE() ) {
-                    setFont(f);
-                    setForeground(col_observe);
-                } else if( msg.isMessageStatusBAD() ) {
-                    setFont(f);
-                    setForeground(col_bad);
-                } else if( msg.isMessageStatusTAMPERED() ) {
-                    setFont(f);
-                    setForeground(col_bad);
-                }
+//                final Font f;
+//                if( msg.isSignatureStatusVERIFIED_V2() ) {
+//                    f = boldFont;
+//                } else {
+//                    f = boldItalicFont;
+//                }
+//                if( msg.isMessageStatusGOOD() ) {
+//                    setFont(f);
+//                    setForeground(col_good);
+//                } else if( msg.isMessageStatusCHECK() ) {
+//                    setFont(f);
+//                    setForeground(col_check);
+//                } else if( msg.isMessageStatusOBSERVE() ) {
+//                    setFont(f);
+//                    setForeground(col_observe);
+//                } else if( msg.isMessageStatusBAD() ) {
+//                    setFont(f);
+//                    setForeground(col_bad);
+//                } else if( msg.isMessageStatusTAMPERED() ) {
+//                    setFont(f);
+//                    setForeground(col_bad);
+//                }
             }
 
-            setDeleted(msg.isDeleted());
+//            setDeleted(msg.isDeleted());
 
             return this;
         }

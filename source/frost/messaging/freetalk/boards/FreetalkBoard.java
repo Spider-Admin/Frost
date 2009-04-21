@@ -23,6 +23,13 @@ public class FreetalkBoard extends AbstractFreetalkNode {
     private long firstSeenDate;
     private long latestMessageDate;
 
+    public FreetalkBoard(final String name) {
+        super(name);
+        this.messageCount = 0;
+        this.firstSeenDate = 0L;
+        this.latestMessageDate = 0L;
+    }
+
     public FreetalkBoard(final String name, final int messageCount, final long firstSeenDate, final long lastMessageDate) {
         super(name);
         this.messageCount = messageCount;

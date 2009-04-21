@@ -60,7 +60,6 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
     private final MainFrame mainFrame;
     private final FreetalkMessageTab ftMessageTab;
-    private final FreetalkManager ftManager;
 
     public static enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
     public static enum BooleanState { FLAGGED, STARRED, JUNK };
@@ -372,11 +371,11 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
                     add(markMessageUnreadItem);
                     itemAdded = true;
                 }
-                if( selectedMessage != null && selectedMessage.getBoard().getUnreadMessageCount() > 0 ) {
-                    add(markAllMessagesReadItem);
-                    add(markThreadReadItem);
-                    itemAdded = true;
-                }
+//                if( selectedMessage != null && selectedMessage.getBoard().getUnreadMessageCount() > 0 ) {
+//                    add(markAllMessagesReadItem);
+//                    add(markThreadReadItem);
+//                    itemAdded = true;
+//                }
                 if( itemAdded ) {
                     addSeparator();
                 }
@@ -389,46 +388,46 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
                 setCheckItem.setEnabled(false);
                 setBadItem.setEnabled(false);
 
-                if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
-                    if( identities.isMySelf(selectedMessage.getFromName()) ) {
-                        // keep all off
-                    } else if (selectedMessage.isMessageStatusGOOD()) {
-                        setObserveItem.setEnabled(true);
-                        setCheckItem.setEnabled(true);
-                        setBadItem.setEnabled(true);
-                    } else if (selectedMessage.isMessageStatusCHECK()) {
-                        setObserveItem.setEnabled(true);
-                        setGoodItem.setEnabled(true);
-                        setBadItem.setEnabled(true);
-                    } else if (selectedMessage.isMessageStatusBAD()) {
-                        setObserveItem.setEnabled(true);
-                        setGoodItem.setEnabled(true);
-                        setCheckItem.setEnabled(true);
-                    } else if (selectedMessage.isMessageStatusOBSERVE()) {
-                        setGoodItem.setEnabled(true);
-                        setCheckItem.setEnabled(true);
-                        setBadItem.setEnabled(true);
-                    } else if (selectedMessage.isMessageStatusOLD()) {
-                        // keep all buttons disabled
-                    } else if (selectedMessage.isMessageStatusTAMPERED()) {
-                        // keep all buttons disabled
-                    } else {
-                        logger.warning("invalid message state");
-                    }
-                }
+//                if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
+//                    if( identities.isMySelf(selectedMessage.getFromName()) ) {
+//                        // keep all off
+//                    } else if (selectedMessage.isMessageStatusGOOD()) {
+//                        setObserveItem.setEnabled(true);
+//                        setCheckItem.setEnabled(true);
+//                        setBadItem.setEnabled(true);
+//                    } else if (selectedMessage.isMessageStatusCHECK()) {
+//                        setObserveItem.setEnabled(true);
+//                        setGoodItem.setEnabled(true);
+//                        setBadItem.setEnabled(true);
+//                    } else if (selectedMessage.isMessageStatusBAD()) {
+//                        setObserveItem.setEnabled(true);
+//                        setGoodItem.setEnabled(true);
+//                        setCheckItem.setEnabled(true);
+//                    } else if (selectedMessage.isMessageStatusOBSERVE()) {
+//                        setGoodItem.setEnabled(true);
+//                        setCheckItem.setEnabled(true);
+//                        setBadItem.setEnabled(true);
+//                    } else if (selectedMessage.isMessageStatusOLD()) {
+//                        // keep all buttons disabled
+//                    } else if (selectedMessage.isMessageStatusTAMPERED()) {
+//                        // keep all buttons disabled
+//                    } else {
+//                        logger.warning("invalid message state");
+//                    }
+//                }
 
-                if (selectedMessage != null) {
-                    addSeparator();
-                    add(deleteItem);
-                    add(undeleteItem);
-                    deleteItem.setEnabled(false);
-                    undeleteItem.setEnabled(false);
-                    if(selectedMessage.isDeleted()) {
-                        undeleteItem.setEnabled(true);
-                    } else {
-                        deleteItem.setEnabled(true);
-                    }
-                }
+//                if (selectedMessage != null) {
+//                    addSeparator();
+//                    add(deleteItem);
+//                    add(undeleteItem);
+//                    deleteItem.setEnabled(false);
+//                    undeleteItem.setEnabled(false);
+//                    if(selectedMessage.isDeleted()) {
+//                        undeleteItem.setEnabled(true);
+//                    } else {
+//                        deleteItem.setEnabled(true);
+//                    }
+//                }
 
                 super.show(invoker, x, y);
             }
@@ -446,7 +445,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
     private final Listener listener = new Listener();
 
-    private FrostMessageObject selectedMessage;
+    private FreetalkMessage selectedMessage;
 
     private PopupMenuMessageTable popupMenuMessageTable = null;
     private PopupMenuSubjectText popupMenuSubjectText = null;
@@ -483,7 +482,6 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         this.settings = settings;
         mainFrame = mf;
         ftMessageTab = fmt;
-        ftManager = FreetalkManager.getInstance();
     }
 
     private JToolBar getButtonsToolbar() {
@@ -699,6 +697,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             msgTableAndMsgTextSplitpane.setDividerSize(10);
             msgTableAndMsgTextSplitpane.setResizeWeight(0.5d);
             msgTableAndMsgTextSplitpane.setMinimumSize(new Dimension(50, 20));
+
             int dividerLoc = Core.frostSettings.getIntValue(SettingsClass.MSGTABLE_MSGTEXT_DIVIDER_LOCATION);
             if( dividerLoc < 10 ) {
                 dividerLoc = 160;
@@ -855,7 +854,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
      * @param messages A Vector containing all MessageObjects that are just displayed by the table
      * @return The content of the message
      */
-    private FrostMessageObject evalSelection(final ListSelectionEvent e, final JTable table, final FreetalkBoard board) {
+    private FreetalkMessage evalSelection(final ListSelectionEvent e, final JTable table, final FreetalkBoard board) {
 //        if( (!e.getValueIsAdjusting() && !table.isEditing()) ) {
         if( !table.isEditing() ) {
 
@@ -866,41 +865,42 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             final int row = table.getSelectedRow();
             if( row != -1 && row < getMessageTableModel().getRowCount() ) {
 
-                final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
+                final FreetalkMessage message = (FreetalkMessage)getMessageTableModel().getRow(row);
 
+                // mark msg read
                 if( message != null ) {
 
-                    if( message.isNew() == false ) {
-                        // its a read message, nothing more to do here ...
-                        return message;
-                    }
-
-                    // this is a new message
-                    message.setNew(false); // mark as read
-
-                    getMessageTableModel().fireTableRowsUpdated(row, row);
-
-                    // determine thread root msg of this msg
-                    final FrostMessageObject threadRootMsg = message.getThreadRootMessage();
-
-                    // update thread root to reset unread msg childs marker
-                    if( threadRootMsg != message && threadRootMsg != null ) {
-                        getMessageTreeModel().nodeChanged(threadRootMsg);
-                    }
+//                    if( message.isNew() == false ) {
+//                        // its a read message, nothing more to do here ...
+//                        return message;
+//                    }
+//
+//                    // this is a new message
+//                    message.setNew(false); // mark as read
+//
+//                    getMessageTableModel().fireTableRowsUpdated(row, row);
+//
+//                    // determine thread root msg of this msg
+//                    final FreetalkMessage threadRootMsg = message.getThreadRootMessage();
+//
+//                    // update thread root to reset unread msg childs marker
+//                    if( threadRootMsg != message && threadRootMsg != null ) {
+//                        getMessageTreeModel().nodeChanged(threadRootMsg);
+//                    }
 
 //                    board.decUnreadMessageCount();
 //
 //                    MainFrame.getInstance().updateMessageCountLabels(board);
 //                    MainFrame.getInstance().updateTofTree(board);
 
-                    final Thread saver = new Thread() {
-                        @Override
-                        public void run() {
-                            // save the changed isnew state into the database
-                            MessageStorage.inst().updateMessage(message);
-                        }
-                    };
-                    saver.start();
+//                    final Thread saver = new Thread() {
+//                        @Override
+//                        public void run() {
+//                            // save the changed isnew state into the database
+//                            MessageStorage.inst().updateMessage(message);
+//                        }
+//                    };
+//                    saver.start();
 
                     return message;
                 }
@@ -927,7 +927,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         final FreetalkBoard selectedBoard = (FreetalkBoard) selectedNode;
 
         // board selected
-        final FrostMessageObject newSelectedMessage = evalSelection(e, messageTable, selectedBoard);
+        final FreetalkMessage newSelectedMessage = evalSelection(e, messageTable, selectedBoard);
         if( newSelectedMessage == selectedMessage ) {
             return; // user is reading a message, selection did NOT change
         } else {
@@ -936,56 +936,56 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
         if (selectedMessage != null) {
 
-            if( selectedMessage.isDummy() ) {
-                getMessageTextPane().update_boardSelected();
-                clearSubjectTextLabel();
-                setGoodButton.setEnabled(false);
-                setCheckButton.setEnabled(false);
-                setBadButton.setEnabled(false);
-                setObserveButton.setEnabled(false);
-                replyButton.setEnabled(false);
-                saveMessageButton.setEnabled(false);
-                return;
-            }
+//            if( selectedMessage.isDummy() ) {
+//                getMessageTextPane().update_boardSelected();
+//                clearSubjectTextLabel();
+//                setGoodButton.setEnabled(false);
+//                setCheckButton.setEnabled(false);
+//                setBadButton.setEnabled(false);
+//                setObserveButton.setEnabled(false);
+//                replyButton.setEnabled(false);
+//                saveMessageButton.setEnabled(false);
+//                return;
+//            }
 
             MainFrame.getInstance().displayNewMessageIcon(false);
 
             replyButton.setEnabled(false);
 
-            if( identities.isMySelf(selectedMessage.getFromName()) ) {
+//            if( identities.isMySelf(selectedMessage.getFromName()) ) {
+//                setGoodButton.setEnabled(false);
+//                setCheckButton.setEnabled(false);
+//                setBadButton.setEnabled(false);
+//                setObserveButton.setEnabled(false);
+//            } else if (selectedMessage.isMessageStatusCHECK()) {
+//                setCheckButton.setEnabled(false);
+//                setGoodButton.setEnabled(true);
+//                setBadButton.setEnabled(true);
+//                setObserveButton.setEnabled(true);
+//            } else if (selectedMessage.isMessageStatusGOOD()) {
+//                setGoodButton.setEnabled(false);
+//                setCheckButton.setEnabled(true);
+//                setBadButton.setEnabled(true);
+//                setObserveButton.setEnabled(true);
+//            } else if (selectedMessage.isMessageStatusBAD()) {
+//                setBadButton.setEnabled(false);
+//                setGoodButton.setEnabled(true);
+//                setCheckButton.setEnabled(true);
+//                setObserveButton.setEnabled(true);
+//            } else if (selectedMessage.isMessageStatusOBSERVE()) {
+//                setObserveButton.setEnabled(false);
+//                setGoodButton.setEnabled(true);
+//                setCheckButton.setEnabled(true);
+//                setBadButton.setEnabled(true);
+//            } else {
                 setGoodButton.setEnabled(false);
                 setCheckButton.setEnabled(false);
                 setBadButton.setEnabled(false);
                 setObserveButton.setEnabled(false);
-            } else if (selectedMessage.isMessageStatusCHECK()) {
-                setCheckButton.setEnabled(false);
-                setGoodButton.setEnabled(true);
-                setBadButton.setEnabled(true);
-                setObserveButton.setEnabled(true);
-            } else if (selectedMessage.isMessageStatusGOOD()) {
-                setGoodButton.setEnabled(false);
-                setCheckButton.setEnabled(true);
-                setBadButton.setEnabled(true);
-                setObserveButton.setEnabled(true);
-            } else if (selectedMessage.isMessageStatusBAD()) {
-                setBadButton.setEnabled(false);
-                setGoodButton.setEnabled(true);
-                setCheckButton.setEnabled(true);
-                setObserveButton.setEnabled(true);
-            } else if (selectedMessage.isMessageStatusOBSERVE()) {
-                setObserveButton.setEnabled(false);
-                setGoodButton.setEnabled(true);
-                setCheckButton.setEnabled(true);
-                setBadButton.setEnabled(true);
-            } else {
-                setGoodButton.setEnabled(false);
-                setCheckButton.setEnabled(false);
-                setBadButton.setEnabled(false);
-                setObserveButton.setEnabled(false);
-            }
+//            }
 
             getMessageTextPane().update_messageSelected(selectedMessage);
-            updateSubjectTextLabel(selectedMessage.getSubject(), selectedMessage.getFromIdentity());
+            updateSubjectTextLabel(selectedMessage.getTitle());
 
             if (selectedMessage.getContent().length() > 0) {
                 saveMessageButton.setEnabled(true);
@@ -1125,11 +1125,11 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     }
 
     private void replyButton_actionPerformed(final ActionEvent e) {
-        final FrostMessageObject origMessage = selectedMessage;
+        final FreetalkMessage origMessage = selectedMessage;
         composeReply(origMessage, parentFrame);
     }
 
-    public void composeReply(final FrostMessageObject origMessage, final Window parent) {
+    public void composeReply(final FreetalkMessage origMessage, final Window parent) {
 
         final FreetalkBoard targetBoard = ftMessageTab.getTreeModel().getBoardByName(origMessage.getBoard().getName());
         if( targetBoard == null ) {
@@ -1139,64 +1139,64 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             return;
         }
 
-        String subject = origMessage.getSubject();
+        String subject = origMessage.getTitle();
         if (subject.startsWith("Re:") == false) {
             subject = "Re: " + subject;
         }
 
-        // add msgId we answer to the inReplyTo list
-        String inReplyTo = null;
-        if( origMessage.getMessageId() != null ) {
-            inReplyTo = origMessage.getInReplyTo();
-            if( inReplyTo == null ) {
-                inReplyTo = origMessage.getMessageId();
-            } else {
-                inReplyTo += ","+origMessage.getMessageId();
-            }
-        }
+//        // add msgId we answer to the inReplyTo list
+//        String inReplyTo = null;
+//        if( origMessage.getMessageId() != null ) {
+//            inReplyTo = origMessage.getInReplyTo();
+//            if( inReplyTo == null ) {
+//                inReplyTo = origMessage.getMessageId();
+//            } else {
+//                inReplyTo += ","+origMessage.getMessageId();
+//            }
+//        }
 
-        if( origMessage.getRecipientName() != null ) {
-            // this message was for me, reply encrypted
-
-            if( origMessage.getFromIdentity() == null ) {
-                final String title = language.getString("MessagePane.unknownRecipientError.title");
-                final String txt = language.formatMessage("MessagePane.unknownRecipientError.text", origMessage.getFromName());
-                JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            LocalIdentity senderId = null;
-            if( origMessage.getFromIdentity() instanceof LocalIdentity ) {
-                // we want to reply to our own message
-                senderId = (LocalIdentity)origMessage.getFromIdentity();
-            } else {
-                // we want to reply, find our identity that was the recipient of this message
-                senderId = identities.getLocalIdentity(origMessage.getRecipientName());
-                if( senderId == null ) {
-                    final String title = language.getString("MessagePane.missingLocalIdentityError.title");
-                    final String txt = language.formatMessage("MessagePane.missingLocalIdentityError.text", origMessage.getRecipientName());
-                    JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-
-            final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
-//            newMessageFrame.composeEncryptedReply(
-//                    targetBoard,
-//                    subject,
-//                    inReplyTo,
-//                    origMessage.getContent(),
-//                    origMessage.getFromIdentity(),
-//                    senderId,
-//                    origMessage);
-        } else {
-            final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
-//            newMessageFrame.composeReply(
-//                    targetBoard,
-//                    subject,
-//                    inReplyTo,
-//                    origMessage.getContent(),
-//                    origMessage);
-        }
+//        if( origMessage.getRecipientName() != null ) {
+//            // this message was for me, reply encrypted
+//
+//            if( origMessage.getFromIdentity() == null ) {
+//                final String title = language.getString("MessagePane.unknownRecipientError.title");
+//                final String txt = language.formatMessage("MessagePane.unknownRecipientError.text", origMessage.getFromName());
+//                JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
+//                return;
+//            }
+//            LocalIdentity senderId = null;
+//            if( origMessage.getFromIdentity() instanceof LocalIdentity ) {
+//                // we want to reply to our own message
+//                senderId = (LocalIdentity)origMessage.getFromIdentity();
+//            } else {
+//                // we want to reply, find our identity that was the recipient of this message
+//                senderId = identities.getLocalIdentity(origMessage.getRecipientName());
+//                if( senderId == null ) {
+//                    final String title = language.getString("MessagePane.missingLocalIdentityError.title");
+//                    final String txt = language.formatMessage("MessagePane.missingLocalIdentityError.text", origMessage.getRecipientName());
+//                    JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
+//                    return;
+//                }
+//            }
+//
+//            final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
+////            newMessageFrame.composeEncryptedReply(
+////                    targetBoard,
+////                    subject,
+////                    inReplyTo,
+////                    origMessage.getContent(),
+////                    origMessage.getFromIdentity(),
+////                    senderId,
+////                    origMessage);
+//        } else {
+//            final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
+////            newMessageFrame.composeReply(
+////                    targetBoard,
+////                    subject,
+////                    inReplyTo,
+////                    origMessage.getContent(),
+////                    origMessage);
+//        }
     }
 
     private void showMessageTablePopupMenu(final MouseEvent e) {
@@ -1217,8 +1217,8 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         if( !isCorrectlySelectedMessage() ) {
             return;
         }
-        final MessageWindow messageWindow = new MessageWindow( mainFrame, selectedMessage, this.getSize() );
-        messageWindow.setVisible(true);
+//        final MessageWindow messageWindow = new MessageWindow( mainFrame, selectedMessage, this.getSize() );
+//        messageWindow.setVisible(true);
     }
 
     private void updateButton_actionPerformed(final ActionEvent e) {
@@ -1272,8 +1272,8 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         if (row < 0
             || selectedMessage == null
             || ftMessageTab.getTreeModel().getSelectedNode() == null
-            || !ftMessageTab.getTreeModel().getSelectedNode().isBoard()
-            || selectedMessage.isDummy() )
+            || !ftMessageTab.getTreeModel().getSelectedNode().isBoard() )
+//            || selectedMessage.isDummy() )
         {
             return false;
         }
@@ -1504,25 +1504,25 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             allMessagesCountLabel.setText("");
             unreadMessagesCountLabel.setText("");
             nextUnreadMessageButton.setEnabled(false);
-        } else if (node.isBoard()) {
-            int allMessages = 0;
-            final FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
-            for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                if( !mo.isDummy() ) {
-                    allMessages++;
-                }
-            }
-            allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
-
-//            final int unreadMessages = ((FreetalkBoard)node).getUnreadMessageCount();
-            final int unreadMessages = 0;
-            unreadMessagesCountLabel.setText(unreadMessagesCountPrefix + unreadMessages);
-            if( unreadMessages > 0 ) {
-                nextUnreadMessageButton.setEnabled(true);
-            } else {
-                nextUnreadMessageButton.setEnabled(false);
-            }
+//        } else if (node.isBoard()) {
+//            int allMessages = 0;
+//            final FreetalkMessage rootNode = (FreetalkMessage)MainFrame.getInstance().getMessageTreeModel().getRoot();
+//            for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+//                final FreetalkMessage mo = (FreetalkMessage)e.nextElement();
+//                if( !mo.isDummy() ) {
+//                    allMessages++;
+//                }
+//            }
+//            allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
+//
+////            final int unreadMessages = ((FreetalkBoard)node).getUnreadMessageCount();
+//            final int unreadMessages = 0;
+//            unreadMessagesCountLabel.setText(unreadMessagesCountPrefix + unreadMessages);
+//            if( unreadMessages > 0 ) {
+//                nextUnreadMessageButton.setEnabled(true);
+//            } else {
+//                nextUnreadMessageButton.setEnabled(false);
+//            }
         }
     }
 
@@ -1545,7 +1545,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         return ident;
     }
 
-    public FrostMessageObject getSelectedMessage() {
+    public FreetalkMessage getSelectedMessage() {
         if( !isCorrectlySelectedMessage() ) {
             return null;
         }
@@ -1583,70 +1583,70 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
      */
     public void selectNextUnreadMessage() {
 
-        FrostMessageObject nextMessage = null;
-
-        final DefaultTreeModel tableModel = getMessageTreeModel();
-
-        // use a different method based on threaded or not threaded view
-        if( Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS) ) {
-
-            final FrostMessageObject initial = getSelectedMessage();
-
-            if (initial != null) {
-
-            	final TreeNode[] path = initial.getPath();
-            	final java.util.List<TreeNode> path_list = java.util.Arrays.asList(path);
-
-            	for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
-            		final FrostMessageObject parent = (FrostMessageObject) path[idx];
-            		final LinkedList<FrostMessageObject> queue = new LinkedList<FrostMessageObject>();
-            		for( queue.add(parent); !queue.isEmpty() && nextMessage == null; ) {
-            			final FrostMessageObject message = queue.removeFirst();
-            			if( message.isNew() ) {
-            				nextMessage = message;
-            				break;
-            			}
-
-            			final Enumeration children = message.children();
-            			while( children.hasMoreElements() ) {
-                            final FrostMessageObject t = (FrostMessageObject) children.nextElement();
-            				if( !path_list.contains(t) ) {
-            					queue.add(t);
-            				}
-            			}
-            		}
-            	}
-            }
-        }
-        if( nextMessage == null ) {
-            for( final Enumeration e = ((DefaultMutableTreeNode) tableModel.getRoot()).depthFirstEnumeration();
-                 e.hasMoreElements(); )
-            {
-                final FrostMessageObject message = (FrostMessageObject) e.nextElement();
-                if( message.isNew() ) {
-                    if( nextMessage == null ) {
-                        nextMessage = message;
-                    } else {
-                        if( nextMessage.getDateAndTimeString().compareTo(message.getDateAndTimeString()) > 0 ) {
-                            nextMessage = message;
-                        }
-                    }
-                }
-            }
-        }
-
-        if( nextMessage == null ) {
-            // code to move to next board???
-        } else {
-            messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount() - 1);
-            messageTable.getTree().makeVisible(new TreePath(nextMessage.getPath()));
-            final int row = messageTable.getRowForNode(nextMessage);
-            if( row >= 0 ) {
-                messageTable.addRowSelectionInterval(row, row);
-                messageListScrollPane.getVerticalScrollBar().setValue(
-                        (row == 0 ? row : row - 1) * messageTable.getRowHeight());
-            }
-        }
+//        FreetalkMessage nextMessage = null;
+//
+//        final DefaultTreeModel tableModel = getMessageTreeModel();
+//
+//        // use a different method based on threaded or not threaded view
+//        if( Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS) ) {
+//
+//            final FreetalkMessage initial = getSelectedMessage();
+//
+//            if (initial != null) {
+//
+//            	final TreeNode[] path = initial.getPath();
+//            	final java.util.List<TreeNode> path_list = java.util.Arrays.asList(path);
+//
+//            	for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
+//            		final FreetalkMessage parent = (FreetalkMessage) path[idx];
+//            		final LinkedList<FreetalkMessage> queue = new LinkedList<FreetalkMessage>();
+//            		for( queue.add(parent); !queue.isEmpty() && nextMessage == null; ) {
+//            			final FreetalkMessage message = queue.removeFirst();
+//            			if( message.isNew() ) {
+//            				nextMessage = message;
+//            				break;
+//            			}
+//
+//            			final Enumeration children = message.children();
+//            			while( children.hasMoreElements() ) {
+//                            final FreetalkMessage t = (FreetalkMessage) children.nextElement();
+//            				if( !path_list.contains(t) ) {
+//            					queue.add(t);
+//            				}
+//            			}
+//            		}
+//            	}
+//            }
+//        }
+//        if( nextMessage == null ) {
+//            for( final Enumeration e = ((DefaultMutableTreeNode) tableModel.getRoot()).depthFirstEnumeration();
+//                 e.hasMoreElements(); )
+//            {
+//                final FreetalkMessage message = (FreetalkMessage) e.nextElement();
+//                if( message.isNew() ) {
+//                    if( nextMessage == null ) {
+//                        nextMessage = message;
+//                    } else {
+//                        if( nextMessage.getDateAndTimeString().compareTo(message.getDateAndTimeString()) > 0 ) {
+//                            nextMessage = message;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        if( nextMessage == null ) {
+//            // code to move to next board???
+//        } else {
+//            messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount() - 1);
+//            messageTable.getTree().makeVisible(new TreePath(nextMessage.getPath()));
+//            final int row = messageTable.getRowForNode(nextMessage);
+//            if( row >= 0 ) {
+//                messageTable.addRowSelectionInterval(row, row);
+//                messageListScrollPane.getVerticalScrollBar().setValue(
+//                        (row == 0 ? row : row - 1) * messageTable.getRowHeight());
+//            }
+//        }
     }
 
     /**
@@ -1783,25 +1783,25 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         saver.start();
     }
 
-    private void updateSubjectTextLabel(final String newText, final Identity fromId) {
+    private void updateSubjectTextLabel(final String newText) {
         if( newText == null ) {
             // clear
             subjectTextLabel.setText("");
         } else {
             subjectTextLabel.setText(newText);
         }
-        ImageIcon iconToSet = null;
-        if( fromId != null ) {
-            if( indicateLowReceivedMessages ) {
-                final int receivedMsgCount = fromId.getReceivedMessageCount();
-                if( receivedMsgCount <= indicateLowReceivedMessagesCountRed ) {
-                    iconToSet = MainFrame.getInstance().getMessageTreeTable().receivedOneMessage;
-                } else if( receivedMsgCount <= indicateLowReceivedMessagesCountLightRed ) {
-                    iconToSet = MainFrame.getInstance().getMessageTreeTable().receivedFiveMessages;
-                }
-            }
-        }
-        subjectLabel.setIcon(iconToSet);
+//        ImageIcon iconToSet = null;
+//        if( fromId != null ) {
+//            if( indicateLowReceivedMessages ) {
+//                final int receivedMsgCount = fromId.getReceivedMessageCount();
+//                if( receivedMsgCount <= indicateLowReceivedMessagesCountRed ) {
+//                    iconToSet = MainFrame.getInstance().getMessageTreeTable().receivedOneMessage;
+//                } else if( receivedMsgCount <= indicateLowReceivedMessagesCountLightRed ) {
+//                    iconToSet = MainFrame.getInstance().getMessageTreeTable().receivedFiveMessages;
+//                }
+//            }
+//        }
+//        subjectLabel.setIcon(iconToSet);
     }
 
     private void clearSubjectTextLabel() {
@@ -1809,8 +1809,8 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         subjectLabel.setIcon(null);
     }
 
-    public TreeTableModelAdapter getMessageTableModel() {
-        return (TreeTableModelAdapter)getMessageTable().getModel();
+    public FreetalkTreeTableModelAdapter getMessageTableModel() {
+        return (FreetalkTreeTableModelAdapter)getMessageTable().getModel();
     }
     public DefaultTreeModel getMessageTreeModel() {
         return (DefaultTreeModel)getMessageTable().getTree().getModel();

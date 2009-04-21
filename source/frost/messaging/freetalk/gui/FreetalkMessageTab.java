@@ -31,7 +31,6 @@ import frost.fcp.fcp07.freetalk.*;
 import frost.messaging.freetalk.*;
 import frost.messaging.freetalk.boards.*;
 import frost.messaging.freetalk.transfer.*;
-import frost.messaging.frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -153,17 +152,18 @@ public class FreetalkMessageTab implements LanguageListener {
 //            }
 
             // remove previous msgs
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().getMessageTable().setNewRootNode(new FreetalkMessage(true));
+            System.out.println(">>> new rootnode");
             getMessagePanel().updateMessageCountLabels(node);
 
             getMessagePanel().getMessageTable().clearSelection();
 
             // FIXME: load msgs for selected board, build threads
-            sendFreetalkCommandListMessages((FreetalkBoard)node);
+            sendFreetalkCommandListMessages((FreetalkBoard)node, true);
 
         } else if (node.isFolder()) {
             // node is a folder
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().getMessageTable().setNewRootNode(new FreetalkMessage(true));
             getMessagePanel().updateMessageCountLabels(node);
 
             renameFolderButton.setEnabled(true);
@@ -300,16 +300,16 @@ public class FreetalkMessageTab implements LanguageListener {
         }
     }
 
-    public void sendFreetalkCommandListMessages(final FreetalkBoard board) {
+    public void sendFreetalkCommandListMessages(final FreetalkBoard board, final boolean withContent) {
 
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
 
-        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListMessagesCallback(ftManager, mainFrame, board));
+        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListMessagesCallback(mainFrame, board));
 
         mainFrame.activateGlassPane();
 
         try {
-            FreetalkManager.getInstance().getConnection().sendCommandListMessages(id, board.getName(), false);
+            FreetalkManager.getInstance().getConnection().sendCommandListMessages(id, board.getName(), withContent);
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListMessages", ex);
             mainFrame.deactivateGlassPane();

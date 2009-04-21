@@ -40,6 +40,8 @@ public class NodeMessage {
     private final HashMap<String,String> items;
     private String messageEndMarker = null;
 
+    private BufferedInputStream fcpInStream = null;
+
     /////////////////////////////////////////////////////////////////////////////////////////
     // BEGIN OF STATIC FACTORY ///////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +75,7 @@ public class NodeMessage {
 
             if (tmp.compareTo("Data") == 0) {
                 result.setEnd(tmp);
+                result.fcpInStream = fcpInp; // remember stream for receive of data
                 break;
             }
 
@@ -90,6 +93,26 @@ public class NodeMessage {
             }
         }
         return result;
+    }
+
+    public byte[] receiveMessageData(final long datalen) throws IOException {
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final byte[] b = new byte[4096];
+        long bytesLeft = datalen;
+        long bytesWritten = 0;
+        while( bytesLeft > 0 ) {
+            final int count = fcpInStream.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
+            if( count < 0 ) {
+                break;
+            } else {
+                bytesLeft -= count;
+            }
+            byteOut.write(b, 0, count);
+            bytesWritten += count;
+        }
+        byteOut.close();
+
+        return byteOut.toByteArray();
     }
 
     private static String readLine(final BufferedInputStream fcpInp, final ByteArrayOutputStream bytes) {

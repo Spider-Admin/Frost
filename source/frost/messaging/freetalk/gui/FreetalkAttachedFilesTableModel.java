@@ -72,11 +72,14 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
      * in the list passed as a parameter
      * @param fileAttachments list of FileAttachments fo fill the model with
      */
-    public void setData(final List fileAttachments) {
+    public void setData(final List<FreetalkFileAttachment> fileAttachments) {
         setRowCount(0);
-        final Iterator files = fileAttachments.iterator();
+        if (fileAttachments == null) {
+            return;
+        }
+        final Iterator<FreetalkFileAttachment> files = fileAttachments.iterator();
         while (files.hasNext()) {
-            final FreetalkFileAttachment attachment = (FreetalkFileAttachment) files.next();
+            final FreetalkFileAttachment attachment = files.next();
             // maybe we show a file that is not yet uploaded (unsend message file attachment)
             String key;
             if (attachment.getKey() != null && attachment.getKey().length() > 40 ) {

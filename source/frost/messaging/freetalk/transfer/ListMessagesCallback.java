@@ -18,6 +18,7 @@
 */
 package frost.messaging.freetalk.transfer;
 
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -31,12 +32,10 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
     private static final Logger logger = Logger.getLogger(ListMessagesCallback.class.getName());
 
-    private final FreetalkManager ftManager;
     private final MainFrame mainFrame;
     private final FreetalkBoard board;
 
-    public ListMessagesCallback(final FreetalkManager ftMan, final MainFrame mf, final FreetalkBoard b) {
-        ftManager = ftMan;
+    public ListMessagesCallback(final MainFrame mf, final FreetalkBoard b) {
         mainFrame = mf;
         board = b;
     }
@@ -52,6 +51,9 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
         if ("EndListMessages".equals(nodeMsg.getStringValue("Replies.Message"))) {
             FreetalkManager.getInstance().getConnection().unregisterCallback(id);
+            mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().updateUI();
+            final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
+            System.out.println("~~~~~~~~ root children: "+rootNode.getChildCount());
             mainFrame.deactivateGlassPane();
             return;
         }
@@ -87,21 +89,47 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
             }
         }
 
-//        final FreetalkMessage ftMsg = new FreetalkMessage(
-//                board,
-//                msgIndex,
-//                msgId,
-//                title,
-//                author,
-//                dateMillis,
-//                fetchDateMillis,
-//                isThread,
-//                parentMsgID,
-//                fileAttachments);
+        // maybe receive data
+        String messageText = null;
+        if (nodeMsg.isValueSet("DataLength")) {
+
+            if (!"Data".equals(nodeMsg.getMessageEnd())) {
+                logger.severe("Endmarker is not Data: "+nodeMsg.getStringValue("Replies.Message"));
+            } else {
+                final long i = Long.parseLong(nodeMsg.getStringValue("DataLength"));
+
+                // receive TextLength bytes
+                try {
+                    final byte[] dataBytes = nodeMsg.receiveMessageData(i);
+                    messageText = new String(dataBytes, "UTF-8");
+                } catch(final IOException ex) {
+                    logger.log(Level.SEVERE, "Error receiving message data", ex);
+                }
+            }
+        }
+
+        // create message object
+        final FreetalkMessage ftMsg = new FreetalkMessage(
+                board,
+                msgId,
+                msgIndex,
+                title,
+                author,
+                dateMillis,
+                fetchDateMillis,
+                isThread,
+                parentMsgID,
+                fileAttachments);
+
+        ftMsg.setContent(messageText);
 
         // FIXME: add to message panel
+        final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
+        rootNode.add(ftMsg);
 
-//        ftManager.getBoardTree().addNewBoard(board);
+        final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
+        mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
+        System.out.println(">>> added msg");
+
     }
-
 }
