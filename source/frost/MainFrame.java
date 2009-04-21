@@ -465,7 +465,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private void fileExitMenuItem_actionPerformed(final ActionEvent e) {
 
         // warn if create message windows are open
-        if (MessageFrame.getOpenInstanceCount() > 0 ) {
+        if (FreetalkMessageFrame.getOpenInstanceCount() > 0 ) {
             final int result = JOptionPane.showConfirmDialog(
                     this,
                     language.getString("MainFrame.openCreateMessageWindows.body"),

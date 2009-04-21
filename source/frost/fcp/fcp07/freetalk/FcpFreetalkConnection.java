@@ -109,6 +109,16 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         sendMessage(msg, true);
     }
 
+    public void sendCommandListOwnIdentities(final String id) throws Exception {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("FCPPluginMessage");
+        msg.add("Identifier="+id);
+        msg.add("PluginName=plugins.Freetalk.Freetalk");
+        msg.add("Param.Message=ListOwnIdentities");
+        sendMessage(msg, true);
+    }
+
     /**
      * Handle and dispatch NodeMessages.
      */

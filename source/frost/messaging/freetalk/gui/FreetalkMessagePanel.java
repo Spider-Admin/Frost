@@ -37,7 +37,6 @@ import frost.messaging.freetalk.boards.*;
 import frost.messaging.freetalk.gui.messagetreetable.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
-import frost.messaging.frost.gui.*;
 import frost.messaging.frost.gui.messagetreetable.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
@@ -54,9 +53,9 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     private final JLabel subjectLabel = new JLabel();
     private final JLabel subjectTextLabel = new JLabel();
 
-    private boolean indicateLowReceivedMessages;
-    private int indicateLowReceivedMessagesCountRed;
-    private int indicateLowReceivedMessagesCountLightRed;
+//    private boolean indicateLowReceivedMessages;
+//    private int indicateLowReceivedMessagesCountRed;
+//    private int indicateLowReceivedMessagesCountLightRed;
 
     private final MainFrame mainFrame;
     private final FreetalkMessageTab ftMessageTab;
@@ -438,7 +437,6 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
     private final SettingsClass settings;
     private final Language language  = Language.getInstance();
-    private FrostIdentities identities;
     private JFrame parentFrame;
 
     private boolean initialized = false;
@@ -652,9 +650,9 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
             FrostMessageObject.sortThreadRootMsgsAscending = settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING);
 
-            indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
-            indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
-            indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
+//            indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
+//            indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
+//            indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
 
             Core.frostSettings.addPropertyChangeListener(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, this);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_MULTILINE_SELECT, this);
@@ -950,7 +948,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
             MainFrame.getInstance().displayNewMessageIcon(false);
 
-            replyButton.setEnabled(false);
+            replyButton.setEnabled(true);
 
 //            if( identities.isMySelf(selectedMessage.getFromName()) ) {
 //                setGoodButton.setEnabled(false);
@@ -1020,8 +1018,8 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         if( targetBoard == null ) {
             return;
         }
-        final MessageFrame newMessageFrame = new MessageFrame(settings, mainFrame);
-//        newMessageFrame.composeNewMessage(targetBoard, "No subject", "");
+        final FreetalkMessageFrame newMessageFrame = new FreetalkMessageFrame(settings, mainFrame);
+        newMessageFrame.composeNewMessage(targetBoard, "No subject", "");
     }
 
     public void setTrustState_actionPerformed(final IdentityState idState) {
@@ -1179,23 +1177,22 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 //                }
 //            }
 //
-//            final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
-////            newMessageFrame.composeEncryptedReply(
-////                    targetBoard,
-////                    subject,
-////                    inReplyTo,
-////                    origMessage.getContent(),
-////                    origMessage.getFromIdentity(),
-////                    senderId,
-////                    origMessage);
+//            final FreetalkMessageFrame newMessageFrame = new FreetalkMessageFrame(settings, parent);
+//            newMessageFrame.composeEncryptedReply(
+//                    targetBoard,
+//                    subject,
+//                    origMessage.getContent(),
+//                    origMessage.getFromIdentity(),
+//                    senderId,
+//                    origMessage);
 //        } else {
-//            final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
-////            newMessageFrame.composeReply(
-////                    targetBoard,
-////                    subject,
-////                    inReplyTo,
-////                    origMessage.getContent(),
-////                    origMessage);
+            final FreetalkMessageFrame newMessageFrame = new FreetalkMessageFrame(settings, parent);
+            newMessageFrame.composeReply(
+                    targetBoard,
+                    subject,
+                    origMessage.getMsgId(),
+                    origMessage.getContent(),
+                    origMessage);
 //        }
     }
 
@@ -1217,8 +1214,8 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         if( !isCorrectlySelectedMessage() ) {
             return;
         }
-//        final MessageWindow messageWindow = new MessageWindow( mainFrame, selectedMessage, this.getSize() );
-//        messageWindow.setVisible(true);
+        final FreetalkMessageWindow messageWindow = new FreetalkMessageWindow( mainFrame, selectedMessage, this.getSize() );
+        messageWindow.setVisible(true);
     }
 
     private void updateButton_actionPerformed(final ActionEvent e) {
@@ -1486,10 +1483,6 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         return msgs;
     }
 
-    public void setIdentities(final FrostIdentities identities) {
-        this.identities = identities;
-    }
-
     public void setParentFrame(final JFrame parentFrame) {
         this.parentFrame = parentFrame;
     }
@@ -1566,11 +1559,11 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
         for(final Enumeration e=rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
             final Object o = e.nextElement();
-            if( !(o instanceof FrostMessageObject) ) {
+            if( !(o instanceof FreetalkMessage) ) {
                 continue;
             }
-            final FrostMessageObject message = (FrostMessageObject)o;
-            final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
+            final FreetalkMessage message = (FreetalkMessage)o;
+            final int row = MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().getRowForNode(message);
             if( row >= 0 ) {
                 getMessageTableModel().fireTableRowsUpdated(row, row);
             }
@@ -1847,12 +1840,13 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             updateMsgTableResizeMode();
         } else if (evt.getPropertyName().equals(SettingsClass.SORT_THREADROOTMSGS_ASCENDING)) {
             FrostMessageObject.sortThreadRootMsgsAscending = settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING);
-        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES)) {
-            indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
-        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED)) {
-            indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
-        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED)) {
-            indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
         }
+//        else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES)) {
+//            indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
+//        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED)) {
+//            indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
+//        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED)) {
+//            indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
+//        }
     }
 }

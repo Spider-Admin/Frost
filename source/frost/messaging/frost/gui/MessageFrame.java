@@ -45,7 +45,7 @@ import frost.util.gui.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
-public class MessageFrame extends JFrame {
+public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 
     private static final Logger logger = Logger.getLogger(MessageFrame.class.getName());
 

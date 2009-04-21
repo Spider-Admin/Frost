@@ -86,7 +86,6 @@ public class FreetalkMessageTab implements LanguageListener {
 
             messagePanel = new FreetalkMessagePanel(Core.frostSettings, mainFrame, this);
             messagePanel.setParentFrame(mainFrame);
-            messagePanel.setIdentities(Core.getIdentities());
             messagePanel.initialize();
 
             panel.add(getMessagePanel(), BorderLayout.CENTER);
@@ -153,7 +152,6 @@ public class FreetalkMessageTab implements LanguageListener {
 
             // remove previous msgs
             getMessagePanel().getMessageTable().setNewRootNode(new FreetalkMessage(true));
-            System.out.println(">>> new rootnode");
             getMessagePanel().updateMessageCountLabels(node);
 
             getMessagePanel().getMessageTable().clearSelection();
@@ -234,6 +232,7 @@ public class FreetalkMessageTab implements LanguageListener {
 
             updateBoardButton.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
+                    sendFreetalkCommandListOwnIdentities();
                     sendFreetalkCommandListBoards();
                 }
             });
@@ -286,7 +285,6 @@ public class FreetalkMessageTab implements LanguageListener {
     public void sendFreetalkCommandListBoards() {
 
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
-
         FreetalkManager.getInstance().getConnection().registerCallback(id, new ListBoardsCallback(mainFrame));
 
         mainFrame.activateGlassPane();
@@ -313,6 +311,20 @@ public class FreetalkMessageTab implements LanguageListener {
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListMessages", ex);
             mainFrame.deactivateGlassPane();
+            return;
+        }
+    }
+
+    public void sendFreetalkCommandListOwnIdentities() {
+
+        final String id = FcpFreetalkConnection.getNextFcpidentifier();
+
+        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListOwnIdentitiesCallback());
+
+        try {
+            FreetalkManager.getInstance().getConnection().sendCommandListOwnIdentities(id);
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error sending command ListOwnIdentities", ex);
             return;
         }
     }

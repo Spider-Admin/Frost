@@ -162,7 +162,7 @@ public class FreetalkMessageTextPane extends JPanel {
         final List<FreetalkFileAttachment> fileAttachments = selectedMessage.getFileAttachments();
         attachedFilesModel.setData(fileAttachments);
 
-//        final int textViewHeight = positionDividers(fileAttachments.size());
+        positionDividers(fileAttachments);
 
         setMessageText(selectedMessage.getContent());
 
@@ -366,20 +366,17 @@ public class FreetalkMessageTextPane extends JPanel {
         messageTextArea.setFont(font);
     }
 
-    private int positionDividers(final int attachedFiles) {
+    private void positionDividers(final List<FreetalkFileAttachment> attachedFiles) {
 
-        if (attachedFiles == 0) {
+        if (attachedFiles == null || attachedFiles.size() == 0) {
             messageSplitPane.setBottomComponent(null);
             messageSplitPane.setDividerSize(0);
             messageSplitPane.setDividerLocation(1.0);
-            return messageSplitPane.getDividerLocation();
+        } else {
+            messageSplitPane.setBottomComponent(filesTableScrollPane);
+            messageSplitPane.setDividerSize(3);
+            messageSplitPane.setDividerLocation(0.75);
         }
-
-        messageSplitPane.setDividerSize(3);
-        messageSplitPane.setDividerLocation(0.75);
-
-        messageSplitPane.setBottomComponent(filesTableScrollPane);
-        return messageSplitPane.getDividerLocation();
     }
 
     public void saveMessageButton_actionPerformed() {
