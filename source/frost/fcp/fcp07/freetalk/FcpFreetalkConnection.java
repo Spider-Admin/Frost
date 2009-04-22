@@ -26,6 +26,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
+import frost.messaging.freetalk.*;
 
 
 public class FcpFreetalkConnection extends FcpListenThreadConnection {
@@ -71,7 +72,7 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         msg.add("Identifier="+id);
         msg.add("PluginName=plugins.Freetalk.Freetalk");
         msg.add("Param.Message=ListBoards");
-        sendMessage(msg, true);
+        sendMessage(msg);
     }
 
     public void sendCommandListMessages(
@@ -88,7 +89,7 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         msg.add("Param.BoardName="+boardname);
         msg.add("Param.SortByMessageDateAscending=true");
         msg.add("Param.IncludeMessageText="+withMessageContent);
-        sendMessage(msg, true);
+        sendMessage(msg);
     }
 
     public void sendCommandGetMessage(
@@ -106,7 +107,7 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         msg.add("Param.BoardName="+boardname);
         msg.add("Param.MessageIndex="+msgIndex);
         msg.add("Param.IncludeMessageText="+withMessageContent);
-        sendMessage(msg, true);
+        sendMessage(msg);
     }
 
     public void sendCommandListOwnIdentities(final String id) throws Exception {
@@ -116,7 +117,55 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         msg.add("Identifier="+id);
         msg.add("PluginName=plugins.Freetalk.Freetalk");
         msg.add("Param.Message=ListOwnIdentities");
-        sendMessage(msg, true);
+        sendMessage(msg);
+    }
+
+    public void sendCommandPutMessage(
+            final String id,
+            final String parentId,
+            final String ownIdentityUid,
+            final String replyToBoard,
+            final List<String> targetBoards,
+            final String title,
+            final String content,
+            final List<FreetalkFileAttachment> attachments)
+    throws Exception {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("FCPPluginMessage");
+        msg.add("Identifier="+id);
+        msg.add("PluginName=plugins.Freetalk.Freetalk");
+        msg.add("Param.Message=PutMessage");
+
+        if (parentId != null) {
+            msg.add("Param.ParentID="+parentId);
+        }
+        msg.add("Param.AuthorIdentityUID="+ownIdentityUid);
+        msg.add("Param.ReplyToBoard="+replyToBoard);
+
+        String targetBoardsStr = "";
+        for (final String s : targetBoards) {
+            if (targetBoardsStr.length() > 0) {
+                targetBoardsStr += ",";
+            }
+            targetBoardsStr += s;
+        }
+        msg.add("Param.TargetBoards="+targetBoardsStr);
+        msg.add("Param.Title="+title);
+
+        if (attachments != null && attachments.size() > 0) {
+            msg.add("Param.FileAttachmentCount="+attachments.size());
+            int x = 1;
+            for (final FreetalkFileAttachment a : attachments) {
+                msg.add("Param.FileAttachmentURI."+x+"="+a.getUri());
+                msg.add("Param.FileAttachmentSize."+x+"="+a.getFileSize());
+                x++;
+            }
+        }
+
+        final byte[] contentBytes = content.getBytes("UTF-8");
+
+        sendMessageAndData(msg, contentBytes);
     }
 
     /**

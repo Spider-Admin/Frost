@@ -47,10 +47,10 @@ public abstract class AbstractBasicConnection {
 
     /**
      * Writes a message to the socket. Ensures that only 1 thread writes at any time (writeSocketLock).
+     * Appends EndMessage to the specified message lines.
      * @param message     the message to send
-     * @param sendEndMsg  if true EndMessage should be appended
      */
-    public boolean sendMessage(final List<String> message, final boolean sendEndMsg) {
+    public boolean sendMessage(final List<String> message) {
 
         writeSocketLock.lock();
         final boolean doLogging = Logging.inst().doLogFcp2Messages();
@@ -64,11 +64,9 @@ public abstract class AbstractBasicConnection {
                     System.out.println(msgLine);
                 }
             }
-            if( sendEndMsg ) {
-                fcpSocket.getFcpOut().println("EndMessage");
-                if(doLogging) {
-                    System.out.println("*EndMessage*");
-                }
+            fcpSocket.getFcpOut().println("EndMessage");
+            if(doLogging) {
+                System.out.println("*EndMessage*");
             }
             final boolean isError = fcpSocket.getFcpOut().checkError();
             if(doLogging) {
@@ -80,7 +78,14 @@ public abstract class AbstractBasicConnection {
         }
     }
 
-    public boolean sendMessageAndData(final List<String> message, final boolean sendEndMsg, final File sourceFile) {
+    /**
+     * Writes a message together with data from the specified source file to the socket.
+     * Ensures that only 1 thread writes at any time (writeSocketLock).
+     * @param message     the message to send
+     * @param sourceFile  file containing the data to be send
+     */
+    public boolean sendMessageAndData(final List<String> message, final File sourceFile) {
+
         writeSocketLock.lock();
         final boolean doLogging = Logging.inst().doLogFcp2Messages();
         try {
@@ -93,9 +98,9 @@ public abstract class AbstractBasicConnection {
                     System.out.println(msgLine);
                 }
             }
-            if( sendEndMsg ) {
-                fcpSocket.getFcpOut().println("Data");
-            }
+
+            fcpSocket.getFcpOut().println("DataLength=" + Long.toString(sourceFile.length()));
+            fcpSocket.getFcpOut().println("Data");
 
             fcpSocket.getFcpOut().flush();
 
@@ -117,6 +122,49 @@ public abstract class AbstractBasicConnection {
             return false; // no error
         } catch(final Throwable t) {
             mylogger.log(Level.SEVERE, "Error sending file to socket", t);
+            return true; // error
+        } finally {
+            writeSocketLock.unlock();
+        }
+    }
+
+    /**
+     * Writes a message together with data from the specified byte array to the socket.
+     * Ensures that only 1 thread writes at any time (writeSocketLock).
+     * @param message     the message to send
+     * @param data        byte[] containing the data to be send
+     */
+    public boolean sendMessageAndData(final List<String> message, final byte[] data) {
+
+        writeSocketLock.lock();
+        final boolean doLogging = Logging.inst().doLogFcp2Messages();
+        try {
+            if(doLogging) {
+                System.out.println("### SEND_DATA >>>>>>>");
+            }
+            for( final String msgLine : message ) {
+                fcpSocket.getFcpOut().println(msgLine);
+                if(doLogging) {
+                    System.out.println(msgLine);
+                }
+            }
+            fcpSocket.getFcpOut().println("DataLength="+Integer.toString(data.length));
+            fcpSocket.getFcpOut().println("Data");
+
+            fcpSocket.getFcpOut().flush();
+
+            // send data
+            for (final byte b : data) {
+                fcpSocket.getFcpRawOut().write(b);
+            }
+            fcpSocket.getFcpRawOut().flush();
+
+            if(doLogging) {
+                System.out.println("### SEND_DATA <<<<<<<");
+            }
+            return false; // no error
+        } catch(final Throwable t) {
+            mylogger.log(Level.SEVERE, "Error sending data to socket", t);
             return true; // error
         } finally {
             writeSocketLock.unlock();

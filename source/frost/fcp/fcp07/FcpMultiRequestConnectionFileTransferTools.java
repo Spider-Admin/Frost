@@ -48,7 +48,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("Global=true");
         msg.add("Identifier="+id);
         msg.add("PriorityClass=" + Integer.toString(newPrio));
-        fcpPersistentConnection.sendMessage(msg, true);
+        fcpPersistentConnection.sendMessage(msg);
     }
 
     /**
@@ -59,7 +59,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("RemovePersistentRequest");
         msg.add("Global=true");
         msg.add("Identifier="+id);
-        fcpPersistentConnection.sendMessage(msg, true);
+        fcpPersistentConnection.sendMessage(msg);
     }
 
     /**
@@ -70,7 +70,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("WatchGlobal");
         msg.add("Enabled="+enabled);
         msg.add("VerbosityMask=1");
-        fcpPersistentConnection.sendMessage(msg, true);
+        fcpPersistentConnection.sendMessage(msg);
     }
 
     /**
@@ -87,7 +87,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
 
-        fcpPersistentConnection.sendMessage(msg, true);
+        fcpPersistentConnection.sendMessage(msg);
     }
 
     /**
@@ -124,13 +124,13 @@ public class FcpMultiRequestConnectionFileTransferTools {
              msg.add("ReturnType=direct");
         }
 
-        fcpPersistentConnection.sendMessage(msg, true);
+        fcpPersistentConnection.sendMessage(msg);
     }
 
     public void listPersistentRequests() {
         final List<String> msg = new LinkedList<String>();
         msg.add("ListPersistentRequests");
-        fcpPersistentConnection.sendMessage(msg, true);
+        fcpPersistentConnection.sendMessage(msg);
     }
 
     /**
@@ -313,7 +313,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         if( maxSize > 0 ) {
             msg.add("MaxSize="+maxSize);
         }
-        fcpPersistentConnection.sendMessage(msg, true);
+        fcpPersistentConnection.sendMessage(msg);
     }
 
     public void startDirectPut(final String id, final String key, final int priority, final File sourceFile) {
@@ -327,8 +327,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("PriorityClass="+Integer.toString(priority));
         msg.add("Persistence=connection");
         msg.add("UploadFrom=direct");
-        msg.add("DataLength=" + Long.toString(sourceFile.length()));
 
-        fcpPersistentConnection.sendMessageAndData(msg, true, sourceFile);
+        fcpPersistentConnection.sendMessageAndData(msg, sourceFile);
     }
 }
