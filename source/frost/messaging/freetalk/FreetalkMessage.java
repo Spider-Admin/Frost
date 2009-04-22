@@ -27,6 +27,9 @@ import org.joda.time.*;
 import frost.messaging.freetalk.boards.*;
 import frost.util.*;
 
+/**
+ * A Freetalk message.
+ */
 public class FreetalkMessage extends DefaultMutableTreeNode {
 
     private FreetalkBoard board = null;
@@ -44,10 +47,16 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
 
     private String dateAndTimeString = null;
 
+    /**
+     * Constructor for a dummy root node.
+     */
     public FreetalkMessage(final boolean isRootnode) {
         board = new FreetalkBoard("(root)");
     }
 
+    /**
+     * Constructor used when a new message is received.
+     */
     public FreetalkMessage(
             final FreetalkBoard board,
             final String msgId,

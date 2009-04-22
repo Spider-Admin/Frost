@@ -20,6 +20,7 @@ package frost.messaging.freetalk.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -323,6 +324,33 @@ public class FreetalkMessageTab implements LanguageListener {
 
         try {
             FreetalkManager.getInstance().getConnection().sendCommandListOwnIdentities(id);
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error sending command ListOwnIdentities", ex);
+            return;
+        }
+    }
+
+    public void sendFreetalkCommandPutMessage(final FreetalkUnsentMessage msg) {
+
+        final String id = FcpFreetalkConnection.getNextFcpidentifier();
+
+        FreetalkManager.getInstance().getConnection().registerCallback(id, new PutMessageCallback(mainFrame));
+
+        final java.util.List<String> targetBoardNames = new ArrayList<String>();
+        for (final FreetalkBoard fb : msg.getTargetBoards()) {
+            targetBoardNames.add(fb.getName());
+        }
+
+        try {
+            FreetalkManager.getInstance().getConnection().sendCommandPutMessage(
+                    id,
+                    msg.getParentId(),
+                    msg.getOwnIdentity().getUid(),
+                    msg.getReplyToBoard().getName(),
+                    targetBoardNames,
+                    msg.getTitle(),
+                    msg.getContent(),
+                    msg.getFileAttachments());
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListOwnIdentities", ex);
             return;

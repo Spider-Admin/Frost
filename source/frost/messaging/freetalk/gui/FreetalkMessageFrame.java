@@ -808,12 +808,8 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 
         FreetalkOwnIdentity senderId = null;
         String from;
-        if( getOwnIdentitiesComboBox().getSelectedItem() instanceof FreetalkOwnIdentity ) {
-            senderId = (FreetalkOwnIdentity)getOwnIdentitiesComboBox().getSelectedItem();
-            from = senderId.getFreetalkAddress();
-        } else {
-            from = getOwnIdentitiesComboBox().getEditor().getItem().toString();
-        }
+        senderId = (FreetalkOwnIdentity)getOwnIdentitiesComboBox().getSelectedItem();
+        from = senderId.getFreetalkAddress();
 
         final String subject = subjectTextField.getText().trim();
         subjectTextField.setText(subject); // if a pbl occurs show the subject we checked
@@ -844,17 +840,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
                                 JOptionPane.ERROR);
             return;
         }
-        final int maxTextLength = (60*1024);
-        final int msgSize = text.length() + subject.length() + from.length() + ((repliedMsgId!=null)?repliedMsgId.length():0);
-        if( msgSize > maxTextLength ) {
-            JOptionPane.showMessageDialog( this,
-                    language.formatMessage("MessageFrame.textTooLargeError.text",
-                            Integer.toString(text.length()),
-                            Integer.toString(maxTextLength)),
-                    language.getString("MessageFrame.textTooLargeError.title"),
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+
         final int idLinePos = headerArea.getStartPos();
         final int idLineLen = headerArea.getEndPos() - headerArea.getStartPos();
         if( text.length() == headerArea.getEndPos() ) {
@@ -917,35 +903,20 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 //            newMessage.setRecipientName(recipient.getUniqueName());
 //        }
 
-        // FIXME: send new msg to Freetalk!
         // FIXME: upload attachments! Set keys!
-//        UnsentMessagesManager.addNewUnsentMessage(newMessage);
 
-//        // zip the xml file and check for maximum size
-//        File tmpFile = FileAccess.createTempFile("msgframe_", "_tmp");
-//        tmpFile.deleteOnExit();
-//        if( mo.saveToFile(tmpFile) == true ) {
-//            File zipFile = new File(tmpFile.getPath() + ".zipped");
-//            zipFile.delete(); // just in case it already exists
-//            zipFile.deleteOnExit(); // so that it is deleted when Frost exits
-//            FileAccess.writeZipFile(FileAccess.readByteArray(tmpFile), "entry", zipFile);
-//            long zipLen = zipFile.length();
-//            tmpFile.delete();
-//            zipFile.delete();
-//            if( zipLen > 30000 ) { // 30000 because data+metadata must be smaller than 32k
-//                JOptionPane.showMessageDialog( this,
-//                        "The zipped message is too large ("+zipLen+" bytes, "+30000+" allowed)! Remove some text.",
-//                        "Message text too large!",
-//                        JOptionPane.ERROR_MESSAGE);
-//                return;
-//            }
-//        } else {
-//            JOptionPane.showMessageDialog( this,
-//                    "Error verifying the resulting message size.",
-//                    "Error",
-//                    JOptionPane.ERROR_MESSAGE);
-//            return;
-//        }
+        final FreetalkUnsentMessage msg = new FreetalkUnsentMessage(
+                repliedMessage.getParentMsgID(),
+                senderId,
+                board,
+                Collections.singletonList(board),
+                subject,
+                text,
+                null);
+
+        MainFrame.getInstance().getFreetalkMessageTab().sendFreetalkCommandPutMessage(msg);
+
+//        UnsentMessagesManager.addNewUnsentMessage(newMessage);
 
         // TODO: if user deletes the unsent msg then the replied state keeps (see below)
         //  We would have to set the replied state after the msg was successfully sent, because
