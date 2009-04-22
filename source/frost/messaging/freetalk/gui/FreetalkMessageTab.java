@@ -151,14 +151,7 @@ public class FreetalkMessageTab implements LanguageListener {
 //                }
 //            }
 
-            // remove previous msgs
-            getMessagePanel().getMessageTable().setNewRootNode(new FreetalkMessage(true));
-            getMessagePanel().updateMessageCountLabels(node);
-
-            getMessagePanel().getMessageTable().clearSelection();
-
-            // FIXME: load msgs for selected board, build threads
-            sendFreetalkCommandListMessages((FreetalkBoard)node, true);
+            updateBoard((FreetalkBoard)node);
 
         } else if (node.isFolder()) {
             // node is a folder
@@ -173,6 +166,17 @@ public class FreetalkMessageTab implements LanguageListener {
             }
 //            configBoardButton.setEnabled(false);
         }
+    }
+
+    public void updateBoard(final FreetalkBoard board) {
+        // remove previous msgs
+        getMessagePanel().getMessageTable().setNewRootNode(new FreetalkMessage(true));
+        getMessagePanel().updateMessageCountLabels(board);
+
+        getMessagePanel().getMessageTable().clearSelection();
+
+        // FIXME: load msgs for selected board, build threads
+        sendFreetalkCommandListMessages(board, true);
     }
 
     /**

@@ -1233,6 +1233,9 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
         if (((TreeNode) ftMessageTab.getTreeModel().getRoot()).getChildCount() == 0) {
             // There are no boards
+            newMessageButton.setEnabled(false);
+            saveMessageButton.setEnabled(false);
+            updateBoardButton.setEnabled(false);
             getMessageTextPane().update_noBoardsFound();
             clearSubjectTextLabel();
         } else {

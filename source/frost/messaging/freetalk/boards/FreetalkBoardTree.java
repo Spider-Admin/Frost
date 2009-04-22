@@ -993,6 +993,8 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
         	return;
         }
 
+        MainFrame.getInstance().getFreetalkMessageTab().updateBoard(board);
+
 //        boolean threadStarted = false;
 //
 //        // download the messages of today
