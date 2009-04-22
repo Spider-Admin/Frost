@@ -39,8 +39,8 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     private String author = null;
     private long dateMillis = 0;
     private long fetchDateMillis = 0;
-    private boolean isThread = false;
     private String parentMsgID = null;
+    private String threadRootMsgID = null;
     private List<FreetalkFileAttachment> fileAttachments = null;
 
     private String content = null;
@@ -65,8 +65,8 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
             final String author,
             final long dateMillis,
             final long fetchDateMillis,
-            final boolean isThread,
             final String parentMsgID,
+            final String threadRootMsgID,
             final List<FreetalkFileAttachment> fileAttachments)
     {
         super();
@@ -77,8 +77,8 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
         this.author = author;
         this.dateMillis = dateMillis;
         this.fetchDateMillis = fetchDateMillis;
-        this.isThread = isThread;
         this.parentMsgID = parentMsgID;
+        this.threadRootMsgID = threadRootMsgID;
         this.fileAttachments = fileAttachments;
     }
 
@@ -116,11 +116,15 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     }
 
     public boolean isThread() {
-        return isThread;
+        return parentMsgID != null;
     }
 
     public String getParentMsgID() {
         return parentMsgID;
+    }
+
+    public String getThreadRootMsgID() {
+        return threadRootMsgID;
     }
 
     public List<FreetalkFileAttachment> getFileAttachments() {

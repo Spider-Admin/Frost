@@ -71,8 +71,8 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
         final String author = nodeMsg.getStringValue("Replies.Author");
         final long dateMillis = new Long(nodeMsg.getStringValue("Replies.Date")).longValue();
         final long fetchDateMillis = new Long(nodeMsg.getStringValue("Replies.FetchDate")).longValue();
-        final boolean isThread = Boolean.valueOf(nodeMsg.getStringValue("Replies.IsThread"));
         final String parentMsgID = nodeMsg.getStringValue("Replies.ParentID");
+        final String threadRootMsgID = nodeMsg.getStringValue("Replies.ThreadID");
         int attachmentCount = 0;
         if (nodeMsg.getStringValue("Replies.FileAttachmentCount") != null) {
             attachmentCount = Integer.parseInt(nodeMsg.getStringValue("Replies.FileAttachmentCount"));
@@ -117,13 +117,14 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
                 author,
                 dateMillis,
                 fetchDateMillis,
-                isThread,
                 parentMsgID,
+                threadRootMsgID,
                 fileAttachments);
 
         ftMsg.setContent(messageText);
 
         // FIXME: add to message panel
+
         final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
         rootNode.add(ftMsg);
 
