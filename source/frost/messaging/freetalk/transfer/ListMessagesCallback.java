@@ -22,8 +22,6 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.tree.*;
-
 import frost.*;
 import frost.fcp.fcp07.*;
 import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
@@ -37,6 +35,8 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
     private final MainFrame mainFrame;
     private final FreetalkBoard board;
     private final boolean isThreaded;
+
+    private final List<FreetalkMessage> newMsgList = new ArrayList<FreetalkMessage>();
 
     public ListMessagesCallback(final MainFrame mf, final FreetalkBoard b, final boolean isThreaded) {
         mainFrame = mf;
@@ -55,9 +55,15 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
         if ("EndListMessages".equals(nodeMsg.getStringValue("Replies.Message"))) {
             FreetalkManager.getInstance().getConnection().unregisterCallback(id);
+
+            // add to message panel
+            if (isThreaded) {
+                addMessageThreaded(newMsgList);
+            } else {
+                addMessageFlat(newMsgList);
+            }
+
             mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().updateUI();
-            final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
-            System.out.println("~~~~~~~~ root children: "+rootNode.getChildCount());
             mainFrame.deactivateGlassPane();
             return;
         }
@@ -127,52 +133,71 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
         ftMsg.setContent(messageText);
 
-        // add to message panel
-        if (isThreaded) {
-            addMessageThreaded(ftMsg);
-        } else {
-            addMessageFlat(ftMsg);
+        newMsgList.add(ftMsg);
+    }
+
+    private void addMessageFlat(final List<FreetalkMessage> msgList) {
+
+        // FIXME: add sorted?
+        for (final FreetalkMessage newMsg : msgList) {
+            final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
+            rootNode.add(newMsg);
+            // fire gui update
+            final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
+            mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
         }
     }
 
-    private void addMessageFlat(final FreetalkMessage newMsg) {
+    private void addMessageThreaded(final List<FreetalkMessage> msgList) {
 
-        // FIXME: add sorted?
-        final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
-        rootNode.add(newMsg);
-        // fire gui update
-        final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
-        mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
-    }
-
-    private void addMessageThreaded(final FreetalkMessage newMsg) {
+        // FIXME: add sorted
 
         final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
-        DefaultMutableTreeNode newParent = null;
-        final String parentMsgIdString = newMsg.getParentMsgID();
-        if (parentMsgIdString != null) {
-            // find parent
-            final Enumeration e = rootNode.breadthFirstEnumeration();
-            while (e.hasMoreElements()) {
-                final FreetalkMessage m = (FreetalkMessage) e.nextElement();
-                if (parentMsgIdString.equals(m.getMsgId())) {
-                    newParent = m;
-                    break;
-                }
+
+        // add messages without parent to root
+        for (final Iterator<FreetalkMessage> i = msgList.iterator(); i.hasNext(); ) {
+
+            final FreetalkMessage newMsg = i.next();
+            if (newMsg.getParentMsgID() == null) {
+                i.remove();
+                rootNode.add(newMsg);
+                final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
+                mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
             }
         }
 
-        if (newParent == null) {
-            // no parent found, add to root
-            newParent = rootNode;
+        // add to parents
+        boolean foundParent = false;
+        do {
+            foundParent = false;
+            for (final Iterator<FreetalkMessage> i = msgList.iterator(); i.hasNext(); ) {
+
+                final FreetalkMessage newMsg = i.next();
+                final String parentMsgIdString = newMsg.getParentMsgID();
+                // find parent
+                final Enumeration e = rootNode.breadthFirstEnumeration();
+INNER_LOOP:
+                while (e.hasMoreElements()) {
+                    final FreetalkMessage m = (FreetalkMessage) e.nextElement();
+                    if (parentMsgIdString.equals(m.getMsgId())) {
+                        i.remove();
+                        m.add(newMsg);
+                        // fire gui update
+                        final int[] ixs = new int[] { m.getChildCount() - 1 };
+                        mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(m, ixs);
+
+                        foundParent = true;
+                        break INNER_LOOP;
+                    }
+                }
+            }
+        } while (foundParent);
+
+        // add unmatched to root
+        for (final FreetalkMessage newMsg : msgList) {
+            rootNode.add(newMsg);
+            final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
+            mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
         }
-
-        // add as last child
-        // FIXME: add sorted
-        newParent.add(newMsg);
-
-        // fire gui update
-        final int[] ixs = new int[] { newParent.getChildCount() - 1 };
-        mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(newParent, ixs);
     }
 }

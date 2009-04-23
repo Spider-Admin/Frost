@@ -53,6 +53,10 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 	@Override
     public void decode(final String message, final JEditorPane parent) {
 
+	    if (message == null) {
+	        return;
+	    }
+
 		elements.clear();
         hyperlinkedKeys.clear();
 

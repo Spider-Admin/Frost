@@ -43,7 +43,7 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     private String threadRootMsgID = null;
     private List<FreetalkFileAttachment> fileAttachments = null;
 
-    private String content = null;
+    private String content = "";
 
     private String dateAndTimeString = null;
 
@@ -135,6 +135,10 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
         return content;
     }
     public void setContent(final String c) {
+        if (c == null) {
+            System.out.println("!!!!!!!!!!!!! prevented null content");
+            return;
+        }
         content = c;
     }
 
