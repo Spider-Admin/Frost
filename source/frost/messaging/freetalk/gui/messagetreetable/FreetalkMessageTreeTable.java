@@ -54,7 +54,6 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.fileTransfer.common.*;
 import frost.messaging.freetalk.*;
-import frost.messaging.frost.*;
 import frost.util.gui.*;
 
 /**
@@ -1140,8 +1139,8 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
         if( FreetalkMessageTreeTableSortStateBean.isThreaded() ) {
             return;
         }
-        final FrostMessageObject root = (FrostMessageObject) getTree().getModel().getRoot();
-        root.resortChildren();
+        final FreetalkMessage root = (FreetalkMessage) getTree().getModel().getRoot();
+//        root.resortChildren();
         ((DefaultTreeModel)getTree().getModel()).reload();
     }
 

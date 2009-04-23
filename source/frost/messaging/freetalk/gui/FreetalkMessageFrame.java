@@ -906,7 +906,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         // FIXME: upload attachments! Set keys!
 
         final FreetalkUnsentMessage msg = new FreetalkUnsentMessage(
-                repliedMessage.getMsgId(),
+                (repliedMessage!=null)?repliedMessage.getMsgId():null,
                 senderId,
                 board,
                 Collections.singletonList(board),

@@ -149,12 +149,13 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
         final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
         DefaultMutableTreeNode newParent = null;
-        if (newMsg.getParentMsgID() != null) {
+        final String parentMsgIdString = newMsg.getParentMsgID();
+        if (parentMsgIdString != null) {
             // find parent
             final Enumeration e = rootNode.breadthFirstEnumeration();
             while (e.hasMoreElements()) {
                 final FreetalkMessage m = (FreetalkMessage) e.nextElement();
-                if (m.getMsgId().equals(newMsg.getParentMsgID())) {
+                if (parentMsgIdString.equals(m.getMsgId())) {
                     newParent = m;
                     break;
                 }

@@ -284,9 +284,8 @@ public class FreetalkMessageTab implements LanguageListener {
         } else {
             final String boardName = dialog.getBoardName();
 //            final String boardDescription = dialog.getBoardDescription();
-
+            sendFreetalkCommandCreateBoard(boardName);
         }
-
     }
 
     public void renameFolder(final FreetalkFolder selected) {
