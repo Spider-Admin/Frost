@@ -216,8 +216,8 @@ public class FreetalkMessageTextPane extends JPanel {
         setLayout(new BorderLayout());
 
         final MessageDecoder decoder = new MessageDecoder();
-        decoder.setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
-        decoder.setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
+        decoder.setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_SMILEYS));
+        decoder.setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_KEYS_AS_HYPERLINKS));
         messageTextArea = new AntialiasedTextPane(decoder);
         messageTextArea.setEditable(false);
         messageTextArea.setDoubleBuffered(true);
@@ -325,15 +325,15 @@ public class FreetalkMessageTextPane extends JPanel {
                     fontChanged();
                 } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_STYLE)) {
                     fontChanged();
-                } else if (evt.getPropertyName().equals(SettingsClass.SHOW_SMILEYS)) {
-                    ((MessageDecoder)messageTextArea.getDecoder()).setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
+                } else if (evt.getPropertyName().equals(SettingsClass.FREETALK_SHOW_SMILEYS)) {
+                    ((MessageDecoder)messageTextArea.getDecoder()).setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_SMILEYS));
                     if( selectedMessage != null ) {
                         update_messageSelected(selectedMessage);
                     } else {
                         setMessageText(messageTextArea.getText());
                     }
-                } else if (evt.getPropertyName().equals(SettingsClass.SHOW_KEYS_AS_HYPERLINKS)) {
-                    ((MessageDecoder)messageTextArea.getDecoder()).setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
+                } else if (evt.getPropertyName().equals(SettingsClass.FREETALK_SHOW_KEYS_AS_HYPERLINKS)) {
+                    ((MessageDecoder)messageTextArea.getDecoder()).setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_KEYS_AS_HYPERLINKS));
                     if( selectedMessage != null ) {
                         update_messageSelected(selectedMessage);
                     } else {
@@ -347,8 +347,8 @@ public class FreetalkMessageTextPane extends JPanel {
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_ANTIALIAS, propertyChangeListener);
-        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_SMILEYS, propertyChangeListener);
-        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_KEYS_AS_HYPERLINKS, propertyChangeListener);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.FREETALK_SHOW_SMILEYS, propertyChangeListener);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.FREETALK_SHOW_KEYS_AS_HYPERLINKS, propertyChangeListener);
     }
 
     private void fontChanged() {

@@ -22,6 +22,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.tree.*;
+
 import frost.*;
 import frost.fcp.fcp07.*;
 import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
@@ -34,10 +36,12 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
     private final MainFrame mainFrame;
     private final FreetalkBoard board;
+    private final boolean isThreaded;
 
-    public ListMessagesCallback(final MainFrame mf, final FreetalkBoard b) {
+    public ListMessagesCallback(final MainFrame mf, final FreetalkBoard b, final boolean isThreaded) {
         mainFrame = mf;
         board = b;
+        this.isThreaded = isThreaded;
     }
 
     public void handleNodeMessage(final String id, final NodeMessage nodeMsg) {
@@ -123,14 +127,51 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
         ftMsg.setContent(messageText);
 
-        // FIXME: add to message panel
+        // add to message panel
+        if (isThreaded) {
+            addMessageThreaded(ftMsg);
+        } else {
+            addMessageFlat(ftMsg);
+        }
+    }
 
+    private void addMessageFlat(final FreetalkMessage newMsg) {
+
+        // FIXME: add sorted?
         final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
-        rootNode.add(ftMsg);
-
+        rootNode.add(newMsg);
+        // fire gui update
         final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
         mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
-        System.out.println(">>> added msg");
+    }
 
+    private void addMessageThreaded(final FreetalkMessage newMsg) {
+
+        final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
+        DefaultMutableTreeNode newParent = null;
+        if (newMsg.getParentMsgID() != null) {
+            // find parent
+            final Enumeration e = rootNode.breadthFirstEnumeration();
+            while (e.hasMoreElements()) {
+                final FreetalkMessage m = (FreetalkMessage) e.nextElement();
+                if (m.getMsgId().equals(newMsg.getParentMsgID())) {
+                    newParent = m;
+                    break;
+                }
+            }
+        }
+
+        if (newParent == null) {
+            // no parent found, add to root
+            newParent = rootNode;
+        }
+
+        // add as last child
+        // FIXME: add sorted
+        newParent.add(newMsg);
+
+        // fire gui update
+        final int[] ixs = new int[] { newParent.getChildCount() - 1 };
+        mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(newParent, ixs);
     }
 }

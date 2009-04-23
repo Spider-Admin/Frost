@@ -116,7 +116,7 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     }
 
     public boolean isThread() {
-        return parentMsgID != null;
+        return parentMsgID == null;
     }
 
     public String getParentMsgID() {

@@ -290,12 +290,12 @@ public class FreetalkMessageTab implements LanguageListener {
     public void sendFreetalkCommandListBoards() {
 
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
-        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListBoardsCallback(mainFrame));
+        ftManager.getConnection().registerCallback(id, new ListBoardsCallback(mainFrame));
 
         mainFrame.activateGlassPane();
 
         try {
-            FreetalkManager.getInstance().getConnection().sendCommandListBoards(id);
+            ftManager.getConnection().sendCommandListBoards(id);
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListBoards", ex);
             mainFrame.deactivateGlassPane();
@@ -307,12 +307,13 @@ public class FreetalkMessageTab implements LanguageListener {
 
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
 
-        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListMessagesCallback(mainFrame, board));
+        ftManager.getConnection().registerCallback(
+                id, new ListMessagesCallback(mainFrame, board, Core.frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_THREADS)));
 
         mainFrame.activateGlassPane();
 
         try {
-            FreetalkManager.getInstance().getConnection().sendCommandListMessages(id, board.getName(), withContent);
+            ftManager.getConnection().sendCommandListMessages(id, board.getName(), withContent);
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListMessages", ex);
             mainFrame.deactivateGlassPane();
@@ -324,10 +325,10 @@ public class FreetalkMessageTab implements LanguageListener {
 
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
 
-        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListOwnIdentitiesCallback());
+        ftManager.getConnection().registerCallback(id, new ListOwnIdentitiesCallback());
 
         try {
-            FreetalkManager.getInstance().getConnection().sendCommandListOwnIdentities(id);
+            ftManager.getConnection().sendCommandListOwnIdentities(id);
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListOwnIdentities", ex);
             return;
@@ -338,7 +339,7 @@ public class FreetalkMessageTab implements LanguageListener {
 
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
 
-        FreetalkManager.getInstance().getConnection().registerCallback(id, new PutMessageCallback(mainFrame));
+        ftManager.getConnection().registerCallback(id, new PutMessageCallback(mainFrame));
 
         final java.util.List<String> targetBoardNames = new ArrayList<String>();
         for (final FreetalkBoard fb : msg.getTargetBoards()) {
@@ -346,7 +347,7 @@ public class FreetalkMessageTab implements LanguageListener {
         }
 
         try {
-            FreetalkManager.getInstance().getConnection().sendCommandPutMessage(
+            ftManager.getConnection().sendCommandPutMessage(
                     id,
                     msg.getParentId(),
                     msg.getOwnIdentity().getUid(),

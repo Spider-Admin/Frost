@@ -221,6 +221,14 @@ public class SettingsClass implements ExitSavable {
 
     public static final String MSGTABLE_MSGTEXT_DIVIDER_LOCATION = "MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation";
 
+    // Freetalk related
+    public static final String FREETALK_SHOW_KEYS_AS_HYPERLINKS = "FreetalkMessagePanel.showKeysAsHyperlinks";
+    public static final String FREETALK_SHOW_SMILEYS = "FreetalkMessagePanel.showSmileys";
+    public static final String FREETALK_SHOW_THREADS = "FreetalkMessagePanel.showThreads";
+    public static final String FREETALK_SHOW_UNREAD_ONLY = "FreetalkMessagePanel.showUnreadOnly";
+    public static final String FREETALK_MSGTABLE_MSGTEXT_DIVIDER_LOCATION = "FreetalkMessagePanel.msgTableAndMsgTextSplitpaneDividerLocation";
+
+
     public static final String SHOW_COLORED_ROWS = "showColoredRows";
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
