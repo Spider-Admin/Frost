@@ -29,6 +29,7 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.fcp.fcp07.freetalk.*;
+import frost.gui.*;
 import frost.messaging.freetalk.*;
 import frost.messaging.freetalk.boards.*;
 import frost.messaging.freetalk.transfer.*;
@@ -45,6 +46,7 @@ public class FreetalkMessageTab implements LanguageListener {
     private FreetalkMessagePanel messagePanel = null;
 
     private JToolBar buttonToolBar;
+    private JButton newBoardButton = null;
     private JButton updateBoardButton = null;
     private JButton newFolderButton = null;
     private JButton renameFolderButton = null;
@@ -209,11 +211,13 @@ public class FreetalkMessageTab implements LanguageListener {
         if (buttonToolBar == null) {
             buttonToolBar = new JToolBar();
 
+            newBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/internet-group-chat.png"));
             updateBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
             newFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-new.png"));
             renameFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-select-all.png"));
             removeBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png"));
 
+            MiscToolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", language);
             MiscToolkit.configureButton(updateBoardButton, "MessagePane.toolbar.tooltip.update", language);
             MiscToolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", language);
             MiscToolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", language);
@@ -228,6 +232,7 @@ public class FreetalkMessageTab implements LanguageListener {
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.addSeparator();
             buttonToolBar.add(Box.createRigidArea(blankSpace));
+            buttonToolBar.add(newBoardButton);
             buttonToolBar.add(newFolderButton);
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.add(renameFolderButton);
@@ -235,6 +240,11 @@ public class FreetalkMessageTab implements LanguageListener {
             buttonToolBar.add(removeBoardButton);
             buttonToolBar.add(Box.createRigidArea(blankSpace));
 
+            newBoardButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    createNewBoard();
+                }
+            });
             updateBoardButton.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     sendFreetalkCommandListOwnIdentities();
@@ -262,6 +272,21 @@ public class FreetalkMessageTab implements LanguageListener {
             }
         }
         return buttonToolBar;
+    }
+
+    public void createNewBoard() {
+
+        final NewBoardDialog dialog = new NewBoardDialog(mainFrame);
+        dialog.setVisible(true);
+
+        if (dialog.getChoice() == NewBoardDialog.CHOICE_CANCEL) {
+            return; //cancelled
+        } else {
+            final String boardName = dialog.getBoardName();
+//            final String boardDescription = dialog.getBoardDescription();
+
+        }
+
     }
 
     public void renameFolder(final FreetalkFolder selected) {
@@ -321,6 +346,20 @@ public class FreetalkMessageTab implements LanguageListener {
         }
     }
 
+    public void sendFreetalkCommandCreateBoard(final String newBoardName) {
+
+        final String id = FcpFreetalkConnection.getNextFcpidentifier();
+
+        ftManager.getConnection().registerCallback(id, new CreateBoardCallback(mainFrame));
+
+        try {
+            ftManager.getConnection().sendCommandCreateBoard(id, newBoardName);
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error sending command CreateBoard", ex);
+            return;
+        }
+    }
+
     public void sendFreetalkCommandListOwnIdentities() {
 
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
@@ -364,7 +403,8 @@ public class FreetalkMessageTab implements LanguageListener {
 
     public void languageChanged(final LanguageEvent event) {
         // tool bar
-//        newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
+        newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
+        newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
         newFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newFolder"));
         removeBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.removeBoard"));
         renameFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.renameFolder"));

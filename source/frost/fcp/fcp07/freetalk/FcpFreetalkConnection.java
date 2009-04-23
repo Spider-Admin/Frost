@@ -92,6 +92,20 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         sendMessage(msg);
     }
 
+    public void sendCommandCreateBoard(
+            final String id,
+            final String boardname)
+    throws Exception {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("FCPPluginMessage");
+        msg.add("Identifier="+id);
+        msg.add("PluginName=plugins.Freetalk.Freetalk");
+        msg.add("Param.Message=CreateBoard");
+        msg.add("Param.BoardName="+boardname);
+        sendMessage(msg);
+    }
+
     public void sendCommandGetMessage(
             final String id,
             final String boardname,
