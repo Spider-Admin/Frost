@@ -1140,7 +1140,7 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
             return;
         }
         final FreetalkMessage root = (FreetalkMessage) getTree().getModel().getRoot();
-//        root.resortChildren();
+        root.resortChildren();
         ((DefaultTreeModel)getTree().getModel()).reload();
     }
 
@@ -1150,9 +1150,6 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-//            logger.severe(
-//                "The selected font was not found in your system\n"
-//                    + "That selection will be changed to \"Monospaced\".");
             Core.frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "Monospaced");
             font = new Font("Monospaced", fontStyle, fontSize);
         }

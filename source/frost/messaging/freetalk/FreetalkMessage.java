@@ -24,7 +24,10 @@ import javax.swing.tree.*;
 
 import org.joda.time.*;
 
+import frost.*;
 import frost.messaging.freetalk.boards.*;
+import frost.messaging.freetalk.gui.messagetreetable.*;
+import frost.messaging.frost.gui.messagetreetable.*;
 import frost.util.*;
 
 /**
@@ -46,6 +49,8 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     private String content = "";
 
     private String dateAndTimeString = null;
+
+    public static boolean sortThreadRootMsgsAscending;
 
     /**
      * Constructor for a dummy root node.
@@ -159,4 +164,90 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
         }
         return dateAndTimeString;
     }
+
+    public void resortChildren() {
+        if( children == null || children.size() <= 1 ) {
+            return;
+        }
+        // choose a comparator based on settings in SortStateBean
+        final Comparator<FreetalkMessage> comparator =
+            FreetalkMessageTreeTableSortStateBean.getComparator(
+                    FreetalkMessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+        if( comparator != null ) {
+            Collections.sort(children, comparator);
+        }
+    }
+
+    @Override
+    public void add(final MutableTreeNode n) {
+        add(n, true);
+    }
+
+    /**
+     * Overwritten add to add new nodes sorted to a parent node
+     */
+    public void add(final MutableTreeNode nn, final boolean silent) {
+        // add sorted
+        final FreetalkMessage n = (FreetalkMessage)nn;
+        int[] ixs;
+
+        if( children == null ) {
+            super.add(n);
+            ixs = new int[] { 0 };
+        } else {
+            // If threaded:
+            //   sort first msg of a thread (child of root) descending (newest first),
+            //   but inside a thread sort siblings ascending (oldest first). (thunderbird/outlook do it this way)
+            // If not threaded:
+            //   sort as configured in SortStateBean
+            int insertPoint;
+            if( FreetalkMessageTreeTableSortStateBean.isThreaded() ) {
+                if( isRoot() ) {
+                    // child of root, sort descending
+                    if( sortThreadRootMsgsAscending ) {
+                        insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
+                    } else {
+                        insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorDescending);
+                    }
+                } else {
+                    // inside a thread, sort ascending
+                    insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
+                }
+            } else {
+                final Comparator comparator = FreetalkMessageTreeTableSortStateBean.getComparator(
+                        FreetalkMessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+                if( comparator != null ) {
+                    insertPoint = Collections.binarySearch(children, n, comparator);
+                } else {
+                    insertPoint = 0;
+                }
+            }
+
+            if( insertPoint < 0 ) {
+                insertPoint++;
+                insertPoint *= -1;
+            }
+            if( insertPoint >= children.size() ) {
+                super.add(n);
+                ixs = new int[] { children.size() - 1 };
+            } else {
+                super.insert(n, insertPoint);
+                ixs = new int[] { insertPoint };
+            }
+        }
+        if( !silent ) {
+            if( MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().getTree().isExpanded(new TreePath(this.getPath())) ) {
+                // if node is already expanded, notify new inserted row to the models
+                MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(this, ixs);
+                if( n.getChildCount() > 0 ) {
+                    // added node has childs, expand them all
+                    MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().expandNode(n);
+                }
+            } else {
+                // if node is not expanded, expand it, this will notify the model of the new child as well as of the old childs
+                MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().expandNode(this);
+            }
+        }
+    }
+
 }

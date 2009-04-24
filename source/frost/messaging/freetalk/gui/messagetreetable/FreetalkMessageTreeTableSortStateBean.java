@@ -20,7 +20,7 @@ package frost.messaging.freetalk.gui.messagetreetable;
 
 import java.util.*;
 
-import frost.messaging.frost.*;
+import frost.messaging.freetalk.*;
 
 public class FreetalkMessageTreeTableSortStateBean {
 
@@ -55,7 +55,7 @@ public class FreetalkMessageTreeTableSortStateBean {
         setAscending(defaultIsAscending);
     }
 
-    public static Comparator<FrostMessageObject> getComparator(final int column, final boolean ascending) {
+    public static Comparator<FreetalkMessage> getComparator(final int column, final boolean ascending) {
         if( ascending ) {
             return ascendingComparators[column];
         } else {
@@ -89,7 +89,7 @@ public class FreetalkMessageTreeTableSortStateBean {
     public static IndexComparator indexComparatorDescending = new IndexComparator(false);
 
     @SuppressWarnings("unchecked")
-    private static Comparator<FrostMessageObject>[] ascendingComparators = new Comparator[] {
+    private static Comparator<FreetalkMessage>[] ascendingComparators = new Comparator[] {
         flaggedComparatorAscending,
         starredComparatorAscending,
         subjectComparatorAscending,
@@ -100,7 +100,7 @@ public class FreetalkMessageTreeTableSortStateBean {
         dateComparatorAscending
     };
     @SuppressWarnings("unchecked")
-    private static Comparator<FrostMessageObject>[] descendingComparators = new Comparator[] {
+    private static Comparator<FreetalkMessage>[] descendingComparators = new Comparator[] {
         flaggedComparatorDescending,
         starredComparatorDescending,
         subjectComparatorDescending,
@@ -111,7 +111,7 @@ public class FreetalkMessageTreeTableSortStateBean {
         dateComparatorDescending
     };
 
-    private static class DateComparator implements Comparator<FrostMessageObject> {
+    private static class DateComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public DateComparator(final boolean ascending) {
@@ -125,9 +125,9 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final long l1 = t1.getDateAndTime().getMillis();
-            final long l2 = t2.getDateAndTime().getMillis();
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            final long l1 = t1.getDateMillis();
+            final long l2 = t2.getDateMillis();
             if( l1 > l2 ) {
                 return retvalGreater;
             }
@@ -138,7 +138,7 @@ public class FreetalkMessageTreeTableSortStateBean {
         }
     }
 
-    private static class SubjectComparator implements Comparator<FrostMessageObject> {
+    private static class SubjectComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public SubjectComparator(final boolean ascending) {
@@ -152,9 +152,9 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final String s1 = t1.getSubject();
-            final String s2 = t2.getSubject();
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            final String s1 = t1.getTitle();
+            final String s2 = t2.getTitle();
             if( s1 == null && s2 == null ) {
                 return 0;
             }
@@ -176,7 +176,7 @@ public class FreetalkMessageTreeTableSortStateBean {
         }
     }
 
-    private static class FromComparator implements Comparator<FrostMessageObject> {
+    private static class FromComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public FromComparator(final boolean ascending) {
@@ -190,9 +190,9 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final String s1 = t1.getFromName();
-            final String s2 = t2.getFromName();
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            final String s1 = t1.getAuthor();
+            final String s2 = t2.getAuthor();
             if( s1 == null && s2 == null ) {
                 return 0;
             }
@@ -214,7 +214,7 @@ public class FreetalkMessageTreeTableSortStateBean {
         }
     }
 
-    private static class TrustStateComparator implements Comparator<FrostMessageObject> {
+    private static class TrustStateComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public TrustStateComparator(final boolean ascending) {
@@ -228,31 +228,32 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final String s1 = t1.getMessageStatusString();
-            final String s2 = t2.getMessageStatusString();
-            if( s1 == null && s2 == null ) {
-                return 0;
-            }
-            if( s1 == null && s2 != null ) {
-                return -1;
-            }
-            if( s1 != null && s2 == null ) {
-                return 1;
-            }
-            final int r = s1.compareTo(s2);
-            if( r == 0 ) {
-                return r;
-            }
-            if( r > 0 ) {
-                return retvalGreater;
-            } else {
-                return retvalSmaller;
-            }
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            return 0;
+//            final String s1 = t1.getMessageStatusString();
+//            final String s2 = t2.getMessageStatusString();
+//            if( s1 == null && s2 == null ) {
+//                return 0;
+//            }
+//            if( s1 == null && s2 != null ) {
+//                return -1;
+//            }
+//            if( s1 != null && s2 == null ) {
+//                return 1;
+//            }
+//            final int r = s1.compareTo(s2);
+//            if( r == 0 ) {
+//                return r;
+//            }
+//            if( r > 0 ) {
+//                return retvalGreater;
+//            } else {
+//                return retvalSmaller;
+//            }
         }
     }
 
-    private static class FlaggedComparator implements Comparator<FrostMessageObject> {
+    private static class FlaggedComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public FlaggedComparator(final boolean ascending) {
@@ -266,21 +267,22 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final boolean s1 = t1.isFlagged();
-            final boolean s2 = t2.isFlagged();
-            if( s1 == s2 ) {
-                return 0;
-            }
-            if( s1 == true ) {
-                return retvalGreater;
-            } else {
-                return retvalSmaller;
-            }
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            return 0;
+//            final boolean s1 = t1.isFlagged();
+//            final boolean s2 = t2.isFlagged();
+//            if( s1 == s2 ) {
+//                return 0;
+//            }
+//            if( s1 == true ) {
+//                return retvalGreater;
+//            } else {
+//                return retvalSmaller;
+//            }
         }
     }
 
-    private static class StarredComparator implements Comparator<FrostMessageObject> {
+    private static class StarredComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public StarredComparator(final boolean ascending) {
@@ -294,21 +296,22 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final boolean s1 = t1.isStarred();
-            final boolean s2 = t2.isStarred();
-            if( s1 == s2 ) {
-                return 0;
-            }
-            if( s1 == true ) {
-                return retvalGreater;
-            } else {
-                return retvalSmaller;
-            }
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            return 0;
+//            final boolean s1 = t1.isStarred();
+//            final boolean s2 = t2.isStarred();
+//            if( s1 == s2 ) {
+//                return 0;
+//            }
+//            if( s1 == true ) {
+//                return retvalGreater;
+//            } else {
+//                return retvalSmaller;
+//            }
         }
     }
 
-    private static class IndexComparator implements Comparator<FrostMessageObject> {
+    private static class IndexComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public IndexComparator(final boolean ascending) {
@@ -322,9 +325,9 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final int s1 = t1.getIndex();
-            final int s2 = t2.getIndex();
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            final int s1 = t1.getMsgIndex();
+            final int s2 = t2.getMsgIndex();
             if( s1 == s2 ) {
                 return 0;
             } else if( s1 > s2 ) {
@@ -335,7 +338,7 @@ public class FreetalkMessageTreeTableSortStateBean {
         }
     }
 
-    private static class JunkComparator implements Comparator<FrostMessageObject> {
+    private static class JunkComparator implements Comparator<FreetalkMessage> {
         private int retvalGreater;
         private int retvalSmaller;
         public JunkComparator(final boolean ascending) {
@@ -349,17 +352,18 @@ public class FreetalkMessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final boolean s1 = t1.isJunk();
-            final boolean s2 = t2.isJunk();
-            if( s1 == s2 ) {
-                return 0;
-            }
-            if( s1 == true ) {
-                return retvalGreater;
-            } else {
-                return retvalSmaller;
-            }
+        public int compare(final FreetalkMessage t1, final FreetalkMessage t2) {
+            return 0;
+//            final boolean s1 = t1.isJunk();
+//            final boolean s2 = t2.isJunk();
+//            if( s1 == s2 ) {
+//                return 0;
+//            }
+//            if( s1 == true ) {
+//                return retvalGreater;
+//            } else {
+//                return retvalSmaller;
+//            }
         }
     }
 }
