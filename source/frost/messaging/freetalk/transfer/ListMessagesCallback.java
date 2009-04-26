@@ -138,19 +138,13 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
     private void addMessageFlat(final List<FreetalkMessage> msgList) {
 
-        // FIXME: add sorted?
         for (final FreetalkMessage newMsg : msgList) {
             final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
-            rootNode.add(newMsg);
-            // fire gui update
-            final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
-            mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
+            rootNode.add(newMsg, false);
         }
     }
 
     private void addMessageThreaded(final List<FreetalkMessage> msgList) {
-
-        // FIXME: add sorted
 
         final FreetalkMessage rootNode = mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTable().getRootNode();
 
@@ -160,9 +154,7 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
             final FreetalkMessage newMsg = i.next();
             if (newMsg.getParentMsgID() == null) {
                 i.remove();
-                rootNode.add(newMsg);
-                final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
-                mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
+                rootNode.add(newMsg, false);
             }
         }
 
@@ -181,11 +173,7 @@ INNER_LOOP:
                     final FreetalkMessage m = (FreetalkMessage) e.nextElement();
                     if (parentMsgIdString.equals(m.getMsgId())) {
                         i.remove();
-                        m.add(newMsg);
-                        // fire gui update
-                        final int[] ixs = new int[] { m.getChildCount() - 1 };
-                        mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(m, ixs);
-
+                        m.add(newMsg, false);
                         foundParent = true;
                         break INNER_LOOP;
                     }
@@ -195,9 +183,7 @@ INNER_LOOP:
 
         // add unmatched to root
         for (final FreetalkMessage newMsg : msgList) {
-            rootNode.add(newMsg);
-            final int[] ixs = new int[] { rootNode.getChildCount() - 1 };
-            mainFrame.getFreetalkMessageTab().getMessagePanel().getMessageTreeModel().nodesWereInserted(rootNode, ixs);
+            rootNode.add(newMsg, false);
         }
     }
 }
