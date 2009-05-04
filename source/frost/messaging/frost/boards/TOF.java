@@ -938,45 +938,50 @@ public class TOF implements PropertyChangeListener {
             return true;
         }
 
-        // Block by subject (and rest of the header)
-        if ( blockMsgSubject ) {
-            final String header = message.getSubject().toLowerCase();
-            final StringTokenizer blockWords =
-                new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_SUBJECT), ";");
-            while (blockWords.hasMoreTokens()) {
-                final String blockWord = blockWords.nextToken().trim();
-                if ((blockWord.length() > 0) && (header.indexOf(blockWord) >= 0)) {
-                    return true;
-                }
-            }
-        }
-        // Block by body
-        if ( blockMsgBody ) {
-            final String content = message.getContent().toLowerCase();
-            final StringTokenizer blockWords =
-                new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BODY), ";");
-            while (blockWords.hasMoreTokens()) {
-                final String blockWord = blockWords.nextToken().trim();
-                if ((blockWord.length() > 0) && (content.indexOf(blockWord) >= 0)) {
-                    return true;
-                }
-            }
-        }
-        // Block by attached boards
-        if ( blockMsgBoardname ) {
-            final List<BoardAttachment> boards = message.getAttachmentsOfType(Attachment.BOARD);
-            final StringTokenizer blockWords =
-                new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
-            while (blockWords.hasMoreTokens()) {
-                final String blockWord = blockWords.nextToken().trim();
-                for( final BoardAttachment boardAttachment : boards ) {
-                    final Board boardObject = boardAttachment.getBoardObj();
-                    if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
+        // check for block words, don't check OBSERVE and GOOD
+        if (!message.isMessageStatusOBSERVE() && !message.isMessageStatusGOOD()) {
+
+            // Block by subject (and rest of the header)
+            if ( blockMsgSubject ) {
+                final String header = message.getSubject().toLowerCase();
+                final StringTokenizer blockWords =
+                    new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_SUBJECT), ";");
+                while (blockWords.hasMoreTokens()) {
+                    final String blockWord = blockWords.nextToken().trim();
+                    if ((blockWord.length() > 0) && (header.indexOf(blockWord) >= 0)) {
                         return true;
                     }
                 }
             }
+            // Block by body
+            if ( blockMsgBody ) {
+                final String content = message.getContent().toLowerCase();
+                final StringTokenizer blockWords =
+                    new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BODY), ";");
+                while (blockWords.hasMoreTokens()) {
+                    final String blockWord = blockWords.nextToken().trim();
+                    if ((blockWord.length() > 0) && (content.indexOf(blockWord) >= 0)) {
+                        return true;
+                    }
+                }
+            }
+            // Block by attached boards
+            if ( blockMsgBoardname ) {
+                final List<BoardAttachment> boards = message.getAttachmentsOfType(Attachment.BOARD);
+                final StringTokenizer blockWords =
+                    new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
+                while (blockWords.hasMoreTokens()) {
+                    final String blockWord = blockWords.nextToken().trim();
+                    for( final BoardAttachment boardAttachment : boards ) {
+                        final Board boardObject = boardAttachment.getBoardObj();
+                        if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
+        // not blocked
         return false;
     }
 
