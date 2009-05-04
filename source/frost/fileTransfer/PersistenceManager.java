@@ -220,21 +220,25 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     }
 
     public void changeItemPriorites(final ModelItem[] items, final int newPrio) {
-        if( items == null || items.length == 0 ) {
+        if (items == null || items.length == 0) {
             return;
         }
-        for( final ModelItem item : items ) {
+        for (final ModelItem item : items) {
             String gqid = null;
-            if( item instanceof FrostUploadItem ) {
+            if (item instanceof FrostUploadItem) {
                 final FrostUploadItem ui = (FrostUploadItem) item;
-                ui.setPriority(newPrio);
-                gqid = ui.getGqIdentifier();
-            } else if( item instanceof FrostDownloadItem ) {
+                if (ui.getState() == FrostUploadItem.STATE_PROGRESS) {
+                    ui.setPriority(newPrio);
+                    gqid = ui.getGqIdentifier();
+                }
+            } else if (item instanceof FrostDownloadItem) {
                 final FrostDownloadItem di = (FrostDownloadItem) item;
-                gqid = di.getGqIdentifier();
-                di.setPriority(newPrio);
+                if (di.getState() == FrostDownloadItem.STATE_PROGRESS) {
+                    gqid = di.getGqIdentifier();
+                    di.setPriority(newPrio);
+                }
             }
-            if( gqid != null ) {
+            if (gqid != null) {
                 fcpTools.changeRequestPriority(gqid, newPrio);
             }
         }
