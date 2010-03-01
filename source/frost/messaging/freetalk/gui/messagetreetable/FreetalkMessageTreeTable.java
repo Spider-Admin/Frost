@@ -42,7 +42,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
-import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -68,7 +67,7 @@ import frost.util.gui.*;
  */
 public class FreetalkMessageTreeTable extends JTable implements PropertyChangeListener {
 
-    private static final Logger logger = Logger.getLogger(FreetalkMessageTreeTable.class.getName());
+//    private static final Logger logger = Logger.getLogger(FreetalkMessageTreeTable.class.getName());
 
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
@@ -567,12 +566,11 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
 //                    }
 //                }
 
-//                final ImageIcon icon;
+                final ImageIcon icon;
 //                if( msg.isDummy() ) {
 //                    icon = messageDummyIcon;
-////                    dtcr.setToolTipText(null);
 //                    if( msg.getSubject() != null && msg.getSubject().length() > 0 ) {
-//                        setToolTipText(msg.getSubject());
+//                        setToolTipText(msg.getTitle());
 //                    } else {
 //                        setToolTipText(null);
 //                    }
@@ -581,7 +579,7 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
 //                        if( msg.isReplied() ) {
 //                            icon = messageNewRepliedIcon;
 //                        } else {
-//                            icon = messageNewIcon;
+                            icon = messageNewIcon;
 //                        }
 //                    } else {
 //                        if( msg.isReplied() ) {
@@ -590,13 +588,12 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
 //                            icon = messageReadIcon;
 //                        }
 //                    }
-////                    dtcr.setToolTipText(msg.getSubject());
-//                    setToolTipText(msg.getSubject());
+                    setToolTipText(msg.getTitle());
 //                }
-//                dtcr.setIcon(icon);
-//                dtcr.setLeafIcon(icon);
-//                dtcr.setOpenIcon(icon);
-//                dtcr.setClosedIcon(icon);
+                dtcr.setIcon(icon);
+                dtcr.setLeafIcon(icon);
+                dtcr.setOpenIcon(icon);
+                dtcr.setClosedIcon(icon);
     	    }
 
     	    return this;

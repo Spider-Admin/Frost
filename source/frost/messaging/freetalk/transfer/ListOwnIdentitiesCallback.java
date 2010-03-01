@@ -18,13 +18,14 @@
 */
 package frost.messaging.freetalk.transfer;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
-import frost.fcp.fcp07.*;
-import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
-import frost.messaging.freetalk.*;
-import frost.messaging.freetalk.identities.*;
+import frost.fcp.fcp07.NodeMessage;
+import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.FreetalkNodeMessageCallback;
+import frost.messaging.freetalk.FreetalkManager;
+import frost.messaging.freetalk.identities.FreetalkOwnIdentity;
 
 public class ListOwnIdentitiesCallback implements FreetalkNodeMessageCallback {
 
@@ -57,7 +58,7 @@ public class ListOwnIdentitiesCallback implements FreetalkNodeMessageCallback {
             return;
         }
 
-        final String uid = nodeMsg.getStringValue("Replies.UID");
+        final String uid = nodeMsg.getStringValue("Replies.ID");
         final String nickname = nodeMsg.getStringValue("Replies.Nickname");
         final String ftAddress = nodeMsg.getStringValue("Replies.FreetalkAddress");
 

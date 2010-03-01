@@ -18,15 +18,19 @@
 */
 package frost.fcp.fcp07.freetalk;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fcp.*;
-import frost.fcp.fcp07.*;
-import frost.messaging.freetalk.*;
+import frost.Core;
+import frost.fcp.NodeAddress;
+import frost.fcp.fcp07.FcpListenThreadConnection;
+import frost.fcp.fcp07.NodeMessage;
+import frost.fcp.fcp07.NodeMessageListener;
+import frost.messaging.freetalk.FreetalkFileAttachment;
 
 
 public class FcpFreetalkConnection extends FcpListenThreadConnection {
@@ -75,9 +79,21 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         sendMessage(msg);
     }
 
+    public void sendCommandListSubscribedBoards(final String id, final String ownId) throws Exception {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("FCPPluginMessage");
+        msg.add("Identifier="+id);
+        msg.add("PluginName=plugins.Freetalk.Freetalk");
+        msg.add("Param.Message=ListSubscribedBoards");
+        msg.add("Param.OwnIdentityID="+ownId);
+        sendMessage(msg);
+    }
+
     public void sendCommandListMessages(
             final String id,
             final String boardname,
+            final String ownId,
             final boolean withMessageContent)
     throws Exception {
 
@@ -87,11 +103,13 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         msg.add("PluginName=plugins.Freetalk.Freetalk");
         msg.add("Param.Message=ListMessages");
         msg.add("Param.BoardName="+boardname);
+        msg.add("Param.OwnIdentityID="+ownId);
         msg.add("Param.SortByMessageDateAscending=true");
         msg.add("Param.IncludeMessageText="+withMessageContent);
         sendMessage(msg);
     }
 
+    // FIXME: subscribe after create ?!
     public void sendCommandCreateBoard(
             final String id,
             final String boardname)
@@ -110,6 +128,7 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
             final String id,
             final String boardname,
             final int msgIndex,
+            final String ownId,
             final boolean withMessageContent)
     throws Exception {
 
@@ -120,6 +139,7 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         msg.add("Param.Message=GetMessage");
         msg.add("Param.BoardName="+boardname);
         msg.add("Param.MessageIndex="+msgIndex);
+        msg.add("Param.OwnIdentityID="+ownId);
         msg.add("Param.IncludeMessageText="+withMessageContent);
         sendMessage(msg);
     }
@@ -154,7 +174,7 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         if (parentId != null) {
             msg.add("Param.ParentID="+parentId);
         }
-        msg.add("Param.AuthorIdentityUID="+ownIdentityUid);
+        msg.add("Param.AuthorIdentityID="+ownIdentityUid);
         msg.add("Param.ReplyToBoard="+replyToBoard);
 
         String targetBoardsStr = "";

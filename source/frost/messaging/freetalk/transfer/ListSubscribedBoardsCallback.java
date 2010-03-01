@@ -18,21 +18,21 @@
 */
 package frost.messaging.freetalk.transfer;
 
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fcp.fcp07.*;
-import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
-import frost.messaging.freetalk.*;
-import frost.messaging.freetalk.boards.*;
+import frost.MainFrame;
+import frost.fcp.fcp07.NodeMessage;
+import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.FreetalkNodeMessageCallback;
+import frost.messaging.freetalk.FreetalkManager;
+import frost.messaging.freetalk.boards.FreetalkBoard;
 
-public class ListBoardsCallback implements FreetalkNodeMessageCallback {
+public class ListSubscribedBoardsCallback implements FreetalkNodeMessageCallback {
 
-    private static final Logger logger = Logger.getLogger(ListBoardsCallback.class.getName());
+    private static final Logger logger = Logger.getLogger(ListSubscribedBoardsCallback.class.getName());
 
     private final MainFrame mainFrame;
 
-    public ListBoardsCallback(final MainFrame mf) {
+    public ListSubscribedBoardsCallback(final MainFrame mf) {
         mainFrame = mf;
     }
 
@@ -51,7 +51,7 @@ public class ListBoardsCallback implements FreetalkNodeMessageCallback {
             return;
         }
 
-        if (!"Board".equals(nodeMsg.getStringValue("Replies.Message"))) {
+        if (!"SubscribedBoard".equals(nodeMsg.getStringValue("Replies.Message"))) {
             logger.severe("Unexpected NodeMessage received: "+nodeMsg.getStringValue("Replies.Message"));
             FreetalkManager.getInstance().getConnection().unregisterCallback(id);
             mainFrame.deactivateGlassPane();
