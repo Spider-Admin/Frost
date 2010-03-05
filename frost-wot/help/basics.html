@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <META http-equiv="Content-Style-Type" content="text/css">
+    <LINK rel="stylesheet" href="style.css" type="text/css">
+    <TITLE>FROST FAQ</TITLE>
+  </HEAD>
+  <BODY>
+<h2>Frost Basics</h2>
+
+* <a href="#general">General Information</a><br>
+* <a href="#boards">Boards</a><br>
+* <a href="#files">File Sharing</a><br>
+
+* <a href="#trust">Web of Trust</a><br>
+* <a href="#spam">Spam!</a><br>
+<br>
+<hr>
+
+<a name="general"></a>
+
+<h3>What is Frost? What is the WOT about?</h3>
+<p>Frost is a p2p app that works on top of Freenet. You need to have Freenet working to use Frost.</p>
+<p>The WOT means Web Of Trust. Even though you're anonymous while using Frost, you can have an
+identity (nickname) that nobodoy can steal from you. Different people choose to trust or not trust
+each other, and a "web" of buddies is created.</p>
+
+<h3>Can I share files with Frost?</h3>
+<p>Yes, you can share files with Frost, but its different from other p2p apps.<br>
+</p>
+<p>If you know how to use newsgroups, you'll find Frost very easy to use and will feel right at
+home. If you're used to other filesharing apps, you should know that the best way to find what
+you're looking for is to ask for it. If you can't find it in the search results, post a message to
+the relevant board and someone will respond to you.</p>
+<hr>
+
+<a name="boards"></a>
+
+<h3>What is a board?</h3>
+<p>Board is a place where people hang out. Boards can be public, which means everybody can go there,
+or protected.</p>
+<p>Protected boards have a pair of keys - one for reading and one for writing. If you have the
+reading key, you can see what messages and files people post on that board. If you have the writing
+key, you can post messages and share files there.</p>
+
+<h3>Why would I want a protected board?</h3>
+<p>If you only give out the writing key to people you trust, you can be sure your board won't get
+spammed. Release groups for example would give out the public key, but keep the private key only for
+members of the group. They want everybody to be able to see their releases, but don't want other
+people to put files there.</p>
+<p>And if you keep both the reading and writing key secret, only your buddies will be able to see
+the board.</p>
+
+<h3>Why do so many people give out the writing keys to their boards? Can't they just make those
+boards public?</h3>
+<p>The only difference between a public board and a protected board whose writing key everybody
+knows is that if the protected board starts getting spammed, the keys to that board can be changed
+and that will stop the spam. Public boards need to change their name to get rid of spam. And its
+much easier to change the keys than to change the name! :)</p>
+
+<h3>How do I let others know about my board?</h3>
+<p>You can attach the board to a message and post it on another board. Frost will ask you if you
+want to give out the writing key.</p>
+
+<p>You can encrypt the message which means only one other person will be able to see it. That's
+useful when you have a protected board, and want to invite someone specific to join it - you send
+that person an encrypted message and put the writing key of the board in it</p>
+<hr>
+
+<a name="files"></a>
+
+<h3>How do I share files?</h3>
+<p>Filesharing works different in Frost than in other apps. You don't upload files to other users,
+but put them in Freenet.</p>
+<p>When you select which files or directories to share on the "Shared files" tab, Frost advertises them
+to other users. Then when someone asks for a specific file, Frost uploads it to Freenet and the
+other user gets it from there. This way your anonymity is protected.</p>
+
+<h3>Why are so many files "offline"? What does that mean?</h3>
+<p>That means those files are not in freenet yet. Frost will ask the user who shared them to upload
+them to Freenet, and after that will download them from Freenet. That's why files that are "offline"
+usually take longer to start downloading.</p>
+
+<h3>What are those numbers in the progress bar?</h3>
+<p>Freenet splits bigger files into smaller chunks and adds extra chunks to make sure the file
+downloads faster. When you see for example "1 / 10 (15)" it means there are 15 chunks total, you
+need to get 10 of them, and already have gotten 1.</p>
+
+<h3>What about files attached to messages?</h3>
+<p>When you attach file to a message Frost uploads it to Freenet immediately. That's why if you see
+a file attached to a message, you know for sure its uploaded already and it will start downloading
+faster.</p>
+
+<h3>Why not just upload all files to Freenet the first time around?</h3>
+<p>Because of the way Freenet works. It can't hold too many files at once, and when you put new
+files some of the older files fall out. If you upload all of your files at once, many of them will
+fall out and you'll have to upload them again later.</p>
+<p>The more disk space people donate to Freenet, the more files it can hold. (hint, hint! ;-)</p>
+
+<h3>How to add CHK keys directly to download table?</h3>
+<p>Paste the freenet key (like 'CHK@7687fdszs67f8/myfile.txt') into the text box in download view,
+then press enter. This adds the key to the download table. You can also paste multiple keys, separated by
+a semicolon or each key on a single line.</p>
+<hr>
+
+<a name="trust"></a>
+
+<h3>What is trust? Why bother trusting or not trusting people?</h3>
+<p>In Freenet everybody is anonymous. But to be useful, there has to be a way to guarantee that you
+can have an identity that nobody can steal from you. Trust helps create groups of friends, and Frost
+automatically supports the people in your group. It pays to be trusted by many people, and that's
+explained why shortly.</p>
+
+<h3>What is that @af34s... stuff after my nickname?</h3>
+<p>It is your unique id. It allows many people to chose the same nickname, they will all end up
+having different ids</p>
+
+<h3>What is <b><font color="green">GOOD</font></b>, <b><font color="orange">CHECK</font></b> and <b><font
+	color="red">BAD</font></b> ?</h3>
+<p>Somebody who you've marked GOOD is somebody you trust. You can send them private messages and
+help them spread their shared lists. You can mark soneone OBSERVE if you start to trust him, but you still are
+not really sure about him. Somebody marked as CHECK is somebody neutral. You can block
+their messages if you wish. And BAD is somebody you don't like or don't trust, you can block their
+messages and won't see any files from them.</p>
+
+<h3>And what about "NONE" in the sig column?</h3>
+<p>NONE means the person who sent the message didn't want to sign it - so its a message from
+anonymous sender.</p>
+
+<h3>Why does it pay to be trusted by others and why is it bad not to be trusted?</h3>
+<p>When other people trust you, their Frosts help the files you have shared to stay visible and not
+fall off Freenet Also, people can send you private messages only if they trust you.</p>
+<p>When people don't trust you or you are neutral to them, they can chose to block your messages and
+your files. So if many people out there hate you, you won't be very successful in sharing files.</p>
+
+<h3>What if I don't want to sign my messages and files?</h3>
+<p>You're free to do that and others are free to choose not to see your messages and files :-p</p>
+<hr>
+
+<a name="spam"></a>
+
+<h3>Spam?</h3>
+
+<p>More precisely DDOS. When using Freenet, there is a tradeoff between how fast you get the new
+messages and how protected you are from spam.</p>
+
+<h3>I found a way to spam Frost. Am I cool now?</h3>
+<p>Its cool that you're "digging below the surface" and studying Freenet and Frost, but if you use
+that knowledge to screw other people, you're not cool at all.</p>
+
+<h3>How can I protect myself against spam?</h3>
+<p>If the spammer is more powerful (RIAA, government) then you need to change the keys to your
+boards. The protected board "frost-announcement" will try to provide new keys for the default boards if that
+happens. However, if all the people that have the key to that board get arrested or hit by a bus,
+that won't work.</p>
+<p>Never respond to spam messages (don't feed the troll). Ignore them, delete them and mark the spammer BAD when
+he used an identity. Or choose to not to show anonymous messages at all, but please notify the board members about this.</p>
+
+<h3>What practices will prepare me to respond to spam?</h3>
+
+<p>Have a secured board where to look for new keys for the spammed boards. Only limited number of
+people should have the keys to that secured board, and all messages sent on it should be encrypted,
+otherwise the spammer will be able to spam the new board too. Once you get new, spam-safe keys for a
+given board, give those keys to people you trust not to be the spammer in encrypted message.</p>
+</body>
+
+</html>
