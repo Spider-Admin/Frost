@@ -475,7 +475,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private final JButton setCheckButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-overcast.png"));
     private final JButton setBadButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-storm.png"));
 
-	private final ButtonGroup toggleShowOnlyGroup = new ButtonGroup();
     private final JToggleButton toggleShowUnreadOnly = new JToggleButton("");
     private final JToggleButton toggleShowFlaggedOnly = new JToggleButton("");
     private final JToggleButton toggleShowStarredOnly = new JToggleButton("");
@@ -549,10 +548,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowStarredOnly.setPreferredSize(new Dimension(24,24));
         toggleShowStarredOnly.setFocusPainted(false);
         toggleShowStarredOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowStarredOnly"));
-
-        toggleShowOnlyGroup.add(toggleShowUnreadOnly);
-        toggleShowOnlyGroup.add(toggleShowFlaggedOnly);
-        toggleShowOnlyGroup.add(toggleShowStarredOnly);
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
         icon = MiscToolkit.loadImageIcon("/data/toolbar/toggle-treeview.png");
@@ -1112,34 +1107,22 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private int getShowOnlyAsFlags() {
-    	return
-    		(Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY) ? 1 : 0)  +
-    		(Core.frostSettings.getBoolValue(SettingsClass.SHOW_STARRED_ONLY) ? 2 : 0) +
-    		(Core.frostSettings.getBoolValue(SettingsClass.SHOW_FLAGGED_ONLY) ? 4 : 0);
-    }
-
     private void toggleShowOnly_actionPerformed(final ActionEvent e) {
-    	final int beforeFlags = getShowOnlyAsFlags();
-    	int afterFlags;
+
+        if (e.getSource() == toggleShowUnreadOnly) {
+            toggleShowStarredOnly.setSelected(false);
+            toggleShowFlaggedOnly.setSelected(false);
+        } else if (e.getSource() == toggleShowStarredOnly) {
+            toggleShowUnreadOnly.setSelected(false);
+            toggleShowFlaggedOnly.setSelected(false);
+        } else {
+            toggleShowUnreadOnly.setSelected(false);
+            toggleShowStarredOnly.setSelected(false);
+        }
 
     	Core.frostSettings.setValue(SettingsClass.SHOW_UNREAD_ONLY, toggleShowUnreadOnly.isSelected());
     	Core.frostSettings.setValue(SettingsClass.SHOW_STARRED_ONLY, toggleShowStarredOnly.isSelected());
     	Core.frostSettings.setValue(SettingsClass.SHOW_FLAGGED_ONLY, toggleShowFlaggedOnly.isSelected());
-
-    	afterFlags = getShowOnlyAsFlags();
-
-    	if (beforeFlags == afterFlags) {
-    		// Same button pressed, deselect
-    	    final Enumeration<AbstractButton> en = toggleShowOnlyGroup.getElements();
-    	    while (en.hasMoreElements()) {
-    	        final AbstractButton b = en.nextElement();
-    	        b.setSelected(false);
-    	    }
-//    		toggleShowOnlyGroup.clearSelection(); // Java 1.6!
-    		toggleShowOnly_actionPerformed(e);
-    		return;
-    	}
 
         // reload messages
         MainFrame.getInstance().tofTree_actionPerformed(null, true);
