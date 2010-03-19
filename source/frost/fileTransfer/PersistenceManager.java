@@ -298,7 +298,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      */
     public boolean maybeEnqueueDirectGet(final FrostDownloadItem dlItem, final long expectedFileSize) {
         if( !isDirectTransferInProgress(dlItem) ) {
-            final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+            final File targetFile = new File(dlItem.getDownloadFilename());
             if( !targetFile.isFile() || targetFile.length() != expectedFileSize ) {
                 directTransferQueue.appendItemToQueue(dlItem);
                 return true;
@@ -378,7 +378,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     maybeEnqueueDirectGet(dlItem, getReq.getFilesize());
                 } else {
                     final FcpResultGet result = new FcpResultGet(true);
-                    final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                    final File targetFile = new File(dlItem.getDownloadFilename());
                     FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                 }
             }
@@ -394,7 +394,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
                 final String redirectURI = getReq.getRedirectURI();
                 final FcpResultGet result = new FcpResultGet(false, returnCode, desc, isFatal, redirectURI);
-                final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                final File targetFile = new File(dlItem.getDownloadFilename());
                 final boolean retry = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                 if( retry ) {
                     fcpTools.removeRequest(getReq.getIdentifier());
@@ -602,9 +602,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
 
         final String gqid = dlItem.getGqIdentifier();
-        final String downloadDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
-        final File targetFile = new File(downloadDir + dlItem.getFilename());
-        dlItem.setDirect( !isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir) );
+        final File targetFile = new File(dlItem.getDownloadFilename());
+        dlItem.setDirect( !isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, dlItem.getDownloadDir()) );
         fcpTools.startPersistentGet(
                 dlItem.getKey(),
                 gqid,
@@ -751,10 +750,19 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         final FrostDownloadItem dlItem = (FrostDownloadItem) item;
                         // FIXME: provide item, state=Transfer from node, % shows progress
                         final String gqid = dlItem.getGqIdentifier();
-                        final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                        final File targetFile = new File(dlItem.getDownloadFilename());
 
                         final boolean retryNow;
-                        final NodeMessage answer = fcpTools.startDirectPersistentGet(gqid, targetFile);
+                        NodeMessage answer = null;
+
+                        try {
+                            answer = fcpTools.startDirectPersistentGet(gqid, targetFile);
+                        } catch (final FileNotFoundException e) {
+                            final String msg = "Could not write to " + dlItem.getDownloadFilename() + ": " + e.getMessage();
+                            System.out.println(msg);
+                            logger.severe(msg);
+                        }
+
                         if( answer != null ) {
                             final FcpResultGet result = new FcpResultGet(true);
                             FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);

@@ -259,6 +259,13 @@ public class TofTreeXmlIO {
         } else {
             board.setHideObserve( Boolean.valueOf(val) );
         }
+
+        val = element.getAttribute("hideMessageCount");
+        if( val.length() == 0 ) {
+            board.setHideMessageCount( null );
+        } else {
+            board.setHideMessageCount( Integer.valueOf(val) );
+        }
     }
 
     private void refreshModel(final DefaultTreeModel model, final Folder node) {
@@ -470,6 +477,9 @@ public class TofTreeXmlIO {
             if( board.getHideObserveObj() != null ) {
                 element.setAttribute("hideObserveMessages", "" + board.getHideObserve());
             }
+            if( board.getHideMessageCountObj() != null ) {
+	            element.setAttribute("hideMessageCount", "" + board.getHideMessageCount());
+			}
             rootBoardElement.appendChild(element);
         }
 

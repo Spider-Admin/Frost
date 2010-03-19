@@ -138,13 +138,47 @@ public class UploadManager implements ExitSavable {
                     FileAccess.appendLineToTextfile(targetFile, line);
                     uploadItem.setLoggedToFile(true);
                 }
+
+                final String execProg = Core.frostSettings.getValue(SettingsClass.EXEC_ON_UPLOAD);
+                if( execProg != null && execProg.length() > 0 && !uploadItem.isCompletionProgRun() ) {
+                    final File dir = uploadItem.getFile().getParentFile();
+                    final Map<String, String> oldEnv = System.getenv();
+                    final String[] newEnv = new String[oldEnv.size() + 2];
+                    String args[] = new String[3];
+                    int i;
+
+                    args[0] = execProg;
+                    args[1] = uploadItem.getFilename();
+                    args[2] = result.getChkKey();
+
+                    for( i = 0; i < args.length; i++ ) {
+                        if( args[i] == null ) {
+                            args[i] = "";
+                        }
+                    }
+
+                    i = 0;
+                    for (final Map.Entry<String, String> entry : oldEnv.entrySet()) {
+                        newEnv[i++] = entry.getKey() + "=" + entry.getValue();
+                    }
+
+                    newEnv[i++] = "FROST_FILENAME=" + uploadItem.getFilename();
+                    newEnv[i++] = "FROST_KEY=" + result.getChkKey();
+
+                    try {
+                        Runtime.getRuntime().exec(args, newEnv, dir);
+                    } catch (Exception e) {
+                        System.out.println("Could not exec " + execProg + ": " + e.getMessage());
+                    }
+                }
+
+                uploadItem.setCompletionProgRun(true);
             }
 
             // maybe remove finished upload immediately
             if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED) ) {
                 getModel().removeFinishedUploads();
             }
-
         } else {
             // upload failed
             logger.warning("Upload of " + uploadItem.getFile().getName() + " was NOT successful.");

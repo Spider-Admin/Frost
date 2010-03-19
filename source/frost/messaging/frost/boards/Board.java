@@ -43,6 +43,8 @@ public class Board extends AbstractNode {
     private Boolean hideBad = null;
     private Boolean hideCheck = null;
     private Boolean hideObserve = null;
+    private Integer hideMessageCount = null;
+    private Boolean hideMessageCountExcludePrivate = null;
 
     private Boolean storeSentMessages = null;
 
@@ -204,6 +206,30 @@ public class Board extends AbstractNode {
 
     public Boolean getHideObserveObj() {
         return hideObserve;
+    }
+
+    public int getHideMessageCount() {
+        if (!isConfigured() || hideMessageCount == null) {
+            // return default
+            return Core.frostSettings.getIntValue(SettingsClass.MESSAGE_HIDE_COUNT);
+        }
+    	return hideMessageCount.intValue();
+    }
+
+    public Integer getHideMessageCountObj() {
+        return hideMessageCount;
+    }
+
+    public boolean getHideMessageCountExcludePrivate() {
+        if (!isConfigured() || hideMessageCountExcludePrivate == null) {
+            // return default
+            return Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_COUNT_EXCLUDE_PRIVATE);
+        }
+    	return hideMessageCountExcludePrivate.booleanValue();
+    }
+
+    public Boolean getHideMessageCountExcludePrivateObj() {
+    	return hideMessageCountExcludePrivate;
     }
 
     public long getLastUpdateStartMillis() {
@@ -379,6 +405,14 @@ public class Board extends AbstractNode {
 
     public void setHideObserve(final Boolean val) {
         hideObserve = val;
+    }
+
+    public void setHideMessageCount(final Integer val) {
+    	hideMessageCount = val;
+    }
+
+    public void setHideMessageCountExcludePrivate(final Boolean val) {
+    	hideMessageCountExcludePrivate = val;
     }
 
     public void setLastUpdateStartMillis(final long millis) {

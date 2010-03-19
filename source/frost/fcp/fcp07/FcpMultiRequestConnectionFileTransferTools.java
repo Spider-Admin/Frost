@@ -148,7 +148,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         lst.add("Identifier=" + id);
         lst.add("Verbosity=-1");
         lst.add("MaxRetries=-1");
-        lst.add("DontCompress=false"); // force compression
+        lst.add("DontCompress=true");
         if( setTargetFileName ) {
             lst.add("TargetFilename="+sourceFile.getName()); // prevents problems downloading this file with other apps
         } else {
@@ -207,19 +207,22 @@ public class FcpMultiRequestConnectionFileTransferTools {
         fileInput.close();
         dataOutput.flush();
 
+        // XXX: For some reason Freenet never responds with an OK-message?
+
         // wait for a message from node
         // good: PersistentPut
         // -> IdentifierCollision {Global=true, Identifier=myid1} EndMessage
-        final NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());
+        //final NodeMessage nodeMsg = NodeMessage.readMessageDebug(newSocket.getFcpIn());
 
-        System.out.println("*PPUT** INFO - NodeMessage:");
-        System.out.println((nodeMsg==null)?"(null)":nodeMsg.toString());
+        //System.out.println("*PPUT** INFO - NodeMessage:");
+        //System.out.println((nodeMsg==null)?"(null)":nodeMsg.toString());
 
         dataOutput.close();
 
         newSocket.close();
 
-        return nodeMsg;
+        //return nodeMsg;
+        return new NodeMessage("Dummy");
     }
 
     /**
@@ -323,7 +326,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("Identifier=" + id );
         msg.add("Verbosity=0");
         msg.add("MaxRetries=1");
-        msg.add("DontCompress=false"); // force compression
+        msg.add("DontCompress=true");
         msg.add("PriorityClass="+Integer.toString(priority));
         msg.add("Persistence=connection");
         msg.add("UploadFrom=direct");

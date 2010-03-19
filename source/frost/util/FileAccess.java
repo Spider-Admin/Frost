@@ -575,4 +575,18 @@ public class FileAccess {
         }
         return wasOk;
     }
+
+    public static String appendSeparator(final String path) {
+    	final String separator = System.getProperty("file.separator");
+
+    	if (path == null) {
+    		return null;
+    	}
+
+    	if (!path.endsWith(separator)) {
+    		return path + separator;
+		}
+
+		return path;
+	}
 }

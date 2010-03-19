@@ -20,6 +20,9 @@ PROGDIR=`dirname "$PRG"`
 
 cd $PROGDIR
 
+# you may need to uncomment this if you are on beryl
+#export AWT_TOOLKIT="MToolkit"
+
 if [ "`uname`" = "Darwin" ]; then
     ADDFLAGS='-Dapple.laf.useScreenMenuBar=true -Xdock:name=Frost'
 else

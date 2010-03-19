@@ -34,6 +34,8 @@ class DownloadPanel extends JPanel {
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == browseDirectoryButton) {
                 browseDirectoryPressed();
+            } else if (e.getSource() == browseExecButton) {
+                browseExecPressed();
             }
         }
     }
@@ -61,6 +63,10 @@ class DownloadPanel extends JPanel {
 
     private final JLabel waitTimeLabel = new JLabel();
     private final JTextField waitTimeTextField = new JTextField(6);
+
+    private final JButton browseExecButton = new JButton();
+    private final JLabel execLabel = new JLabel();
+    private final JTextField execTextField = new JTextField(20);
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -96,6 +102,21 @@ class DownloadPanel extends JPanel {
         }
     }
 
+    private void browseExecPressed() {
+        final JFileChooser fc = new JFileChooser(settings.getValue(SettingsClass.DIR_LAST_USED));
+        fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fc.setMultiSelectionEnabled(false);
+
+        final int returnVal = fc.showOpenDialog(owner);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            final File file = fc.getSelectedFile();
+            settings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
+            execTextField.setText(file.getPath());
+        }
+    }
+
     private void initialize() {
         setName("DownloadPanel");
         setLayout(new GridBagLayout());
@@ -106,6 +127,7 @@ class DownloadPanel extends JPanel {
         new TextComponentClipboardMenu(maxRetriesTextField, language);
         new TextComponentClipboardMenu(threadsTextField, language);
         new TextComponentClipboardMenu(waitTimeTextField, language);
+        new TextComponentClipboardMenu(execTextField, language);
 
         // Adds all of the components
         final GridBagConstraints constraints = new GridBagConstraints();
@@ -164,6 +186,19 @@ class DownloadPanel extends JPanel {
         constraints.insets = insets0555;
         add(enforceFrostPriorityFileDownload, constraints);
 
+        constraints.gridy++;
+        constraints.gridwidth = 1;
+        constraints.gridx = 0;
+        add(execLabel, constraints);
+        constraints.gridx = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        add(execTextField, constraints);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 2;
+        constraints.weightx = 0.0;
+        add(browseExecButton, constraints);
+
         // glue
         constraints.gridy++;
         constraints.fill = GridBagConstraints.BOTH;
@@ -173,6 +208,7 @@ class DownloadPanel extends JPanel {
 
         // Add listeners
         browseDirectoryButton.addActionListener(listener);
+        browseExecButton.addActionListener(listener);
     }
 
     /**
@@ -186,6 +222,7 @@ class DownloadPanel extends JPanel {
         logDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED));
         priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
         enforceFrostPriorityFileDownload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD));
+        execTextField.setText(settings.getValue(SettingsClass.EXEC_ON_DOWNLOAD));
     }
 
     public void ok() {
@@ -205,6 +242,9 @@ class DownloadPanel extends JPanel {
         threadsTextLabel.setText(language.getString("Options.downloads.numberOfSimultaneousDownloads") + " (3)");
         priorityLabel.setText(language.getString("Options.downloads.downloadPriority") + " (3)");
         enforceFrostPriorityFileDownload.setText(language.getString("Options.downloads.enforceFrostPriorityFileDownload"));
+
+        execLabel.setText(language.getString("Options.downloads.downloadExec"));
+        browseExecButton.setText(language.getString("Common.browse") + "...");
     }
 
     /**
@@ -228,5 +268,7 @@ class DownloadPanel extends JPanel {
         settings.setValue(SettingsClass.LOG_DOWNLOADS_ENABLED, logDownloadsCheckBox.isSelected());
         settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, priorityTextField.getText());
         settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD, enforceFrostPriorityFileDownload.isSelected());
+
+        settings.setValue(SettingsClass.EXEC_ON_DOWNLOAD, execTextField.getText());
     }
 }

@@ -22,6 +22,7 @@ import frost.fileTransfer.*;
 import frost.storage.perst.filelist.*;
 import frost.util.*;
 import frost.util.model.*;
+import frost.messaging.frost.*;
 
 public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem {
 
@@ -36,9 +37,12 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public transient final static int STATE_DECODING   = 6; // decoding runs
 
 	private String fileName = null;
-    private String targetPath = null;
+	private String prefix = null;
+    private String downloadDir = null;
 	private long fileSize = -1;
 	private String key = null;
+	private String associatedMessageId = null;
+	private String associatedBoardName = null;
 
     private Boolean enabled = Boolean.TRUE;
     private int state = STATE_WAITING;
@@ -50,6 +54,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     private String gqIdentifier = null;
 
     private boolean isLoggedToFile = false;
+    private boolean isCompletionProgRun = false;
 
     private int runtimeSecondsWithoutProgress = 0;
     private int oldDoneBlocks = 0;
@@ -132,7 +137,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
      */
 	public FrostDownloadItem(
             final String newFilename,
-            final String newTargetPath,
+            final String newFilenamePrefix,
+            final String newDownloadDir,
             final long newSize,
             final String newKey,
             final Boolean newEnabledownload,
@@ -144,11 +150,15 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
             final long newLastDownloadStopTime,
             final String newGqId,
             final boolean newIsLoggedToFile,
+            final boolean newIsCompletionProgRun,
             final int newRuntimeSecondsWithoutProgress,
-            final int newOldDoneBlocks)
+            final int newOldDoneBlocks,
+            final String newAssociatedBoardName,
+            final String newAssociatedMessageId)
     {
         fileName = newFilename;
-        targetPath = newTargetPath;
+        prefix = newFilenamePrefix;
+        downloadDir = FileAccess.appendSeparator(newDownloadDir);
         fileSize = newSize;
         key = newKey;
         enabled = newEnabledownload;
@@ -160,8 +170,12 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         lastDownloadStopTime = newLastDownloadStopTime;
         gqIdentifier = newGqId;
         isLoggedToFile= newIsLoggedToFile;
+        isCompletionProgRun= newIsCompletionProgRun;
         runtimeSecondsWithoutProgress = newRuntimeSecondsWithoutProgress;
         oldDoneBlocks = newOldDoneBlocks;
+        associatedBoardName = newAssociatedBoardName;
+        associatedMessageId = newAssociatedMessageId;
+        
 
         if( this.state == FrostDownloadItem.STATE_PROGRESS ) {
             // download was running at end of last shutdown
@@ -184,6 +198,12 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         fileName = s;
     }
 	public String getFilename() {
+		if (prefix == null || prefix.length() == 0) {
+			return fileName;
+		}
+		return prefix + "_" + fileName;
+	}
+	public String getUnprefixedFilename() {
 		return fileName;
 	}
 
@@ -307,12 +327,27 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         this.gqIdentifier = gqId;
     }
 
-    public String getTargetPath() {
-        return targetPath;
+    public String getDownloadFilename() {
+        return getDownloadDir() + getFilename();
     }
 
-    public void setTargetPath(final String targetPath) {
-        this.targetPath = targetPath;
+    public String getDownloadDir() {
+        if (downloadDir == null) {
+            return FileAccess.appendSeparator(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+		}
+        return downloadDir;
+    }
+
+    public void setDownloadDir(final String dir) {
+    	downloadDir = FileAccess.appendSeparator(dir);
+    }
+
+    public void setFilenamePrefix(final String newPrefix) {
+    	prefix = newPrefix;
+    }
+
+	public final String getFilenamePrefix() {
+		return prefix;
     }
 
     public long getLastReceived() {
@@ -496,5 +531,34 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     public boolean isStateShouldBeProgress() {
         return stateShouldBeProgress;
+    }
+
+    public String getAssociatedMessageId() {
+		return associatedMessageId;
+	}
+
+    public void setAssociatedMessageId(final String messageId) {
+		associatedMessageId = messageId;
+	}
+
+	public String getAssociatedBoardName() {
+		return associatedBoardName;
+	}
+
+	public void setAssociatedBoardName(final String boardName) {
+		associatedBoardName = boardName;
+	}
+
+    public void associateWithFrostMessageObject(FrostMessageObject associatedFrostMessageObject) {
+    	associatedBoardName = associatedFrostMessageObject.getBoard().getName();
+    	associatedMessageId = associatedFrostMessageObject.getMessageId();
+    }
+
+    public boolean isCompletionProgRun() {
+        return isCompletionProgRun;
+    }
+
+    public void setCompletionProgRun(final boolean isCompletionProgRun) {
+        this.isCompletionProgRun = isCompletionProgRun;
     }
 }

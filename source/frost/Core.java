@@ -204,6 +204,13 @@ public class Core {
             FcpHandler.inst().goneOnline();
         }
 
+        if (!frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
+            MiscToolkit.showMessage(
+                language.getString("Core.init.FileSharingEnabledBody"),
+                JOptionPane.WARNING_MESSAGE,
+                language.getString("Core.init.FileSharingEnabledTitle"));
+        }
+
         return true;
     }
 

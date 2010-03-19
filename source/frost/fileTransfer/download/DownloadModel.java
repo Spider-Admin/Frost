@@ -154,9 +154,11 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	 * Called to restart the item.
 	 */
 	public void restartItems(final ModelItem[] items) {
+		LinkedList<FrostDownloadItem> running = new LinkedList();
+
 		for (int x = items.length - 1; x >= 0; x--) {
 			final FrostDownloadItem dlItem = (FrostDownloadItem) items[x];
-			// reset only waiting+failed items
+
 			if (dlItem.getState() == FrostDownloadItem.STATE_FAILED
 				|| dlItem.getState() == FrostDownloadItem.STATE_WAITING
 				|| dlItem.getState() == FrostDownloadItem.STATE_DONE)
@@ -165,8 +167,12 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 				dlItem.setRetries(0);
 				dlItem.setLastDownloadStopTime(0);
 				dlItem.setEnabled(Boolean.valueOf(true)); // enable download on restart
+			} else {
+				running.add(dlItem);
 			}
 		}
+
+		restartRunningDownloads(running);
 	}
 
 	/**

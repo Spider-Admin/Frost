@@ -157,8 +157,10 @@ public class UploadTicker extends Thread {
         while (true) {
             Mixed.wait(1000);
             // this is executed each second, so this counter counts seconds
+            if (Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES)) {
             removeNotExistingFilesCounter++;
             removeNotExistingFiles();
+            }
             generateCHKs();
             if( PersistenceManager.isPersistenceEnabled() == false ) {
                 startUploadThread();

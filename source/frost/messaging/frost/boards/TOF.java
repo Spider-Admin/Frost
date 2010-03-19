@@ -401,6 +401,8 @@ public class TOF implements PropertyChangeListener {
         // if there is no direct parent, add dummy parents until first existing parent in list
 
         final FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
+        final MessageTreeTable treeTable = MainFrame.getInstance().getMessageTreeTable();
+        final boolean expandUnread = Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS) && Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_EXPAND_UNREAD_THREADS);
 
         final boolean showThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
 
@@ -432,6 +434,9 @@ public class TOF implements PropertyChangeListener {
                   )
                 {
                     mo.add(newMessage, false);
+                    if (expandUnread) {
+                    	treeTable.expandFirework(newMessage);
+                    }
                     return;
                 }
             }
@@ -444,6 +449,9 @@ public class TOF implements PropertyChangeListener {
 
         // no parent found, add tree with dummy msgs
         rootNode.add(newMessage, false);
+		if (expandUnread) {
+			treeTable.expandFirework(newMessage);
+		}
     }
 
     /**
@@ -455,7 +463,7 @@ public class TOF implements PropertyChangeListener {
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public void updateTofTable(final Board board, final FrostMessageObject prevSelectedMsg) {
+    public void updateTofTable(final Board board, final String prevSelectedMsgId) {
         final int daysToRead = board.getMaxMessageDisplay();
 
         if( updateThread != null ) {
@@ -470,7 +478,7 @@ public class TOF implements PropertyChangeListener {
 
         // start new thread, the thread will set itself to updateThread,
         // but first it waits until the current thread is finished
-        nextUpdateThread = new UpdateTofFilesThread(board, daysToRead, prevSelectedMsg);
+        nextUpdateThread = new UpdateTofFilesThread(board, daysToRead, prevSelectedMsgId);
         MainFrame.getInstance().activateGlassPane();
         nextUpdateThread.start();
     }
@@ -481,14 +489,14 @@ public class TOF implements PropertyChangeListener {
         int daysToRead;
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
-        FrostMessageObject previousSelectedMsg;
+        final String previousSelectedMsgId;
 
         List<FrostMessageObject> markAsReadMsgs = new ArrayList<FrostMessageObject>();
 
-        public UpdateTofFilesThread(final Board board, final int daysToRead, final FrostMessageObject prevSelectedMsg) {
+        public UpdateTofFilesThread(final Board board, final int daysToRead, final String prevSelectedMsgId) {
             this.board = board;
             this.daysToRead = daysToRead;
-            this.previousSelectedMsg = prevSelectedMsg;
+            this.previousSelectedMsgId = prevSelectedMsgId;
         }
 
         public synchronized void cancel() {
@@ -761,13 +769,25 @@ public class TOF implements PropertyChangeListener {
 
             final boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
             final boolean showUnreadOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
+            final boolean showFlaggedOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_FLAGGED_ONLY);
+            final boolean showStarredOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_STARRED_ONLY);
+            int whatToShow = MessageStorage.SHOW_DEFAULT;
+
+            if (showUnreadOnly) {
+            	whatToShow = MessageStorage.SHOW_UNREAD_ONLY;
+            } else if (showFlaggedOnly) {
+            	whatToShow = MessageStorage.SHOW_FLAGGED_ONLY;
+            } else if (showStarredOnly) {
+            	whatToShow = MessageStorage.SHOW_STARRED_ONLY;
+            }
+
             MessageStorage.inst().retrieveMessagesForShow(
                     board,
                     daysToRead,
                     false,
                     false,
                     showDeletedMessages,
-                    showUnreadOnly,
+                    whatToShow,
                     callback);
         }
 
@@ -846,7 +866,7 @@ public class TOF implements PropertyChangeListener {
                         innerTargetBoard.setUnreadMessageCount(newMessageCount);
                         innerTargetBoard.setFlaggedMessages(newHasFlagged);
                         innerTargetBoard.setStarredMessages(newHasStarred);
-                        setNewRootNode(innerTargetBoard, rootNode, previousSelectedMsg);
+                        setNewRootNode(innerTargetBoard, rootNode, previousSelectedMsgId);
                     }
                 });
             } else if( nextUpdateThread == null ) {
@@ -858,7 +878,7 @@ public class TOF implements PropertyChangeListener {
         /**
          * Set rootnode to gui and update.
          */
-        private void setNewRootNode(final Board innerTargetBoard, final FrostMessageObject rootNode, final FrostMessageObject previousSelectedMsg) {
+        private void setNewRootNode(final Board innerTargetBoard, final FrostMessageObject rootNode, final String previousSelectedMsgId) {
             if( tofTreeModel.getSelectedNode().isBoard() &&
                     tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
             {
@@ -867,16 +887,22 @@ public class TOF implements PropertyChangeListener {
                 treeTable.setNewRootNode(rootNode);
                 if( !Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS) ) {
                     treeTable.expandAll(true);
+                } else {
+                	if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_EXPAND_ROOT_CHILDREN) ) {
+                		treeTable.expandRootChildren();
+                	}
                 }
 
                 MainFrame.getInstance().updateTofTree(innerTargetBoard);
                 MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
 
-                // maybe select previously selected message
-                if( previousSelectedMsg != null && previousSelectedMsg.getMessageId() != null ) {
+                if( previousSelectedMsgId != null ) {
+                	// select messageId
                     for(final Enumeration e=rootNode.breadthFirstEnumeration(); e.hasMoreElements(); ) {
                         final FrostMessageObject mo = (FrostMessageObject) e.nextElement();
-                        if( mo.getMessageId() != null && mo.getMessageId().equals(previousSelectedMsg.getMessageId()) ) {
+                        if( mo.getMessageId() != null && mo.getMessageId().equals(previousSelectedMsgId) ) {
+                        	treeTable.expandFirework(mo);
+
                             int row = treeTable.getRowForNode(mo);
                             if( row > -1 ) {
                                 treeTable.getSelectionModel().setSelectionInterval(row, row);
@@ -891,6 +917,16 @@ public class TOF implements PropertyChangeListener {
                         }
                     }
                 }
+
+                if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS) && Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_EXPAND_UNREAD_THREADS) ) {
+                    for(final Enumeration e=rootNode.breadthFirstEnumeration(); e.hasMoreElements(); ) {
+                        final FrostMessageObject mo = (FrostMessageObject) e.nextElement();
+                        if( mo.isNew() ) {
+                        	treeTable.expandFirework(mo);
+                        }
+                    }
+                }
+
                 MainFrame.getInstance().deactivateGlassPane();
             }
         }
@@ -940,6 +976,19 @@ public class TOF implements PropertyChangeListener {
 
         // check for block words, don't check OBSERVE and GOOD
         if (!message.isMessageStatusOBSERVE() && !message.isMessageStatusGOOD()) {
+
+            if (board.getHideMessageCount() > 0 && !message.isMessageFromME()) {
+                /* blahwad  bot blaster */
+                Identity sender = message.getFromIdentity();
+                if (sender != null && sender.getReceivedMessageCount() < board.getHideMessageCount()) {
+                    if (board.getHideMessageCountExcludePrivate()) {
+                        if (message.getRecipientName() == null || message.getRecipientName().length() == 0)
+                            return true;
+                    } else {
+                        return true;
+                    }
+                }
+            }
 
             // Block by subject (and rest of the header)
             if ( blockMsgSubject ) {

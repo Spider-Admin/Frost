@@ -52,6 +52,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private String gqIdentifier = null;
 
     private boolean isLoggedToFile = false;
+    private boolean isCompletionProgRun = false;
 
     // non-persistent fields
     private int totalBlocks = -1;
@@ -108,7 +109,8 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
             final int newRetries,
             final long newLastUploadStopTimeMillis,
             final String newGqIdentifier,
-            final boolean newIsLoggedToFile)
+            final boolean newIsLoggedToFile,
+            final boolean newIsCompletionProgRun)
     {
         file = newFile;
         fileSize = newFilesize;
@@ -122,6 +124,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         lastUploadStopTimeMillis = newLastUploadStopTimeMillis;
         gqIdentifier = newGqIdentifier;
         isLoggedToFile = newIsLoggedToFile;
+        isCompletionProgRun = newIsCompletionProgRun;
 
         // set correct state
         if( state == FrostUploadItem.STATE_PROGRESS ) {
@@ -333,6 +336,14 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
     public void setLoggedToFile(final boolean isLoggedToFile) {
         this.isLoggedToFile = isLoggedToFile;
+    }
+
+    public boolean isCompletionProgRun() {
+        return isCompletionProgRun;
+    }
+
+    public void setCompletionProgRun(final boolean isCompletionProgRun) {
+        this.isCompletionProgRun = isCompletionProgRun;
     }
 
     public boolean isStateShouldBeProgress() {

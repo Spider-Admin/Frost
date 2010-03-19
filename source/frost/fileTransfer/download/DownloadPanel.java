@@ -19,6 +19,7 @@ package frost.fileTransfer.download;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.datatransfer.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
@@ -28,6 +29,8 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.text.*;
+import javax.swing.tree.*;
+import javax.swing.event.*;
 
 import frost.*;
 import frost.ext.*;
@@ -39,6 +42,7 @@ import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
+import frost.messaging.frost.boards.*;
 
 public class DownloadPanel extends JPanel implements SettingsUpdater {
 
@@ -53,12 +57,24 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private Language language = null;
 
 	private final JToolBar downloadToolBar = new JToolBar();
+	private final JButton downloadPasteButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-paste.png"));
 	private final JButton downloadActivateButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-start.png"));
     private final JButton downloadPauseButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-pause.png"));
-	private final JTextField downloadTextField = new JTextField(25);
+    private final JButton downloadPrefixApplyButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
+    private final JButton downloadDirSelectButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-open.png"));
+    private final JButton downloadDirCreateButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-new.png"));
+    private final JButton downloadDirApplyButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
+	private final JMenu downloadDirRecentMenu = new JMenu();
+    private final JTextField downloadPrefixTextField = new JTextField(30);
+	private final JTextField downloadDirTextField = new JTextField(30);
+	private final JTextField downloadTextField = new JTextField(30);
 	private final JLabel downloadItemCountLabel = new JLabel();
+	private final JLabel downloadQuickloadLabel = new JLabel();
+	private final JLabel downloadPrefixLabel = new JLabel();
+	private final JLabel downloadDirLabel = new JLabel();
     private final JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
     private final JCheckBox showExternalGlobalQueueItems = new JCheckBox();
+	private Color downloadDirDefaultBackground;
 	private SortedModelTable modelTable;
 
 	private boolean initialized = false;
@@ -96,11 +112,24 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		if (!initialized) {
 			refreshLanguage();
 
-			// create the top panel
+			MiscToolkit.configureButton(downloadPasteButton);
+			MiscToolkit.configureButton(downloadPrefixApplyButton);
+			MiscToolkit.configureButton(downloadDirSelectButton);
+			MiscToolkit.configureButton(downloadDirCreateButton);
+			MiscToolkit.configureButton(downloadDirApplyButton);
+
 			MiscToolkit.configureButton(downloadActivateButton); // play_rollover
 			MiscToolkit.configureButton(downloadPauseButton); // pause_rollover
 
 			new TextComponentClipboardMenu(downloadTextField, language);
+			new TextComponentClipboardMenu(downloadPrefixTextField, language);
+			final TextComponentClipboardMenu tcmenu = new TextComponentClipboardMenu(downloadDirTextField, language);
+
+			final JPopupMenu menu = tcmenu.getPopupMenu();
+
+			menu.addSeparator();
+			menu.add(downloadDirRecentMenu);
+			downloadDirRecentMenu.addMenuListener(listener);
 
             downloadToolBar.setRollover(true);
             downloadToolBar.setFloatable(false);
@@ -108,29 +137,91 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             removeFinishedDownloadsCheckBox.setOpaque(false);
             showExternalGlobalQueueItems.setOpaque(false);
 
-			downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
-            downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
-            downloadTextField.setDocument(new HandleMultiLineKeysDocument());
+            final JPanel panelHeader = new JPanel(new BorderLayout());
 
-			downloadToolBar.add(downloadTextField); //Download/Quickload
-			downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
-			downloadToolBar.add(downloadActivateButton); //Download/Start transfer
-			downloadToolBar.add(downloadPauseButton); //Download/Start transfer
+			// Toolbar
+			downloadToolBar.add(downloadActivateButton);
+			downloadToolBar.add(downloadPauseButton);
             downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
             downloadToolBar.add(removeFinishedDownloadsCheckBox);
             if( PersistenceManager.isPersistenceEnabled() ) {
                 downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
                 downloadToolBar.add(showExternalGlobalQueueItems);
             }
-			downloadToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
 			downloadToolBar.add(Box.createHorizontalGlue());
 			downloadToolBar.add(downloadItemCountLabel);
+
+
+			final GridBagConstraints c = new GridBagConstraints();
+			final JPanel gb = new JPanel(new GridBagLayout());
+
+			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.NONE;
+			c.insets = new Insets(0, 3, 0, 3);
+			c.weightx = 0.0;
+			c.weighty = 0.0;
+			c.gridwidth = 1;
+			c.gridheight = 1;
+
+			// Quickload
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0.0;
+			c.gridx = 0; c.gridy = 0; gb.add(downloadQuickloadLabel, c);
+			c.gridx = 1; c.gridy = 0; gb.add(downloadTextField, c);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1.0;
+			c.gridx = 2; c.gridy = 0; {
+				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+				p.add(downloadPasteButton);
+				gb.add(p, c);
+			}
+
+			// Prefix
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0.0;
+			c.gridx = 0; c.gridy = 1; gb.add(downloadPrefixLabel, c);
+			c.gridx = 1; c.gridy = 1; gb.add(downloadPrefixTextField, c);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1.0;
+			c.gridx = 2; c.gridy = 1; {
+				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+				p.add(downloadPrefixApplyButton);
+				gb.add(p, c);
+			}
+
+			// Download directory
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0.0;
+			c.gridx = 0; c.gridy = 2; gb.add(downloadDirLabel, c);
+			c.gridx = 1; c.gridy = 2; gb.add(downloadDirTextField, c);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1.0;
+			c.gridx = 2; c.gridy = 2; {
+				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+				p.add(downloadDirSelectButton);
+				p.add(downloadDirCreateButton);
+				p.add(downloadDirApplyButton);
+				gb.add(p, c);
+			}
+
+			downloadTextField.setMinimumSize(downloadTextField.getPreferredSize());
+			downloadPrefixTextField.setMinimumSize(downloadTextField.getPreferredSize());
+			downloadDirTextField.setMinimumSize(downloadTextField.getPreferredSize());
+
+            downloadTextField.setDocument(new HandleMultiLineKeysDocument());
+			downloadDirTextField.setText(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+
+			downloadDirDefaultBackground = downloadDirTextField.getBackground();
+			updateDownloadDirTextFieldBackground();
 
 			// create the main download panel
 			modelTable = new SortedModelTable(model);
             new TableFindAction().install(modelTable.getTable());
 			setLayout(new BorderLayout());
-			add(downloadToolBar, BorderLayout.NORTH);
+			panelHeader.add(downloadToolBar, BorderLayout.PAGE_START);
+			panelHeader.add(gb, BorderLayout.CENTER);
+
+			add(panelHeader, BorderLayout.NORTH);
 			add(modelTable.getScrollPane(), BorderLayout.CENTER);
 			fontChanged();
 
@@ -138,6 +229,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			// listeners
 			downloadTextField.addActionListener(listener);
+			downloadPasteButton.addActionListener(listener);
 			downloadActivateButton.addActionListener(listener);
 			downloadPauseButton.addActionListener(listener);
 			modelTable.getScrollPane().addMouseListener(listener);
@@ -145,6 +237,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			modelTable.getTable().addMouseListener(listener);
             removeFinishedDownloadsCheckBox.addItemListener(listener);
             showExternalGlobalQueueItems.addItemListener(listener);
+			downloadPrefixApplyButton.addActionListener(listener);
+			downloadDirTextField.addKeyListener(listener);
+			downloadDirTextField.addFocusListener(listener);
+			downloadDirSelectButton.addActionListener(listener);
+			downloadDirCreateButton.addActionListener(listener);
+			downloadDirApplyButton.addActionListener(listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
@@ -167,11 +265,26 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void refreshLanguage() {
+		downloadPasteButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pasteKeys"));
 		downloadActivateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.activateDownloading"));
         downloadPauseButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pauseDownloading"));
-        downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
         removeFinishedDownloadsCheckBox.setText(language.getString("DownloadPane.removeFinishedDownloads"));
         showExternalGlobalQueueItems.setText(language.getString("DownloadPane.showExternalGlobalQueueItems"));
+
+        downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
+        downloadPrefixTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.downloadPrefix"));
+        downloadDirTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.downloadDir"));
+
+        downloadPrefixApplyButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.applyDownloadPrefix"));
+        downloadDirSelectButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.selectDownloadDir"));
+        downloadDirCreateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.createDownloadDir"));
+        downloadDirApplyButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.applyDownloadDir"));
+
+        downloadDirRecentMenu.setText(language.getString("DownloadPane.toolbar.downloadDirMenu.setDownloadDirTo"));
+
+		downloadQuickloadLabel.setText(language.getString("DownloadPane.toolbar.label.downloadQuickload") + ": ");
+		downloadPrefixLabel.setText(language.getString("DownloadPane.toolbar.label.downloadPrefix") + ": ");
+		downloadDirLabel.setText(language.getString("DownloadPane.toolbar.label.downloadDir") + ": ");
 
 		final String waiting = language.getString("DownloadPane.toolbar.waiting");
 		final Dimension labelSize = calculateLabelSize(waiting + ": 00000");
@@ -184,112 +297,110 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		this.model = model;
 	}
 
+	private void updateDownloadDirTextFieldBackground() {
+	    final File file = new File(downloadDirTextField.getText());
+	    if (file.isDirectory()) {
+	        downloadDirTextField.setBackground(downloadDirDefaultBackground);
+	    } else {
+	        downloadDirTextField.setBackground(Color.RED);
+	    }
+	}
+
+	private void downloadDirTextField_keyReleased(final KeyEvent e) {
+	    updateDownloadDirTextFieldBackground();
+	}
+
+	private void downloadDirTextField_focusLost(final FocusEvent e) {
+	    final String dir = downloadDirTextField.getText();
+
+	    updateDownloadDirTextFieldBackground();
+            }
+
+	private final String getDownloadPrefix() {
+		return downloadPrefixTextField.getText();
+            }
+
+	private final String getDownloadDir() {
+		final String dir = downloadDirTextField.getText();
+
+        if (dir.length() == 0) {
+        	return null;
+		} else {
+        	return dir;
+                    }
+                }
+
+    private void downloadDirSelectButton_actionPerformed(final ActionEvent e) {
+        final JFileChooser fc = new JFileChooser(FileAccess.appendSeparator(downloadDirTextField.getText()));
+        fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setMultiSelectionEnabled(false);
+
+        final int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            final File file = fc.getSelectedFile();
+            Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
+            downloadDirTextField.setText(file.getPath());
+            updateDownloadDirTextFieldBackground();
+                    }
+                }
+
+    private void downloadDirCreateButton_actionPerformed(final ActionEvent e) {
+    	File dir = new File(downloadDirTextField.getText());
+
+    	try {
+    		dir.mkdirs();
+    	} catch (Exception foo) {
+                }
+
+    	updateDownloadDirTextFieldBackground();
+                }
+
+    private void applyDownloadPrefixToSelectedDownloads() {
+        final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
+        for (final ModelItem mi : selectedItems) {
+            final FrostDownloadItem i = (FrostDownloadItem)mi;
+
+            if (!i.isExternal()) {
+            	i.setFilenamePrefix(getDownloadPrefix());
+                i.fireValueChanged();
+            }
+        }
+                }
+
+    private void applyDownloadDirToSelectedDownloads() {
+        final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
+        for (final ModelItem mi : selectedItems) {
+            final FrostDownloadItem i = (FrostDownloadItem)mi;
+
+            if (!i.isExternal()) {
+                i.setDownloadDir(getDownloadDir());
+                i.fireValueChanged();
+            }
+        }
+	}
+
+    private void downloadDirApplyButton_actionPerformed(final ActionEvent e) {
+        applyDownloadDirToSelectedDownloads();
+    }
+
+    private void downloadPrefixApplyButton_actionPerformed(final ActionEvent e) {
+        applyDownloadPrefixToSelectedDownloads();
+    }
+
 	/**
 	 * downloadTextField Action Listener (Download/Quickload)
      * The textfield can contain 1 key to download or multiple keys separated by ';'.
 	 */
 	private void downloadTextField_actionPerformed(final ActionEvent e) {
+		DownloadManager dlManager = FileTransferManager.inst().getDownloadManager();
 
-        // FIXME: show dialog with all keys like fuqid
-
-        try {
-    		final String keys = downloadTextField.getText().trim();
-
-            if( keys.length() == 0 ) {
-                downloadTextField.setText("");
-                return;
-            }
-
-            final String[] keyList = keys.split("[;\n]");
-            if( keyList == null || keyList.length == 0 ) {
-                downloadTextField.setText("");
-                return;
-            }
-
-            for( final String element : keyList ) {
-                String key = element.trim();
-
-                if( key.length() < 5 ) {
-                    continue;
-                }
-
-                // maybe convert html codes (e.g. %2c -> , )
-                if( key.indexOf("%") > 0 ) {
-                    try {
-                        key = java.net.URLDecoder.decode(key, "UTF-8");
-                    } catch (final java.io.UnsupportedEncodingException ex) {
-                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
-                    }
-                }
-
-                // find key type (chk,ssk,...)
-                int pos = -1;
-                for( int i = 0; i < FreenetKeys.getFreenetKeyTypes().length; i++ ) {
-                    final String string = FreenetKeys.getFreenetKeyTypes()[i];
-                    pos = key.indexOf(string);
-                    if( pos >= 0 ) {
-                        break;
-                    }
-                }
-                if( pos < 0 ) {
-                    // no valid keytype found
-                    showInvalidKeyErrorDialog(key);
-                    continue;
-                }
-
-                // strip all before key type
-                if( pos > 0 ) {
-                    key = key.substring(pos);
-                }
-
-                if( key.length() < 5 ) {
-                    // at least the SSK@? is needed
-                    showInvalidKeyErrorDialog(key);
-                    continue;
-                }
-
-                // take the filename from the last part of the key
-                String fileName;
-                final int sepIndex = key.lastIndexOf("/");
-                if ( sepIndex > -1 ) {
-                    fileName = key.substring(sepIndex + 1);
-                } else {
-                    // fallback: use key as filename
-                    fileName = key.substring(4);
-                }
-
-                String checkKey = key;
-                // remove filename from CHK key
-                if (key.startsWith("CHK@") && key.indexOf("/") > -1 ) {
-                    checkKey = key.substring(0, key.indexOf("/"));
-                }
-
-                // On 0.7 we remember the full provided download uri as key.
-                // If the node reports download failed, error code 11 later, then we strip the filename
-                // from the uri and keep trying with chk only
-
-                // finally check if the key is valid for this network
-                if( !FreenetKeys.isValidKey(checkKey) ) {
-                    showInvalidKeyErrorDialog(key);
-                    continue;
-                }
-
-                // add valid key to download table
-                FileTransferManager.inst().getDownloadManager().addNewDownload(key, fileName);
-            }
-        } catch(final Throwable ex) {
-            logger.log(Level.SEVERE, "Unexpected exception", ex);
-            showInvalidKeyErrorDialog("???");
-        }
+		dlManager.addRecentDownloadDir(getDownloadDir());
+    	dlManager.addKeys(downloadTextField.getText(), getDownloadDir(), getDownloadPrefix());
         downloadTextField.setText("");
-	}
-
-    private void showInvalidKeyErrorDialog(final String invKey) {
-        JOptionPane.showMessageDialog(
-                this,
-                language.formatMessage("DownloadPane.invalidKeyDialog.body", invKey),
-                language.getString("DownloadPane.invalidKeyDialog.title"),
-                JOptionPane.ERROR_MESSAGE);
     }
 
 	/**
@@ -388,6 +499,27 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		modelTable.setFont(font);
 	}
 
+	private void downloadPasteButtonPressed(final ActionEvent e) {
+		Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		String text;
+
+		if (t == null)
+			return;
+
+		try {
+			if (!t.isDataFlavorSupported(DataFlavor.stringFlavor))
+				return;
+			text = (String)t.getTransferData(DataFlavor.stringFlavor);
+		} catch (Exception stfu) {
+			return;
+		}
+
+		if (text != null) {
+			FileTransferManager.inst().getDownloadManager().addRecentDownloadDir(getDownloadDir());
+			FileTransferManager.inst().getDownloadManager().addKeys(text, getDownloadDir());
+		}
+	}
+
 	private void downloadActivateButtonPressed(final ActionEvent e) {
 		setDownloadingActivated(true);
 	}
@@ -406,7 +538,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		final ModelItem selectedItem = modelTable.getSelectedItem();
 		if (selectedItem != null) {
 			final FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
-            final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+            final File targetFile = new File(dlItem.getDownloadFilename());
             if( !targetFile.isFile() ) {
                 return;
             }
@@ -500,6 +632,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
         private final JMenuItem startSelectedDownloadsNow = new JMenuItem();
 
+        private final JMenuItem useThisDownloadDirItem = new JMenuItem();
+        private final JMenuItem jumpToAssociatedMessage = new JMenuItem();
+
         private JMenu changePriorityMenu = null;
         private JMenuItem prio0Item = null;
         private JMenuItem prio1Item = null;
@@ -511,8 +646,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem removeFromGqItem = null;
 
         private JMenuItem retrieveDirectExternalDownloads = null;
-
-        private final JMenu copyToClipboardMenu = new JMenu();
 
         public PopupMenuDownload() {
             super();
@@ -557,9 +690,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
             // TODO: implement cancel of downloads
 
-            copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyExtendedInfoItem);
-
             copyKeysAndNamesItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
             restartSelectedDownloadsItem.addActionListener(this);
@@ -572,6 +702,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             invertEnabledSelectedItem.addActionListener(this);
             detailsItem.addActionListener(this);
             startSelectedDownloadsNow.addActionListener(this);
+            useThisDownloadDirItem.addActionListener(this);
+            jumpToAssociatedMessage.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -587,8 +719,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             invertEnabledAllItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
             invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
             startSelectedDownloadsNow.setText(language.getString("DownloadPane.fileTable.popupmenu.startSelectedDownloadsNow"));
-
-            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+            useThisDownloadDirItem.setText(language.getString("DownloadPane.fileTable.popupmenu.useThisDownloadDir"));
+            jumpToAssociatedMessage.setText(language.getString("DownloadPane.fileTable.popupmenu.jumpToAssociatedMessage"));
 
             if( PersistenceManager.isPersistenceEnabled() ) {
                 changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
@@ -612,6 +744,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
             } else if (e.getSource() == restartSelectedDownloadsItem) {
                 restartSelectedDownloads();
+            } else if (e.getSource() == useThisDownloadDirItem) {
+                useThisDownloadDirectory();
+            } else if (e.getSource() == jumpToAssociatedMessage) {
+                jumpToAssociatedMessage();
             } else if (e.getSource() == removeSelectedDownloadsItem) {
                 removeSelectedDownloads();
             } else if (e.getSource() == enableAllDownloadsItem) {
@@ -766,6 +902,36 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             model.restartItems(selectedItems);
         }
 
+        private void useThisDownloadDirectory() {
+        	final ModelItem[] selectedItems = modelTable.getSelectedItems();
+        	if (selectedItems.length > 0) {
+        		final FrostDownloadItem item = (FrostDownloadItem)selectedItems[0];
+
+        		downloadDirTextField.setText(item.getDownloadDir());
+        	}
+        }
+
+        private void jumpToAssociatedMessage() {
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+            	final FrostDownloadItem item = (FrostDownloadItem)selectedItems[0];
+				final String boardName = item.getAssociatedBoardName();
+				final String messageId = item.getAssociatedMessageId();
+
+				if (boardName != null && messageId != null) {
+					final Board board = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getBoardByName(boardName);
+					final TofTree t = MainFrame.getInstance().getFrostMessageTab().getTofTree();
+
+					if (board != null && t != null) {
+						t.clearSelection();
+						MainFrame.getInstance().getFrostMessageTab().forceSelectMessageId(messageId);
+						t.setSelectionPath(new TreePath(board.getPath()));
+						MainFrame.getInstance().selectTabbedPaneTab("MainFrame.tabbedPane.news");
+					}
+				}
+			}
+        }
+
         public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
@@ -780,7 +946,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 return;
             }
 
-            add(copyToClipboardMenu);
+            add(copyKeysAndNamesItem);
+            add(copyExtendedInfoItem);
             addSeparator();
             add(startSelectedDownloadsNow);
             add(restartSelectedDownloadsItem);
@@ -829,6 +996,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                     addSeparator();
                     add(detailsItem);
                 }
+                addSeparator();
+				add(useThisDownloadDirItem);
+				if (item.getAssociatedMessageId() != null) {
+					addSeparator();
+					add(jumpToAssociatedMessage);
+				}
             }
 
             super.show(invoker, x, y);
@@ -837,7 +1010,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
     private class Listener
         extends MouseAdapter
-        implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener, ItemListener {
+        implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener, ItemListener, FocusListener, MenuListener {
 
         public Listener() {
             super();
@@ -848,14 +1021,36 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
 
         public void actionPerformed(final ActionEvent e) {
+            if (e.getSource() == downloadDirSelectButton) {
+                downloadDirSelectButton_actionPerformed(e);
+            }
+            if (e.getSource() == downloadDirCreateButton) {
+                downloadDirCreateButton_actionPerformed(e);
+            }
+            if (e.getSource() == downloadPrefixApplyButton) {
+                downloadPrefixApplyButton_actionPerformed(e);
+            }
+            if (e.getSource() == downloadDirApplyButton) {
+                downloadDirApplyButton_actionPerformed(e);
+            }
             if (e.getSource() == downloadTextField) {
                 downloadTextField_actionPerformed(e);
+            }
+            else if (e.getSource() == downloadPasteButton) {
+                downloadPasteButtonPressed(e);
             }
             else if (e.getSource() == downloadActivateButton) {
                 downloadActivateButtonPressed(e);
             }
             else if (e.getSource() == downloadPauseButton) {
                 downloadPauseButtonPressed(e);
+            } else {
+            	for (int i = 0; i < downloadDirRecentMenu.getItemCount(); i++) {
+            		final JMenuItem item = downloadDirRecentMenu.getItem(i);
+            		if (e.getSource() == item) {
+            			downloadDirTextField.setText(item.getText());
+            		}
+				}
             }
         }
 
@@ -866,9 +1061,21 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
 
         public void keyReleased(final KeyEvent e) {
+            if (e.getSource() == downloadDirTextField) {
+                downloadDirTextField_keyReleased(e);
+            }
         }
 
         public void keyTyped(final KeyEvent e) {
+        }
+
+        public void focusGained(final FocusEvent e) {
+        }
+
+        public void focusLost(final FocusEvent e) {
+            if (e.getSource() == downloadDirTextField) {
+                downloadDirTextField_focusLost(e);
+            }
         }
 
         @Override
@@ -924,5 +1131,34 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 model.removeExternalDownloads();
             }
         }
+
+    	public void menuCanceled(MenuEvent e) {
+    	}
+
+    	public void menuDeselected(MenuEvent e) {
+    	}
+
+    	public void menuSelected(MenuEvent e) {
+    		if (e.getSource() == downloadDirRecentMenu) {
+    			JMenuItem item;
+
+           		downloadDirRecentMenu.removeAll();
+
+           		item = new JMenuItem(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+           		downloadDirRecentMenu.add(item);
+           		item.addActionListener(this);
+           		
+           		downloadDirRecentMenu.addSeparator();
+           		final LinkedList<String> dirs = FileTransferManager.inst().getDownloadManager().getRecentDownloadDirs();
+           		final ListIterator iter = dirs.listIterator(dirs.size());
+           		while (iter.hasPrevious()) {
+           		    final String dir = (String)iter.previous();
+
+					item = new JMenuItem(dir);
+					downloadDirRecentMenu.add(item);
+					item.addActionListener(this);
+				}
+			}
+		}
     }
 }

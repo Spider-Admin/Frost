@@ -40,6 +40,11 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
 
+    public static final int SHOW_DEFAULT = 0;
+    public static final int SHOW_UNREAD_ONLY = 1;
+    public static final int SHOW_FLAGGED_ONLY = 2;
+    public static final int SHOW_STARRED_ONLY = 3;
+
     private MessageStorageRoot storageRoot = null;
 
     private static MessageStorage instance = new MessageStorage();
@@ -693,7 +698,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final boolean withContent,
             final boolean withAttachments,
             final boolean showDeleted,
-            final boolean showUnreadOnly,
+            final int whatToShow,
             final MessageCallback mc)
     {
         final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
@@ -710,9 +715,13 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             }
 
             Iterator<PerstFrostMessageObject> i;
-            if( showUnreadOnly ) {
+            if( whatToShow == SHOW_UNREAD_ONLY ) {
                 // ALL new messages
                 i = bo.getUnreadMessageIndex().iterator();
+            } else if( whatToShow == SHOW_FLAGGED_ONLY ) {
+                i = bo.getFlaggedMessageIndex().iterator();
+            } else if( whatToShow == SHOW_STARRED_ONLY ) { 
+                i = bo.getStarredMessageIndex().iterator();
             } else {
                 // normal messages in date range
                 final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);

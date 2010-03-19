@@ -124,6 +124,7 @@ public class MessageUploader {
             boolean success = false;
             int index = -1;
             int tries = 0;
+            int insertions = 0;
             final int maxTries = 10;
             boolean error = false;
 
@@ -190,8 +191,15 @@ public class MessageUploader {
                     }
 
                     if( tmpFile.length() > 0 ) {
+                        insertions++; 
+                        if (insertions >= 2) {
                         logger.warning("TOFUP: Uploaded message was successfully retrieved."+logInfo);
                         success = true;
+                    } else {
+                        	logger.warning("TOFUP: Uploaded message was successfully retrieved; "+
+                        					"inserting a second time because Freenet sucks."+logInfo);
+							retrySameIndex = true;
+						}
                     } else {
                         logger.severe("TOFUP: Uploaded message could NOT be retrieved!\n"+logInfo+
                                 "\n(try no. " + tries + " of " + maxTries + "), retrying index " + index);

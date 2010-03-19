@@ -48,6 +48,7 @@ public class PerstFrostUploadItem extends Persistent {
     public String sharedFilesSha;
 
     public boolean isLoggedToFile;
+    public boolean isCompletionProgRun;
 
     public PerstFrostUploadItem() {}
 
@@ -64,13 +65,14 @@ public class PerstFrostUploadItem extends Persistent {
         lastUploadStopTimeMillis = ulItem.getLastUploadStopTimeMillis();
         gqIdentifier = ulItem.getGqIdentifier();
         isLoggedToFile = ulItem.isLoggedToFile();
+        isCompletionProgRun = ulItem.isCompletionProgRun();
         sharedFilesSha = (ulItem.getSharedFileItem()==null?null:ulItem.getSharedFileItem().getSha());
     }
 
     public FrostUploadItem toFrostUploadItem(final List<FrostSharedFileItem> sharedFiles, final Logger logger, final Language language) {
 
         final File file = new File(filePath);
-        if( !file.isFile() ) {
+        if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES) && !file.isFile() ) {
             final String title = language.getString("StartupMessage.uploadFile.uploadFileNotFound.title");
             final String text = language.formatMessage("StartupMessage.uploadFile.uploadFileNotFound.text", filePath);
             final StartupMessage sm = new StartupMessage(
@@ -83,7 +85,7 @@ public class PerstFrostUploadItem extends Persistent {
             logger.severe("Upload items file does not exist, removed from upload files: "+filePath);
             return null;
         }
-        if( file.length() != fileSize ) {
+        if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES) && file.length() != fileSize ) {
             final String title = language.getString("StartupMessage.uploadFile.uploadFileSizeChanged.title");
             final String text = language.formatMessage("StartupMessage.uploadFile.uploadFileSizeChanged.text", filePath);
             final StartupMessage sm = new StartupMessage(
@@ -127,7 +129,8 @@ public class PerstFrostUploadItem extends Persistent {
                 retries,
                 lastUploadStopTimeMillis,
                 gqIdentifier,
-                isLoggedToFile);
+                isLoggedToFile,
+                isCompletionProgRun);
 
         ulItem.setSharedFileItem(sharedFileItem);
 

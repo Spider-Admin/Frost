@@ -1,3 +1,4 @@
+
 /*
   MessageTextPane.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
@@ -25,6 +26,7 @@ import java.beans.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
+import java.io.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -937,6 +939,35 @@ public class MessageTextPane extends JPanel {
         }
     }
 
+    private String askForPrefix() {
+    	 return JOptionPane.showInputDialog(
+    		this,
+    		language.getString("MessagePane.messageText.downloadPrefixDialog.body"),
+    		language.getString("MessagePane.messageText.downloadPrefixDialog.title"),
+    		JOptionPane.QUESTION_MESSAGE
+		);
+    }
+
+    private void browseItem_actionPerformed(final String keys) {
+        DownloadManager dlManager = FileTransferManager.inst().getDownloadManager();
+		final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
+		fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
+		fc.setFileHidingEnabled(true);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		fc.setMultiSelectionEnabled(false);
+
+		final int returnVal = fc.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			final String fileSeparator = System.getProperty("file.separator");
+			final File file = fc.getSelectedFile();
+			final String prefix = askForPrefix();
+
+			Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
+			dlManager.addRecentDownloadDir(file.getPath() + fileSeparator);
+			dlManager.addKeys(keys, file.getPath() + fileSeparator, prefix);
+		}
+    }
+
     private class PopupMenuTofText
     extends JSkinnablePopupMenu
     implements ActionListener, LanguageListener {
@@ -944,8 +975,11 @@ public class MessageTextPane extends JPanel {
         private final JTextComponent sourceTextComponent;
 
         private final JMenuItem copyItem = new JMenuItem();
-        private final JMenuItem cancelItem = new JMenuItem();
         private final JMenuItem saveMessageItem = new JMenuItem();
+        private final JMenu downloadKeysItem = new JMenu();
+        private final JMenuItem defaultDlDirItem = new JMenuItem();
+        private final JMenuItem browseItem = new JMenuItem();
+        private JMenuItem recentDlDirItems[];
 
         public PopupMenuTofText(final JTextComponent sourceTextComponent) {
             super();
@@ -954,12 +988,30 @@ public class MessageTextPane extends JPanel {
         }
 
         public void actionPerformed(final ActionEvent e) {
+	        DownloadManager dlManager = FileTransferManager.inst().getDownloadManager();
+
             if (e.getSource() == saveMessageItem) {
                 saveMessageButton_actionPerformed();
             } else if (e.getSource() == copyItem) {
                 // copy selected text
                 final String text = sourceTextComponent.getSelectedText();
                 CopyToClipboard.copyText(text);
+            } else if (e.getSource() == defaultDlDirItem) {
+            	final String prefix = askForPrefix();
+
+            	dlManager.addKeys(sourceTextComponent.getSelectedText(), null, prefix);
+            } else if (e.getSource() == browseItem) {
+            	browseItem_actionPerformed(sourceTextComponent.getSelectedText());
+			} else {
+            	for (final JMenuItem item : recentDlDirItems) {
+            		if (e.getSource() == item) {
+						final String prefix = askForPrefix();
+
+            			dlManager.addRecentDownloadDir(item.getText());
+            			dlManager.addKeys(sourceTextComponent.getSelectedText(), item.getText(), prefix);
+            			break;
+            		}
+            	}
             }
         }
 
@@ -968,18 +1020,50 @@ public class MessageTextPane extends JPanel {
 
             copyItem.addActionListener(this);
             saveMessageItem.addActionListener(this);
+       		defaultDlDirItem.addActionListener(this);
+       		browseItem.addActionListener(this);
 
             add(copyItem);
             addSeparator();
             add(saveMessageItem);
             addSeparator();
-            add(cancelItem);
+            add(downloadKeysItem);
+        }
+
+        private void populateDownloadKeys() {
+        	final LinkedList<String> dirs = FileTransferManager.inst().getDownloadManager().getRecentDownloadDirs();
+        	int i = 0;
+
+        	downloadKeysItem.removeAll();
+        	downloadKeysItem.add(defaultDlDirItem);
+        	defaultDlDirItem.setText(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+
+        	if (dirs.size() > 0) {
+        		downloadKeysItem.addSeparator();
+
+	        	recentDlDirItems = new JMenuItem[dirs.size()];
+
+        	    final ListIterator iter = dirs.listIterator(dirs.size());
+	        	while (iter.hasPrevious()) {
+	        	    final String dir = (String)iter.previous();
+
+	        		recentDlDirItems[i] = new JMenuItem();
+	        		recentDlDirItems[i].setText(dir);
+	        		recentDlDirItems[i].addActionListener(this);
+	        		downloadKeysItem.add(recentDlDirItems[i]);
+	        		i++;
+				}
+			}
+
+       		downloadKeysItem.addSeparator();
+       		downloadKeysItem.add(browseItem);
         }
 
         public void languageChanged(final LanguageEvent event) {
             copyItem.setText(language.getString("MessagePane.messageText.popupmenu.copy"));
             saveMessageItem.setText(language.getString("MessagePane.messageText.popupmenu.saveMessageToDisk"));
-            cancelItem.setText(language.getString("Common.cancel"));
+            downloadKeysItem.setText(language.getString("MessagePane.messageText.popupmenu.downloadKeysTo"));
+            browseItem.setText(language.getString("MessagePane.messageText.popupmenu.browse"));
         }
 
         @Override
@@ -987,8 +1071,11 @@ public class MessageTextPane extends JPanel {
             if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
                 if (sourceTextComponent.getSelectedText() != null) {
                     copyItem.setEnabled(true);
+                    downloadKeysItem.setEnabled(true);
+                    populateDownloadKeys();
                 } else {
                     copyItem.setEnabled(false);
+                    downloadKeysItem.setEnabled(false);
                 }
                 super.show(invoker, x, y);
             }

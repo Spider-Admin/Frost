@@ -207,6 +207,20 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
     }
 
+    public void expandRootChildren() {
+        final DefaultMutableTreeNode root = (DefaultMutableTreeNode)tree.getModel().getRoot();
+
+        if( SwingUtilities.isEventDispatchThread() ) {
+            expandRootChildren(root);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    expandRootChildren(root);
+                }
+            });
+        }
+    }
+
     public void expandThread(final boolean expand, final FrostMessageObject msg) {
         if( msg == null ) {
             return;
@@ -226,6 +240,40 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             });
         }
     }
+
+    public void expandFirework(final DefaultMutableTreeNode node) {
+		if( SwingUtilities.isEventDispatchThread() ) {
+			// Expand all child nodes
+            for (final Enumeration e = node.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                DefaultMutableTreeNode n = (DefaultMutableTreeNode)e.nextElement();
+
+            	if (!n.isLeaf()) {
+            		continue;
+            	}
+
+				n = (DefaultMutableTreeNode)n.getParent();
+				if (!n.isRoot()) {
+					tree.expandPath(new TreePath(n.getPath()));
+				}
+            }
+
+            // Expand the node itself
+            if (node.isLeaf()) {
+            	final DefaultMutableTreeNode n = (DefaultMutableTreeNode)node.getParent();
+            	if (!n.isRoot()) {
+            		tree.expandPath(new TreePath(n.getPath()));
+            	}
+			} else {
+				tree.expandPath(new TreePath(node.getPath()));
+			}
+		} else {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					expandFirework(node);
+				}
+			});
+		}
+	}
 
     private void expandAll(final TreePath parent, boolean expand) {
         // Traverse children
@@ -254,6 +302,20 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
         }
     }
+
+    private void expandRootChildren(final DefaultMutableTreeNode root) {
+    	if (root.getChildCount() == 0) {
+    		return;
+		}
+
+		for (final Enumeration e = root.children(); e.hasMoreElements(); ) {
+			final DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.nextElement();
+			final TreePath path = new TreePath(node.getPath());
+
+			expandAll(path, true);
+			tree.collapsePath(path);
+		}
+	}
 
     public void expandNode(final DefaultMutableTreeNode n) {
         if( SwingUtilities.isEventDispatchThread() ) {

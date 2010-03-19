@@ -306,7 +306,6 @@ public class UploadPanel extends JPanel {
         private final JMenuItem removeSelectedFilesItem = new JMenuItem();
         private final JMenuItem showSharedFileItem = new JMenuItem();
         private final JMenuItem startSelectedUploadsNow = new JMenuItem();
-        private final JMenu copyToClipboardMenu = new JMenu();
 
         private final JMenuItem disableAllDownloadsItem = new JMenuItem();
         private final JMenuItem disableSelectedDownloadsItem = new JMenuItem();
@@ -364,9 +363,6 @@ public class UploadPanel extends JPanel {
 
             refreshLanguage();
 
-            copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyExtendedInfoItem);
-
             copyKeysAndNamesItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
             removeSelectedFilesItem.addActionListener(this);
@@ -391,8 +387,6 @@ public class UploadPanel extends JPanel {
             startSelectedUploadsNow.setText(language.getString("UploadPane.fileTable.popupmenu.startSelectedUploadsNow"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
-
-            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
 
             enableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableAllUploads"));
             disableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableAllUploads"));
@@ -571,7 +565,8 @@ public class UploadPanel extends JPanel {
             }
 
             // if at least 1 item is selected
-            add(copyToClipboardMenu);
+            add(copyKeysAndNamesItem);
+            add(copyExtendedInfoItem);
             addSeparator();
 
             if( FileTransferManager.inst().getPersistenceManager() != null ) {

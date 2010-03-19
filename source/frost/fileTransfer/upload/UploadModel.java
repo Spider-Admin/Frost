@@ -132,7 +132,7 @@ public class UploadModel extends SortedModel implements ExitSavable {
             }
             removeItems(itemsArray);
 
-            // notify user that files were removed
+            // don't notify user that files were removed
             final Language language = Language.getInstance();
             final String title = language.getString("UploadPane.invalidUploadFilesRemoved.title");
             final String text = language.getString("UploadPane.invalidUploadFilesRemoved.text");

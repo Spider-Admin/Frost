@@ -19,6 +19,8 @@
 package frost.gui.preferences;
 
 import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -28,6 +30,15 @@ import frost.util.gui.translation.*;
 
 class UploadPanel extends JPanel {
 
+    public class Listener implements ActionListener {
+        public void actionPerformed(final ActionEvent e) {
+            if (e.getSource() == browseExecButton) {
+                browseExecPressed();
+            }
+        }
+    }
+
+    private JDialog owner = null;
     private SettingsClass settings = null;
     private Language language = null;
 
@@ -45,17 +56,41 @@ class UploadPanel extends JPanel {
 
     private final JCheckBox logUploadsCheckBox = new JCheckBox();
 
+    private final JCheckBox removeNotExistingfiles = new JCheckBox();
+
+    private final Listener listener = new Listener();
+
+    private final JButton browseExecButton = new JButton();
+    private final JLabel execLabel = new JLabel();
+    private final JTextField execTextField = new JTextField(20);
+
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
     protected UploadPanel(final SettingsClass settings) {
         super();
 
+        this.owner = owner;
         this.language = Language.getInstance();
         this.settings = settings;
 
         initialize();
         loadSettings();
+    }
+
+    private void browseExecPressed() {
+        final JFileChooser fc = new JFileChooser(settings.getValue(SettingsClass.DIR_LAST_USED));
+        fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fc.setMultiSelectionEnabled(false);
+
+        final int returnVal = fc.showOpenDialog(owner);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            final File file = fc.getSelectedFile();
+            settings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
+            execTextField.setText(file.getPath());
+        }
     }
 
     private void initialize() {
@@ -67,6 +102,7 @@ class UploadPanel extends JPanel {
         new TextComponentClipboardMenu(threadsTextField, language);
         new TextComponentClipboardMenu(maxRetriesTextField, language);
         new TextComponentClipboardMenu(waitTimeTextField, language);
+        new TextComponentClipboardMenu(execTextField, language);
 
         // Adds all of the components
         final GridBagConstraints constraints = new GridBagConstraints();
@@ -111,12 +147,32 @@ class UploadPanel extends JPanel {
         constraints.gridwidth = 3;
         add(enforceFrostPriorityFileUpload, constraints);
 
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 3;
+        add(removeNotExistingfiles, constraints);
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 1;
+        add(execLabel, constraints);
+        constraints.gridx = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        add(execTextField, constraints);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 2;
+        constraints.weightx = 0.0;
+        add(browseExecButton, constraints);
+
         // glue
         constraints.gridy++;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
+
+        browseExecButton.addActionListener(listener);
     }
 
     /**
@@ -129,6 +185,8 @@ class UploadPanel extends JPanel {
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_WAITTIME));
         logUploadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED));
+        removeNotExistingfiles.setSelected(settings.getBoolValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES));
+        execTextField.setText(settings.getValue(SettingsClass.EXEC_ON_UPLOAD));
     }
 
     public void ok() {
@@ -144,6 +202,9 @@ class UploadPanel extends JPanel {
         logUploadsCheckBox.setText(language.getString("Options.uploads.logUploads"));
         priorityLabel.setText(language.getString("Options.uploads.uploadPriority") + " (3)");
         enforceFrostPriorityFileUpload.setText(language.getString("Options.uploads.enforceFrostPriorityFileUpload"));
+        removeNotExistingfiles.setText(language.getString("Options.uploads.removeNotExistingFiles"));
+        execLabel.setText(language.getString("Options.uploads.uploadExec"));
+        browseExecButton.setText(language.getString("Common.browse") + "...");
     }
 
     /**
@@ -156,5 +217,7 @@ class UploadPanel extends JPanel {
         settings.setValue(SettingsClass.UPLOAD_MAX_RETRIES, maxRetriesTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_WAITTIME, waitTimeTextField.getText());
         settings.setValue(SettingsClass.LOG_UPLOADS_ENABLED, logUploadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES, removeNotExistingfiles.isSelected());
+        settings.setValue(SettingsClass.EXEC_ON_UPLOAD, execTextField.getText());
     }
 }

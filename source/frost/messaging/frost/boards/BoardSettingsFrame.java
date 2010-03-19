@@ -87,6 +87,11 @@ public class BoardSettingsFrame extends JDialog {
     private final JLabel hideObserveMessagesLabel = new JLabel();
     private final JLabel hideUnsignedMessagesLabel = new JLabel();
 
+    private final JRadioButton hideMessageCount_default = new JRadioButton();
+    private final JRadioButton hideMessageCount_set = new JRadioButton();
+    private final JTextField hideMessageCount_value = new JTextField(6);
+    private final JLabel hideMessageCountLabel = new JLabel();
+
     private final JRadioButton maxMessageDisplay_default = new JRadioButton();
     private final JRadioButton maxMessageDisplay_set = new JRadioButton();
     private final JTextField maxMessageDisplay_value = new JTextField(6);
@@ -216,6 +221,9 @@ public class BoardSettingsFrame extends JDialog {
         bg7.add(storeSentMessages_default);
         bg7.add(storeSentMessages_true);
         bg7.add(storeSentMessages_false);
+        final ButtonGroup bg8 = new ButtonGroup();
+        bg8.add(hideMessageCount_default);
+        bg8.add(hideMessageCount_set);
 
         final GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -332,6 +340,22 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridwidth = 3;
         constraints.gridx = 0;
         constraints.insets = new Insets(3, 25, 0, 5);
+        settingsPanel.add(hideMessageCountLabel, constraints);
+        constraints.insets = new Insets(0, 35, 0, 5);
+        constraints.gridwidth = 1;
+        constraints.gridy++;
+        constraints.gridx = 0;
+        settingsPanel.add(hideMessageCount_default, constraints);
+        constraints.insets = new Insets(0, 0, 0, 5);
+        constraints.gridx = 1;
+        settingsPanel.add(hideMessageCount_set, constraints);
+        constraints.gridx = 2;
+        settingsPanel.add(hideMessageCount_value, constraints);
+        constraints.gridy++;
+
+        constraints.gridwidth = 3;
+        constraints.gridx = 0;
+        constraints.insets = new Insets(3, 25, 0, 5);
         settingsPanel.add(storeSentMessagesLabel, constraints);
         constraints.insets = new Insets(0, 35, 5, 5);
         constraints.gridwidth = 1;
@@ -365,6 +389,7 @@ public class BoardSettingsFrame extends JDialog {
         new TextComponentClipboardMenu(privateKeyTextField, language);
         new TextComponentClipboardMenu(publicKeyTextField, language);
         new TextComponentClipboardMenu(descriptionTextArea, language);
+        new TextComponentClipboardMenu(hideMessageCount_value, language);
 
         final GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
@@ -563,6 +588,13 @@ public class BoardSettingsFrame extends JDialog {
                 hideObserve_false.setSelected(true);
             }
 
+            if (!board.isConfigured() || board.getHideMessageCountObj() == null) {
+                hideMessageCount_default.setSelected(true);
+            } else {
+                hideMessageCount_set.setSelected(true);
+                hideMessageCount_value.setText("" + board.getHideMessageCount());
+            }
+
             if (!board.isConfigured() || board.getStoreSentMessagesObj() == null) {
                 storeSentMessages_default.setSelected(true);
             } else if (board.getStoreSentMessages()) {
@@ -712,6 +744,13 @@ public class BoardSettingsFrame extends JDialog {
                     board.setHideObserve(null);
                 }
             }
+            if( hideMessageCount_default.isSelected() || hideMessageCount_set.isSelected() ) {
+                if (hideMessageCount_default.isSelected() == false) {
+                    board.setHideMessageCount(new Integer(hideMessageCount_value.getText()));
+                } else {
+                    board.setHideMessageCount(null);
+                }
+            }
             if( storeSentMessages_default.isSelected() || storeSentMessages_true.isSelected() || storeSentMessages_false.isSelected() ) {
                 if (storeSentMessages_default.isSelected() == false) {
                     board.setStoreSentMessages(Boolean.valueOf(storeSentMessages_true.isSelected()));
@@ -782,6 +821,11 @@ public class BoardSettingsFrame extends JDialog {
                 board.setHideObserve(Boolean.valueOf(hideObserve_true.isSelected()));
             } else {
                 board.setHideObserve(null);
+            }
+            if (hideMessageCount_default.isSelected() == false) {
+                board.setHideMessageCount(new Integer(hideMessageCount_value.getText()));
+            } else {
+                board.setHideMessageCount(null);
             }
             if (storeSentMessages_default.isSelected() == false) {
                 board.setStoreSentMessages(Boolean.valueOf(storeSentMessages_true.isSelected()));
@@ -879,6 +923,8 @@ public class BoardSettingsFrame extends JDialog {
         hideObserve_default.setText(useDefault);
         hideObserve_true.setText(yes);
         hideObserve_false.setText(no);
+        hideMessageCount_default.setText(useDefault);
+        hideMessageCount_set.setText(language.getString("BoardSettings.label.setTo") + ":");
         storeSentMessages_default.setText(useDefault);
         storeSentMessages_true.setText(yes);
         storeSentMessages_false.setText(no);
@@ -892,6 +938,7 @@ public class BoardSettingsFrame extends JDialog {
         hideBadMessagesLabel.setText(language.getString("BoardSettings.label.hideBadMessages"));
         hideCheckMessagesLabel.setText(language.getString("BoardSettings.label.hideCheckMessages"));
         hideObserveMessagesLabel.setText(language.getString("BoardSettings.label.hideObserveMessages"));
+        hideMessageCountLabel.setText(language.getString("BoardSettings.label.hideMessageCountDisplay"));
         storeSentMessagesLabel.setText(language.getString("BoardSettings.label.storeSentMessages"));
 
         descriptionLabel.setText(language.getString("BoardSettings.label.description"));

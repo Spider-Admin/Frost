@@ -85,6 +85,7 @@ public class FrostMessageTab implements LanguageListener {
     private final MainFrame mainFrame;
     private final Language language;
 
+    String forceSelectMessageId = null;
 
     public FrostMessageTab(final MainFrame localMainFrame) {
 
@@ -529,11 +530,17 @@ public class FrostMessageTab implements LanguageListener {
             configBoardButton.setEnabled(true);
 
             // save the selected message for later re-select if we changed between threaded/flat view
-            FrostMessageObject previousMessage = null;
-            if( reload ) {
+            String previousMessageId = null;
+            if( forceSelectMessageId != null ) {
+                previousMessageId = forceSelectMessageId;
+                forceSelectMessageId = null;
+            } else if( reload ) {
                 final int[] rows = getMessagePanel().getMessageTable().getSelectedRows();
                 if( rows != null && rows.length > 0 ) {
-                    previousMessage = (FrostMessageObject) getMessagePanel().getMessageTableModel().getRow(rows[0]);
+                    FrostMessageObject previousMessage = (FrostMessageObject) getMessagePanel().getMessageTableModel().getRow(rows[0]);
+                    if( previousMessage != null ) {
+                        previousMessageId = previousMessage.getMessageId();
+                    }
                 }
             }
 
@@ -542,7 +549,7 @@ public class FrostMessageTab implements LanguageListener {
             getMessagePanel().updateMessageCountLabels(node);
 
             // read all messages for this board into message table (starts a thread)
-            TOF.getInstance().updateTofTable((Board)node, previousMessage);
+            TOF.getInstance().updateTofTable((Board)node, previousMessageId);
 
             getMessagePanel().getMessageTable().clearSelection();
         } else if (node.isFolder()) {
@@ -632,5 +639,9 @@ public class FrostMessageTab implements LanguageListener {
 
     public RunningMessageThreadsInformation getRunningMessageThreadsInformation() {
         return getTofTree().getRunningBoardUpdateThreads().getRunningMessageThreadsInformation();
+    }
+
+    public void forceSelectMessageId(String messageId) {
+        forceSelectMessageId = messageId;
     }
 }

@@ -93,7 +93,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if (e.getSource() == setObserveButton) {
                 setTrustState_actionPerformed(IdentityState.OBSERVE);
             } else if (e.getSource() == toggleShowUnreadOnly) {
-                toggleShowUnreadOnly_actionPerformed(e);
+                toggleShowOnly_actionPerformed(e);
+            } else if (e.getSource() == toggleShowFlaggedOnly) {
+                toggleShowOnly_actionPerformed(e);
+            } else if (e.getSource() == toggleShowStarredOnly) {
+                toggleShowOnly_actionPerformed(e);
             } else if (e.getSource() == toggleShowThreads) {
                 toggleShowThreads_actionPerformed(e);
             } else if (e.getSource() == toggleShowSmileys) {
@@ -115,7 +119,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 // accepting only mouse pressed event as double click, otherwise it will be triggered twice
                 if(e.getID() == MouseEvent.MOUSE_PRESSED ) {
                     if(e.getClickCount() == 2 && e.getComponent() == messageTable ) {
+                        if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_DOUBLE_CLICK_SHOWS_MESSAGE) ) {
                         showCurrentMessagePopupWindow();
+                        }
                     } else if(e.getClickCount() == 1 && e.getComponent() == messageTable ) {
                         // 'edit' the icon columns, toggle state flagged/starred
                         final int row = messageTable.rowAtPoint(e.getPoint());
@@ -227,6 +233,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         private final JMenuItem deleteItem = new JMenuItem();
         private final JMenuItem undeleteItem = new JMenuItem();
 
+        private final JMenuItem showItem = new JMenuItem();
+
         private final JMenuItem expandAllItem = new JMenuItem();
         private final JMenuItem collapseAllItem = new JMenuItem();
 
@@ -254,6 +262,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 deleteSelectedMessage();
             } else if (e.getSource() == undeleteItem) {
                 undeleteSelectedMessage();
+            } else if (e.getSource() == showItem) {
+                showCurrentMessagePopupWindow();
             } else if (e.getSource() == expandAllItem) {
                 getMessageTable().expandAll(true);
             } else if (e.getSource() == collapseAllItem) {
@@ -287,6 +297,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setObserveItem.addActionListener(this);
             deleteItem.addActionListener(this);
             undeleteItem.addActionListener(this);
+            showItem.addActionListener(this);
             expandAllItem.addActionListener(this);
             collapseAllItem.addActionListener(this);
             expandThreadItem.addActionListener(this);
@@ -309,6 +320,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setObserveItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
             deleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.deleteMessage"));
             undeleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.undeleteMessage"));
+            showItem.setText(language.getString("MessagePane.messageTable.popupmenu.showMessage"));
             expandAllItem.setText(language.getString("MessagePane.messageTable.popupmenu.expandAll"));
             collapseAllItem.setText(language.getString("MessagePane.messageTable.popupmenu.collapseAll"));
             expandThreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.expandThread"));
@@ -423,6 +435,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     } else {
                         deleteItem.setEnabled(true);
                     }
+					addSeparator();
+					showItem.setEnabled(true);
                 }
 
                 super.show(invoker, x, y);
@@ -461,7 +475,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private final JButton setCheckButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-overcast.png"));
     private final JButton setBadButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-storm.png"));
 
+	private final ButtonGroup toggleShowOnlyGroup = new ButtonGroup();
     private final JToggleButton toggleShowUnreadOnly = new JToggleButton("");
+    private final JToggleButton toggleShowFlaggedOnly = new JToggleButton("");
+    private final JToggleButton toggleShowStarredOnly = new JToggleButton("");
 
     private final JToggleButton toggleShowThreads = new JToggleButton("");
     private final JToggleButton toggleShowSmileys = new JToggleButton("");
@@ -512,6 +529,30 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowUnreadOnly.setPreferredSize(new Dimension(24,24));
         toggleShowUnreadOnly.setFocusPainted(false);
         toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
+
+        toggleShowFlaggedOnly.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_FLAGGED_ONLY));
+        icon = MiscToolkit.loadImageIcon("/data/flagged.gif");
+        toggleShowFlaggedOnly.setIcon(icon);
+        toggleShowFlaggedOnly.setRolloverEnabled(true);
+        toggleShowFlaggedOnly.setRolloverIcon(MiscToolkit.createRolloverIcon(icon));
+        toggleShowFlaggedOnly.setMargin(new Insets(0, 0, 0, 0));
+        toggleShowFlaggedOnly.setPreferredSize(new Dimension(24,24));
+        toggleShowFlaggedOnly.setFocusPainted(false);
+        toggleShowFlaggedOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowFlaggedOnly"));
+
+        toggleShowStarredOnly.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_STARRED_ONLY));
+        icon = MiscToolkit.loadImageIcon("/data/starred.gif");
+        toggleShowStarredOnly.setIcon(icon);
+        toggleShowStarredOnly.setRolloverEnabled(true);
+        toggleShowStarredOnly.setRolloverIcon(MiscToolkit.createRolloverIcon(icon));
+        toggleShowStarredOnly.setMargin(new Insets(0, 0, 0, 0));
+        toggleShowStarredOnly.setPreferredSize(new Dimension(24,24));
+        toggleShowStarredOnly.setFocusPainted(false);
+        toggleShowStarredOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowStarredOnly"));
+
+        toggleShowOnlyGroup.add(toggleShowUnreadOnly);
+        toggleShowOnlyGroup.add(toggleShowFlaggedOnly);
+        toggleShowOnlyGroup.add(toggleShowStarredOnly);
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
         icon = MiscToolkit.loadImageIcon("/data/toolbar/toggle-treeview.png");
@@ -580,6 +621,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         buttonsToolbar.addSeparator();
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.add(toggleShowUnreadOnly);
+        buttonsToolbar.add(toggleShowFlaggedOnly);
+        buttonsToolbar.add(toggleShowStarredOnly);
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.addSeparator();
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
@@ -609,6 +652,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setBadButton.addActionListener(listener);
         setObserveButton.addActionListener(listener);
         toggleShowUnreadOnly.addActionListener(listener);
+        toggleShowFlaggedOnly.addActionListener(listener);
+        toggleShowStarredOnly.addActionListener(listener);
         toggleShowThreads.addActionListener(listener);
         toggleShowSmileys.addActionListener(listener);
         toggleShowHyperlinks.addActionListener(listener);
@@ -1067,10 +1112,35 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private void toggleShowUnreadOnly_actionPerformed(final ActionEvent e) {
-        final boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
-        final boolean newValue = !oldValue;
-        Core.frostSettings.setValue(SettingsClass.SHOW_UNREAD_ONLY, newValue);
+    private int getShowOnlyAsFlags() {
+    	return
+    		(Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY) ? 1 : 0)  +
+    		(Core.frostSettings.getBoolValue(SettingsClass.SHOW_STARRED_ONLY) ? 2 : 0) +
+    		(Core.frostSettings.getBoolValue(SettingsClass.SHOW_FLAGGED_ONLY) ? 4 : 0);
+    }
+
+    private void toggleShowOnly_actionPerformed(final ActionEvent e) {
+    	final int beforeFlags = getShowOnlyAsFlags();
+    	int afterFlags;
+
+    	Core.frostSettings.setValue(SettingsClass.SHOW_UNREAD_ONLY, toggleShowUnreadOnly.isSelected());
+    	Core.frostSettings.setValue(SettingsClass.SHOW_STARRED_ONLY, toggleShowStarredOnly.isSelected());
+    	Core.frostSettings.setValue(SettingsClass.SHOW_FLAGGED_ONLY, toggleShowFlaggedOnly.isSelected());
+
+    	afterFlags = getShowOnlyAsFlags();
+
+    	if (beforeFlags == afterFlags) {
+    		// Same button pressed, deselect
+    	    final Enumeration<AbstractButton> en = toggleShowOnlyGroup.getElements();
+    	    while (en.hasMoreElements()) {
+    	        final AbstractButton b = en.nextElement();
+    	        b.setSelected(false);
+    	    }
+//    		toggleShowOnlyGroup.clearSelection(); // Java 1.6!
+    		toggleShowOnly_actionPerformed(e);
+    		return;
+    	}
+
         // reload messages
         MainFrame.getInstance().tofTree_actionPerformed(null, true);
     }
@@ -1108,6 +1178,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setObserveButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToObserve"));
         updateBoardButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.update"));
         toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
+        toggleShowFlaggedOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowFlaggedOnly"));
+        toggleShowStarredOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowStarredOnly"));
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
         toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
         toggleShowHyperlinks.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowHyperlinks"));
