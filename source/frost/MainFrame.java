@@ -19,91 +19,40 @@
 */
 package frost;
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTabbedPane;
-import javax.swing.LookAndFeel;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.tree.DefaultTreeModel;
+import javax.swing.*;
+import javax.swing.UIManager.*;
+import javax.swing.event.*;
+import javax.swing.tree.*;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import org.joda.time.*;
 
-import frost.ext.JSysTrayIcon;
-import frost.fileTransfer.FileTransferInformation;
-import frost.gui.AboutBox;
-import frost.gui.IdentitiesBrowser;
-import frost.gui.MainFrameStatusBar;
-import frost.gui.ManageLocalIdentitiesDialog;
-import frost.gui.StatisticsDialog;
-import frost.gui.help.HelpBrowserFrame;
-import frost.gui.preferences.OptionsFrame;
-import frost.messaging.freetalk.gui.FreetalkMessageFrame;
-import frost.messaging.freetalk.gui.FreetalkMessageTab;
-import frost.messaging.frost.UnsentMessagesManager;
-import frost.messaging.frost.boards.AbstractNode;
-import frost.messaging.frost.boards.Board;
-import frost.messaging.frost.boards.TOF;
-import frost.messaging.frost.boards.TofTree;
-import frost.messaging.frost.boards.TofTreeModel;
-import frost.messaging.frost.gui.FrostMessageTab;
-import frost.messaging.frost.gui.MessagePanel;
-import frost.messaging.frost.gui.messagetreetable.MessageTreeTable;
-import frost.messaging.frost.gui.messagetreetable.TreeTableModelAdapter;
-import frost.messaging.frost.threads.RunningMessageThreadsInformation;
-import frost.storage.StorageException;
-import frost.storage.perst.filelist.FileListStorage;
-import frost.storage.perst.identities.IdentitiesStorage;
-import frost.storage.perst.messagearchive.ArchiveMessageStorage;
-import frost.storage.perst.messages.MessageStorage;
-import frost.util.DateFun;
-import frost.util.Mixed;
-import frost.util.gui.GlassPane;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.MemoryMonitor;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.StartupMessage;
-import frost.util.gui.translation.JTranslatableTabbedPane;
-import frost.util.gui.translation.Language;
-import frost.util.gui.translation.LanguageEvent;
-import frost.util.gui.translation.LanguageGuiSupport;
-import frost.util.gui.translation.LanguageListener;
-import frost.util.translate.TranslationStartDialog;
+import frost.ext.*;
+import frost.fileTransfer.*;
+import frost.gui.*;
+import frost.gui.help.*;
+import frost.gui.preferences.*;
+import frost.messaging.freetalk.gui.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
+import frost.messaging.frost.gui.*;
+import frost.messaging.frost.gui.messagetreetable.*;
+import frost.messaging.frost.threads.*;
+import frost.storage.*;
+import frost.storage.perst.filelist.*;
+import frost.storage.perst.identities.*;
+import frost.storage.perst.messagearchive.*;
+import frost.storage.perst.messages.*;
+import frost.util.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
+import frost.util.translate.*;
 
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
 
@@ -475,9 +424,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         getFrostMessageTab().initialize();
         getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getFrostMessageTab().getTabPanel(), null, 0);
 
-        // FIXME: disable by default for now, config paarameter!
-        getFreetalkMessageTab().initialize();
-        getTabbedPane().insertTab("Freetalk", null, getFreetalkMessageTab().getTabPanel(), null, 1);
+        // optionally show Freetalk tab
+        if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {
+            getFreetalkMessageTab().initialize();
+            getTabbedPane().insertTab("Freetalk", null, getFreetalkMessageTab().getTabPanel(), null, 1);
+        }
 
         getTabbedPane().setSelectedIndex(0);
 
@@ -517,7 +468,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private void fileExitMenuItem_actionPerformed(final ActionEvent e) {
 
         // warn if create message windows are open
-        if (FreetalkMessageFrame.getOpenInstanceCount() > 0 ) {
+        if (MessageFrame.getOpenInstanceCount() > 0 || FreetalkMessageFrame.getOpenInstanceCount() > 0) {
             final int result = JOptionPane.showConfirmDialog(
                     this,
                     language.getString("MainFrame.openCreateMessageWindows.body"),

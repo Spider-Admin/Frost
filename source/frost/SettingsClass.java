@@ -232,6 +232,8 @@ public class SettingsClass implements ExitSavable {
     public static final String MSGTABLE_MSGTEXT_DIVIDER_LOCATION = "MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation";
 
     // Freetalk related
+    public static final String FREETALK_SHOW_TAB = "Freetalk.showTab";
+
     public static final String FREETALK_SHOW_KEYS_AS_HYPERLINKS = "FreetalkMessagePanel.showKeysAsHyperlinks";
     public static final String FREETALK_SHOW_SMILEYS = "FreetalkMessagePanel.showSmileys";
     public static final String FREETALK_SHOW_THREADS = "FreetalkMessagePanel.showThreads";
@@ -851,6 +853,8 @@ public class SettingsClass implements ExitSavable {
         final File fn = File.listRoots()[0];
 
         defaults.put(MIGRATE_VERSION, "0");
+
+        defaults.put(FREETALK_SHOW_TAB, false);
 
         defaults.put(DOS_STOP_BOARD_UPDATES_WHEN_DOSED, "true");
         defaults.put(DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD, "30");

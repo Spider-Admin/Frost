@@ -440,7 +440,9 @@ public class Core {
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
 
-        FreetalkManager.initialize();
+        if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {
+            FreetalkManager.initialize();
+        }
 
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
