@@ -854,7 +854,7 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(MIGRATE_VERSION, "0");
 
-        defaults.put(FREETALK_SHOW_TAB, false);
+        defaults.put(FREETALK_SHOW_TAB, "false");
 
         defaults.put(DOS_STOP_BOARD_UPDATES_WHEN_DOSED, "true");
         defaults.put(DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD, "30");
