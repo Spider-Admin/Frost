@@ -37,6 +37,7 @@ import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.common.*;
+import frost.storage.perst.TrackDownloadKeysStorage;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
@@ -369,7 +370,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
         }
                 }
-
+                
     private void applyDownloadDirToSelectedDownloads() {
         final ModelItem[] selectedItems = modelTable.getSelectedItems();
 
@@ -386,7 +387,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
     private void downloadDirApplyButton_actionPerformed(final ActionEvent e) {
         applyDownloadDirToSelectedDownloads();
     }
-
+    
     private void downloadPrefixApplyButton_actionPerformed(final ActionEvent e) {
         applyDownloadPrefixToSelectedDownloads();
     }

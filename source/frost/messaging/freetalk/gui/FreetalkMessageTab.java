@@ -38,8 +38,6 @@ import frost.util.gui.translation.*;
 
 public class FreetalkMessageTab implements LanguageListener {
 
-    private static final String OID = "~hmEojBqvlFkSsbTTRBiI1LKU1l0qAVRx6byGH7zF2I";
-
     private static final Logger logger = Logger.getLogger(FreetalkMessageTab.class.getName());
 
     private JSplitPane treeAndTabbedPaneSplitpane = null;
@@ -252,7 +250,7 @@ public class FreetalkMessageTab implements LanguageListener {
             updateBoardButton.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     sendFreetalkCommandListOwnIdentities();
-                    sendFreetalkCommandListSubscribedBoards(OID);
+                    sendFreetalkCommandListSubscribedBoards(FreetalkManager.getInstance().getLoginUserId());
                 }
             });
             newFolderButton.addActionListener(new ActionListener() {
@@ -357,7 +355,7 @@ public class FreetalkMessageTab implements LanguageListener {
         mainFrame.activateGlassPane();
 
         try {
-            ftManager.getConnection().sendCommandListMessages(id, board.getName(), OID, withContent);
+            ftManager.getConnection().sendCommandListMessages(id, board.getName(), FreetalkManager.getInstance().getLoginUserId(), withContent);
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListMessages", ex);
             mainFrame.deactivateGlassPane();

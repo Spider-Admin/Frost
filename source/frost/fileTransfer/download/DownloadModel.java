@@ -20,9 +20,13 @@ package frost.fileTransfer.download;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.*;
+
+import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.perst.*;
+import frost.util.gui.translation.*;
 import frost.util.model.*;
 
 /**
@@ -47,7 +51,28 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 
         final FrostFileListFileObject flfToAdd = itemToAdd.getFileListFileObject(); // maybe null of manually added
 
-		for (int x = 0; x < getItemCount(); x++) {
+        // If download tracking is enabled, check if file has not been already downloaded
+        if( Core.frostSettings.getBoolValue(SettingsClass.TRACK_DOWNLOADS_ENABLED) ) {
+
+        	// Only check if the file is not lingering around in finished state...
+        	if( ! itemToAdd.isTracked() ){
+	            final TrackDownloadKeysStorage trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
+	            if( trackDownloadKeysStorage.searchItem( itemToAdd.getKey() ) ) {
+	            	final Language language = Language.getInstance();
+
+	            	// Ask if to download again
+	            	if( JOptionPane.showConfirmDialog(
+	                        null,
+	                        language.formatMessage("DownloadPane.alreadyTrackedDialog.body", itemToAdd.getKey()),
+	                        language.getString("DownloadPane.alreadyTrackedDialog.title"),
+	                        JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION ) {
+	            		return false;
+	            	}
+	            }
+        	}
+        }
+
+        for (int x = 0; x < getItemCount(); x++) {
 			final FrostDownloadItem item = (FrostDownloadItem) getItemAt(x);
             final FrostFileListFileObject flf = item.getFileListFileObject(); // maybe null of manually added
 
@@ -154,7 +179,7 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	 * Called to restart the item.
 	 */
 	public void restartItems(final ModelItem[] items) {
-		LinkedList<FrostDownloadItem> running = new LinkedList();
+		final LinkedList<FrostDownloadItem> running = new LinkedList();
 
 		for (int x = items.length - 1; x >= 0; x--) {
 			final FrostDownloadItem dlItem = (FrostDownloadItem) items[x];

@@ -20,6 +20,7 @@ package frost.messaging.freetalk;
 
 import java.util.*;
 
+import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.freetalk.*;
 import frost.messaging.freetalk.identities.*;
@@ -46,6 +47,14 @@ public class FreetalkManager {
 
     public static FreetalkManager getInstance() {
         return instance;
+    }
+
+    public String getLoginUserId() {
+        final String uid = Core.frostSettings.getValue(SettingsClass.FREETALK_LOGIN_USERID);
+        if (uid == null) {
+            return "";
+        }
+        return uid;
     }
 
     public synchronized static void initialize() {

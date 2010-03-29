@@ -54,6 +54,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     private String gqIdentifier = null;
 
     private boolean isLoggedToFile = false;
+    private boolean isTracked = false;
     private boolean isCompletionProgRun = false;
 
     private int runtimeSecondsWithoutProgress = 0;
@@ -150,6 +151,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
             final long newLastDownloadStopTime,
             final String newGqId,
             final boolean newIsLoggedToFile,
+            final boolean newIsTracked,
             final boolean newIsCompletionProgRun,
             final int newRuntimeSecondsWithoutProgress,
             final int newOldDoneBlocks,
@@ -170,6 +172,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         lastDownloadStopTime = newLastDownloadStopTime;
         gqIdentifier = newGqId;
         isLoggedToFile= newIsLoggedToFile;
+        isTracked= newIsTracked;
         isCompletionProgRun= newIsCompletionProgRun;
         runtimeSecondsWithoutProgress = newRuntimeSecondsWithoutProgress;
         oldDoneBlocks = newOldDoneBlocks;
@@ -498,9 +501,17 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public boolean isLoggedToFile() {
         return isLoggedToFile;
     }
+    
+    public boolean isTracked() {
+        return isTracked;
+    }
 
     public void setLoggedToFile(final boolean isLoggedToFile) {
         this.isLoggedToFile = isLoggedToFile;
+    }
+    
+    public void setTracked(final boolean isTracked) {
+        this.isTracked = isTracked;
     }
 
     /**

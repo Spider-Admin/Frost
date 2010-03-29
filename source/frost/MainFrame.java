@@ -427,7 +427,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // optionally show Freetalk tab
         if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {
             getFreetalkMessageTab().initialize();
-            getTabbedPane().insertTab("Freetalk", null, getFreetalkMessageTab().getTabPanel(), null, 1);
+            getTabbedPane().insertTab("MainFrame.tabbedPane.freetalk", null, getFreetalkMessageTab().getTabPanel(), null, 1);
         }
 
         getTabbedPane().setSelectedIndex(0);

@@ -233,6 +233,7 @@ public class SettingsClass implements ExitSavable {
 
     // Freetalk related
     public static final String FREETALK_SHOW_TAB = "Freetalk.showTab";
+    public static final String FREETALK_LOGIN_USERID = "Freetalk.loginUserId";
 
     public static final String FREETALK_SHOW_KEYS_AS_HYPERLINKS = "FreetalkMessagePanel.showKeysAsHyperlinks";
     public static final String FREETALK_SHOW_SMILEYS = "FreetalkMessagePanel.showSmileys";
@@ -277,6 +278,8 @@ public class SettingsClass implements ExitSavable {
 
     public static final String LOG_DOWNLOADS_ENABLED = "logDownloads";
     public static final String LOG_UPLOADS_ENABLED = "logUploads";
+
+    public static final String TRACK_DOWNLOADS_ENABLED = "trackDownloads";
 
     public SettingsClass() {
         settingsHash = new Hashtable<String,Object>();
@@ -855,6 +858,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MIGRATE_VERSION, "0");
 
         defaults.put(FREETALK_SHOW_TAB, "false");
+        defaults.put(FREETALK_LOGIN_USERID, "");
 
         defaults.put(DOS_STOP_BOARD_UPDATES_WHEN_DOSED, "true");
         defaults.put(DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD, "30");
@@ -1043,6 +1047,8 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(LOG_DOWNLOADS_ENABLED, "false");
         defaults.put(LOG_UPLOADS_ENABLED, "false");
+        defaults.put(TRACK_DOWNLOADS_ENABLED, "false");
+
 
         defaults.put(CONFIRM_MARK_ALL_MSGS_READ, "true");
 

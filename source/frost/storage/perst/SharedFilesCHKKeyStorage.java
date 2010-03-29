@@ -349,17 +349,18 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 //
 //    }
 
-    protected final static LastDownloadTryStopTimeComparator lastDownloadTryStopTimeComparator = new LastDownloadTryStopTimeComparator();
+    
     protected static class LastDownloadTryStopTimeComparator implements Comparator<SharedFilesCHKKey> {
         public int compare(final SharedFilesCHKKey arg0, final SharedFilesCHKKey arg1) {
             return Mixed.compareLong(arg0.getLastDownloadTryStopTime(), arg1.getLastDownloadTryStopTime());
         }
     }
+    protected final static LastDownloadTryStopTimeComparator lastDownloadTryStopTimeComparator = new LastDownloadTryStopTimeComparator();
 
-    protected final static SeenCountComparator seenCountComparator = new SeenCountComparator();
     protected static class SeenCountComparator implements Comparator<SharedFilesCHKKey> {
         public int compare(final SharedFilesCHKKey arg0, final SharedFilesCHKKey arg1) {
             return Mixed.compareInt(arg0.getSeenCount(), arg0.getSeenCount());
         }
     }
+    protected final static SeenCountComparator seenCountComparator = new SeenCountComparator();
 }

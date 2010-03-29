@@ -407,6 +407,7 @@ public class Core {
         ArchiveMessageStorage.inst().initStorage();
         IdentitiesStorage.inst().initStorage();
         FileListStorage.inst().initStorage();
+        TrackDownloadKeysStorage.inst().initStorage();
 
         splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
@@ -549,6 +550,7 @@ public class Core {
         saver.addExitSavable(ArchiveMessageStorage.inst());
         saver.addExitSavable(IdentitiesStorage.inst());
         saver.addExitSavable(FileListStorage.inst());
+        saver.addExitSavable(TrackDownloadKeysStorage.inst());
 
         // invoke the mainframe ticker (board updates, clock, ...)
         mainframe.startTickerThread();

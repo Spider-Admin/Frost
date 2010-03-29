@@ -26,6 +26,7 @@ import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.messaging.frost.*;
 import frost.storage.*;
+import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;
 import frost.util.*;
 import frost.util.model.*;
@@ -434,6 +435,15 @@ public class DownloadManager implements ExitSavable {
                 FileListStorage.inst().updateFrostFileListFileObjectAfterDownload(
                         downloadItem.getFileListFileObject().getSha(),
                         System.currentTimeMillis() );
+            }
+            
+            // maybe track download
+            if( Core.frostSettings.getBoolValue(SettingsClass.TRACK_DOWNLOADS_ENABLED) && !downloadItem.isTracked() ) {
+                TrackDownloadKeysStorage trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
+                trackDownloadKeysStorage.storeItem( 
+                    new TrackDownloadKeys( downloadItem.getKey(), downloadItem.getFilename(), "", downloadItem.getFileSize(), downloadItem.getDownloadFinishedMillis() )
+                );
+                downloadItem.setTracked(true);
             }
 
             // maybe log successful download to file localdata/downloads.txt

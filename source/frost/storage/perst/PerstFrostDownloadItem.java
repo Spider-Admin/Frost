@@ -50,6 +50,7 @@ public class PerstFrostDownloadItem extends Persistent {
     public String fileListFileSha;
 
     public boolean isLoggedToFile;
+    public boolean isTracked;
     public boolean isCompletionProgRun;
 
     public int runtimeSecondsWithoutProgress;
@@ -76,6 +77,7 @@ public class PerstFrostDownloadItem extends Persistent {
         gqIdentifier = dlItem.getGqIdentifier();
         fileListFileSha = (dlItem.getFileListFileObject()==null?null:dlItem.getFileListFileObject().getSha());
         isLoggedToFile = dlItem.isLoggedToFile();
+        isTracked = dlItem.isTracked();
         isCompletionProgRun = dlItem.isCompletionProgRun();
         runtimeSecondsWithoutProgress = dlItem.getRuntimeSecondsWithoutProgress();
         oldDoneBlocks = dlItem.getOldDoneBlocks();
@@ -111,6 +113,7 @@ public class PerstFrostDownloadItem extends Persistent {
                 lastDownloadStopTime,
                 gqIdentifier,
                 isLoggedToFile,
+                isTracked,
                 isCompletionProgRun,
                 runtimeSecondsWithoutProgress,
                 oldDoneBlocks,
