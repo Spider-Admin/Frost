@@ -459,7 +459,9 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
 
         getFrostMessageTab().saveLayout();
-        getFreetalkMessageTab().saveLayout();
+        if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {
+            getFreetalkMessageTab().saveLayout();
+        }
     }
 
     /**
