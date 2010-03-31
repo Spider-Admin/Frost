@@ -42,6 +42,7 @@ public class PerstIdentitiesMessages extends Persistent {
         messagesFromIdentity.remove(pmo);
     }
     
+    @Override
     public void deallocate() {
         if( messagesFromIdentity != null ) {
             messagesFromIdentity.deallocate();

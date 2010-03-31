@@ -44,10 +44,6 @@
         <description><![CDATA[Report bugs and problems with Freenet]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
-        <name><![CDATA[freenet-refs]]></name>
-        <description><![CDATA[Exchange freenet node references]]></description>
-      </FrostBoardTreeEntry>
-      <FrostBoardTreeEntry>
         <name><![CDATA[frost]]></name>
         <description><![CDATA[Discussions about Frost]]></description>
       </FrostBoardTreeEntry>

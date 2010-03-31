@@ -24,8 +24,8 @@ import java.util.logging.*;
 import org.garret.perst.*;
 
 import frost.*;
-import frost.boards.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
@@ -184,7 +184,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
             return;
         }
         // normal messages in date range
-        final Iterator<PerstFrostArchiveMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostArchiveMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, GenericIndex.ASCENT_ORDER);
         while(i.hasNext()) {
             final PerstFrostArchiveMessageObject p = i.next();
             final FrostMessageObject mo = p.toFrostMessageObject(board);

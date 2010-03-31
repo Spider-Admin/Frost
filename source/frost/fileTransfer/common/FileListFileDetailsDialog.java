@@ -25,11 +25,10 @@ import java.util.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.search.*;
-import frost.gui.MessagePanel.*;
 import frost.identities.*;
+import frost.messaging.frost.gui.MessagePanel.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -205,7 +204,6 @@ public class FileListFileDetailsDialog extends JDialog {
     private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyKeysItem = new JMenuItem();
 
         private final JMenu copyToClipboardMenu = new JMenu();
 
@@ -225,12 +223,8 @@ public class FileListFileDetailsDialog extends JDialog {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-            }
 
             copyKeysAndNamesItem.addActionListener(this);
-            copyKeysItem.addActionListener(this);
             showOwnerFilesItem.addActionListener(this);
             setGoodItem.addActionListener(this);
             setBadItem.addActionListener(this);
@@ -239,7 +233,6 @@ public class FileListFileDetailsDialog extends JDialog {
         }
 
         private void refreshLanguage() {
-            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
 
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
@@ -252,9 +245,7 @@ public class FileListFileDetailsDialog extends JDialog {
         }
 
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysItem) {
-                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
-            } else if (e.getSource() == copyKeysAndNamesItem) {
+            if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             } else if (e.getSource() == showOwnerFilesItem) {
                 searchFilesOfOwner();

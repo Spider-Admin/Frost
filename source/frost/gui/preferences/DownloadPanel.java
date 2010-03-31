@@ -25,7 +25,6 @@ import java.io.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -35,6 +34,8 @@ class DownloadPanel extends JPanel {
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == browseDirectoryButton) {
                 browseDirectoryPressed();
+            } else if (e.getSource() == browseExecButton) {
+                browseExecPressed();
             }
         }
     }
@@ -43,18 +44,10 @@ class DownloadPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    // 0.5 only
-    private final JLabel splitfileThreadsLabel = new JLabel();
-    private final JTextField splitfileThreadsTextField = new JTextField(6);
-    private final JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
-    private final JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
-
-    // 0.7 only
     private final JLabel priorityLabel = new JLabel();
     private final JTextField priorityTextField = new JTextField(6);
     private final JCheckBox enforceFrostPriorityFileDownload = new JCheckBox();
 
-    // common
     private final JButton browseDirectoryButton = new JButton();
     private final JLabel directoryLabel = new JLabel();
 
@@ -67,9 +60,14 @@ class DownloadPanel extends JPanel {
     private final JLabel threadsTextLabel = new JLabel();
 
     private final JCheckBox logDownloadsCheckBox = new JCheckBox();
+    private final JCheckBox trackDownloadsCheckBox = new JCheckBox();
 
     private final JLabel waitTimeLabel = new JLabel();
     private final JTextField waitTimeTextField = new JTextField(6);
+
+    private final JButton browseExecButton = new JButton();
+    private final JLabel execLabel = new JLabel();
+    private final JTextField execTextField = new JTextField(20);
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -84,14 +82,6 @@ class DownloadPanel extends JPanel {
 
         initialize();
         loadSettings();
-
-        if( FcpHandler.isFreenet07() ) {
-            // disable 0.5-only items
-            splitfileThreadsLabel.setEnabled(false);
-            splitfileThreadsTextField.setEnabled(false);
-            tryAllSegmentsCheckBox.setEnabled(false);
-            decodeAfterEachSegmentCheckBox.setEnabled(false);
-        }
     }
 
     /**
@@ -113,6 +103,21 @@ class DownloadPanel extends JPanel {
         }
     }
 
+    private void browseExecPressed() {
+        final JFileChooser fc = new JFileChooser(settings.getValue(SettingsClass.DIR_LAST_USED));
+        fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fc.setMultiSelectionEnabled(false);
+
+        final int returnVal = fc.showOpenDialog(owner);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            final File file = fc.getSelectedFile();
+            settings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
+            execTextField.setText(file.getPath());
+        }
+    }
+
     private void initialize() {
         setName("DownloadPanel");
         setLayout(new GridBagLayout());
@@ -121,9 +126,9 @@ class DownloadPanel extends JPanel {
         //We create the components
         new TextComponentClipboardMenu(directoryTextField, language);
         new TextComponentClipboardMenu(maxRetriesTextField, language);
-        new TextComponentClipboardMenu(splitfileThreadsTextField, language);
         new TextComponentClipboardMenu(threadsTextField, language);
         new TextComponentClipboardMenu(waitTimeTextField, language);
+        new TextComponentClipboardMenu(execTextField, language);
 
         // Adds all of the components
         final GridBagConstraints constraints = new GridBagConstraints();
@@ -163,31 +168,11 @@ class DownloadPanel extends JPanel {
         constraints.gridx = 1;
         add(threadsTextField, constraints);
 
-        if( FcpHandler.isFreenet07() ) {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(priorityLabel, constraints);
-            constraints.gridx = 1;
-            add(priorityTextField, constraints);
-        } else {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(splitfileThreadsLabel, constraints);
-            constraints.gridx = 1;
-            add(splitfileThreadsTextField, constraints);
-
-            constraints.gridwidth = 3;
-
-            constraints.insets = new Insets(5,5,5,5);
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(tryAllSegmentsCheckBox, constraints);
-
-            constraints.insets = insets0555;
-
-            constraints.gridy++;
-            add(decodeAfterEachSegmentCheckBox, constraints);
-        }
+        constraints.gridy++;
+        constraints.gridx = 0;
+        add(priorityLabel, constraints);
+        constraints.gridx = 1;
+        add(priorityTextField, constraints);
 
         constraints.gridy++;
         constraints.gridx = 0;
@@ -196,13 +181,31 @@ class DownloadPanel extends JPanel {
         constraints.anchor = GridBagConstraints.NORTHWEST;
         add(logDownloadsCheckBox, constraints);
 
-        if( FcpHandler.isFreenet07() ) {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            constraints.gridwidth = 3;
-            constraints.insets = insets0555;
-            add(enforceFrostPriorityFileDownload, constraints);
-        }
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 3;
+        constraints.insets = insets0555;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        add(trackDownloadsCheckBox, constraints);
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 3;
+        constraints.insets = insets0555;
+        add(enforceFrostPriorityFileDownload, constraints);
+
+        constraints.gridy++;
+        constraints.gridwidth = 1;
+        constraints.gridx = 0;
+        add(execLabel, constraints);
+        constraints.gridx = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        add(execTextField, constraints);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 2;
+        constraints.weightx = 0.0;
+        add(browseExecButton, constraints);
 
         // glue
         constraints.gridy++;
@@ -213,6 +216,7 @@ class DownloadPanel extends JPanel {
 
         // Add listeners
         browseDirectoryButton.addActionListener(listener);
+        browseExecButton.addActionListener(listener);
     }
 
     /**
@@ -224,14 +228,10 @@ class DownloadPanel extends JPanel {
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME));
         logDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED));
-        if( FcpHandler.isFreenet07() ) {
-            priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
-            enforceFrostPriorityFileDownload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD));
-        } else {
-            splitfileThreadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS));
-            tryAllSegmentsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS));
-            decodeAfterEachSegmentCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT));
-        }
+        trackDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.TRACK_DOWNLOADS_ENABLED));
+        priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
+        enforceFrostPriorityFileDownload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD));
+        execTextField.setText(settings.getValue(SettingsClass.EXEC_ON_DOWNLOAD));
     }
 
     public void ok() {
@@ -239,25 +239,22 @@ class DownloadPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        final String on = language.getString("Options.common.on");
         final String minutes = language.getString("Options.common.minutes");
 
         waitTimeLabel.setText(language.getString("Options.downloads.waittimeAfterEachTry") + " (" + minutes + ")");
         maxRetriesLabel.setText(language.getString("Options.downloads.maximumNumberOfRetries"));
 
         logDownloadsCheckBox.setText(language.getString("Options.downloads.logDownloads"));
+        trackDownloadsCheckBox.setText(language.getString("Options.downloads.trackDownloads"));
 
         directoryLabel.setText(language.getString("Options.downloads.downloadDirectory"));
         browseDirectoryButton.setText(language.getString("Common.browse") + "...");
         threadsTextLabel.setText(language.getString("Options.downloads.numberOfSimultaneousDownloads") + " (3)");
-        if( FcpHandler.isFreenet07() ) {
-            priorityLabel.setText(language.getString("Options.downloads.downloadPriority") + " (3)");
-            enforceFrostPriorityFileDownload.setText(language.getString("Options.downloads.enforceFrostPriorityFileDownload"));
-        } else {
-            splitfileThreadsLabel.setText(language.getString("Options.downloads.numberOfSplitfileThreads") + " (30)");
-            tryAllSegmentsCheckBox.setText(language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
-            decodeAfterEachSegmentCheckBox.setText(language.getString("Options.downloads.decodeEachSegmentImmediately"));
-        }
+        priorityLabel.setText(language.getString("Options.downloads.downloadPriority") + " (3)");
+        enforceFrostPriorityFileDownload.setText(language.getString("Options.downloads.enforceFrostPriorityFileDownload"));
+
+        execLabel.setText(language.getString("Options.downloads.downloadExec"));
+        browseExecButton.setText(language.getString("Common.browse") + "...");
     }
 
     /**
@@ -279,13 +276,10 @@ class DownloadPanel extends JPanel {
         settings.setValue(SettingsClass.DOWNLOAD_WAITTIME, waitTimeTextField.getText());
 
         settings.setValue(SettingsClass.LOG_DOWNLOADS_ENABLED, logDownloadsCheckBox.isSelected());
-        if( FcpHandler.isFreenet07() ) {
-            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, priorityTextField.getText());
-            settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD, enforceFrostPriorityFileDownload.isSelected());
-        } else {
-            settings.setValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
-            settings.setValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS, tryAllSegmentsCheckBox.isSelected());
-            settings.setValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, decodeAfterEachSegmentCheckBox.isSelected());
-        }
+        settings.setValue(SettingsClass.TRACK_DOWNLOADS_ENABLED, trackDownloadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, priorityTextField.getText());
+        settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD, enforceFrostPriorityFileDownload.isSelected());
+
+        settings.setValue(SettingsClass.EXEC_ON_DOWNLOAD, execTextField.getText());
     }
 }

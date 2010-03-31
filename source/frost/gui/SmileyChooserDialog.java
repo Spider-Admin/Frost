@@ -75,7 +75,7 @@ public class SmileyChooserDialog extends JDialog {
 
     public void initialize() {
 
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(language.getString("SmileyChooserDialog.title"));
 
         final JPanel p = new JPanel();

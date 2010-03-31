@@ -34,6 +34,8 @@ public class DisplayMessagesPanel extends JPanel {
         public void stateChanged(final ChangeEvent e) {
             if (e.getSource() == indicateLowReceivedMessagesCheckBox) {
                 indicateLowReceivedMessagesChanged();
+            } else if (e.getSource() == showCollapsedThreadsCheckBox) {
+				collapsedThreadsOptionsChanged();
             }
         }
     }
@@ -45,7 +47,13 @@ public class DisplayMessagesPanel extends JPanel {
     private final JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
     private final JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
     private final JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
+
     private final JCheckBox showCollapsedThreadsCheckBox = new JCheckBox();
+    private JPanel collapsedThreadsOptionsPanel = null;
+    private final JCheckBox expandRootChildrenCheckBox = new JCheckBox();
+    private final JCheckBox expandUnreadThreadsCheckBox = new JCheckBox();
+    private final JCheckBox doubleClickShowsMessageCheckBox = new JCheckBox();
+
     private final JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
     private final JCheckBox dontShowOwnMessagesAsNewCheckBox = new JCheckBox();
     private final JCheckBox dontShowOwnMessagesAsMECheckBox = new JCheckBox();
@@ -109,6 +117,31 @@ public class DisplayMessagesPanel extends JPanel {
         return indicateLowReceivedMessagesPanel;
     }
 
+    private JPanel getCollapsedThreadsOptionsPanel() {
+        if( collapsedThreadsOptionsPanel == null ) {
+            collapsedThreadsOptionsPanel = new JPanel(new GridBagLayout());
+            collapsedThreadsOptionsPanel.setBorder(new EmptyBorder(5, 30, 5, 5));
+            final GridBagConstraints constraints = new GridBagConstraints();
+            constraints.insets = new Insets(0, 5, 5, 5);
+            constraints.weighty = 0;
+            constraints.weightx = 0;
+            constraints.anchor = GridBagConstraints.NORTHWEST;
+            constraints.gridy = 0;
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.weightx = 0.5;
+            collapsedThreadsOptionsPanel.add(expandRootChildrenCheckBox, constraints);
+
+            constraints.gridy++;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.weightx = 0.5;
+            collapsedThreadsOptionsPanel.add(expandUnreadThreadsCheckBox, constraints);
+        }
+        return collapsedThreadsOptionsPanel;
+    }
+
     /**
      * Initialize the class.
      */
@@ -142,6 +175,12 @@ public class DisplayMessagesPanel extends JPanel {
         add(showCollapsedThreadsCheckBox, constraints);
 
         constraints.gridy++;
+        add(getCollapsedThreadsOptionsPanel(), constraints);
+
+        constraints.gridy++;
+		add(doubleClickShowsMessageCheckBox, constraints);
+
+        constraints.gridy++;
         add(showDeletedMessagesCheckBox, constraints);
 
         constraints.gridy++;
@@ -163,6 +202,7 @@ public class DisplayMessagesPanel extends JPanel {
 
         // add listener
         indicateLowReceivedMessagesCheckBox.addChangeListener(listener);
+        showCollapsedThreadsCheckBox.addChangeListener(listener);
     }
 
     /**
@@ -174,6 +214,9 @@ public class DisplayMessagesPanel extends JPanel {
         msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
         sortThreadRootMsgsAscendingCheckBox.setSelected(settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING));
         showCollapsedThreadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS));
+        expandRootChildrenCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_EXPAND_ROOT_CHILDREN));
+        expandUnreadThreadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_EXPAND_UNREAD_THREADS));
+        doubleClickShowsMessageCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_DOUBLE_CLICK_SHOWS_MESSAGE));
         showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
         dontShowOwnMessagesAsNewCheckBox.setSelected(settings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED));
         dontShowOwnMessagesAsMECheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED));
@@ -183,6 +226,7 @@ public class DisplayMessagesPanel extends JPanel {
 
         indicateLowReceivedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES));
         indicateLowReceivedMessagesChanged();
+        collapsedThreadsOptionsChanged();
     }
 
     public void ok() {
@@ -195,6 +239,9 @@ public class DisplayMessagesPanel extends JPanel {
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         sortThreadRootMsgsAscendingCheckBox.setText(language.getString("Options.display.sortThreadRootMsgsAscending"));
         showCollapsedThreadsCheckBox.setText(language.getString("Options.display.showCollapsedThreads"));
+        expandRootChildrenCheckBox.setText(language.getString("Options.display.expandRootChildren"));
+        expandUnreadThreadsCheckBox.setText(language.getString("Options.display.expandUnreadThreads"));
+        doubleClickShowsMessageCheckBox.setText(language.getString("Options.display.doubleClickShowsMessage"));
         showDeletedMessagesCheckBox.setText(language.getString("Options.news.3.showDeletedMessages"));
         dontShowOwnMessagesAsNewCheckBox.setText(language.getString("Options.news.3.dontHandleOwnMessagesAsNew"));
         dontShowOwnMessagesAsMECheckBox.setText(language.getString("Options.news.3.dontShowOwnMessagesAsMe"));
@@ -213,6 +260,9 @@ public class DisplayMessagesPanel extends JPanel {
         settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
         settings.setValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, sortThreadRootMsgsAscendingCheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS, showCollapsedThreadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.MSGTABLE_EXPAND_ROOT_CHILDREN, expandRootChildrenCheckBox.isSelected());
+        settings.setValue(SettingsClass.MSGTABLE_EXPAND_UNREAD_THREADS, expandUnreadThreadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.MSGTABLE_DOUBLE_CLICK_SHOWS_MESSAGE, doubleClickShowsMessageCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, dontShowOwnMessagesAsNewCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED, dontShowOwnMessagesAsMECheckBox.isSelected());
@@ -224,5 +274,9 @@ public class DisplayMessagesPanel extends JPanel {
 
     private void indicateLowReceivedMessagesChanged() {
         MiscToolkit.setContainerEnabled(getIndicateLowReceivedMessagesPanel(), indicateLowReceivedMessagesCheckBox.isSelected());
+    }
+
+    private void collapsedThreadsOptionsChanged() {
+        MiscToolkit.setContainerEnabled(getCollapsedThreadsOptionsPanel(), showCollapsedThreadsCheckBox.isSelected());
     }
 }

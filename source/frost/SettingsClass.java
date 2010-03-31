@@ -59,6 +59,8 @@ public class SettingsClass implements ExitSavable {
 
     public static final String DIR_CONFIG = "config.dir";
     public static final String DIR_DOWNLOAD = "downloadDirectory";
+    public static final String EXEC_ON_DOWNLOAD = "downloadExec";
+    public static final String EXEC_ON_UPLOAD = "uploadExec";
     public static final String DIR_LAST_USED = "lastUsedDirectory";
     public static final String DIR_TEMP = "temp.dir";
     public static final String DIR_LOCALDATA = "localdata.dir";
@@ -92,7 +94,7 @@ public class SettingsClass implements ExitSavable {
     public static final String PERST_PAGEPOOLSIZE_MESSAGES = "perst.pagepoolsizeKiB.messages";
     public static final String PERST_PAGEPOOLSIZE_MESSAGECONTENTS = "perst.pagepoolsizeKiB.messagecontents";
 
-    public static final String AVAILABLE_NODES = "availableNodes";
+    public static final String FREENET_FCP_ADDRESS = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
     public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
     public static final String FCP2_USE_ONE_CONNECTION_FOR_MESSAGES = "fcp2.useOneConnectionForMessages";
@@ -148,18 +150,13 @@ public class SettingsClass implements ExitSavable {
     public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
     public static final String UPLOAD_WAITTIME = "uploadRetriesWaitTime";
     public static final String UPLOAD_MAX_THREADS = "uploadThreads";
-    public static final String UPLOAD_FILE_HTL = "htlUpload";
-    public static final String UPLOAD_MAX_SPLITFILE_THREADS = "splitfileUploadThreads";
-    public static final String UPLOAD_REMOVE_CHUNKS = "removeOldUploadFileChunks";
+    public static final String UPLOAD_REMOVE_NOT_EXISTING_FILES = "uploadRemoveNotExistingFiles";
 
     public static final String DOWNLOAD_MAX_THREADS = "downloadThreads";
     public static final String DOWNLOAD_MAX_RETRIES = "downloadMaxRetries";
     public static final String DOWNLOAD_WAITTIME = "downloadWaittime";
-    public static final String DOWNLOAD_TRY_ALL_SEGMENTS = "downloadTryAllSegments";
-    public static final String DOWNLOAD_DECODE_AFTER_EACH_SEGMENT = "downloadDecodeAfterEachSegment";
     public static final String DOWNLOAD_REMOVE_FINISHED = "removeFinishedDownloads";
     public static final String UPLOAD_REMOVE_FINISHED = "removeFinishedUploads";
-    public static final String DOWNLOAD_MAX_SPLITFILE_THREADS = "splitfileDownloadThreads";
 
     public static final String GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD = "showExternalGlobalQueueDownloads";
     public static final String GQ_SHOW_EXTERNAL_ITEMS_UPLOAD = "showExternalGlobalQueueUploads";
@@ -168,6 +165,9 @@ public class SettingsClass implements ExitSavable {
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
     public static final String MSGTABLE_SHOW_COLLAPSED_THREADS = "messageTableShowCollapsedThreads";
+    public static final String MSGTABLE_EXPAND_ROOT_CHILDREN = "messageTableExpandRootChildren";
+    public static final String MSGTABLE_EXPAND_UNREAD_THREADS = "messageTableExpandUnreadThreads";
+    public static final String MSGTABLE_DOUBLE_CLICK_SHOWS_MESSAGE = "MessagePanel.doubleClickShowsMessage";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
     public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
     public static final String PREVENT_BOARDTREE_REORDERING = "preventBoardTreeReordering";
@@ -189,9 +189,6 @@ public class SettingsClass implements ExitSavable {
 
     public static final String BOARDLIST_LAST_SELECTED_BOARD = "tofTreeSelectedRow";
 
-    public static final String MESSAGE_DOWNLOAD_HTL = "tofDownloadHtl";
-    public static final String MESSAGE_UPLOAD_HTL = "tofUploadHtl";
-
     public static final String MESSAGE_BLOCK_SUBJECT = "blockMessage";
     public static final String MESSAGE_BLOCK_SUBJECT_ENABLED = "blockMessageChecked";
     public static final String MESSAGE_BLOCK_BODY = "blockMessageBody";
@@ -206,6 +203,8 @@ public class SettingsClass implements ExitSavable {
     public static final String MESSAGE_HIDE_CHECK = "hideCheckMessages";
     public static final String MESSAGE_HIDE_BAD = "hideBadMessages";
     public static final String MESSAGE_HIDE_UNSIGNED = "signedOnly";
+    public static final String MESSAGE_HIDE_COUNT = "hideMessageCount";
+    public static final String MESSAGE_HIDE_COUNT_EXCLUDE_PRIVATE = "hideMessageCountExcludePrivate";
 
     public static final String KNOWNBOARDS_BLOCK_FROM_OBSERVE = "blockBoardsFromObserve";
     public static final String KNOWNBOARDS_BLOCK_FROM_CHECK = "blockBoardsFromCheck";
@@ -227,8 +226,21 @@ public class SettingsClass implements ExitSavable {
     public static final String INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED = "MessagePanel.indicateLowReceivedMessages.lightRedCount";
 
     public static final String SHOW_UNREAD_ONLY = "MessagePanel.showUnreadOnly";
+    public static final String SHOW_FLAGGED_ONLY = "MessagePanel.showFlaggedOnly";
+    public static final String SHOW_STARRED_ONLY = "MessagePanel.showStarredOnly";
 
     public static final String MSGTABLE_MSGTEXT_DIVIDER_LOCATION = "MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation";
+
+    // Freetalk related
+    public static final String FREETALK_SHOW_TAB = "Freetalk.showTab";
+    public static final String FREETALK_LOGIN_USERID = "Freetalk.loginUserId";
+
+    public static final String FREETALK_SHOW_KEYS_AS_HYPERLINKS = "FreetalkMessagePanel.showKeysAsHyperlinks";
+    public static final String FREETALK_SHOW_SMILEYS = "FreetalkMessagePanel.showSmileys";
+    public static final String FREETALK_SHOW_THREADS = "FreetalkMessagePanel.showThreads";
+    public static final String FREETALK_SHOW_UNREAD_ONLY = "FreetalkMessagePanel.showUnreadOnly";
+    public static final String FREETALK_MSGTABLE_MSGTEXT_DIVIDER_LOCATION = "FreetalkMessagePanel.msgTableAndMsgTextSplitpaneDividerLocation";
+
 
     public static final String SHOW_COLORED_ROWS = "showColoredRows";
     public static final String SHOW_SMILEYS = "showSmileys";
@@ -266,6 +278,8 @@ public class SettingsClass implements ExitSavable {
 
     public static final String LOG_DOWNLOADS_ENABLED = "logDownloads";
     public static final String LOG_UPLOADS_ENABLED = "logUploads";
+
+    public static final String TRACK_DOWNLOADS_ENABLED = "trackDownloads";
 
     public SettingsClass() {
         settingsHash = new Hashtable<String,Object>();
@@ -843,6 +857,9 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(MIGRATE_VERSION, "0");
 
+        defaults.put(FREETALK_SHOW_TAB, "false");
+        defaults.put(FREETALK_LOGIN_USERID, "");
+
         defaults.put(DOS_STOP_BOARD_UPDATES_WHEN_DOSED, "true");
         defaults.put(DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD, "30");
 
@@ -905,6 +922,8 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MESSAGE_HIDE_BAD, "false");
         defaults.put(MESSAGE_HIDE_CHECK, "false");
         defaults.put(MESSAGE_HIDE_OBSERVE, "false");
+        defaults.put(MESSAGE_HIDE_COUNT, "0");
+        defaults.put(MESSAGE_HIDE_COUNT_EXCLUDE_PRIVATE, "true");
 
         defaults.put(JUNK_HIDE_JUNK_MESSAGES, "false");
 
@@ -919,10 +938,6 @@ public class SettingsClass implements ExitSavable {
         defaults.put(DOWNLOAD_MAX_RETRIES, "25");
         defaults.put(DOWNLOAD_WAITTIME, "5");
 
-        defaults.put(DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, "true");
-        defaults.put(DOWNLOAD_TRY_ALL_SEGMENTS, "true");
-
-        defaults.put(UPLOAD_FILE_HTL, "21");
         defaults.put(MAX_MESSAGE_DISPLAY, "15");
         defaults.put(MAX_MESSAGE_DOWNLOAD, "5");
         defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
@@ -945,16 +960,10 @@ public class SettingsClass implements ExitSavable {
         defaults.put(SEARCH_HIDE_OBSERVE, "false");
         defaults.put(SEARCH_HIDE_FILES_WITHOUT_CHK, "false");
 
-        defaults.put(DOWNLOAD_MAX_SPLITFILE_THREADS, "30");
-        defaults.put(UPLOAD_MAX_SPLITFILE_THREADS, "15");
-        defaults.put(UPLOAD_REMOVE_CHUNKS, "true");
-
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, "false");
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, "false");
 
-        defaults.put(MESSAGE_DOWNLOAD_HTL, "23");
         defaults.put(BOARDLIST_LAST_SELECTED_BOARD, "0");
-        defaults.put(MESSAGE_UPLOAD_HTL, "21"); // HTL_MESSAGE_UPLOAD
         defaults.put(UPLOAD_MAX_THREADS, "3");
         defaults.put(ALTERNATE_EDITOR_ENABLED, "false");
         defaults.put(LAST_USED_FROMNAME, "Anonymous");
@@ -999,6 +1008,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MSGTABLE_MULTILINE_SELECT, "false");
         defaults.put(MSGTABLE_SCROLL_HORIZONTAL, "false");
         defaults.put(MSGTABLE_SHOW_COLLAPSED_THREADS, "false");
+        defaults.put(MSGTABLE_DOUBLE_CLICK_SHOWS_MESSAGE, "true");
 
         defaults.put(SAVE_SORT_STATES, "false");
 
@@ -1020,6 +1030,7 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(UPLOAD_MAX_RETRIES, "5");
         defaults.put(UPLOAD_WAITTIME, "5");
+        defaults.put(UPLOAD_REMOVE_NOT_EXISTING_FILES, "true");
 
         defaults.put(SHOW_THREADS, "true");
         defaults.put(HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, "false");
@@ -1036,6 +1047,8 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(LOG_DOWNLOADS_ENABLED, "false");
         defaults.put(LOG_UPLOADS_ENABLED, "false");
+        defaults.put(TRACK_DOWNLOADS_ENABLED, "false");
+
 
         defaults.put(CONFIRM_MARK_ALL_MSGS_READ, "true");
 

@@ -26,8 +26,7 @@ import javax.swing.table.*;
 import frost.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
-import frost.messages.*;
-import frost.util.*;
+import frost.messaging.frost.*;
 import frost.util.gui.*;
 
 public class SearchMessagesResultTable extends SortedTable {

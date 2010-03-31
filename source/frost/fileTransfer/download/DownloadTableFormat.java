@@ -25,7 +25,6 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.common.*;
 import frost.util.*;
@@ -257,7 +256,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
     private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
         public IsEnabledRenderer() {
             super();
-            setHorizontalAlignment(JLabel.CENTER);
+            setHorizontalAlignment(SwingConstants.CENTER);
         }
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -412,20 +411,45 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
 	private class BlocksComparator implements Comparator<FrostDownloadItem> {
 		public int compare(final FrostDownloadItem item1, final FrostDownloadItem item2) {
-//			String blocks1 =
-//				getBlocksAsString(
-//					item1.getTotalBlocks(),
-//					item1.getDoneBlocks(),
-//					item1.getRequiredBlocks());
-//			String blocks2 =
-//				getBlocksAsString(
-//					item2.getTotalBlocks(),
-//					item2.getDoneBlocks(),
-//					item2.getRequiredBlocks());
-//			return blocks1.compareToIgnoreCase(blocks2);
-            return Mixed.compareInt(item1.getDoneBlocks(), item2.getDoneBlocks());
-//            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
+
+		    // compare by percent completed. Finalized items are grouped.
+            final int percentDone1 = calculatePercentDone(item1);
+            final int percentDone2 = calculatePercentDone(item2);
+
+            return Mixed.compareInt(percentDone1, percentDone2);
 		}
+
+        private int calculatePercentDone(final FrostDownloadItem item)
+        {
+            final Boolean isFinalized = item.isFinalized();
+            final int totalBlocks     = item.getTotalBlocks();
+            final int doneBlocks      = item.getDoneBlocks();
+            final int requiredBlocks  = item.getRequiredBlocks();
+
+            int percentDone = 0;
+            if (isFinalized != null) {
+                // isFinalized is set because the node sent progress
+                if( totalBlocks > 0 ) {
+                    if (requiredBlocks > 0) {
+                        percentDone = ((doneBlocks * 100) / requiredBlocks);
+                    }
+                    if( percentDone > 100 ) {
+                        percentDone = 100;
+                    }
+                }
+            }
+            if (isFinalized != null && isFinalized.booleanValue()) {
+                // finalized get highest value
+                percentDone = (percentDone+2)*100;
+            } else if (isFinalized != null && !isFinalized.booleanValue()) {
+                // not finalized, but obviously started by node
+                percentDone = percentDone+1;
+            } else {
+                // not started by node
+                percentDone = 0;
+            }
+            return percentDone;
+        }
 	}
 
 	private class StateComparator implements Comparator<FrostDownloadItem> {
@@ -444,8 +468,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
 			if (dli1.getFileSize() >= 0) {
                 size1 = dli1.getFileSize();
-            } else if( FcpHandler.isFreenet07()
-                           && dli1.getTotalBlocks() > 0
+            } else if( dli1.getTotalBlocks() > 0
                            && dli1.isFinalized() != null
                            && dli1.isFinalized().booleanValue() == true )
             {
@@ -458,8 +481,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
             if (dli2.getFileSize() >= 0) {
                 size2 = dli2.getFileSize();
-            } else if( FcpHandler.isFreenet07()
-                           && dli2.getTotalBlocks() > 0
+            } else if( dli2.getTotalBlocks() > 0
                            && dli2.isFinalized() != null
                            && dli2.isFinalized().booleanValue() == true )
             {
@@ -477,6 +499,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 	private class FileNameComparator implements Comparator<FrostDownloadItem> {
 		public int compare(final FrostDownloadItem item1, final FrostDownloadItem item2) {
 			return item1.getFilename().compareToIgnoreCase(item2.getFilename());
+		}
+	}
+
+	private class DownloadDirComparator implements Comparator<FrostDownloadItem> {
+		public int compare(final FrostDownloadItem item1, final FrostDownloadItem item2) {
+			return item1.getDownloadFilename().compareToIgnoreCase(item2.getDownloadFilename());
 		}
 	}
 
@@ -527,7 +555,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 	private final Language language;
 
     // with persistence we have 2 additional columns: priority and isDDA
-    private final static int COLUMN_COUNT = ( PersistenceManager.isPersistenceEnabled() ? 13 : 11 );
+    private final static int COLUMN_COUNT = ( PersistenceManager.isPersistenceEnabled() ? 14 : 12 );
 
     private String stateWaiting;
     private String stateTrying;
@@ -560,9 +588,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		setComparator(new BlocksComparator(), 8);
 		setComparator(new TriesComparator(), 9);
 		setComparator(new KeyComparator(), 10);
+		setComparator(new DownloadDirComparator(), 11);
         if( PersistenceManager.isPersistenceEnabled() ) {
-            setComparator(new IsDDAComparator(), 11);
-            setComparator(new PriorityComparator(), 12);
+            setComparator(new IsDDAComparator(), 12);
+            setComparator(new PriorityComparator(), 13);
         }
 
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
@@ -581,9 +610,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		setColumnName(8, language.getString("DownloadPane.fileTable.blocks"));
 		setColumnName(9, language.getString("DownloadPane.fileTable.tries"));
 		setColumnName(10, language.getString("DownloadPane.fileTable.key"));
+		setColumnName(11, language.getString("DownloadPane.fileTable.downloadDir"));
         if( PersistenceManager.isPersistenceEnabled() ) {
-            setColumnName(11, language.getString("DownloadPane.fileTable.isDDA"));
-            setColumnName(12, language.getString("DownloadPane.fileTable.priority"));
+            setColumnName(12, language.getString("DownloadPane.fileTable.isDDA"));
+            setColumnName(13, language.getString("DownloadPane.fileTable.priority"));
         }
 
 		stateWaiting =  language.getString("DownloadPane.fileTable.states.waiting");
@@ -630,8 +660,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                     // size is set
                     return FormatterUtils.formatSize(downloadItem.getFileSize());
 
-                } else if( FcpHandler.isFreenet07()
-                           && downloadItem.getRequiredBlocks() > 0
+                } else if( downloadItem.getRequiredBlocks() > 0
                            && downloadItem.isFinalized() != null
                            && downloadItem.isFinalized().booleanValue() == true )
                 {
@@ -672,10 +701,13 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 					return downloadItem.getKey();
 				}
 
-            case 11: // IsDDA
+            case 11:    // Download dir
+                return downloadItem.getDownloadDir();
+
+            case 12: // IsDDA
                 return Boolean.valueOf(!downloadItem.isDirect());
 
-            case 12: // Priority
+            case 13: // Priority
                 final int value = downloadItem.getPriority();
                 if( value < 0 ) {
                     return "-";
@@ -806,13 +838,13 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         columnModel.getColumn(2).setCellRenderer(new IsRequestedRenderer());
         if( PersistenceManager.isPersistenceEnabled() ) {
             // hard set sizes of IsDDA column
-            columnModel.getColumn(11).setMinWidth(20);
-            columnModel.getColumn(11).setMaxWidth(20);
-            columnModel.getColumn(11).setPreferredWidth(20);
-            // hard set sizes of priority column
             columnModel.getColumn(12).setMinWidth(20);
             columnModel.getColumn(12).setMaxWidth(20);
             columnModel.getColumn(12).setPreferredWidth(20);
+            // hard set sizes of priority column
+            columnModel.getColumn(13).setMinWidth(20);
+            columnModel.getColumn(13).setMaxWidth(20);
+            columnModel.getColumn(13).setPreferredWidth(20);
         }
 
         final BaseRenderer baseRenderer = new BaseRenderer();
@@ -827,9 +859,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         columnModel.getColumn(8).setCellRenderer(new BlocksProgressRenderer()); // blocks
         columnModel.getColumn(9).setCellRenderer(rightAlignRenderer); // tries
         columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // key
+        columnModel.getColumn(11).setCellRenderer(baseRenderer); // download dir
         if( PersistenceManager.isPersistenceEnabled() ) {
-            columnModel.getColumn(11).setCellRenderer(new IsDDARenderer()); // isDDA
-            columnModel.getColumn(12).setCellRenderer(rightAlignRenderer); // prio
+            columnModel.getColumn(12).setCellRenderer(new IsDDARenderer()); // isDDA
+            columnModel.getColumn(13).setCellRenderer(rightAlignRenderer); // prio
         }
 
         if( !loadTableLayout(columnModel) ) {

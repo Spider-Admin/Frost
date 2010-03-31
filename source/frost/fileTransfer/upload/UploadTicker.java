@@ -19,7 +19,6 @@
 package frost.fileTransfer.upload;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.util.*;
 
@@ -32,7 +31,7 @@ public class UploadTicker extends Thread {
     //several times.
     private final int MAX_GENERATING_THREADS = 1;
 
-    private UploadModel model;
+    private final UploadModel model;
 
     private int removeNotExistingFilesCounter = 0;
 
@@ -46,10 +45,10 @@ public class UploadTicker extends Thread {
     private int runningUploadingThreads = 0;
     private int runningGeneratingThreads = 0;
 
-    private Object uploadingCountLock = new Object();
-    private Object generatingCountLock = new Object();
-    
-    public UploadTicker(UploadModel newModel) {
+    private final Object uploadingCountLock = new Object();
+    private final Object generatingCountLock = new Object();
+
+    public UploadTicker(final UploadModel newModel) {
         super("Upload");
         model = newModel;
     }
@@ -65,7 +64,7 @@ public class UploadTicker extends Thread {
             allocatedUploadingThreads++;
         }
     }
-    
+
     private boolean canAllocateUploadingThread() {
         synchronized (uploadingCountLock) {
             if (allocatedUploadingThreads < Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_THREADS)) {
@@ -152,20 +151,23 @@ public class UploadTicker extends Thread {
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
+    @Override
     public void run() {
         super.run();
         while (true) {
             Mixed.wait(1000);
             // this is executed each second, so this counter counts seconds
+            if (Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES)) {
             removeNotExistingFilesCounter++;
             removeNotExistingFiles();
+            }
             generateCHKs();
             if( PersistenceManager.isPersistenceEnabled() == false ) {
                 startUploadThread();
             }
         }
     }
-    
+
     /**
      * This method generates CHK's for upload table entries
      */
@@ -175,17 +177,11 @@ public class UploadTicker extends Thread {
             boolean threadLaunched = false;
 
             for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
-                FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-                // encode if requested by user, OR
-                // if state is WAITING for upload and its 0.5 and there is no chkKey, we must encode the file
-                if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED
-                    || ( FcpHandler.isFreenet05()
-                         && ulItem.getKey() == null
-                         && ulItem.getState() == FrostUploadItem.STATE_WAITING ) 
-                   )    
-                {
+                final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+                // encode if requested by user
+                if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED) {
                     // next state will be IDLE (=default)
-                    GenerateChkThread newInsert = new GenerateChkThread(this, ulItem);
+                    final GenerateChkThread newInsert = new GenerateChkThread(this, ulItem);
                     ulItem.setState(FrostUploadItem.STATE_ENCODING);
                     newInsert.start();
                     threadLaunched = true;  // start only 1 thread per loop (=second)
@@ -202,22 +198,22 @@ public class UploadTicker extends Thread {
      */
     private void startUploadThread() {
         if (Core.isFreenetOnline() && canAllocateUploadingThread()) {
-            FrostUploadItem uploadItem = FileTransferManager.inst().getUploadManager().selectNextUploadItem();
+            final FrostUploadItem uploadItem = FileTransferManager.inst().getUploadManager().selectNextUploadItem();
             startUpload(uploadItem);
         }
     }
-    
-    public boolean startUpload(FrostUploadItem ulItem) {
+
+    public boolean startUpload(final FrostUploadItem ulItem) {
         if (!Core.isFreenetOnline() ) {
             return false;
         }
         if( ulItem == null || ulItem.getState() != FrostUploadItem.STATE_WAITING ) {
             return false;
         }
-        
+
         // increase allocated threads
         allocateUploadingThread();
-        
+
         ulItem.setUploadStartedMillis(System.currentTimeMillis());
 
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
@@ -228,11 +224,11 @@ public class UploadTicker extends Thread {
         } else {
             doMime = true;
         }
-        UploadThread newInsert = new UploadThread(this, ulItem, doMime);
+        final UploadThread newInsert = new UploadThread(this, ulItem, doMime);
         newInsert.start();
         return true;
     }
-    
+
     private void removeNotExistingFiles() {
         // Check uploadTable every 5 minutes
         if (removeNotExistingFilesCounter >= 5*60 ) {

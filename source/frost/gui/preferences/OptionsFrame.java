@@ -305,7 +305,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
             optionsGroupsList = new JList(listData);
-            optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
+            optionsGroupsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
             optionsGroupsList.addListSelectionListener(this);
 
             optionsGroupsPanel = new JPanel(new GridBagLayout());

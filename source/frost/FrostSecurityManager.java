@@ -19,7 +19,6 @@
 package frost;
 
 import java.security.*;
-import java.util.*;
 
 import frost.fcp.*;
 
@@ -36,20 +35,21 @@ import frost.fcp.*;
 public class FrostSecurityManager extends SecurityManager {
 
     protected void checkFrostConnect(final String host, final int port) {
-        final List<NodeAddress> nodes = FcpHandler.inst().getNodes();
-        for( final NodeAddress nodeAddress : nodes ) {
-            final NodeAddress na = nodeAddress;
-            if( port < 0 ) {
-                return; // allow DNS lookups
-            }
-            if( port == na.getPort() ) {
-                if( host.equals(na.getHostIp()) || host.equals(na.getHostName()) ) {
-                    return; // host:port is in our list
-                }
+        final NodeAddress nodeAddress = FcpHandler.inst().getFreenetNode();
+        if (nodeAddress == null) {
+            throw new SecurityException("Connection forbidden, no Freenet node configured: "+host+":"+port);
+        }
+        final NodeAddress na = nodeAddress;
+        if( port < 0 ) {
+            return; // allow DNS lookups
+        }
+        if( port == na.getPort() ) {
+            if( host.equals(na.getHostIp()) || host.equals(na.getHostName()) ) {
+                return; // host:port is in our list
             }
         }
         // host:port is not in our list
-        throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
+        throw new SecurityException("Connection to unconfigured FCP host/port forbidden: "+host+":"+port);
     }
 
     @Override

@@ -20,7 +20,6 @@ package frost.fcp;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -37,8 +36,8 @@ public class FcpHandler07 extends FcpHandler {
     private MessageTransferHandler msgTransferConnection = null;
 
     @Override
-    public void initialize(final List<String> nodes) {
-        FcpFactory.init(nodes); // init the factory with configured nodes
+    public void initialize(final String node) throws Exception {
+        FcpFactory.init(node); // init the factory with configured nodes
     }
 
     /**
@@ -57,8 +56,8 @@ public class FcpHandler07 extends FcpHandler {
     }
 
     @Override
-    public List<NodeAddress> getNodes() {
-        return FcpFactory.getNodes();
+    public NodeAddress getFreenetNode() {
+        return FcpFactory.getFreenetNode();
     }
 
     @Override
@@ -67,22 +66,20 @@ public class FcpHandler07 extends FcpHandler {
             String key,
             final Long size,
             final File targetFile,
-            final boolean doRedirect,
-            final boolean fastDownload,
             final int maxSize,
             final int maxRetries,
             final boolean createTempFile,
             final FrostDownloadItem dlItem)
     {
         // unused by 07: htl, doRedirect, fastDownload,
-//        return FcpRequest.getFile(type, key, size, target, createTempFile, dlItem);
         key = FcpConnection.stripSlashes(key);
+        final boolean doLogging = Logging.inst().doLogFcp2Messages();
         final int cnt = count++;
         final long l = System.currentTimeMillis();
         final FcpResultGet result;
         if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("GET_START(S)("+cnt+"):"+key);
             }
             final String id = "get-" + FcpSocket.getNextFcpId();
@@ -96,16 +93,16 @@ public class FcpHandler07 extends FcpHandler {
 
             result = task.getFcpResultGet();
 
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("GET_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
             }
         } else {
             // use a new socket
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("GET_START(N)("+cnt+"):"+key);
             }
             result = FcpRequest.getFile(type, key, size, targetFile, maxSize, maxRetries, createTempFile, dlItem);
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("GET_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
             }
         }
@@ -119,20 +116,17 @@ public class FcpHandler07 extends FcpHandler {
             final int type,
             String key,
             final File sourceFile,
-            final byte[] metadata,
-            final boolean doRedirect,
-            final boolean removeLocalKey,
             final boolean doMime,
             final FrostUploadItem ulItem)
     {
-        // unused by 07:  metadata, htl, doRedirect, removeLocalKey,
         key = FcpConnection.stripSlashes(key);
+        final boolean doLogging = Logging.inst().doLogFcp2Messages();
         final int cnt = count++;
         final long l = System.currentTimeMillis();
         final FcpResultPut result;
         if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("PUT_START(S)("+cnt+"):"+key);
             }
             final String id = "get-" + FcpSocket.getNextFcpId();
@@ -146,15 +140,15 @@ public class FcpHandler07 extends FcpHandler {
 
             result = task.getFcpResultPut();
 
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("PUT_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
             }
         } else {
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("PUT_START(N)("+cnt+"):"+key);
             }
             result = FcpInsert.putFile(type, key, sourceFile, doMime, ulItem);
-            if (Logging.inst().doLogFcp2Messages()) {
+            if (doLogging) {
                 System.out.println("PUT_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
             }
         }
@@ -174,17 +168,8 @@ public class FcpHandler07 extends FcpHandler {
             return null;
         }
         final String chkkey = connection.generateCHK(file);
+        connection.close();
         return chkkey;
-    }
-
-    @Override
-    public List<String> getNodeInfo() throws IOException, ConnectException {
-
-        final FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if (connection == null) {
-            return null;
-        }
-        return connection.getNodeInfo();
     }
 
     @Override
@@ -196,6 +181,7 @@ public class FcpHandler07 extends FcpHandler {
         }
 
         final String[] keyPair = connection.getKeyPair();
+        connection.close();
         if( keyPair == null ) {
             return null;
         }

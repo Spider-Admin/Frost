@@ -37,6 +37,7 @@ public class TextComponentFindAction extends FindAction implements FocusListener
     // 1. inits searchField with selected text
     // 2. adds focus listener so that textselection gets painted
     //    even if the textcomponent has no focus
+    @Override
     protected void initSearch(ActionEvent ae){
         super.initSearch(ae);
         JTextComponent textComp = (JTextComponent)ae.getSource();
@@ -47,6 +48,7 @@ public class TextComponentFindAction extends FindAction implements FocusListener
         searchField.addFocusListener(this);
     }
 
+    @Override
     protected boolean changed(JComponent comp2, String str, Position.Bias bias){
         JTextComponent textComp = (JTextComponent)comp2;
         int offset = bias==Position.Bias.Forward ? textComp.getCaretPosition() : textComp.getCaret().getMark() - 1;

@@ -24,7 +24,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -45,8 +44,8 @@ class MiscPanel extends JPanel {
     private final JLabel autoSaveIntervalLabel = new JLabel();
     private final JTextField autoSaveIntervalTextField = new JTextField(8);
     private final JCheckBox autoSaveLocalIdentitiesCheckBox = new JCheckBox();
-    private final JLabel availableNodesLabel1 = new JLabel();
-    private final JTextField availableNodesTextField = new JTextField();
+    private final JLabel freenetNodeLabel = new JLabel();
+    private final JTextField freenetNodeTextField = new JTextField();
 
     private final JCheckBox useDDACheckBox = new JCheckBox();
     private final JCheckBox usePersistenceCheckBox = new JCheckBox();
@@ -74,12 +73,6 @@ class MiscPanel extends JPanel {
 
         initialize();
         loadSettings();
-
-        if( FcpHandler.isFreenet05() ) {
-            // disable 0.7-only items
-            useDDACheckBox.setEnabled(false);
-            usePersistenceCheckBox.setEnabled(false);
-        }
     }
 
     private JPanel getLoggingPanel() {
@@ -131,7 +124,7 @@ class MiscPanel extends JPanel {
 
         // We create the components
         new TextComponentClipboardMenu(autoSaveIntervalTextField, language);
-        new TextComponentClipboardMenu(availableNodesTextField, language);
+        new TextComponentClipboardMenu(freenetNodeTextField, language);
         new TextComponentClipboardMenu(logFileSizeTextField, language);
 
         // Adds all of the components
@@ -146,14 +139,14 @@ class MiscPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 2;
-        add(availableNodesLabel1, constraints);
+        add(freenetNodeLabel, constraints);
         constraints.gridy++;
         constraints.weightx = 1;
-        add(availableNodesTextField, constraints);
+        add(freenetNodeTextField, constraints);
+        constraints.weightx = 0;
 
         constraints.insets = insets0555;
 
-        constraints.weightx = 0;
         constraints.gridwidth = 2;
         constraints.gridx = 0;
         constraints.gridy++;
@@ -217,7 +210,7 @@ class MiscPanel extends JPanel {
         showSystrayIconCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON));
         minimizeToSystrayCheckBox.setSelected(settings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY));
         compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES));
-        availableNodesTextField.setText(settings.getValue(SettingsClass.AVAILABLE_NODES));
+        freenetNodeTextField.setText(settings.getValue(SettingsClass.FREENET_FCP_ADDRESS));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
         autoSaveLocalIdentitiesCheckBox.setSelected(settings.getBoolValue(SettingsClass.AUTO_SAVE_LOCAL_IDENTITIES));
         enableLoggingCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_TO_FILE));
@@ -235,7 +228,7 @@ class MiscPanel extends JPanel {
 
     public void ok() {
 
-        final String nodes = availableNodesTextField.getText();
+        final String nodes = freenetNodeTextField.getText();
         if( nodes.indexOf(",") > -1 ) {
             if( usePersistenceCheckBox.isSelected() ) {
                 MiscToolkit.showMessage(
@@ -250,7 +243,7 @@ class MiscPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        availableNodesLabel1.setText(language.getString("Options.miscellaneous.listOfFcpNodes")+" "+language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
+        freenetNodeLabel.setText(language.getString("Options.miscellaneous.freenetFcpNode"));
         useDDACheckBox.setText(language.getString("Options.miscellaneous.useDDA"));
         useDDACheckBox.setToolTipText(language.getString("Options.miscellaneous.useDDA.tooltip"));
 
@@ -281,7 +274,7 @@ class MiscPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue(SettingsClass.AVAILABLE_NODES, availableNodesTextField.getText());
+        settings.setValue(SettingsClass.FREENET_FCP_ADDRESS, freenetNodeTextField.getText());
         settings.setValue(SettingsClass.SHOW_SYSTRAY_ICON, showSystrayIconCheckBox.isSelected());
         settings.setValue(SettingsClass.MINIMIZE_TO_SYSTRAY, minimizeToSystrayCheckBox.isSelected());
         settings.setValue(SettingsClass.PERST_COMPACT_STORAGES, compactDatabaseAtNextStartupCheckBox.isSelected());

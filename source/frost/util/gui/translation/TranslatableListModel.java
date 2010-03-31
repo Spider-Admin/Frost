@@ -18,7 +18,7 @@
 */
 package frost.util.gui.translation;
 
-import javax.swing.DefaultListModel;
+import javax.swing.*;
 
 /**
  * A translatable list model contains keys to a Language. It shows the localized values on screen.
@@ -51,7 +51,8 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 	 * This method returns the internationalized value at a given position
 	 * @see javax.swing.ListModel#getElementAt(int)
 	 */
-	public Object getElementAt(int index) {
+	@Override
+    public Object getElementAt(int index) {
 		String key = super.getElementAt(index).toString();
 		return language.getString(key);
 	}
@@ -80,7 +81,8 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 	 * @param elem internationalized item
 	 * @return the position
 	 */
-	public int indexOf(Object elem) {
+	@Override
+    public int indexOf(Object elem) {
 		int position = -1;
 		for (int i = 0; (i < getSize() - 1) || (position != -1);i++) {
 			String localizedValue = language.getString(getKeyAt(i));

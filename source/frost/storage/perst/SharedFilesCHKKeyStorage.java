@@ -107,7 +107,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
             // first search for CHK keys that were created by us, but were never send
             {
                 for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
-                    if( sfk.getSeenCount() == 0 ) {
+                    if (sfk.getSeenCount() == 0 && sfk.getChkKey() != null && sfk.getChkKey().length() > 0) {
                         keysToSend.add(sfk);
                         if( keysToSend.size() >= ownKeysToSend ) {
                             break;
@@ -349,17 +349,18 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 //
 //    }
 
-    protected final static LastDownloadTryStopTimeComparator lastDownloadTryStopTimeComparator = new LastDownloadTryStopTimeComparator();
+    
     protected static class LastDownloadTryStopTimeComparator implements Comparator<SharedFilesCHKKey> {
         public int compare(final SharedFilesCHKKey arg0, final SharedFilesCHKKey arg1) {
             return Mixed.compareLong(arg0.getLastDownloadTryStopTime(), arg1.getLastDownloadTryStopTime());
         }
     }
+    protected final static LastDownloadTryStopTimeComparator lastDownloadTryStopTimeComparator = new LastDownloadTryStopTimeComparator();
 
-    protected final static SeenCountComparator seenCountComparator = new SeenCountComparator();
     protected static class SeenCountComparator implements Comparator<SharedFilesCHKKey> {
         public int compare(final SharedFilesCHKKey arg0, final SharedFilesCHKKey arg1) {
             return Mixed.compareInt(arg0.getSeenCount(), arg0.getSeenCount());
         }
     }
+    protected final static SeenCountComparator seenCountComparator = new SeenCountComparator();
 }

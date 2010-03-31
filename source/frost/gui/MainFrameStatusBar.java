@@ -26,8 +26,7 @@ import javax.swing.border.*;
 
 import frost.*;
 import frost.fileTransfer.*;
-import frost.threads.*;
-import frost.util.*;
+import frost.messaging.frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -69,7 +68,7 @@ public class MainFrameStatusBar extends JPanel {
         p0.add(new JLabel(" "));
         p0.add(downloadingFilesLabel);
         p0.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        p0.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        p0.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         statusLabelTofup = new JLabel() {
             @Override
@@ -89,7 +88,7 @@ public class MainFrameStatusBar extends JPanel {
         final JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p1.add(statusLabelTofup);
         p1.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        p1.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        p1.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         statusLabelTofdn = new JLabel() {
             @Override
@@ -108,7 +107,7 @@ public class MainFrameStatusBar extends JPanel {
         final JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p2.add(statusLabelTofdn);
         p2.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        p2.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        p2.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         JPanel p3 = null;
         // shown only if filesharing is enabled
@@ -126,21 +125,21 @@ public class MainFrameStatusBar extends JPanel {
             p3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             p3.add(fileListDownloadQueueSizeLabel);
             p3.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-            p3.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+            p3.setAlignmentY(Component.CENTER_ALIGNMENT);
         }
 
         statusLabelBoard = new JLabel();
         final JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p4.add(statusLabelBoard);
         p4.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        p4.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        p4.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         statusMessageLabel = new JLabel();
         statusMessageLabel.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
         final JPanel p5 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p5.add(statusMessageLabel);
         p5.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        p5.setAlignmentY(JComponent.CENTER_ALIGNMENT);;
+        p5.setAlignmentY(Component.CENTER_ALIGNMENT);;
 
         newMessage[0] = MiscToolkit.loadImageIcon("/data/messagebright.gif");
         newMessage[1] = MiscToolkit.loadImageIcon("/data/messagedark.gif");

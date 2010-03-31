@@ -66,6 +66,10 @@ class News2Panel extends JPanel {
     private final JLabel hideMessagesLabel = new JLabel();
     private final JLabel blockBoardsLabel = new JLabel();
 
+    private final JLabel hideMessageCountLabel = new JLabel();
+    private final JTextField hideMessageCountTextField = new JTextField(6);
+    private final JCheckBox hideMessageCountExcludePrivateCheckBox = new JCheckBox();
+
     private final Listener listener = new Listener();
 
     /**
@@ -92,6 +96,35 @@ class News2Panel extends JPanel {
     private void blockSubjectPressed() {
         blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());
     }
+
+    private JPanel getHideMessageCountPanel() {
+        final JPanel hidePanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+
+	    constraints.gridx = 0;
+	    constraints.gridy = 0;
+	    constraints.fill = GridBagConstraints.HORIZONTAL;
+	    constraints.weightx = 1.0;
+	    constraints.gridwidth = 2;
+	    hidePanel.add(hideMessageCountLabel, constraints);
+
+        constraints.gridy++;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridwidth = 1;
+        constraints.weightx = 0.0;
+
+        constraints.gridx = 0;
+        constraints.insets = new Insets(5, 20, 5, 5);
+        hidePanel.add(hideMessageCountTextField, constraints);
+
+        constraints.gridx = 1;
+        constraints.insets = new Insets(5, 5, 0, 5);
+		hidePanel.add(hideMessageCountExcludePrivateCheckBox, constraints);
+
+		return hidePanel;
+	}
 
     private JPanel getHideMessagesPanel() {
         final JPanel hidePanel = new JPanel(new GridBagLayout());
@@ -172,6 +205,7 @@ class News2Panel extends JPanel {
         new TextComponentClipboardMenu(blockBodyTextField, language);
         new TextComponentClipboardMenu(blockBoardTextField, language);
         new TextComponentClipboardMenu(blockSubjectTextField, language);
+        new TextComponentClipboardMenu(hideMessageCountTextField, language);
 
         blockBoardTextField.setLineWrap(true);
         blockBodyTextField.setLineWrap(true);
@@ -216,6 +250,12 @@ class News2Panel extends JPanel {
         sp = new JScrollPane(blockBoardTextField);
         add(sp, constraints);
         constraints.weighty = 0;
+
+        constraints.insets = insets5555;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(getHideMessageCountPanel(), constraints);
 
         constraints.insets = insets5555;
         constraints.gridwidth = 2;
@@ -268,6 +308,9 @@ class News2Panel extends JPanel {
         blockBoardCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED));
         blockBoardTextField.setEnabled(blockBoardCheckBox.isSelected());
         blockBoardTextField.setText(settings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME));
+
+        hideMessageCountTextField.setText(settings.getValue(SettingsClass.MESSAGE_HIDE_COUNT));
+        hideMessageCountExcludePrivateCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_COUNT_EXCLUDE_PRIVATE));
     }
 
     public void ok() {
@@ -290,6 +333,9 @@ class News2Panel extends JPanel {
         blockSubjectCheckBox.setText(language.getString("Options.news.2.blockMessagesWithSubject"));
         blockBodyCheckBox.setText(language.getString("Options.news.2.blockMessagesWithBody"));
         blockBoardCheckBox.setText(language.getString("Options.news.2.blockMessagesWithTheseBoards"));
+
+        hideMessageCountLabel.setText(language.getString("Options.news.2.hideMessageCount"));
+        hideMessageCountExcludePrivateCheckBox.setText(language.getString("Options.news.2.hideMessageCountExcludePrivate"));
     }
 
     /**
@@ -312,5 +358,8 @@ class News2Panel extends JPanel {
         settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD, blockBoardsFromBadCheckBox.isSelected());
         settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_CHECK, blockBoardsFromCheckCheckBox.isSelected());
         settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_OBSERVE, blockBoardsFromObserveCheckBox.isSelected());
+
+        settings.setValue(SettingsClass.MESSAGE_HIDE_COUNT, hideMessageCountTextField.getText());
+        settings.setValue(SettingsClass.MESSAGE_HIDE_COUNT_EXCLUDE_PRIVATE, hideMessageCountExcludePrivateCheckBox.isSelected());
     }
 }

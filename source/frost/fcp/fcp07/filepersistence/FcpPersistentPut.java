@@ -50,6 +50,7 @@ public class FcpPersistentPut extends FcpPersistentRequest {
         }
     }
     
+    @Override
     public boolean isPut() {
         return true;
     }
@@ -72,6 +73,7 @@ public class FcpPersistentPut extends FcpPersistentRequest {
         super.setSuccess();
     }
     
+    @Override
     public void setFailed(NodeMessage msg) {
         super.setFailed(msg);
     }

@@ -25,11 +25,11 @@ import java.util.logging.*;
 import org.garret.perst.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.fileTransfer.upload.*;
 import frost.gui.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.util.gui.translation.*;
 

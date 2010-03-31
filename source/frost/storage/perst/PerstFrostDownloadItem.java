@@ -33,7 +33,8 @@ import frost.storage.perst.filelist.*;
 public class PerstFrostDownloadItem extends Persistent {
 
     public String fileName;
-    public String targetPath;
+    public String prefix;
+    public String downloadDir;
     public long fileSize;
     public String key;
 
@@ -49,15 +50,21 @@ public class PerstFrostDownloadItem extends Persistent {
     public String fileListFileSha;
 
     public boolean isLoggedToFile;
+    public boolean isTracked;
+    public boolean isCompletionProgRun;
 
     public int runtimeSecondsWithoutProgress;
     public int oldDoneBlocks;
 
+    public String associatedBoardName;
+    public String associatedMessageId;
+
     public PerstFrostDownloadItem() {}
 
     public PerstFrostDownloadItem(final FrostDownloadItem dlItem) {
-        fileName = dlItem.getFilename();
-        targetPath = dlItem.getTargetPath();
+        fileName = dlItem.getUnprefixedFilename();
+        prefix = dlItem.getFilenamePrefix();
+        downloadDir = dlItem.getDownloadDir();
         fileSize = dlItem.getFileSize();
         key = dlItem.getKey();
         enabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
@@ -70,8 +77,12 @@ public class PerstFrostDownloadItem extends Persistent {
         gqIdentifier = dlItem.getGqIdentifier();
         fileListFileSha = (dlItem.getFileListFileObject()==null?null:dlItem.getFileListFileObject().getSha());
         isLoggedToFile = dlItem.isLoggedToFile();
+        isTracked = dlItem.isTracked();
+        isCompletionProgRun = dlItem.isCompletionProgRun();
         runtimeSecondsWithoutProgress = dlItem.getRuntimeSecondsWithoutProgress();
         oldDoneBlocks = dlItem.getOldDoneBlocks();
+        associatedBoardName = dlItem.getAssociatedBoardName();
+        associatedMessageId = dlItem.getAssociatedMessageId();
     }
 
     public FrostDownloadItem toFrostDownloadItem(final Logger logger) {
@@ -89,7 +100,8 @@ public class PerstFrostDownloadItem extends Persistent {
 
         final FrostDownloadItem dlItem = new FrostDownloadItem(
                 fileName,
-                targetPath,
+                prefix,
+                downloadDir,
                 (fileSize<=0 ? -1 : fileSize),
                 key,
                 Boolean.valueOf(enabled),
@@ -101,8 +113,12 @@ public class PerstFrostDownloadItem extends Persistent {
                 lastDownloadStopTime,
                 gqIdentifier,
                 isLoggedToFile,
+                isTracked,
+                isCompletionProgRun,
                 runtimeSecondsWithoutProgress,
-                oldDoneBlocks);
+                oldDoneBlocks,
+                associatedBoardName,
+                associatedMessageId);
 
         dlItem.setFileListFileObject(sharedFileObject);
 

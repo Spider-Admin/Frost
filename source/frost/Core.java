@@ -26,23 +26,23 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-import frost.boards.*;
-import frost.crypt.*;
-import frost.events.*;
 import frost.ext.*;
 import frost.fcp.*;
+import frost.fcp.fcp07.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
 import frost.identities.*;
-import frost.messages.*;
+import frost.messaging.freetalk.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
+import frost.messaging.frost.threads.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;
 import frost.storage.perst.identities.*;
 import frost.storage.perst.messagearchive.*;
 import frost.storage.perst.messages.*;
-import frost.threads.*;
 import frost.util.*;
 import frost.util.Logging;
 import frost.util.gui.*;
@@ -53,7 +53,7 @@ import frost.util.gui.translation.*;
  * @pattern Singleton
  * @version $Id$
  */
-public class Core implements FrostEventDispatcher  {
+public class Core {
 
     private static final Logger logger = Logger.getLogger(Core.class.getName());
 
@@ -66,10 +66,10 @@ public class Core implements FrostEventDispatcher  {
 
     private static boolean isHelpHtmlSecure = false;
 
-    private final EventDispatcher dispatcher = new EventDispatcher();
     private Language language = null;
 
     private static boolean freenetIsOnline = false;
+    private static boolean freetalkIsTalkable = false;
 
     private final Timer timer = new Timer(true);
 
@@ -83,29 +83,6 @@ public class Core implements FrostEventDispatcher  {
         initializeLanguage();
     }
 
-    private boolean checkIfRunningOn07Testnet() {
-        boolean runningOnTestnet = false;
-        try {
-            final List<String> nodeInfo = FcpHandler.inst().getNodeInfo();
-            if( nodeInfo != null ) {
-                // freenet is online
-                setFreenetOnline(true);
-
-                // on 0.7 check for "Testnet=true" and warn user
-                if( FcpHandler.isFreenet07() ) {
-                    for( final String val : nodeInfo ) {
-                        if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
-                            runningOnTestnet = true;
-                        }
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
-        }
-        return runningOnTestnet;
-    }
-
     /**
      * This methods parses the list of available nodes (and converts it if it is in
      * the old format). If there are no available nodes, it shows a Dialog warning the
@@ -115,24 +92,8 @@ public class Core implements FrostEventDispatcher  {
     private boolean initializeConnectivity() {
 
         // determine configured freenet version
-        int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
-        if( freenetVersion <= 0 ) {
-            final FreenetVersionDialog dlg = new FreenetVersionDialog();
-            dlg.setVisible(true);
-            if( dlg.isChoosedExit() ) {
-                return false;
-            }
-            if( dlg.isChoosedFreenet05() ) {
-                frostSettings.setValue(SettingsClass.FREENET_VERSION, "5");
-            } else if( dlg.isChoosedFreenet07() ) {
-                frostSettings.setValue(SettingsClass.FREENET_VERSION, "7");
-            } else {
-                return false;
-            }
-            freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
-        }
-
-        if( freenetVersion != FcpHandler.FREENET_05 && freenetVersion != FcpHandler.FREENET_07 ) {
+        final int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // only 7 is supported
+        if( freenetVersion != 7 ) {
             MiscToolkit.showMessage(
                     language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
                     JOptionPane.ERROR_MESSAGE,
@@ -141,10 +102,15 @@ public class Core implements FrostEventDispatcher  {
         }
 
         // get the list of available nodes
-        final String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
+        String nodesUnparsed = frostSettings.getValue(SettingsClass.FREENET_FCP_ADDRESS);
+        if (nodesUnparsed == null || nodesUnparsed.length() == 0) {
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, "127.0.0.1:9481");
+            nodesUnparsed = frostSettings.getValue(SettingsClass.FREENET_FCP_ADDRESS);
+        }
 
         final List<String> nodes = new ArrayList<String>();
 
+        // earlier we supported multiple nodes, so check if there is more than one node
         if( nodesUnparsed != null ) {
             final String[] _nodes = nodesUnparsed.split(",");
             for( final String element : _nodes ) {
@@ -152,31 +118,27 @@ public class Core implements FrostEventDispatcher  {
             }
         }
 
+        // paranoia, should never happen
         if (nodes.size() == 0) {
             MiscToolkit.showMessage(
-                "Not a single Freenet node configured. You need at least one.",
+                "Not a single Freenet node configured. Frost cannot start.",
                 JOptionPane.ERROR_MESSAGE,
                 "ERROR: No Freenet nodes are configured.");
             return false;
         }
 
-        if( freenetVersion == FcpHandler.FREENET_07 ) {
-            if (nodes.size() > 1) {
-                if( frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
-                    // persistence is not possible with more than 1 node
-                    MiscToolkit.showMessage(
-                            "Persistence is not possible with more than 1 node. Persistence disabled.",
-                            JOptionPane.ERROR_MESSAGE,
-                            "Warning: Persistence is not possible");
-                    frostSettings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, false);
-                }
-            }
+        if (nodes.size() > 1) {
+            MiscToolkit.showMessage(
+                    "Frost doesn' support multiple Freenet nodes and will use the first configured node.",
+                    JOptionPane.ERROR_MESSAGE,
+                    "Warning: Using first configured node");
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, nodes.get(0));
         }
 
-        // init the factory with configured nodes
+        // init the factory with configured node
         try {
-            FcpHandler.initializeFcp(nodes, freenetVersion);
-        } catch(final UnsupportedOperationException ex) {
+            FcpHandler.initializeFcp(nodes.get(0));
+        } catch(final Exception ex) {
             MiscToolkit.showMessage(
                     ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
@@ -196,7 +158,35 @@ public class Core implements FrostEventDispatcher  {
         }
 
         // We warn the user when he connects to a 0.7 testnet node
-        if( checkIfRunningOn07Testnet() ) {
+        // this also tries to connect to a configured node and sets 'freenetOnline'
+        boolean runningOnTestnet = false;
+        try {
+            final FcpConnection fcpConn = new FcpConnection(FcpHandler.inst().getFreenetNode());
+            final NodeMessage nodeMessage = fcpConn.getNodeInfo();
+
+            // node answered, freenet is online
+            setFreenetOnline(true);
+
+            if (nodeMessage.getBoolValue("Testnet")) {
+                runningOnTestnet = true;
+            }
+
+            final boolean freetalkTalkable = fcpConn.checkFreetalkPlugin();
+            setFreetalkTalkable (freetalkTalkable);
+
+            if (freetalkTalkable) {
+                System.out.println("**** Freetalk is Talkable. ****");
+            } else {
+                System.out.println("**** Freetalk is NOT Talkable. ****");
+            }
+
+            fcpConn.close();
+
+        } catch (final Exception e) {
+            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
+        }
+
+        if (runningOnTestnet) {
             MiscToolkit.showMessage(
                     language.getString("Core.init.TestnetWarningBody"),
                     JOptionPane.WARNING_MESSAGE,
@@ -210,8 +200,15 @@ public class Core implements FrostEventDispatcher  {
                 JOptionPane.WARNING_MESSAGE,
                 language.getString("Core.init.NodeNotRunningTitle"));
         } else {
-            // on 0.7 maybe start a single message connection
+            // maybe start a single message connection
             FcpHandler.inst().goneOnline();
+        }
+
+        if (!frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
+            MiscToolkit.showMessage(
+                language.getString("Core.init.FileSharingEnabledBody"),
+                JOptionPane.WARNING_MESSAGE,
+                language.getString("Core.init.FileSharingEnabledTitle"));
         }
 
         return true;
@@ -222,6 +219,13 @@ public class Core implements FrostEventDispatcher  {
     }
     public static boolean isFreenetOnline() {
         return freenetIsOnline;
+    }
+
+    public static void setFreetalkTalkable(final boolean v) {
+        freetalkIsTalkable = v;
+    }
+    public static boolean isFreetalkTalkable() {
+        return freetalkIsTalkable;
     }
 
     public static FrostCrypt getCrypto() {
@@ -258,16 +262,15 @@ public class Core implements FrostEventDispatcher  {
         frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 3);
 
         // set used version
-        frostSettings.setValue(SettingsClass.FREENET_VERSION, startdlg.getFreenetVersion()); // 5 or 7
+        final int freenetVersion = 7;
+        frostSettings.setValue(SettingsClass.FREENET_VERSION, freenetVersion);
         // init availableNodes with correct port
         if( startdlg.getOwnHostAndPort() != null ) {
             // user set own host:port
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, startdlg.getOwnHostAndPort());
-        } else if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:8481");
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, startdlg.getOwnHostAndPort());
         } else {
-            // 0.7
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
+            // 0.7 darknet
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, "127.0.0.1:9481");
         }
     }
 
@@ -404,6 +407,7 @@ public class Core implements FrostEventDispatcher  {
         ArchiveMessageStorage.inst().initStorage();
         IdentitiesStorage.inst().initStorage();
         FileListStorage.inst().initStorage();
+        TrackDownloadKeysStorage.inst().initStorage();
 
         splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
@@ -417,21 +421,14 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
 
-        // sets the freenet version
+        // sets the freenet version, initializes identities
         if (!initializeConnectivity()) {
             System.exit(1);
         }
 
-        getIdentities().initialize(isFreenetOnline());
+        getIdentities().initialize();
 
-        String title;
-    	if( FcpHandler.isFreenet05() ) {
-    		title = "Frost@Freenet 0.5";
-    	} else if( FcpHandler.isFreenet07() ) {
-    		title = "Frost@Freenet 0.7";
-    	} else {
-    		title = "Frost";
-    	}
+        String title = "Frost@Freenet 0.7";
 
         if( !isFreenetOnline() ) {
             title += " (offline mode)";
@@ -443,6 +440,10 @@ public class Core implements FrostEventDispatcher  {
 
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
+
+        if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {
+            FreetalkManager.initialize();
+        }
 
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
@@ -459,7 +460,7 @@ public class Core implements FrostEventDispatcher  {
         mainFrame.initialize();
 
         // cleanup gets the expiration mode from settings
-        CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());
+        CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards());
 
         // Show enqueued startup messages before showing the mainframe,
         // otherwise the glasspane used during load of board messages could corrupt the modal message dialog!
@@ -526,7 +527,7 @@ public class Core implements FrostEventDispatcher  {
         cleaner = null;
 
         // initialize the task that saves data
-        final StorageManager saver = new StorageManager(frostSettings, this);
+        final StorageManager saver = new StorageManager(frostSettings);
 
         // auto savables
         saver.addAutoSavable(getBoardsManager().getTofTree());
@@ -549,6 +550,7 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(ArchiveMessageStorage.inst());
         saver.addExitSavable(IdentitiesStorage.inst());
         saver.addExitSavable(FileListStorage.inst());
+        saver.addExitSavable(TrackDownloadKeysStorage.inst());
 
         // invoke the mainframe ticker (board updates, clock, ...)
         mainframe.startTickerThread();
@@ -614,38 +616,25 @@ public class Core implements FrostEventDispatcher  {
         language = Language.getInstance();
     }
 
-    /* (non-Javadoc)
-     * @see frost.events.FrostEventDispatcher#dispatchEvent(frost.events.FrostEvent)
-     */
-    public void dispatchEvent(final FrostEvent frostEvent) {
-        dispatcher.dispatchEvent(frostEvent);
+    public void showAutoSaveError(final Exception exception) {
+        final StringWriter stringWriter = new StringWriter();
+        exception.printStackTrace(new PrintWriter(stringWriter));
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (mainFrame != null) {
+                    JDialogWithDetails.showErrorDialog(
+                            mainFrame,
+                            language.getString("Saver.AutoTask.title"),
+                            language.getString("Saver.AutoTask.message"),
+                            stringWriter.toString());
+                    System.exit(3);
+                }
+            }
+        });
     }
 
     public static boolean isHelpHtmlSecure() {
         return isHelpHtmlSecure;
-    }
-
-    private class EventDispatcher {
-        public void dispatchEvent(final FrostEvent frostEvent) {
-            switch(frostEvent.getId()) {
-                case FrostEvent.STORAGE_ERROR_EVENT_ID:
-                    dispatchStorageErrorEvent((StorageErrorEvent) frostEvent);
-                    break;
-                default:
-                    logger.severe("Unknown FrostEvent received. Id: '" + frostEvent.getId() + "'");
-            }
-        }
-        public void dispatchStorageErrorEvent(final StorageErrorEvent errorEvent) {
-            final StringWriter stringWriter = new StringWriter();
-            errorEvent.getException().printStackTrace(new PrintWriter(stringWriter));
-
-            if (mainFrame != null) {
-                JDialogWithDetails.showErrorDialog(mainFrame,
-                                    language.getString("Saver.AutoTask.title"),
-                                    errorEvent.getMessage(),
-                                    stringWriter.toString());
-            }
-            System.exit(3);
-        }
     }
 }

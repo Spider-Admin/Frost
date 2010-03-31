@@ -24,6 +24,7 @@ import javax.swing.text.*;
 //@author Santhosh Kumar T - santhosh@in.fiorano.com 
 public class TableFindAction extends FindAction{ 
  
+    @Override
     protected boolean changed(JComponent comp2, String searchString, Position.Bias bias){ 
         JTable table = (JTable)comp2; 
         boolean startingFromSelection = true; 

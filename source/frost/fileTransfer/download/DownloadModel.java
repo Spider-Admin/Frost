@@ -17,15 +17,16 @@
 */
 package frost.fileTransfer.download;
 
-import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.*;
+
 import frost.*;
-import frost.fcp.fcp05.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.perst.*;
+import frost.util.gui.translation.*;
 import frost.util.model.*;
 
 /**
@@ -50,7 +51,28 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 
         final FrostFileListFileObject flfToAdd = itemToAdd.getFileListFileObject(); // maybe null of manually added
 
-		for (int x = 0; x < getItemCount(); x++) {
+        // If download tracking is enabled, check if file has not been already downloaded
+        if( Core.frostSettings.getBoolValue(SettingsClass.TRACK_DOWNLOADS_ENABLED) ) {
+
+        	// Only check if the file is not lingering around in finished state...
+        	if( ! itemToAdd.isTracked() ){
+	            final TrackDownloadKeysStorage trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
+	            if( trackDownloadKeysStorage.searchItem( itemToAdd.getKey() ) ) {
+	            	final Language language = Language.getInstance();
+
+	            	// Ask if to download again
+	            	if( JOptionPane.showConfirmDialog(
+	                        null,
+	                        language.formatMessage("DownloadPane.alreadyTrackedDialog.body", itemToAdd.getKey()),
+	                        language.getString("DownloadPane.alreadyTrackedDialog.title"),
+	                        JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION ) {
+	            		return false;
+	            	}
+	            }
+        	}
+        }
+
+        for (int x = 0; x < getItemCount(); x++) {
 			final FrostDownloadItem item = (FrostDownloadItem) getItemAt(x);
             final FrostFileListFileObject flf = item.getFileListFileObject(); // maybe null of manually added
 
@@ -154,31 +176,14 @@ public class DownloadModel extends SortedModel implements ExitSavable {
     }
 
 	/**
-	 * Removes download items from the download model.
-	 */
-	@Override
-    public boolean removeItems(final ModelItem[] items) {
-		// First we remove the chunks from disk
-		final ArrayList<String> oldChunkFilesList = new ArrayList<String>(items.length);
-		final String dlDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
-		for( final ModelItem element : items ) {
-			final FrostDownloadItem item = (FrostDownloadItem) element;
-			oldChunkFilesList.add(item.getFilename());
-		}
-		final RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
-		t.start();
-
-		// And now we remove the items from the model
-		return super.removeItems(items);
-	}
-
-	/**
 	 * Called to restart the item.
 	 */
 	public void restartItems(final ModelItem[] items) {
+		final LinkedList<FrostDownloadItem> running = new LinkedList();
+
 		for (int x = items.length - 1; x >= 0; x--) {
 			final FrostDownloadItem dlItem = (FrostDownloadItem) items[x];
-			// reset only waiting+failed items
+
 			if (dlItem.getState() == FrostDownloadItem.STATE_FAILED
 				|| dlItem.getState() == FrostDownloadItem.STATE_WAITING
 				|| dlItem.getState() == FrostDownloadItem.STATE_DONE)
@@ -187,8 +192,12 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 				dlItem.setRetries(0);
 				dlItem.setLastDownloadStopTime(0);
 				dlItem.setEnabled(Boolean.valueOf(true)); // enable download on restart
+			} else {
+				running.add(dlItem);
 			}
 		}
+
+		restartRunningDownloads(running);
 	}
 
 	/**
@@ -223,24 +232,6 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 			}
 		}
 	}
-
-//	/**
-//	 * Removes all items from the download model.
-//	 */
-//	public synchronized void removeAllItems() {
-//		//First we remove the chunks from disk
-//		ArrayList oldChunkFilesList = new ArrayList(getItemCount());
-//		String dlDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
-//		for (int i = 0; i < getItemCount(); i++) {
-//			FrostDownloadItem item = (FrostDownloadItem) getItemAt(i);
-//			oldChunkFilesList.add(item.getFileName());
-//		}
-//		RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
-//		t.start();
-//
-//		//And now we remove the items from the model
-//		clear();
-//	}
 
 	/**
 	 * Saves the download model to database.
@@ -300,33 +291,5 @@ public class DownloadModel extends SortedModel implements ExitSavable {
             }
         }.start();
         return true;
-    }
-
-    private class RemoveChunksThread extends Thread {
-
-        private final ArrayList<String> oldChunkFilesList;
-        private final String dlDir;
-
-        public RemoveChunksThread(final ArrayList<String> al, final String dlDir) {
-            this.oldChunkFilesList = al;
-            this.dlDir = dlDir;
-        }
-
-        @Override
-        public void run() {
-            final File[] files = (new File(dlDir)).listFiles();
-            for (int i = 0; i < oldChunkFilesList.size(); i++) {
-                final String filename = oldChunkFilesList.get(i);
-                for( final File element : files ) {
-                    // remove filename.data , .redirect, .checkblocks
-                    if (element.getName().equals(filename + FecSplitfile.FILE_DATA_EXTENSION)
-                        || element.getName().equals(filename + FecSplitfile.FILE_REDIRECT_EXTENSION)
-                        || element.getName().equals(filename + FecSplitfile.FILE_CHECKBLOCKS_EXTENSION)) {
-                        logger.info("Removing " + element.getName());
-                        element.delete();
-                    }
-                }
-            }
-        }
     }
 }

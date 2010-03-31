@@ -53,7 +53,8 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 	 * 
 	 * @see javax.swing.JTabbedPane#getTitleAt(int)
 	 */
-	public String getTitleAt(int index) {
+	@Override
+    public String getTitleAt(int index) {
 		String key = super.getTitleAt(index); 
 		return language.getString(key);
 	}
@@ -65,7 +66,8 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 	 * 
 	 * @see javax.swing.JTabbedPane#indexOfTab(java.lang.String)
 	 */
-	public int indexOfTab(String key) {
+	@Override
+    public int indexOfTab(String key) {
 		for (int i = 0; i < getTabCount(); i++) {
 			if (super.getTitleAt(i).equals(key == null ? "" : key)) {
 				return i;

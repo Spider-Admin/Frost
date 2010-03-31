@@ -24,49 +24,49 @@ import java.util.logging.*;
 
 import org.w3c.dom.*;
 
-import frost.boards.*;
 import frost.fcp.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.util.*;
 
 public class KnownBoardsXmlDAO {
- 
+
     private static final Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
 
     /**
      * @param file
      * @return  List of Board
      */
-    public static List<Board> loadKnownBoards(File file) {
+    public static List<Board> loadKnownBoards(final File file) {
 
-        File boards = file;
-        ArrayList<Board> knownBoards = new ArrayList<Board>();
+        final File boards = file;
+        final ArrayList<Board> knownBoards = new ArrayList<Board>();
         if( boards.exists() ) {
             Document doc = null;
             try {
-                doc = XMLTools.parseXmlFile(boards, false);
-            } catch (Exception ex) {
+                doc = XMLTools.parseXmlFile(boards);
+            } catch (final Exception ex) {
                 logger.log(Level.SEVERE, "Error reading knownboards.xml", ex);
                 return knownBoards;
             }
-            Element rootNode = doc.getDocumentElement();
+            final Element rootNode = doc.getDocumentElement();
             if( rootNode.getTagName().equals("FrostKnownBoards") == false ) {
                 logger.severe("Error - invalid knownboards.xml: does not contain the root tag 'FrostKnownBoards'");
                 return knownBoards;
             }
             // pass this as an 'AttachmentList' to xml read method and get all board attachments
-            AttachmentList al = new AttachmentList();
+            final AttachmentList al = new AttachmentList();
             try {
                 al.loadXMLElement(rootNode);
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 logger.log(Level.SEVERE, "Error - knownboards.xml: contains unexpected content.", ex);
                 return knownBoards;
             }
-            List lst = al.getAllOfType(Attachment.BOARD);
-            for(Iterator i=lst.iterator(); i.hasNext(); ) {
-                BoardAttachment ba = (BoardAttachment)i.next();
-                
-                Board b = ba.getBoardObj();
+            final List lst = al.getAllOfType(Attachment.BOARD);
+            for(final Iterator i=lst.iterator(); i.hasNext(); ) {
+                final BoardAttachment ba = (BoardAttachment)i.next();
+
+                final Board b = ba.getBoardObj();
                 if( isBoardKeyValidForFreenetVersion(b) ) {
                     knownBoards.add(b);
                 } else {
@@ -82,7 +82,7 @@ public class KnownBoardsXmlDAO {
      * Check the public and private key of the board if they are valid for
      * the used freenet version.
      */
-    private static boolean isBoardKeyValidForFreenetVersion(Board b) {
+    private static boolean isBoardKeyValidForFreenetVersion(final Board b) {
         String key;
         key = b.getPublicKey();
         if( key != null && key.length() > 0 ) {
@@ -98,34 +98,34 @@ public class KnownBoardsXmlDAO {
         }
         return true; // keys not set or valid
     }
-    
+
     /**
      * @param file
      * @param knownBoards  List of KnownBoard
      * @return
      */
-    public static boolean saveKnownBoards(File file, List<Board> knownBoards) {
-        Document doc = XMLTools.createDomDocument();
+    public static boolean saveKnownBoards(final File file, final List<Board> knownBoards) {
+        final Document doc = XMLTools.createDomDocument();
         if (doc == null) {
             logger.severe("Error - saveBoardTree: factory couldn't create XML Document.");
             return false;
         }
 
-        Element rootElement = doc.createElement("FrostKnownBoards");
+        final Element rootElement = doc.createElement("FrostKnownBoards");
         doc.appendChild(rootElement);
 
-        Iterator i = knownBoards.iterator();
+        final Iterator i = knownBoards.iterator();
         while (i.hasNext()) {
-            Board b = (Board)i.next();
-            BoardAttachment current = new BoardAttachment(b);
-            Element anAttachment = current.getXMLElement(doc);
+            final Board b = (Board)i.next();
+            final BoardAttachment current = new BoardAttachment(b);
+            final Element anAttachment = current.getXMLElement(doc);
             rootElement.appendChild(anAttachment);
         }
 
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, file.getPath());
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             logger.log(Level.SEVERE, "Exception while writing knownboards.xml:", ex);
         }
         if (!writeOK) {

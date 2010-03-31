@@ -28,39 +28,41 @@ import java.util.logging.*;
  *   MessageName
  *   key1=value1
  *   key2=value2
- *   EndMessage 
+ *   EndMessage
  * If binary data is sent, the data length is given in a value, the message
- * ends with Data instead of EndMessage and the binary data follows. 
+ * ends with Data instead of EndMessage and the binary data follows.
  */
 public class NodeMessage {
-    
+
     private static final Logger logger = Logger.getLogger(NodeMessage.class.getName());
 
     private final String messageName;
     private final HashMap<String,String> items;
     private String messageEndMarker = null;
-    
+
+    private BufferedInputStream fcpInStream = null;
+
     /////////////////////////////////////////////////////////////////////////////////////////
     // BEGIN OF STATIC FACTORY ///////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
-    
+
     /**
      * Returns null if socket was closed, or a nodemessage.
      */
-    public static NodeMessage readMessage(BufferedInputStream fcpInp) {
+    public static NodeMessage readMessage(final BufferedInputStream fcpInp) {
 
         NodeMessage result = null;
         boolean isfirstline = true;
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream(128);
-        
+
         while(true) {
-            String tmp = readLine(fcpInp, bytes);
-            
+            final String tmp = readLine(fcpInp, bytes);
+
             if (tmp == null) {
                 // error, io connection closed
-                return null; 
+                return null;
             }
-            
+
             bytes.reset(); // reset for next run
 
             if ((tmp.trim()).length() == 0) { continue; } // an empty line
@@ -73,29 +75,50 @@ public class NodeMessage {
 
             if (tmp.compareTo("Data") == 0) {
                 result.setEnd(tmp);
-                break; 
+                result.fcpInStream = fcpInp; // remember stream for receive of data
+                break;
             }
 
             if (tmp.compareTo("EndMessage") == 0) {
                 result.setEnd(tmp);
-                break; 
+                break;
             }
-            
+
             if (tmp.indexOf("=") > -1) {
-                String[] tmp2 = tmp.split("=", 2);
+                final String[] tmp2 = tmp.split("=", 2);
                 result.addItem(tmp2[0], tmp2[1]);
             } else {
                 logger.severe("ERROR: no '=' in message line. This shouldn't happen. FIXME. : " + tmp + " -> " + tmp.length());
                 result.addItem("Unknown", tmp);
             }
-        } 
-        return result;  
+        }
+        return result;
     }
 
-    private static String readLine(BufferedInputStream fcpInp, ByteArrayOutputStream bytes) {
+    public byte[] receiveMessageData(final long datalen) throws IOException {
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final byte[] b = new byte[4096];
+        long bytesLeft = datalen;
+        long bytesWritten = 0;
+        while( bytesLeft > 0 ) {
+            final int count = fcpInStream.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
+            if( count < 0 ) {
+                break;
+            } else {
+                bytesLeft -= count;
+            }
+            byteOut.write(b, 0, count);
+            bytesWritten += count;
+        }
+        byteOut.close();
+
+        return byteOut.toByteArray();
+    }
+
+    private static String readLine(final BufferedInputStream fcpInp, final ByteArrayOutputStream bytes) {
         try {
             while(true) {
-                int c = fcpInp.read();
+                final int c = fcpInp.read();
                 if( c < 0 ) {
                     // unexpected socket close in middle of a line
                     return null;
@@ -106,7 +129,7 @@ public class NodeMessage {
                     bytes.write(c);
                 }
             }
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Throwable catched", e);
             return null;
         }
@@ -119,26 +142,27 @@ public class NodeMessage {
     /**
      * Creates a new NodeMessage.
      */
-    protected NodeMessage(String name) {
+    protected NodeMessage(final String name) {
         messageName = name;
         items = new HashMap<String,String>();
     }
 
-    /** 
+    /**
      * returns the message as string for debug/log output
      */
+    @Override
     public String toString() {
         return messageName + " " + items + " " + messageEndMarker;
     }
-    
-    protected void setItem(String name, String value) {
+
+    protected void setItem(final String name, final String value) {
         items.put(name, value);
     }
-    
-    protected void setEnd(String em) {
+
+    protected void setEnd(final String em) {
         messageEndMarker = em;
     }
-    
+
     public String getMessageName() {
         return messageName;
     }
@@ -147,29 +171,43 @@ public class NodeMessage {
         return messageEndMarker;
     }
 
-    public boolean isMessageName(String aName) {
+    public boolean isMessageName(final String aName) {
         if (aName == null) {
             return false;
         }
         return aName.equalsIgnoreCase(messageName);
     }
-    public boolean isValueSet(String name) {
+    public boolean isValueSet(final String name) {
         return items.get(name) != null;
     }
-    public String getStringValue(String name) {
+    public String getStringValue(final String name) {
         return items.get(name);
     }
-    public long getLongValue(String name) {
+    public long getLongValue(final String name) {
         return Long.parseLong(items.get(name));
     }
-    public int getIntValue(String name) {
+    public long getLongValue(final String name, final long defaultVal) {
+        try {
+            return Long.parseLong(items.get(name));
+        } catch(final Exception ex) {
+            return defaultVal;
+        }
+    }
+    public int getIntValue(final String name) {
         return Integer.parseInt(items.get(name));
     }
-    public boolean getBoolValue(String name) {
+    public int getIntValue(final String name, final int defaultVal) {
+        try {
+            return Integer.parseInt(items.get(name));
+        } catch(final Exception ex) {
+            return defaultVal;
+        }
+    }
+    public boolean getBoolValue(final String name) {
         return "true".equalsIgnoreCase(items.get(name));
     }
-    
-    public void addItem(String key, String value) {
-        items.put(key, value); 
+
+    public void addItem(final String key, final String value) {
+        items.put(key, value);
     }
 }

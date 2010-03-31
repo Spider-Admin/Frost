@@ -43,7 +43,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
     private static final Logger logger = Logger.getLogger(PersistenceManager.class.getName());
 
-    // this would belong to the models, but not needed for 0.5 or without persistence, hence we maintain it here
+    // this would belong to the models, but its not needed there without persistence, hence we maintain it here
     private final Hashtable<String,FrostUploadItem> uploadModelItems = new Hashtable<String,FrostUploadItem>();
     private final Hashtable<String,FrostDownloadItem> downloadModelItems = new Hashtable<String,FrostDownloadItem>();
 
@@ -59,8 +59,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private boolean isConnected = true; // we start in connected state
 
     private final FcpPersistentQueue persistentQueue;
-    private final FcpMultiRequestConnection fcpConn;
-    private final FcpMultiRequestConnectionTools fcpTools;
+    private final FcpListenThreadConnection fcpConn;
+    private final FcpMultiRequestConnectionFileTransferTools fcpTools;
 
     private final Set<String> directGETsInProgress = new HashSet<String>();
     private final Set<String> directPUTsInProgress = new HashSet<String>();
@@ -71,9 +71,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      * @return  true if Frost is configured to use persistent uploads and downloads, false if not
      */
     public static boolean isPersistenceEnabled() {
-        if( FcpHandler.isFreenet07()
-                && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) )
-        {
+        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
             return true;
         } else {
             return false;
@@ -92,12 +90,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
         showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
 
-        if( FcpHandler.inst().getNodes().isEmpty() ) {
+        if (FcpHandler.inst().getFreenetNode() == null) {
             throw new Exception("No freenet nodes defined");
         }
-        final NodeAddress na = FcpHandler.inst().getNodes().get(0);
-        fcpConn = FcpMultiRequestConnection.createInstance(na);
-        fcpTools = new FcpMultiRequestConnectionTools(fcpConn);
+        final NodeAddress na = FcpHandler.inst().getFreenetNode();
+        fcpConn = FcpListenThreadConnection.createInstance(na);
+        fcpTools = new FcpMultiRequestConnectionFileTransferTools(fcpConn);
 
         Core.frostSettings.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent evt) {
@@ -222,21 +220,25 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     }
 
     public void changeItemPriorites(final ModelItem[] items, final int newPrio) {
-        if( items == null || items.length == 0 ) {
+        if (items == null || items.length == 0) {
             return;
         }
-        for( final ModelItem item : items ) {
+        for (final ModelItem item : items) {
             String gqid = null;
-            if( item instanceof FrostUploadItem ) {
+            if (item instanceof FrostUploadItem) {
                 final FrostUploadItem ui = (FrostUploadItem) item;
-                ui.setPriority(newPrio);
-                gqid = ui.getGqIdentifier();
-            } else if( item instanceof FrostDownloadItem ) {
+                if (ui.getState() == FrostUploadItem.STATE_PROGRESS) {
+                    ui.setPriority(newPrio);
+                    gqid = ui.getGqIdentifier();
+                }
+            } else if (item instanceof FrostDownloadItem) {
                 final FrostDownloadItem di = (FrostDownloadItem) item;
-                gqid = di.getGqIdentifier();
-                di.setPriority(newPrio);
+                if (di.getState() == FrostDownloadItem.STATE_PROGRESS) {
+                    gqid = di.getGqIdentifier();
+                    di.setPriority(newPrio);
+                }
             }
-            if( gqid != null ) {
+            if (gqid != null) {
                 fcpTools.changeRequestPriority(gqid, newPrio);
             }
         }
@@ -296,7 +298,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      */
     public boolean maybeEnqueueDirectGet(final FrostDownloadItem dlItem, final long expectedFileSize) {
         if( !isDirectTransferInProgress(dlItem) ) {
-            final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+            final File targetFile = new File(dlItem.getDownloadFilename());
             if( !targetFile.isFile() || targetFile.length() != expectedFileSize ) {
                 directTransferQueue.appendItemToQueue(dlItem);
                 return true;
@@ -376,7 +378,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     maybeEnqueueDirectGet(dlItem, getReq.getFilesize());
                 } else {
                     final FcpResultGet result = new FcpResultGet(true);
-                    final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                    final File targetFile = new File(dlItem.getDownloadFilename());
                     FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                 }
             }
@@ -392,7 +394,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
                 final String redirectURI = getReq.getRedirectURI();
                 final FcpResultGet result = new FcpResultGet(false, returnCode, desc, isFatal, redirectURI);
-                final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                final File targetFile = new File(dlItem.getDownloadFilename());
                 final boolean retry = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                 if( retry ) {
                     fcpTools.removeRequest(getReq.getIdentifier());
@@ -600,9 +602,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
 
         final String gqid = dlItem.getGqIdentifier();
-        final String downloadDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
-        final File targetFile = new File(downloadDir + dlItem.getFilename());
-        dlItem.setDirect( !isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir) );
+        final File targetFile = new File(dlItem.getDownloadFilename());
+        dlItem.setDirect( !isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, dlItem.getDownloadDir()) );
         fcpTools.startPersistentGet(
                 dlItem.getKey(),
                 gqid,
@@ -749,10 +750,19 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         final FrostDownloadItem dlItem = (FrostDownloadItem) item;
                         // FIXME: provide item, state=Transfer from node, % shows progress
                         final String gqid = dlItem.getGqIdentifier();
-                        final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                        final File targetFile = new File(dlItem.getDownloadFilename());
 
                         final boolean retryNow;
-                        final NodeMessage answer = fcpTools.startDirectPersistentGet(gqid, targetFile);
+                        NodeMessage answer = null;
+
+                        try {
+                            answer = fcpTools.startDirectPersistentGet(gqid, targetFile);
+                        } catch (final FileNotFoundException e) {
+                            final String msg = "Could not write to " + dlItem.getDownloadFilename() + ": " + e.getMessage();
+                            System.out.println(msg);
+                            logger.severe(msg);
+                        }
+
                         if( answer != null ) {
                             final FcpResultGet result = new FcpResultGet(true);
                             FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);

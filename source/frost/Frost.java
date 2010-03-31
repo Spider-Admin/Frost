@@ -46,14 +46,13 @@ public class Frost {
      */
     public static void main(final String[] args) {
         System.out.println();
-        System.out.println("Frost, Copyright (C) 2007 Frost Project");
+        System.out.println("Frost, Copyright (C) 2001,2009 Frost Project");
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
-        System.out.println("Frost uses code from apache.org (Apache license),");
-        System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license),");
-        System.out.println("Martin Newstead (LGPL license), Volker H. Simonis (GPL v2 license) and");
-        System.out.println("McObject LLC (GPL v2 license).");
+        System.out.println("Frost uses code from bouncycastle.org (BSD license),");
+        System.out.println("Martin Newstead (LGPL license), Volker H. Simonis (GPL v2 license)");
+        System.out.println("and McObject LLC (GPL v2 license).");
         System.out.println();
 
         parseCommandLine(args);
@@ -279,21 +278,6 @@ public class Frost {
         // check for needed .jar files by loading a class and catching the error
         String jarFileName = "";
         try {
-            // check for xercesImpl.jar
-            jarFileName = "xercesImpl.jar";
-            Class.forName("org.apache.xerces.dom.DocumentImpl");
-            // check for xml-apis.jar
-            jarFileName = "xml-apis.jar";
-            Class.forName("org.w3c.dom.Document");
-            // extra check for OutputFormat (xercesImpl.jar)
-            jarFileName = "xercesImpl.jar";
-            Class.forName("org.apache.xml.serialize.OutputFormat");
-            // check for genChkImpl.jar
-            jarFileName = "genChkImpl.jar";
-            Class.forName("freenet.client.ClientKey");
-            // check for fecImpl.jar
-            jarFileName = "fecImpl.jar";
-            Class.forName("fecimpl.FECUtils");
             // check for datechooser.jar
             jarFileName = "datechooser.jar";
             Class.forName("mseries.ui.MDateEntryField");

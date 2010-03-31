@@ -68,11 +68,9 @@ public class DownloadThread extends Thread {
                             key,
                             size,
                             targetFile,
-                            true,  // doRedirect
-                            false, // fastDownload
-                            -1,    // maxSize
-                            -1,    // maxRetries, use default
-                            false, // createTempFile
+                            -1,  // doRedirect
+                            -1, // fastDownload
+                            false,    // maxSize
                             downloadItem);
             } catch (final Throwable t) {
                 logger.log(Level.SEVERE, "Exception thrown in getFile()", t);

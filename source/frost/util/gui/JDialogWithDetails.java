@@ -19,15 +19,12 @@
 package frost.util.gui;
 
 import java.awt.*;
-import java.awt.Frame;
 import java.awt.event.*;
-import java.awt.event.ActionListener;
 
 import javax.swing.*;
-import javax.swing.JDialog;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 /**
  * This class is used to show a dialog with a message. It has a JTextArea that can 
@@ -53,7 +50,8 @@ public class JDialogWithDetails extends JDialog {
 				close();
 			}
 		}
-		public void windowClosing(WindowEvent e) {
+		@Override
+        public void windowClosing(WindowEvent e) {
 			close();
 			super.windowClosing(e);
 		}
@@ -201,7 +199,8 @@ public class JDialogWithDetails extends JDialog {
 	/* (non-Javadoc)
 	 * @see java.awt.Component#setVisible(boolean)
 	 */
-	public void setVisible(boolean b) {
+	@Override
+    public void setVisible(boolean b) {
 		if (b) {
 			pack();
 			setLocationRelativeTo(getParent());

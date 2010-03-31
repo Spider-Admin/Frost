@@ -21,7 +21,6 @@ package frost.fileTransfer.upload;
 import java.io.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.model.*;
@@ -53,6 +52,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private String gqIdentifier = null;
 
     private boolean isLoggedToFile = false;
+    private boolean isCompletionProgRun = false;
 
     // non-persistent fields
     private int totalBlocks = -1;
@@ -109,7 +109,8 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
             final int newRetries,
             final long newLastUploadStopTimeMillis,
             final String newGqIdentifier,
-            final boolean newIsLoggedToFile)
+            final boolean newIsLoggedToFile,
+            final boolean newIsCompletionProgRun)
     {
         file = newFile;
         fileSize = newFilesize;
@@ -123,6 +124,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         lastUploadStopTimeMillis = newLastUploadStopTimeMillis;
         gqIdentifier = newGqIdentifier;
         isLoggedToFile = newIsLoggedToFile;
+        isCompletionProgRun = newIsCompletionProgRun;
 
         // set correct state
         if( state == FrostUploadItem.STATE_PROGRESS ) {
@@ -192,7 +194,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public void setEnabled(Boolean newEnabled) {
         if (newEnabled == null && enabled != null) {
             //Invert the enable status
-            boolean temp = enabled.booleanValue();
+            final boolean temp = enabled.booleanValue();
             newEnabled = Boolean.valueOf(!temp);
         }
         enabled = newEnabled;
@@ -271,21 +273,16 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     }
 
     /**
-     * Builds a global queue identifier if running on 0.7.
-     * Returns null on 0.5.
+     * Builds a global queue identifier.
      */
     private String buildGqIdentifier(final String filename) {
-        if( FcpHandler.isFreenet07() ) {
-            return new StringBuilder()
-                .append("Frost-")
-                .append(filename.replace(' ', '_'))
-                .append("-")
-                .append(System.currentTimeMillis())
-                .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
-                .toString();
-        } else {
-            return null;
-        }
+        return new StringBuilder()
+            .append("Frost-")
+            .append(filename.replace(' ', '_'))
+            .append("-")
+            .append(System.currentTimeMillis())
+            .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
+            .toString();
     }
 
     public String getErrorCodeDescription() {
@@ -339,6 +336,14 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
     public void setLoggedToFile(final boolean isLoggedToFile) {
         this.isLoggedToFile = isLoggedToFile;
+    }
+
+    public boolean isCompletionProgRun() {
+        return isCompletionProgRun;
+    }
+
+    public void setCompletionProgRun(final boolean isCompletionProgRun) {
+        this.isCompletionProgRun = isCompletionProgRun;
     }
 
     public boolean isStateShouldBeProgress() {

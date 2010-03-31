@@ -18,9 +18,7 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 
 /**
  * Extend {@link TextPane} class with antialiasing render
@@ -77,7 +75,8 @@ public class AntialiasedTextPane extends TextPane {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void paint(Graphics g) {
+	@Override
+    public void paint(Graphics g) {
 		if (antiAliasEnabled) {
 			Graphics2D graphics2D = (Graphics2D) g;
 			graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);

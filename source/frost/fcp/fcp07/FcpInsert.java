@@ -36,7 +36,7 @@ import frost.fileTransfer.upload.*;
  * This class provides methods to insert data into freenet.
  */
 public class FcpInsert {
-    
+
 	private static final Logger logger = Logger.getLogger(FcpInsert.class.getName());
 
     /**
@@ -47,11 +47,11 @@ public class FcpInsert {
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
     public static FcpResultPut putFile(
-            int type,
-            String uri,
-            File file,
-            boolean doMime,
-            FrostUploadItem ulItem)
+            final int type,
+            final String uri,
+            final File file,
+            final boolean doMime,
+            final FrostUploadItem ulItem)
     {
         if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't upload empty file: "+file.getPath());
@@ -66,25 +66,25 @@ public class FcpInsert {
             FcpConnection connection;
             try {
                 connection = FcpFactory.getFcpConnectionInstance();
-            } catch (ConnectException e1) {
+            } catch (final ConnectException e1) {
                 connection = null;
             }
             if( connection == null ) {
                 return FcpResultPut.NO_CONNECTION_RESULT;
             }
 
-            FcpResultPut result = connection.putKeyFromFile(type, uri, file, false, doMime, ulItem);
+            final FcpResultPut result = connection.putKeyFromFile(type, uri, file, false, doMime, ulItem);
             return result;
 
-        } catch( UnknownHostException e ) {
+        } catch( final UnknownHostException e ) {
 			logger.log(Level.SEVERE, "UnknownHostException", e);
-        } catch( Throwable e ) {
+        } catch( final Throwable e ) {
         	logger.log(Level.SEVERE, "Throwable", e);
         }
         return FcpResultPut.ERROR_RESULT;
     }
 
-    public static String generateCHK(File file) {
+    public static String generateCHK(final File file) {
 
     	if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't generate CHK for empty file: "+file.getPath());
@@ -99,18 +99,18 @@ public class FcpInsert {
             FcpConnection connection;
             try {
                 connection = FcpFactory.getFcpConnectionInstance();
-            } catch (ConnectException e1) {
+            } catch (final ConnectException e1) {
                 connection = null;
             }
             if( connection == null ) {
                 return null;
             }
-            String generatedCHK = connection.generateCHK(file);
+            final String generatedCHK = connection.generateCHK(file);
             return generatedCHK;
 
-        } catch( UnknownHostException e ) {
+        } catch( final UnknownHostException e ) {
 			logger.log(Level.SEVERE, "UnknownHostException", e);
-        } catch( Throwable e ) {
+        } catch( final Throwable e ) {
         	logger.log(Level.SEVERE, "Throwable", e);
         }
         return null;

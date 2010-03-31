@@ -22,7 +22,7 @@ import java.util.*;
 
 import org.garret.perst.*;
 
-import frost.messages.*;
+import frost.messaging.frost.*;
 
 public class PerstAttachments extends Persistent {
 

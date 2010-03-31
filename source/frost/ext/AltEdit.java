@@ -27,7 +27,6 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.gui.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
@@ -52,9 +51,9 @@ public class AltEdit extends Thread {
     private final String TEXT_MARKER = language.getString("AltEdit.markerLine.text");
 
     private final Object transferObject;
-    private final MessageFrame callbackTarget;
+    private final AltEditCallbackInterface callbackTarget;
 
-    public AltEdit(final String subject, final String text, final Frame parentFrame, final Object transferObject, final MessageFrame callbackTarget) {
+    public AltEdit(final String subject, final String text, final Frame parentFrame, final Object transferObject, final AltEditCallbackInterface callbackTarget) {
         this.parentFrame = parentFrame;
         this.oldSubject = subject;
         this.oldText = text;

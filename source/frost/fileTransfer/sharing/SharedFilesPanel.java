@@ -29,9 +29,8 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
+import frost.fileTransfer.filelist.*;
 import frost.storage.perst.*;
-import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
@@ -364,7 +363,6 @@ public class SharedFilesPanel extends JPanel {
     private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyKeysItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
         private final JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private final JMenuItem removeSelectedFilesItem = new JMenuItem();
@@ -381,13 +379,9 @@ public class SharedFilesPanel extends JPanel {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
-            copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
             removeSelectedFilesItem.addActionListener(this);
             uploadSelectedFilesItem.addActionListener(this);
@@ -396,7 +390,6 @@ public class SharedFilesPanel extends JPanel {
 
         private void refreshLanguage() {
             propertiesItem.setText(language.getString("Common.properties"));
-            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             uploadSelectedFilesItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.uploadSelectedFiles"));
@@ -406,9 +399,6 @@ public class SharedFilesPanel extends JPanel {
         }
 
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysItem) {
-                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
-            }
             if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             }

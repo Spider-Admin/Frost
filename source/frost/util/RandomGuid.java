@@ -19,8 +19,7 @@
 package frost.util;
 
 import java.security.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.Random;
+import java.util.*;
 
 /**
  * This class is used to generate random GUIDs of the type
@@ -76,7 +75,8 @@ public class RandomGuid {
 	 * the standard format for GUIDs, like F45C47D0-FF4E-11D8-9669-0800200C9A66
 	 * @see java.lang.Object#toString()
 	 */	
-	public String toString() {
+	@Override
+    public String toString() {
 		String guidUpperCase = guid.toUpperCase();
 		StringBuilder sb = new StringBuilder();
 		

@@ -46,6 +46,7 @@ public class HelpHTMLDocument extends HTMLDocument {
      *            the starting position
      * @return the reader used by the parser to load the document
      */
+    @Override
     public HelpHTMLEditorKit.ParserCallback getReader(int pos) {
         Object desc = getProperty(Document.StreamDescriptionProperty);
         if( desc instanceof URL ) {
@@ -112,6 +113,7 @@ public class HelpHTMLDocument extends HTMLDocument {
         /**
          * Callback from the parser. Route to the appropriate handler for the tag.
          */
+        @Override
         public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
 
 //            for(Enumeration e = a.getAttributeNames(); e.hasMoreElements(); ) {

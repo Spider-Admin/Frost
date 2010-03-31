@@ -20,7 +20,7 @@ package frost.util.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import javax.swing.*;
 
@@ -83,7 +83,7 @@ public class GlassPane extends JComponent implements AWTEventListener {
 
 		// Climb the component hierarchy until a RootPaneContainer is found or until the very top
 		while ((aComponent.getParent() != null) && !(aComponent instanceof RootPaneContainer)) {
-			aComponent = (Component) aComponent.getParent();
+			aComponent = aComponent.getParent();
 		}
 
 		// Guard against error conditions if climb search wasn't successful
@@ -120,7 +120,8 @@ public class GlassPane extends JComponent implements AWTEventListener {
 	/**
 	 * Sets the glass pane as visible or invisible. The mouse cursor will be set accordingly.
 	 */
-	public void setVisible(boolean value) {
+	@Override
+    public void setVisible(boolean value) {
 		if (value) {
 			// keep track of the visible window associated w/the component
 			// useful during event filtering

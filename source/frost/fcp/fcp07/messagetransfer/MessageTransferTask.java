@@ -148,37 +148,4 @@ public class MessageTransferTask {
     public int getPriority() {
         return priority;
     }
-
 }
-//
-//    static MessageTransferTask task = new MessageTransferTask(1);
-//
-//    public static void main(String[] args) {
-//        new t1(task).start();
-//        new t2(task).start();
-//    }
-//}
-//class t1 extends Thread {
-//    MessageTransferTask task;
-//    public t1(MessageTransferTask task) { this.task = task; }
-//    public void run() {
-//        System.out.println("sleeping 3s");
-//        try {
-//            Thread.sleep(3000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        System.out.println("starting");
-//        task.awake();
-//        System.out.println("wachgemacht");
-//    }
-//}
-//class t2 extends Thread {
-//    MessageTransferTask task;
-//    public t2(MessageTransferTask task) { this.task = task; }
-//    public void run() {
-//        System.out.println("waiting");
-//        task.sleep();
-//        System.out.println("awake!");
-//    }
-//}

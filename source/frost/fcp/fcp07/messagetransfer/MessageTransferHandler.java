@@ -30,7 +30,7 @@ public class MessageTransferHandler implements NodeMessageListener {
 
     private static final Logger logger = Logger.getLogger(MessageTransferHandler.class.getName());
 
-    private final FcpMultiRequestConnectionTools fcpTools;
+    private final FcpMultiRequestConnectionFileTransferTools fcpTools;
 
     private final HashMap<String,MessageTransferTask> taskMap = new HashMap<String,MessageTransferTask>();
 
@@ -38,11 +38,11 @@ public class MessageTransferHandler implements NodeMessageListener {
 
     public MessageTransferHandler() throws Throwable {
 
-        if( FcpHandler.inst().getNodes().isEmpty() ) {
-            throw new Exception("No freenet nodes defined");
+        if (FcpHandler.inst().getFreenetNode() == null) {
+            throw new Exception("No freenet node defined");
         }
-        final NodeAddress na = FcpHandler.inst().getNodes().get(0);
-        this.fcpTools = new FcpMultiRequestConnectionTools(FcpMultiRequestConnection.createInstance(na));
+        final NodeAddress na = FcpHandler.inst().getFreenetNode();
+        this.fcpTools = new FcpMultiRequestConnectionFileTransferTools(FcpListenThreadConnection.createInstance(na));
     }
 
     public void start() {
@@ -111,7 +111,7 @@ public class MessageTransferHandler implements NodeMessageListener {
     public void handleNodeMessage(final NodeMessage nm) {
         // handle a NodeMessage without identifier
     }
-// FIXME: restart tasks in queue after reconnect! accept new tasks during disconnect (??????)
+
     public void handleNodeMessage(final String id, final NodeMessage nm) {
         if(Logging.inst().doLogFcp2Messages()) {
             System.out.println(">>>RCV>>>>");
@@ -200,6 +200,7 @@ public class MessageTransferHandler implements NodeMessageListener {
         task.setFcpResultGet(result);
         setTaskFinished(task);
     }
+
     protected void onGetFailed(final MessageTransferTask task, final NodeMessage nm) {
         final int returnCode = nm.getIntValue("Code");
         final String codeDescription = nm.getStringValue("CodeDescription");
@@ -221,6 +222,7 @@ public class MessageTransferHandler implements NodeMessageListener {
         task.setFcpResultPut(new FcpResultPut(FcpResultPut.Success, chkKey));
         setTaskFinished(task);
     }
+
     protected void onPutFailed(final MessageTransferTask task, final NodeMessage nm) {
         final int returnCode = nm.getIntValue("Code");
         final String codeDescription = nm.getStringValue("CodeDescription");

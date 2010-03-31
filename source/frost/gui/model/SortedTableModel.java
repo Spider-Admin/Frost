@@ -19,11 +19,11 @@
 package frost.gui.model;
 
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 
-import frost.gui.SortedTable;
+import frost.gui.*;
 
 public class SortedTableModel extends DefaultTableModel
 {
@@ -52,6 +52,7 @@ public class SortedTableModel extends DefaultTableModel
         return true;
     }
 
+    @Override
     public int getRowCount()
     {
         if( rows == null )
@@ -207,6 +208,7 @@ public class SortedTableModel extends DefaultTableModel
      * @return Instance of ITableMember at index row. <I>null</I> if index contains
      * no ITableMember
      */
+    @Override
     public void removeRow(int row)
     {
         if (row<getRowCount())
@@ -224,6 +226,7 @@ public class SortedTableModel extends DefaultTableModel
      * @param column Column for which the value will be returned.
      * @return Value at <I>column</I> and <I>row</I>
      */
+    @Override
     public Object getValueAt(int row, int column)
     {
         if (row>=getRowCount() || row<0) return null;
@@ -276,6 +279,7 @@ public class SortedTableModel extends DefaultTableModel
      * @param row Row for which the value will be changed.
      * @param column Column for which the value will be changed.
      */
+    @Override
     public void setValueAt(Object aValue, int row, int column)
     {
         logger.severe("setValueAt() - ERROR: NOT IMPLEMENTED");

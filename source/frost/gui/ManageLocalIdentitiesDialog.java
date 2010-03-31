@@ -357,7 +357,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     protected LocalIdentity importLocalIdentityFromIdentityXml(final File identitiesXmlFile) {
-        final Document d = XMLTools.parseXmlFile(identitiesXmlFile, false);
+        final Document d = XMLTools.parseXmlFile(identitiesXmlFile);
         final Element rootEl = d.getDocumentElement();
 
         final Element myself = XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
@@ -420,7 +420,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
 
         final FileFilter myFilter = new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 if( file.isDirectory() ) {
                     return true;
                 }
@@ -448,7 +448,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
 
         final FileFilter myFilter = new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 if( file.isDirectory() ) {
                     return true;
                 }
@@ -476,7 +476,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
 
         final FileFilter myFilter = new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 if( file.isDirectory() ) {
                     return true;
                 }

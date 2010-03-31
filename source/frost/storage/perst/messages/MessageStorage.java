@@ -25,8 +25,8 @@ import org.garret.perst.*;
 import org.joda.time.*;
 
 import frost.*;
-import frost.boards.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
@@ -39,6 +39,11 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
+
+    public static final int SHOW_DEFAULT = 0;
+    public static final int SHOW_UNREAD_ONLY = 1;
+    public static final int SHOW_FLAGGED_ONLY = 2;
+    public static final int SHOW_STARRED_ONLY = 3;
 
     private MessageStorageRoot storageRoot = null;
 
@@ -211,7 +216,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             // delete ALL valid messages
             for( final PerstFrostMessageObject pmo : boardToRemove.getMessageIndex() ) {
-                if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
+                if( AbstractMessageStatusProvider.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
                     final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
                     if( pim != null ) {
                         pim.getMessagesFromIdentity().remove(pmo);
@@ -320,9 +325,9 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
             final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
             // normal messages in date range
-            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
+            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
             // unread messages in range
-            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
+            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
             // join all results
             final Iterator<PerstFrostMessageObject> i = getStorage().join(new Iterator[] {i1, i2} );
 
@@ -464,7 +469,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 }
 
                 // add to id, maybe create id for this msg
-                if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
+                if( AbstractMessageStatusProvider.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
                     PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
                     if( pim == null ) {
                         pim = new PerstIdentitiesMessages(pmo.fromName, getStorage());
@@ -554,7 +559,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             return;
         }
         // normal messages in date range
-        final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, GenericIndex.ASCENT_ORDER);
         while(i.hasNext()) {
             final PerstFrostMessageObject p = i.next();
             if( archiveKeepUnread && p.isNew) {
@@ -602,7 +607,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
 
         // delete invalid messages in date range
-        final Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, GenericIndex.ASCENT_ORDER);
         while(ii.hasNext()) {
             final PerstFrostMessageObject p = ii.next();
             ii.remove();
@@ -633,7 +638,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final Iterator<PerstFrostMessageObject> i;
 
             // normal messages in date range
-            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(startDate, endDate, GenericIndex.ASCENT_ORDER);
 
             if( searchInDisplayedMessages ) {
                 // add ALL unread messages, also those which are not in date range
@@ -675,7 +680,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 return null;
             }
 
-            final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(null, Long.MAX_VALUE, Index.DESCENT_ORDER);
+            final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(null, Long.MAX_VALUE, GenericIndex.DESCENT_ORDER);
 
             if (i.hasNext()) {
                 final PerstFrostMessageObject p = i.next();
@@ -693,7 +698,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final boolean withContent,
             final boolean withAttachments,
             final boolean showDeleted,
-            final boolean showUnreadOnly,
+            final int whatToShow,
             final MessageCallback mc)
     {
         final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
@@ -710,12 +715,16 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             }
 
             Iterator<PerstFrostMessageObject> i;
-            if( showUnreadOnly ) {
+            if( whatToShow == SHOW_UNREAD_ONLY ) {
                 // ALL new messages
                 i = bo.getUnreadMessageIndex().iterator();
+            } else if( whatToShow == SHOW_FLAGGED_ONLY ) {
+                i = bo.getFlaggedMessageIndex().iterator();
+            } else if( whatToShow == SHOW_STARRED_ONLY ) { 
+                i = bo.getStarredMessageIndex().iterator();
             } else {
                 // normal messages in date range
-                final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
+                final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
                 // add ALL unread messages, also those which are not in date range
                 final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
                 // add ALL flagged and starred messages, also those which are not in date range
@@ -920,7 +929,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
         try {
             for( final FrostMessageObject mo : msgObjects ) {
-                if( mo.getPerstFrostMessageObject() == null ) {
+                if (mo.getPerstFrostMessageObject() == null || mo.getBoard() == null) {
                     logger.severe("delete not possible");
                     continue;
                 }

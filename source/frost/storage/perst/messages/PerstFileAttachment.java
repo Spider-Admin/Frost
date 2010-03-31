@@ -20,7 +20,7 @@ package frost.storage.perst.messages;
 
 import org.garret.perst.*;
 
-import frost.messages.*;
+import frost.messaging.frost.*;
 
 public class PerstFileAttachment extends Persistent {
     String name;

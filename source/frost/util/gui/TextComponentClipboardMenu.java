@@ -18,16 +18,16 @@
 */
 package frost.util.gui;
 
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 public class TextComponentClipboardMenu extends MouseAdapter implements ClipboardOwner, ActionListener {
 
@@ -47,16 +47,19 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 	public TextComponentClipboardMenu(JTextComponent textComponent, Language language) {
 		this.textComponent = textComponent;
 		this.language = language;
+		createPopupMenu();
 		textComponent.addMouseListener(this);
 	}
 	
-	public void mousePressed(MouseEvent e) {
+	@Override
+    public void mousePressed(MouseEvent e) {
 		if (e.isPopupTrigger() && textComponent.isEnabled()) {
 			showPopup(e.getX(), e.getY());
 		}
 	}
 	
-	public void mouseReleased(MouseEvent e) {
+	@Override
+    public void mouseReleased(MouseEvent e) {
 		if (e.isPopupTrigger() && textComponent.isEnabled()) {
 			showPopup(e.getX(), e.getY());
 		}
@@ -79,8 +82,6 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 	}
 	
 	private void showPopup(int x, int y) {
-
-		createPopupMenu();
 
 		cutItem.setText(language.getString("Common.cut"));
 		copyItem.setText(language.getString("Common.copy"));
@@ -142,7 +143,6 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 	}
 	
 	private void createPopupMenu() {
-		if (popupMenu == null) {
 			popupMenu = new JPopupMenu();
 
 			cutItem = new JMenuItem();
@@ -160,7 +160,6 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 			popupMenu.addSeparator();
 			popupMenu.add(cancelItem);
 		}
-	}
 	
 	private Clipboard getClipboard() {
 		if (clipboard == null) {
@@ -186,5 +185,9 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 		} catch (BadLocationException ble) {
 			logger.log(Level.SEVERE, "Problem while cutting text.", ble);
 		}		
+	}
+
+	public JPopupMenu getPopupMenu() {
+        return popupMenu;
 	}
 }

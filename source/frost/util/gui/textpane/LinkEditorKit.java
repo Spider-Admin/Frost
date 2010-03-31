@@ -18,17 +18,12 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.Cursor;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.JEditorPane;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.MouseInputListener;
-import javax.swing.text.Element;
-import javax.swing.text.Position;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.StyledEditorKit;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
 
 /**
  * Use by JOptionPane for correct display Freenet's keys link.
@@ -52,7 +47,8 @@ public class LinkEditorKit extends StyledEditorKit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void install(JEditorPane p) {
+	@Override
+    public void install(JEditorPane p) {
 		super.install(p);
 		p.addMouseListener(linkHandler);
 		p.addMouseMotionListener(linkHandler);
@@ -61,7 +57,8 @@ public class LinkEditorKit extends StyledEditorKit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deinstall(JEditorPane p) {
+	@Override
+    public void deinstall(JEditorPane p) {
 		p.removeMouseListener(linkHandler);
 		super.deinstall(p);
 	}
@@ -89,7 +86,8 @@ public class LinkEditorKit extends StyledEditorKit {
 		/**
 		 * Used for memory active element
 		 */
-		public void mousePressed(MouseEvent e) {
+		@Override
+        public void mousePressed(MouseEvent e) {
 //			if (!javax.swing.SwingUtilities.isLeftMouseButton(e))
 //				return;
 			JEditorPane p = (JEditorPane)e.getComponent();
@@ -103,7 +101,8 @@ public class LinkEditorKit extends StyledEditorKit {
 		/**
 		 * Used for send HyperLinkEvent.
 		 */
-		public void mouseReleased(MouseEvent e)	{
+		@Override
+        public void mouseReleased(MouseEvent e)	{
 //			if (!javax.swing.SwingUtilities.isLeftMouseButton(e) || activeElement == null) {
 //                return;
 //            }
@@ -130,7 +129,8 @@ public class LinkEditorKit extends StyledEditorKit {
 		/**
 		 * Used for display hand cursor
 		 */
-		public void mouseMoved(MouseEvent e) {
+		@Override
+        public void mouseMoved(MouseEvent e) {
 			JEditorPane p = (JEditorPane)e.getComponent();
 			if (p.isEditable())
 				return;

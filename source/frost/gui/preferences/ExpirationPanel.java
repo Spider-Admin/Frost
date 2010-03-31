@@ -101,7 +101,7 @@ class ExpirationPanel extends JPanel {
         constraints.weightx = 1.0;
 
         {
-            final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            final JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
             add(separator, constraints);
         }
 
@@ -153,7 +153,7 @@ class ExpirationPanel extends JPanel {
         constraints.weightx = 1.0;
 
         {
-            final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            final JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
             add(separator, constraints);
         }
 

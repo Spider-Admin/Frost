@@ -26,7 +26,6 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -48,11 +47,10 @@ class NewsPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    // 0.5 or 0.7, on 0.5 its htl, 0.7 its prio
-    private final JLabel uploadHtlOrPrioLabel = new JLabel();
-    private final JTextField uploadHtlOrPrioTextField = new JTextField(8);
-    private final JLabel downloadHtlOrPrioLabel = new JLabel();
-    private final JTextField downloadHtlOrPrioTextField = new JTextField(8);
+    private final JLabel uploadPrioLabel = new JLabel();
+    private final JTextField uploadPrioTextField = new JTextField(8);
+    private final JLabel downloadPrioLabel = new JLabel();
+    private final JTextField downloadPrioTextField = new JTextField(8);
 
 
     private final JLabel displayDaysLabel = new JLabel();
@@ -141,8 +139,8 @@ class NewsPanel extends JPanel {
         refreshLanguage();
 
         // We create the components
-        new TextComponentClipboardMenu(uploadHtlOrPrioTextField, language);
-        new TextComponentClipboardMenu(downloadHtlOrPrioTextField, language);
+        new TextComponentClipboardMenu(uploadPrioTextField, language);
+        new TextComponentClipboardMenu(downloadPrioTextField, language);
         new TextComponentClipboardMenu(displayDaysTextField, language);
         new TextComponentClipboardMenu(downloadDaysTextField, language);
         new TextComponentClipboardMenu(messageBaseTextField, language);
@@ -185,15 +183,15 @@ class NewsPanel extends JPanel {
 
         constraints.gridy++;
         constraints.gridx = 0;
-        add(uploadHtlOrPrioLabel, constraints);
+        add(uploadPrioLabel, constraints);
         constraints.gridx = 1;
-        add(uploadHtlOrPrioTextField, constraints);
+        add(uploadPrioTextField, constraints);
 
         constraints.gridy++;
         constraints.gridx = 0;
-        add(downloadHtlOrPrioLabel, constraints);
+        add(downloadPrioLabel, constraints);
         constraints.gridx = 1;
-        add(downloadHtlOrPrioTextField, constraints);
+        add(downloadPrioTextField, constraints);
         constraints.gridx = 0;
 
         constraints.gridwidth = 2;
@@ -204,10 +202,8 @@ class NewsPanel extends JPanel {
         constraints.gridy++;
         add(getUpdatePanel(), constraints);
 
-        if( FcpHandler.isFreenet07() ) {
-            constraints.gridy++;
-            add(useOneConnectionForMessagesCheckBox, constraints);
-        }
+        constraints.gridy++;
+        add(useOneConnectionForMessagesCheckBox, constraints);
 
         constraints.gridy++;
         add(storeSentMessagesCheckBox, constraints);
@@ -250,14 +246,9 @@ class NewsPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        if( FcpHandler.isFreenet07() ) {
-            uploadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD));
-            downloadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD));
-            useOneConnectionForMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_ONE_CONNECTION_FOR_MESSAGES));
-        } else {
-            uploadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.MESSAGE_UPLOAD_HTL));
-            downloadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.MESSAGE_DOWNLOAD_HTL));
-        }
+        uploadPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD));
+        downloadPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD));
+        useOneConnectionForMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_ONE_CONNECTION_FOR_MESSAGES));
 
         displayDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY));
         downloadDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD));
@@ -285,14 +276,9 @@ class NewsPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        if( FcpHandler.isFreenet07() ) {
-            uploadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageUploadPriority") + " (2)");
-            downloadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageDownloadPriority") + " (2)");
-            useOneConnectionForMessagesCheckBox.setText(language.getString("Options.news.1.useOneConnectionForMessages"));
-        } else {
-            uploadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageUploadHtl") + " (21)");
-            downloadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageDownloadHtl") + " (23)");
-        }
+        uploadPrioLabel.setText(language.getString("Options.news.1.messageUploadPriority") + " (2)");
+        downloadPrioLabel.setText(language.getString("Options.news.1.messageDownloadPriority") + " (2)");
+        useOneConnectionForMessagesCheckBox.setText(language.getString("Options.news.1.useOneConnectionForMessages"));
         displayDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDisplay") + " (15)");
         downloadDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDownloadBackwards") + " (5)");
         messageBaseLabel.setText(language.getString("Options.news.1.messageBase") + " (news)");
@@ -318,14 +304,9 @@ class NewsPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        if( FcpHandler.isFreenet07() ) {
-            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD, uploadHtlOrPrioTextField.getText());
-            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD, downloadHtlOrPrioTextField.getText());
-            settings.setValue(SettingsClass.FCP2_USE_ONE_CONNECTION_FOR_MESSAGES, useOneConnectionForMessagesCheckBox.isSelected());
-        } else {
-            settings.setValue(SettingsClass.MESSAGE_UPLOAD_HTL, uploadHtlOrPrioTextField.getText());
-            settings.setValue(SettingsClass.MESSAGE_DOWNLOAD_HTL, downloadHtlOrPrioTextField.getText());
-        }
+        settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD, uploadPrioTextField.getText());
+        settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD, downloadPrioTextField.getText());
+        settings.setValue(SettingsClass.FCP2_USE_ONE_CONNECTION_FOR_MESSAGES, useOneConnectionForMessagesCheckBox.isSelected());
 
         settings.setValue(SettingsClass.MAX_MESSAGE_DISPLAY, displayDaysTextField.getText());
         settings.setValue(SettingsClass.MAX_MESSAGE_DOWNLOAD, downloadDaysTextField.getText());

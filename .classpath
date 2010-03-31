@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="source"/>
-	<classpathentry kind="src" path="lib/genChkImpl"/>
 	<classpathentry kind="src" path="lib/datechooser"/>
-	<classpathentry kind="src" path="lib/fecImpl"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.5.0"/>
-	<classpathentry kind="lib" path="lib/fecImpl/onionUtil.jar"/>
 	<classpathentry kind="lib" path="lib/BCastle.jar"/>
-	<classpathentry kind="lib" path="lib/fec-native.jar"/>
-	<classpathentry kind="lib" path="lib/gnu-regexp-1.1.4.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time.jar"/>
 	<classpathentry kind="lib" path="lib/perst15.jar" sourcepath="C:/Projects/perst15/source"/>
-	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry kind="output" path="_out_"/>
 </classpath>

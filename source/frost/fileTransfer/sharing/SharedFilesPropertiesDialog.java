@@ -282,6 +282,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
         public RestrictSizeDocument(int maxChars) {
             this.maxChars = maxChars;
         }
+        @Override
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
             
             int availableSpace = maxChars - getLength();

@@ -20,6 +20,7 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -43,7 +44,8 @@ public class FcpSocket {
     private boolean assumeUploadDDAIsAllowed;
     private boolean assumeDownloadDDAIsAllowed;
 
-    private static long staticFcpConnectionId = 0;
+    private static long fcpidentifierPart1 = Core.getCrypto().getSecureRandom().nextLong();
+    private static long fcpidentifierPart2 = 0L;
 
     public enum DDAModes {
         WANT_DOWNLOAD,
@@ -52,8 +54,12 @@ public class FcpSocket {
     };
 
     public static synchronized String getNextFcpId() {
-        final StringBuilder sb = new StringBuilder().append("fcps-").append(System.currentTimeMillis()).append(staticFcpConnectionId++);
-        return sb.toString();
+        return new StringBuilder()
+            .append("FcpSocket-")
+            .append(fcpidentifierPart1)
+            .append("-")
+            .append(fcpidentifierPart2++)
+            .toString();
     }
 
     /**
@@ -235,5 +241,33 @@ public class FcpSocket {
 
     protected boolean isAssumeDownloadDDAIsAllowed() {
         return assumeDownloadDDAIsAllowed;
+    }
+
+    public List<String> getNodeInfo() throws IOException {
+
+        fcpOut.println("ClientHello");
+        fcpOut.println("Name=hello-"+FcpSocket.getNextFcpId());
+        fcpOut.println("ExpectedVersion=2.0");
+        fcpOut.println("EndMessage");
+        fcpOut.flush();
+
+        final List<String> result = new ArrayList<String>();
+        final BufferedReader in = new BufferedReader(new InputStreamReader(getFcpSock().getInputStream()));
+        while(true) {
+            final String tmp = in.readLine();
+            if (tmp == null || tmp.trim().equals("EndMessage")) {
+                break;
+            }
+            result.add(tmp);
+        }
+        in.close();
+        close();
+
+        if( result.isEmpty() ) {
+            logger.warning("No ClientInfo response!");
+            return null;
+        }
+
+        return result;
     }
 }

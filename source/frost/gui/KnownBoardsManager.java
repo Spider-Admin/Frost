@@ -20,7 +20,7 @@ package frost.gui;
 
 import java.util.*;
 
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.perst.*;
 
 /**

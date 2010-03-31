@@ -19,7 +19,7 @@
 package frost.storage.perst.messages;
 
 import frost.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 

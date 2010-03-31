@@ -19,34 +19,33 @@
 package frost.gui.preferences;
 
 import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 class UploadPanel extends JPanel {
 
+    public class Listener implements ActionListener {
+        public void actionPerformed(final ActionEvent e) {
+            if (e.getSource() == browseExecButton) {
+                browseExecPressed();
+            }
+        }
+    }
+
+    private JDialog owner = null;
     private SettingsClass settings = null;
     private Language language = null;
 
-    // 0.5 only
-    private final JLabel htlExplanationLabel = new JLabel();
-    private final JLabel htlLabel = new JLabel();
-    private final JTextField htlTextField = new JTextField(6);
-
-    private final JLabel splitfileThreadsExplanationLabel = new JLabel();
-    private final JLabel splitfileThreadsLabel = new JLabel();
-    private final JTextField splitfileThreadsTextField = new JTextField(6);
-
-    // 0.7 only
     private final JLabel priorityLabel = new JLabel();
     private final JTextField priorityTextField = new JTextField(6);
     private final JCheckBox enforceFrostPriorityFileUpload = new JCheckBox();
 
-    // common
     private final JLabel maxRetriesLabel = new JLabel();
     private final JTextField maxRetriesTextField = new JTextField(6);
     private final JLabel waitTimeLabel = new JLabel();
@@ -57,17 +56,41 @@ class UploadPanel extends JPanel {
 
     private final JCheckBox logUploadsCheckBox = new JCheckBox();
 
+    private final JCheckBox removeNotExistingfiles = new JCheckBox();
+
+    private final Listener listener = new Listener();
+
+    private final JButton browseExecButton = new JButton();
+    private final JLabel execLabel = new JLabel();
+    private final JTextField execTextField = new JTextField(20);
+
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
     protected UploadPanel(final SettingsClass settings) {
         super();
 
+        this.owner = owner;
         this.language = Language.getInstance();
         this.settings = settings;
 
         initialize();
         loadSettings();
+    }
+
+    private void browseExecPressed() {
+        final JFileChooser fc = new JFileChooser(settings.getValue(SettingsClass.DIR_LAST_USED));
+        fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fc.setMultiSelectionEnabled(false);
+
+        final int returnVal = fc.showOpenDialog(owner);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            final File file = fc.getSelectedFile();
+            settings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
+            execTextField.setText(file.getPath());
+        }
     }
 
     private void initialize() {
@@ -76,11 +99,10 @@ class UploadPanel extends JPanel {
         refreshLanguage();
 
         // We create the components
-        new TextComponentClipboardMenu(htlTextField, language);
-        new TextComponentClipboardMenu(splitfileThreadsTextField, language);
         new TextComponentClipboardMenu(threadsTextField, language);
         new TextComponentClipboardMenu(maxRetriesTextField, language);
         new TextComponentClipboardMenu(waitTimeTextField, language);
+        new TextComponentClipboardMenu(execTextField, language);
 
         // Adds all of the components
         final GridBagConstraints constraints = new GridBagConstraints();
@@ -109,43 +131,39 @@ class UploadPanel extends JPanel {
         constraints.gridx = 1;
         add(threadsTextField, constraints);
 
-        if( FcpHandler.isFreenet07() ) {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(priorityLabel, constraints);
-            constraints.gridx = 1;
-            add(priorityTextField, constraints);
-        } else {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(htlLabel, constraints);
-            constraints.gridx = 1;
-            add(htlTextField, constraints);
-            constraints.gridx = 2;
-            add(htlExplanationLabel, constraints);
-
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(splitfileThreadsLabel, constraints);
-            constraints.gridx = 1;
-            add(splitfileThreadsTextField, constraints);
-            constraints.gridx = 2;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.weightx = 1.0;
-            add(splitfileThreadsExplanationLabel, constraints);
-        }
+        constraints.gridy++;
+        constraints.gridx = 0;
+        add(priorityLabel, constraints);
+        constraints.gridx = 1;
+        add(priorityTextField, constraints);
 
         constraints.gridy++;
         constraints.gridx = 0;
         constraints.gridwidth = 3;
         add(logUploadsCheckBox, constraints);
 
-        if( FcpHandler.isFreenet07() ) {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            constraints.gridwidth = 3;
-            add(enforceFrostPriorityFileUpload, constraints);
-        }
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 3;
+        add(enforceFrostPriorityFileUpload, constraints);
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 3;
+        add(removeNotExistingfiles, constraints);
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 1;
+        add(execLabel, constraints);
+        constraints.gridx = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        add(execTextField, constraints);
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 2;
+        constraints.weightx = 0.0;
+        add(browseExecButton, constraints);
 
         // glue
         constraints.gridy++;
@@ -153,23 +171,22 @@ class UploadPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
+
+        browseExecButton.addActionListener(listener);
     }
 
     /**
      * Load the settings of this panel
      */
     private void loadSettings() {
-        if( FcpHandler.isFreenet07() ) {
-            priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
-            enforceFrostPriorityFileUpload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD));
-        } else {
-            htlTextField.setText(settings.getValue(SettingsClass.UPLOAD_FILE_HTL));
-            splitfileThreadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS));
-        }
+        priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
+        enforceFrostPriorityFileUpload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD));
         threadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_THREADS));
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_WAITTIME));
         logUploadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED));
+        removeNotExistingfiles.setSelected(settings.getBoolValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES));
+        execTextField.setText(settings.getValue(SettingsClass.EXEC_ON_UPLOAD));
     }
 
     public void ok() {
@@ -183,31 +200,24 @@ class UploadPanel extends JPanel {
         maxRetriesLabel.setText(language.getString("Options.uploads.maximumNumberOfRetries"));
         threadsLabel.setText(language.getString("Options.uploads.numberOfSimultaneousUploads") + " (3)");
         logUploadsCheckBox.setText(language.getString("Options.uploads.logUploads"));
-        if( FcpHandler.isFreenet07() ) {
-            priorityLabel.setText(language.getString("Options.uploads.uploadPriority") + " (3)");
-            enforceFrostPriorityFileUpload.setText(language.getString("Options.uploads.enforceFrostPriorityFileUpload"));
-        } else {
-            htlLabel.setText(language.getString("Options.uploads.uploadHtl") + " (21)");
-            htlExplanationLabel.setText(language.getString("Options.uploads.uploadHtlExplanation"));
-            splitfileThreadsLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreads") + " (15)");
-            splitfileThreadsExplanationLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreadsExplanation"));
-        }
+        priorityLabel.setText(language.getString("Options.uploads.uploadPriority") + " (3)");
+        enforceFrostPriorityFileUpload.setText(language.getString("Options.uploads.enforceFrostPriorityFileUpload"));
+        removeNotExistingfiles.setText(language.getString("Options.uploads.removeNotExistingFiles"));
+        execLabel.setText(language.getString("Options.uploads.uploadExec"));
+        browseExecButton.setText(language.getString("Common.browse") + "...");
     }
 
     /**
      * Save the settings of this panel
      */
     private void saveSettings() {
-        if( FcpHandler.isFreenet07() ) {
-            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD, priorityTextField.getText());
-            settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD, enforceFrostPriorityFileUpload.isSelected());
-        } else {
-            settings.setValue(SettingsClass.UPLOAD_FILE_HTL, htlTextField.getText());
-            settings.setValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
-        }
+        settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD, priorityTextField.getText());
+        settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD, enforceFrostPriorityFileUpload.isSelected());
         settings.setValue(SettingsClass.UPLOAD_MAX_THREADS, threadsTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_MAX_RETRIES, maxRetriesTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_WAITTIME, waitTimeTextField.getText());
         settings.setValue(SettingsClass.LOG_UPLOADS_ENABLED, logUploadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES, removeNotExistingfiles.isSelected());
+        settings.setValue(SettingsClass.EXEC_ON_UPLOAD, execTextField.getText());
     }
 }

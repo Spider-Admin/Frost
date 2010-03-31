@@ -29,7 +29,6 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
@@ -117,6 +116,8 @@ public class UploadPanel extends JPanel {
 
             removeFinishedUploadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED));
             showExternalGlobalQueueItems.setSelected(Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD));
+
+            assignHotkeys();
 
             initialized = true;
         }
@@ -277,17 +278,34 @@ public class UploadPanel extends JPanel {
         uploadItemCountLabel.setText(s);
     }
 
+    private void assignHotkeys() {
+
+        // assign keys 1-6 - set priority of selected items
+            final Action setPriorityAction = new AbstractAction() {
+                public void actionPerformed(final ActionEvent event) {
+                    final int prio = new Integer(event.getActionCommand()).intValue();
+                    final ModelItem[] selectedItems = modelTable.getSelectedItems();
+                    FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
+                }
+            };
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "SETPRIO");
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "SETPRIO");
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "SETPRIO");
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0), "SETPRIO");
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0), "SETPRIO");
+            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0), "SETPRIO");
+            getActionMap().put("SETPRIO", setPriorityAction);
+        }
+
     private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyKeysItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
         private final JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
         private final JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private final JMenuItem removeSelectedFilesItem = new JMenuItem();
         private final JMenuItem showSharedFileItem = new JMenuItem();
         private final JMenuItem startSelectedUploadsNow = new JMenuItem();
-        private final JMenu copyToClipboardMenu = new JMenu();
 
         private final JMenuItem disableAllDownloadsItem = new JMenuItem();
         private final JMenuItem disableSelectedDownloadsItem = new JMenuItem();
@@ -345,14 +363,7 @@ public class UploadPanel extends JPanel {
 
             refreshLanguage();
 
-            copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-            }
-            copyToClipboardMenu.add(copyExtendedInfoItem);
-
             copyKeysAndNamesItem.addActionListener(this);
-            copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
             removeSelectedFilesItem.addActionListener(this);
             uploadSelectedFilesItem.addActionListener(this);
@@ -369,7 +380,6 @@ public class UploadPanel extends JPanel {
         }
 
         private void refreshLanguage() {
-            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             generateChkForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
@@ -377,8 +387,6 @@ public class UploadPanel extends JPanel {
             startSelectedUploadsNow.setText(language.getString("UploadPane.fileTable.popupmenu.startSelectedUploadsNow"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
-
-            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
 
             enableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableAllUploads"));
             disableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableAllUploads"));
@@ -401,9 +409,7 @@ public class UploadPanel extends JPanel {
         }
 
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysItem) {
-                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
-            } else if (e.getSource() == copyKeysAndNamesItem) {
+            if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             } else if (e.getSource() == copyExtendedInfoItem) {
                 CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
@@ -559,7 +565,8 @@ public class UploadPanel extends JPanel {
             }
 
             // if at least 1 item is selected
-            add(copyToClipboardMenu);
+            add(copyKeysAndNamesItem);
+            add(copyExtendedInfoItem);
             addSeparator();
 
             if( FileTransferManager.inst().getPersistenceManager() != null ) {
