@@ -1,0 +1,5 @@
+
+- Download svnkit.jar from http://www.svnkit.com/download.php
+- Download svnant from http://subclipse.tigris.org/svnant.html
+
+- update jars in antsvn dir
