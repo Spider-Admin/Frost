@@ -105,7 +105,6 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setMessageId(mof.getMessageId());
         setPublicKey(mof.getPublicKey());
         setRecipientName(mof.getRecipientName());
-        setSignatureV1(mof.getSignatureV1());
         setSignatureV2(mof.getSignatureV2());
         setSignatureStatus(mof.getSignatureStatus());
         setSubject(mof.getSubject());
@@ -159,7 +158,6 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setMessageId(mof.getMessageId());
         setPublicKey(mof.getPublicKey());
         setRecipientName(mof.getRecipientName());
-        setSignatureV1(mof.getSignatureV1());
         setSignatureV2(mof.getSignatureV2());
         setSignatureStatus(mof.getSignatureStatus());
         setSubject(mof.getSubject());
@@ -513,7 +511,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Overwritten add to add new nodes sorted to a parent node
      */
-    public void add(final MutableTreeNode nn, boolean silent) {
+    public void add(final MutableTreeNode nn, final boolean silent) {
         // add sorted
         final FrostMessageObject n = (FrostMessageObject)nn;
         int[] ixs;

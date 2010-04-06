@@ -72,11 +72,6 @@ public class SettingsClass implements ExitSavable {
 
     public static final String CONFIRM_MARK_ALL_MSGS_READ = "confirm.markAllMessagesRead";
 
-    // only v1: use v1 if old signs are allowed
-    // v1+v2  : use v2, ignore v1
-    // only v2: use v2
-    public static final String ACCEPT_SIGNATURE_FORMAT_V1 = "acceptSignatureFormatV1";
-
     public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
     public static final String STORAGE_STORE_INVALID_MESSAGES = "storage.storeInvalidMessages";
@@ -884,8 +879,6 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(STORAGE_STORE_INVALID_MESSAGES, "false");
         defaults.put(STORAGE_STORE_SENT_MESSAGES, "true");
-
-        defaults.put(ACCEPT_SIGNATURE_FORMAT_V1, "true");
 
         defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
 

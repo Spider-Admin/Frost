@@ -75,8 +75,6 @@ class NewsPanel extends JPanel {
 
     private final JCheckBox storeSentMessagesCheckBox = new JCheckBox();
     private final JCheckBox silentlyRetryCheckBox = new JCheckBox();
-    private final JCheckBox acceptSignatureFormatV1CheckBox = new JCheckBox();
-
 
     private final JCheckBox altEditCheckBox = new JCheckBox();
     private final JTextField altEditTextField = new JTextField();
@@ -211,9 +209,6 @@ class NewsPanel extends JPanel {
         constraints.gridy++;
         add(silentlyRetryCheckBox, constraints);
 
-        constraints.gridy++;
-        add(acceptSignatureFormatV1CheckBox, constraints);
-
         constraints.gridwidth = 1;
 
         constraints.insets = new Insets(0, 5, 0, 5);
@@ -264,7 +259,6 @@ class NewsPanel extends JPanel {
 
         storeSentMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.STORAGE_STORE_SENT_MESSAGES));
         silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
-        acceptSignatureFormatV1CheckBox.setSelected(settings.getBoolValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1));
 
         altEditCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALTERNATE_EDITOR_ENABLED));
         altEditTextField.setEnabled(altEditCheckBox.isSelected());
@@ -294,7 +288,6 @@ class NewsPanel extends JPanel {
 
         storeSentMessagesCheckBox.setText(language.getString("Options.news.1.storeSentMessages"));
         silentlyRetryCheckBox.setText(language.getString("Options.news.3.silentlyRetryFailedMessages"));
-        acceptSignatureFormatV1CheckBox.setText(language.getString("Options.news.3.acceptSignatureFormatV1"));
 
         final String off = language.getString("Options.common.off");
         altEditCheckBox.setText(language.getString("Options.miscellaneous.useEditorForWritingMessages") + " (" + off + ")");
@@ -322,7 +315,6 @@ class NewsPanel extends JPanel {
 
         settings.setValue(SettingsClass.STORAGE_STORE_SENT_MESSAGES, storeSentMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
-        settings.setValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1, acceptSignatureFormatV1CheckBox.isSelected());
 
         settings.setValue(SettingsClass.ALTERNATE_EDITOR_ENABLED, altEditCheckBox.isSelected());
         settings.setValue(SettingsClass.ALTERNATE_EDITOR_COMMAND, altEditTextField.getText());

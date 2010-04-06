@@ -191,7 +191,7 @@ public class MessageUploader {
                     }
 
                     if( tmpFile.length() > 0 ) {
-                        insertions++; 
+                        insertions++;
                         if (insertions >= 2) {
                         logger.warning("TOFUP: Uploaded message was successfully retrieved."+logInfo);
                         success = true;
@@ -308,7 +308,6 @@ public class MessageUploader {
             // for sure, set fromname
             wa.message.setFromName(wa.senderId.getUniqueName());
             // sign msg
-            wa.message.signMessageV1(wa.senderId.getPrivateKey());
             wa.message.signMessageV2(wa.senderId.getPrivateKey());
         }
 
