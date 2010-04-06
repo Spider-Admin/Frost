@@ -62,6 +62,8 @@ class DownloadPanel extends JPanel {
     private final JCheckBox logDownloadsCheckBox = new JCheckBox();
     private final JCheckBox trackDownloadsCheckBox = new JCheckBox();
 
+    private final JCheckBox useBoardnameDownloadSubfolderCheckBox = new JCheckBox();
+
     private final JLabel waitTimeLabel = new JLabel();
     private final JTextField waitTimeTextField = new JTextField(6);
 
@@ -192,6 +194,13 @@ class DownloadPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridwidth = 3;
         constraints.insets = insets0555;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        add(useBoardnameDownloadSubfolderCheckBox, constraints);
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 3;
+        constraints.insets = insets0555;
         add(enforceFrostPriorityFileDownload, constraints);
 
         constraints.gridy++;
@@ -229,6 +238,7 @@ class DownloadPanel extends JPanel {
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME));
         logDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED));
         trackDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.TRACK_DOWNLOADS_ENABLED));
+        useBoardnameDownloadSubfolderCheckBox.setSelected(settings.getBoolValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED));
         priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
         enforceFrostPriorityFileDownload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD));
         execTextField.setText(settings.getValue(SettingsClass.EXEC_ON_DOWNLOAD));
@@ -246,6 +256,8 @@ class DownloadPanel extends JPanel {
 
         logDownloadsCheckBox.setText(language.getString("Options.downloads.logDownloads"));
         trackDownloadsCheckBox.setText(language.getString("Options.downloads.trackDownloads"));
+        
+        useBoardnameDownloadSubfolderCheckBox.setText(language.getString("Options.downloads.useBoardnameDownloadSubfolder"));
 
         directoryLabel.setText(language.getString("Options.downloads.downloadDirectory"));
         browseDirectoryButton.setText(language.getString("Common.browse") + "...");
@@ -277,6 +289,7 @@ class DownloadPanel extends JPanel {
 
         settings.setValue(SettingsClass.LOG_DOWNLOADS_ENABLED, logDownloadsCheckBox.isSelected());
         settings.setValue(SettingsClass.TRACK_DOWNLOADS_ENABLED, trackDownloadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED, useBoardnameDownloadSubfolderCheckBox.isSelected());
         settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, priorityTextField.getText());
         settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD, enforceFrostPriorityFileDownload.isSelected());
 

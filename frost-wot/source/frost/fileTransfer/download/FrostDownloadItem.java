@@ -341,8 +341,13 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return downloadDir;
     }
 
-    public void setDownloadDir(final String dir) {
-    	downloadDir = FileAccess.appendSeparator(dir);
+    public boolean setDownloadDir(final String dir) {
+    	String dirName = FileAccess.appendSeparator(dir);
+    	if( FileAccess.createDir(new java.io.File(dirName)) ) {
+    		downloadDir = dirName;
+    		return true;
+    	}
+    	return false;
     }
 
     public void setFilenamePrefix(final String newPrefix) {

@@ -281,6 +281,8 @@ public class SettingsClass implements ExitSavable {
 
     public static final String TRACK_DOWNLOADS_ENABLED = "trackDownloads";
 
+    public static final String USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED = "useBoardnameDownloadSubfolder";
+
     public SettingsClass() {
         settingsHash = new Hashtable<String,Object>();
         // the FIX config.dir
@@ -1048,6 +1050,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(LOG_DOWNLOADS_ENABLED, "false");
         defaults.put(LOG_UPLOADS_ENABLED, "false");
         defaults.put(TRACK_DOWNLOADS_ENABLED, "false");
+        defaults.put(USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED, "false");
 
 
         defaults.put(CONFIRM_MARK_ALL_MSGS_READ, "true");

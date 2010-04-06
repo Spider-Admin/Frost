@@ -15,51 +15,51 @@
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+ */
 package frost.storage.perst;
 
 import org.garret.perst.*;
 
 /**
- * Represents the item for the TrackDownloadKeys.
+ * Represents the item for the TrackDownloadKey.
  */
 public class TrackDownloadKeys extends Persistent {
 
 	private String chkKey;
 	private String fileName;
 	private String boardName;
-    private long fileSize; 
+	private long fileSize; 
 	private long downloadFinishedTime; // when was this download finished
 
-    // used by perst
-    public TrackDownloadKeys() {}
-    
-    public TrackDownloadKeys(final String chkKey, final String fileName, 
-    		final String boardName, long fileSize, long downloadFinishedTime) {
-        this.chkKey = chkKey;
-        this.fileName = fileName;
-        this.boardName = boardName;
-        this.fileSize = fileSize;
-        this.downloadFinishedTime = downloadFinishedTime;
-    }
-    
-    public TrackDownloadKeys(final TrackDownloadKeys trackDownloadKey) {
-        this.chkKey = trackDownloadKey.chkKey;
-        this.fileName = trackDownloadKey.fileName;
-        this.boardName = trackDownloadKey.boardName;
-        this.fileSize = trackDownloadKey.fileSize;
-        this.downloadFinishedTime = trackDownloadKey.downloadFinishedTime;
-    }
+	// used by perst
+	public TrackDownloadKeys() {}
 
-    public String getChkKey() {
-        return chkKey;
-    }
-    
-    public String getFileName() {
-        return fileName;
-    }
-    
-    public String getBoardName() {
+	public TrackDownloadKeys(final String chkKey, final String fileName, 
+		final String boardName, long fileSize, long downloadFinishedTime) {
+		this.chkKey = chkKey;
+		this.fileName = fileName;
+		this.boardName = boardName;
+		this.fileSize = fileSize;
+		this.downloadFinishedTime = downloadFinishedTime;
+	}
+
+	public TrackDownloadKeys(final TrackDownloadKeys trackDownloadKey) {
+		this.chkKey = trackDownloadKey.chkKey;
+		this.fileName = trackDownloadKey.fileName;
+		this.boardName = trackDownloadKey.boardName;
+		this.fileSize = trackDownloadKey.fileSize;
+		this.downloadFinishedTime = trackDownloadKey.downloadFinishedTime;
+	}
+
+	public String getChkKey() {
+		return chkKey;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public String getBoardName() {
 		return boardName;
 	}
 
@@ -72,6 +72,6 @@ public class TrackDownloadKeys extends Persistent {
 	}
 
 	public long getDownloadFinishedTime() {
-        return downloadFinishedTime;
-    }
+		return downloadFinishedTime;
+	}
 }

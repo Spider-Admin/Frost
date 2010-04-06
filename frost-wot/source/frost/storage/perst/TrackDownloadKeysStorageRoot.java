@@ -21,8 +21,8 @@ package frost.storage.perst;
 import org.garret.perst.*;
 
 public class TrackDownloadKeysStorageRoot extends Persistent {
-    
-    public TrackDownloadKeysStorageRoot() {}
-    
-    Index<TrackDownloadKeys> downloadKeyList;
+	
+	public TrackDownloadKeysStorageRoot() {}
+	
+	public Index<TrackDownloadKeys> downloadKeyList;
 }

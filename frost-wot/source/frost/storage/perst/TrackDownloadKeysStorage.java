@@ -15,111 +15,122 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+ */
 package frost.storage.perst;
 
 import java.util.*;
+
+import org.garret.perst.Index;
 
 import frost.*;
 import frost.storage.*;
 
 public class TrackDownloadKeysStorage extends AbstractFrostStorage implements ExitSavable {
 
-    private TrackDownloadKeysStorageRoot storageRoot = null;
+	private TrackDownloadKeysStorageRoot storageRoot = null;
 
-    private static final String STORAGE_FILENAME = "TrackDownloadKeys.dbs";
+	private static final String STORAGE_FILENAME = "TrackDownloadKeys.dbs";
 
-    private static TrackDownloadKeysStorage instance = new TrackDownloadKeysStorage();
+	private static TrackDownloadKeysStorage instance = new TrackDownloadKeysStorage();
 
-    protected TrackDownloadKeysStorage() {
-        super();
-    }
+	protected TrackDownloadKeysStorage() {
+		super();
+	}
 
-    public static TrackDownloadKeysStorage inst() {
-        return instance;
-    }
+	public static TrackDownloadKeysStorage inst() {
+		return instance;
+	}
 
-    private boolean addToIndices(final TrackDownloadKeys trackDownloadKeys) {
-    	System.out.print("DEBUG: TrackDownloadKeysStorage.addToIndices: ");
-    	System.out.println(trackDownloadKeys.getChkKey());
-        return storageRoot.downloadKeyList.put(trackDownloadKeys.getChkKey(), trackDownloadKeys);
-    }
+	private boolean addToIndices(final TrackDownloadKeys trackDownloadKeys) {
+		return storageRoot.downloadKeyList.put(trackDownloadKeys.getChkKey(), trackDownloadKeys);
+	}
 
-    public void storeItem(final TrackDownloadKeys trackDownloadKeys) {
-        if( getStorage() == null ) {
-            return;
-        }
-        if( trackDownloadKeys.getStorage() == null ) {
-        	trackDownloadKeys.makePersistent(getStorage());
-            addToIndices(trackDownloadKeys);
-        } else {
-        	trackDownloadKeys.modify();
-        }
-    }
-    
-    public boolean searchItem(final String chkKey) {
-    	System.out.print("DEBUG: TrackDownloadKeysStorage.searchItem: ");
-    	System.out.println(chkKey);
-    	return (storageRoot.downloadKeyList.get(chkKey) != null);
-    }
+	public void storeItem(final TrackDownloadKeys trackDownloadKeys) {
+		if( getStorage() == null ) {
+			return;
+		}
+		if( trackDownloadKeys.getStorage() == null ) {
+			trackDownloadKeys.makePersistent(getStorage());
+			addToIndices(trackDownloadKeys);
+		} else {
+			trackDownloadKeys.modify();
+		}
+	}
 
-    public void exitSave() throws StorageException {
-        close();
-        storageRoot = null;
-        System.out.println("INFO: TrackDownloadKeyStorage closed.");
-    }
+	public boolean searchItemKey(final String chkKey) {
+		return storageRoot.downloadKeyList.get(chkKey) != null;
+	}
 
-    @Override
-    public String getStorageFilename() {
-        return STORAGE_FILENAME;
-    }
+	public TrackDownloadKeys getItemByKey(final String chkKey) {
+		return storageRoot.downloadKeyList.get(chkKey);
+	}
+	
+	public TrackDownloadKeys removeItemByKey(final String chkKey) {
+		return storageRoot.downloadKeyList.remove(chkKey);
+	}
 
-    @Override
-    public boolean initStorage() {
-        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-        final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS);
+	public void exitSave() throws StorageException {
+		close();
+		storageRoot = null;
+		System.out.println("INFO: TrackDownloadKeyStorage closed.");
+	}
+	
+	public final Index<TrackDownloadKeys> getDownloadKeyList() {
+		return storageRoot.downloadKeyList;
+	}
 
-        open(databaseFilePath, pagePoolSize, true, true, false);
+	@Override
+	public String getStorageFilename() {
+		return STORAGE_FILENAME;
+	}
 
-        storageRoot = (TrackDownloadKeysStorageRoot)getStorage().getRoot();
-        if (storageRoot == null) {
-            // Storage was not initialized yet
-            storageRoot = new TrackDownloadKeysStorageRoot();
-            // unique index of chkKeys
-            storageRoot.downloadKeyList = getStorage().createIndex(String.class, true);
-            getStorage().setRoot(storageRoot);
-            commit(); // commit transaction
-        }
-        System.out.println("INFO: TrackDownloadKeyStorage initialized.");
-        return true;
-    }
-    
-    /**
-     * Delete all entries that were downloaded maxDaysOld dayes ago.
-     * @return  count of deleted rows
-     */
-    public int cleanupTable(final int maxDaysOld) {
+	@Override
+	public boolean initStorage() {
+		final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
+		final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS);
 
-        final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
+		open(databaseFilePath, pagePoolSize, true, true, false);
 
-        // delete all items with lastSeen < minVal, but lastSeen > 0
-        int deletedCount = 0;
+		storageRoot = (TrackDownloadKeysStorageRoot)getStorage().getRoot();
+		if (storageRoot == null || storageRoot.downloadKeyList == null) {
+			// Storage was not initialized yet
+			storageRoot = new TrackDownloadKeysStorageRoot();
+			// unique index of chkKeys
+			storageRoot.downloadKeyList = getStorage().createIndex(String.class, true);
+			
+			getStorage().setRoot(storageRoot);
+			commit(); // commit transaction
+		}
+		System.out.println("INFO: TrackDownloadKeyStorage initialized.");
+		return true;
+	}
 
-        beginExclusiveThreadTransaction();
-        try {
-            final Iterator<TrackDownloadKeys> i = storageRoot.downloadKeyList.iterator();
-            while(i.hasNext()) {
-                final TrackDownloadKeys sfk = i.next();
-                if( sfk.getDownloadFinishedTime() > 0 && sfk.getDownloadFinishedTime() < minVal ) {
-                    i.remove(); // remove from iterated index
-                    sfk.deallocate(); // remove from Storage
-                    deletedCount++;
-                }
-            }
-        } finally {
-            endThreadTransaction();
-        }
+	/**
+	 * Delete all entries that were downloaded maxDaysOld dayes ago.
+	 * @return  count of deleted rows
+	 */
+	public int cleanupTable(final int maxDaysOld) {
 
-        return deletedCount;
-    }
+		final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
+
+		// delete all items with lastSeen < minVal, but lastSeen > 0
+		int deletedCount = 0;
+
+		beginExclusiveThreadTransaction();
+		try {
+			final Iterator<TrackDownloadKeys> trackDownloadKeyIterator = storageRoot.downloadKeyList.iterator();
+			while(trackDownloadKeyIterator.hasNext()) {
+				final TrackDownloadKeys trackDownloadKeys = trackDownloadKeyIterator.next();
+				if( trackDownloadKeys.getDownloadFinishedTime() > 0 && trackDownloadKeys.getDownloadFinishedTime() < minVal ) {
+					trackDownloadKeyIterator.remove(); // remove from iterated index
+					trackDownloadKeys.deallocate(); // remove from Storage
+					deletedCount++;
+				}
+			}
+		} finally {
+			endThreadTransaction();
+		}
+
+		return deletedCount;
+	}
 }
