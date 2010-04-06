@@ -30,7 +30,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     protected String content = null;
     private String subject = "";
     private String recipientName = ""; // set if msg was encrypted
-    private String signatureV1 = ""; // set if message is signed with V1 format
     private String signatureV2 = ""; // set if message is signed with V2 format
     private String messageId = null;
     private String inReplyTo = null;
@@ -42,9 +41,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     }
     public String getRecipientName() {
         return recipientName;
-    }
-    public String getSignatureV1() {
-        return signatureV1;
     }
     public String getSignatureV2() {
         return signatureV2;
@@ -59,25 +55,22 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
         return inReplyTo;
     }
 
-    public void setContent(String content) {
+    public void setContent(final String content) {
         this.content = content;
     }
-    public void setSubject(String subject) {
+    public void setSubject(final String subject) {
         this.subject = subject;
     }
-    public void setRecipientName(String rec) {
+    public void setRecipientName(final String rec) {
         recipientName = rec;
     }
-    public void setSignatureV1(String sig) {
-        signatureV1 = sig;
-    }
-    public void setSignatureV2(String sig) {
+    public void setSignatureV2(final String sig) {
         signatureV2 = sig;
     }
-    public void setInReplyTo(String s) {
+    public void setInReplyTo(final String s) {
         this.inReplyTo = s;
     }
-    public void setMessageId(String s) {
+    public void setMessageId(final String s) {
         this.messageId = s;
     }
 
@@ -85,7 +78,7 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
      * This method adds a new Attachment to the attachments list.
      * @param attachment the new Attachment to add to the attachments list.
      */
-    public void addAttachment(Attachment attachment) {
+    public void addAttachment(final Attachment attachment) {
         getAttachmentList().add(attachment);
     }
 
@@ -100,7 +93,7 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
         return attachments;
     }
 
-    public void setAttachmentList(AttachmentList al) {
+    public void setAttachmentList(final AttachmentList al) {
         this.attachments = al;
     }
 
@@ -113,7 +106,7 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
      * @param type the type of attachments to return in the AttachmentList
      * @return an AttachmentList containing all of the attachments of the given type.
      */
-    public AttachmentList getAttachmentsOfType(int type) {
+    public AttachmentList getAttachmentsOfType(final int type) {
         if (attachments == null) {
             attachments = new AttachmentList();
         }
@@ -127,18 +120,18 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
         }
         return false;
     }
-    
+
     public int getIdLineLen() {
         return idLineLen;
     }
-    public void setIdLineLen(int idLineLen) {
+    public void setIdLineLen(final int idLineLen) {
         this.idLineLen = idLineLen;
     }
 
     public int getIdLinePos() {
         return idLinePos;
     }
-    public void setIdLinePos(int idLinePos) {
+    public void setIdLinePos(final int idLinePos) {
         this.idLinePos = idLinePos;
     }
 }

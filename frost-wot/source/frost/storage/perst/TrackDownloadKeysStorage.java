@@ -20,7 +20,7 @@ package frost.storage.perst;
 
 import java.util.*;
 
-import org.garret.perst.Index;
+import org.garret.perst.*;
 
 import frost.*;
 import frost.storage.*;
@@ -64,7 +64,7 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 	public TrackDownloadKeys getItemByKey(final String chkKey) {
 		return storageRoot.downloadKeyList.get(chkKey);
 	}
-	
+
 	public TrackDownloadKeys removeItemByKey(final String chkKey) {
 		return storageRoot.downloadKeyList.remove(chkKey);
 	}
@@ -74,7 +74,7 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 		storageRoot = null;
 		System.out.println("INFO: TrackDownloadKeyStorage closed.");
 	}
-	
+
 	public final Index<TrackDownloadKeys> getDownloadKeyList() {
 		return storageRoot.downloadKeyList;
 	}
@@ -97,11 +97,11 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 			storageRoot = new TrackDownloadKeysStorageRoot();
 			// unique index of chkKeys
 			storageRoot.downloadKeyList = getStorage().createIndex(String.class, true);
-			
+
 			getStorage().setRoot(storageRoot);
 			commit(); // commit transaction
 		}
-		System.out.println("INFO: TrackDownloadKeyStorage initialized.");
+//		System.out.println("INFO: TrackDownloadKeyStorage initialized.");
 		return true;
 	}
 

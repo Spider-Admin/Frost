@@ -97,11 +97,7 @@ public class PerstFrostMessageObject extends Persistent {
             fromName = mo.getFromName();
             subject = mo.getSubject();
             recipientName = (mo.getRecipientName()!=null&&mo.getRecipientName().length()==0)?null:mo.getRecipientName();
-            if( mo.getSignatureV2() == null || mo.getSignatureV2().length() == 0 ) {
-                if( mo.getSignatureV1() != null && mo.getSignatureV1().length() > 0 ) {
-                    MessageContentStorage.inst().addSignatureForOid(getOid(), mo.getSignatureV1());
-                }
-            } else if( mo.getSignatureV2().length() > 0 ) {
+            if( mo.getSignatureV2() != null && mo.getSignatureV2().length() > 0 ) {
                 MessageContentStorage.inst().addSignatureForOid(getOid(), mo.getSignatureV2());
             }
             signatureStatus = mo.getSignatureStatus();
