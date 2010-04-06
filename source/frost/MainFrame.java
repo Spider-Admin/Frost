@@ -104,6 +104,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final JMenuItem optionsPreferencesMenuItem = new JMenuItem();
     private final JMenuItem optionsManageLocalIdentitiesMenuItem = new JMenuItem();
     private final JMenuItem optionsManageIdentitiesMenuItem = new JMenuItem();
+    private final JMenuItem optionsManageTrackedDownloadsMenuItem = new JMenuItem();
 
     //Plugin Menu
     private final JMenu pluginMenu = new JMenu();
@@ -265,6 +266,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             fileStatisticsMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/x-office-spreadsheet.png", 16, 16));
             lookAndFeelMenu.setIcon(MiscToolkit.getScaledImage("/data/toolbar/preferences-desktop-theme.png", 16, 16));
             optionsManageIdentitiesMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/group.png", 16, 16));
+            //optionsManageTrackedDownloadsMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/filelist.png", 16, 16));
             optionsManageLocalIdentitiesMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/user.png", 16, 16));
             optionsPreferencesMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/preferences-system.png", 16, 16));
             helpAboutMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/award_star_silver_3.png", 16, 16));
@@ -295,6 +297,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 public void actionPerformed(final ActionEvent e) {
                     optionsManageIdentitiesMenuItem_actionPerformed(e);
                 }
+            });
+            optionsManageTrackedDownloadsMenuItem.addActionListener(new ActionListener() {
+            	public void actionPerformed(final ActionEvent e) {
+            		optionsManageTrackedDownloadsMenuItem_actionPerformed(e);
+            	}
             });
             pluginTranslateMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
@@ -338,6 +345,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             // Options Menu
             optionsMenu.add(optionsManageLocalIdentitiesMenuItem);
             optionsMenu.add(optionsManageIdentitiesMenuItem);
+            optionsMenu.add(optionsManageTrackedDownloadsMenuItem);
             optionsMenu.addSeparator();
             optionsMenu.add( lookAndFeelMenu );
             optionsMenu.addSeparator();
@@ -695,6 +703,10 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         new IdentitiesBrowser(this).startDialog();
     }
 
+    private void optionsManageTrackedDownloadsMenuItem_actionPerformed(final ActionEvent e) {
+    	new ManageTrackedDownloads(this).startDialog();
+    }
+
     /**
      * Refresh the texts in MainFrame with new language.
      */
@@ -799,6 +811,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         optionsPreferencesMenuItem.setText(language.getString("MainFrame.menu.options.preferences"));
         optionsManageLocalIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageLocalIdentities"));
         optionsManageIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageIdentities"));
+        optionsManageTrackedDownloadsMenuItem.setText(language.getString("MainFrame.menu.options.manageTrackedDownloads"));
         pluginMenu.setText(language.getString("MainFrame.menu.plugins"));
         pluginTranslateMenuItem.setText(language.getString("MainFrame.menu.plugins.translateFrost"));
         languageMenu.setText(language.getString("MainFrame.menu.language"));

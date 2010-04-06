@@ -729,8 +729,18 @@ public class MessageTextPane extends JPanel {
          */
         private void downloadAttachments() {
             final Iterator<FileAttachment> it = getItems().iterator();
+            
+            List<FrostDownloadItem> frostDownloadItemList = new LinkedList<FrostDownloadItem>();
+            HashMap<String, FrostDownloadItem> frostDownloadItemKeyMap = new HashMap<String, FrostDownloadItem>();
+            HashMap<String, FrostDownloadItem> frostDownloadItemNameMap = new HashMap<String, FrostDownloadItem>();
+            
             while (it.hasNext()) {
                 final FileAttachment fa = it.next();
+                
+                if( frostDownloadItemKeyMap.containsKey(fa.getKey())) {
+            		continue;
+            	}
+                
                 String filename = fa.getFilename();
                 // maybe convert html codes (e.g. %2c -> , )
                 if( filename.indexOf("%") > 0 ) {
@@ -740,11 +750,33 @@ public class MessageTextPane extends JPanel {
                         logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
                     }
                 }
-                final FrostDownloadItem dlItem = new FrostDownloadItem(
-                        filename,
-                        fa.getKey(),
-                        fa.getFileSize());
-                getDownloadModel().addDownloadItem(dlItem);
+                if( frostDownloadItemNameMap.containsKey(filename)) {
+                	continue;
+                }
+                final FrostDownloadItem frostDwonloadItem = new FrostDownloadItem(
+	                filename,
+	                fa.getKey(),
+	                fa.getFileSize()
+                );
+                
+                frostDwonloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
+                frostDwonloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
+                if( Core.frostSettings.getBoolValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED) ){
+                	frostDwonloadItem.setDownloadDir(frostDwonloadItem.getDownloadDir().concat(frostDwonloadItem.getAssociatedBoardName()));
+                }
+                frostDownloadItemList.add( frostDwonloadItem );
+                frostDownloadItemKeyMap.put(fa.getKey(), frostDwonloadItem);
+                frostDownloadItemNameMap.put(filename, frostDwonloadItem);
+            }
+            
+            frostDownloadItemKeyMap.clear();
+            frostDownloadItemNameMap.clear();
+            
+            final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
+            frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
+            
+            for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
+            	getDownloadModel().addDownloadItem(frostDownloadItem);
             }
         }
 
@@ -882,12 +914,19 @@ public class MessageTextPane extends JPanel {
             if( items == null ) {
                 return;
             }
+            
+            List<FrostDownloadItem> frostDownloadItemList = new LinkedList<FrostDownloadItem>();
+            HashMap<String, FrostDownloadItem> frostDownloadItemKeyMap = new HashMap<String, FrostDownloadItem>();
+            HashMap<String, FrostDownloadItem> frostDownloadItemNameMap = new HashMap<String, FrostDownloadItem>();
 
-            for( final String item : items ) {
-                String key;
-                // 0.7: use key/filename
-                key = item;
-                String name = item.substring(item.lastIndexOf("/")+1);
+            for( final String key : items ) {
+            	if( frostDownloadItemKeyMap.containsKey(key)) {
+            		continue;
+            	}
+            	
+
+            	
+                String name = key.substring(key.lastIndexOf("/")+1);
                 // maybe convert html codes (e.g. %2c -> , )
                 if( name.indexOf("%") > 0 ) {
                     try {
@@ -896,8 +935,28 @@ public class MessageTextPane extends JPanel {
                         logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
                     }
                 }
-                final FrostDownloadItem dlItem = new FrostDownloadItem(name, key);
-                getDownloadModel().addDownloadItem(dlItem);
+                if( frostDownloadItemNameMap.containsKey(name)) {
+                	continue;
+                }
+                
+                FrostDownloadItem frostDwonloadItem = new FrostDownloadItem(name, key);
+                frostDwonloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
+                frostDwonloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
+                if( Core.frostSettings.getBoolValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED) ){
+                	frostDwonloadItem.setDownloadDir(frostDwonloadItem.getDownloadDir().concat(frostDwonloadItem.getAssociatedBoardName()));
+                }
+                frostDownloadItemList.add( frostDwonloadItem );
+                frostDownloadItemKeyMap.put(key, frostDwonloadItem);
+                frostDownloadItemNameMap.put(name, frostDwonloadItem);
+            }
+            frostDownloadItemKeyMap.clear();
+            frostDownloadItemNameMap.clear();
+            
+            final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
+            frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
+            
+            for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
+            	getDownloadModel().addDownloadItem(frostDownloadItem);
             }
         }
 

@@ -441,7 +441,7 @@ public class DownloadManager implements ExitSavable {
             if( Core.frostSettings.getBoolValue(SettingsClass.TRACK_DOWNLOADS_ENABLED) && !downloadItem.isTracked() ) {
                 TrackDownloadKeysStorage trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
                 trackDownloadKeysStorage.storeItem( 
-                    new TrackDownloadKeys( downloadItem.getKey(), downloadItem.getFilename(), "", downloadItem.getFileSize(), downloadItem.getDownloadFinishedMillis() )
+                    new TrackDownloadKeys( downloadItem.getKey(), downloadItem.getFilename(), downloadItem.getAssociatedBoardName(), downloadItem.getFileSize(), downloadItem.getDownloadFinishedMillis() )
                 );
                 downloadItem.setTracked(true);
             }

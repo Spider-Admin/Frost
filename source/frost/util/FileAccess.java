@@ -466,6 +466,23 @@ public class FileAccess {
         // The directory is now empty so delete it
         return dir.delete();
     }
+    
+    /**
+    * Create given directory
+    */
+   public static boolean createDir(final java.io.File dir) {
+       if( dir.isDirectory() ) {
+    	   return true;
+       }
+       
+       if( dir.exists()) {
+    	   return false;
+       }
+       
+       return dir.mkdirs();
+   }
+    
+    
 
     /**
      * This method copies the contents of one file to another. If the destination file didn't exist, it is created. If
@@ -585,8 +602,8 @@ public class FileAccess {
 
     	if (!path.endsWith(separator)) {
     		return path + separator;
-		}
+    	}
 
-		return path;
-	}
+    	return path;
+    }
 }
