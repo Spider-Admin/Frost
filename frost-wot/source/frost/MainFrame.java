@@ -704,7 +704,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     private void optionsManageTrackedDownloadsMenuItem_actionPerformed(final ActionEvent e) {
-    	new ManageTrackedDownloads(this).startDialog();
+    	new ManageTrackedDownloads(this).startDialog(this);
     }
 
     /**
