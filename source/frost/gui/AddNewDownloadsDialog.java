@@ -18,35 +18,19 @@
 */
 package frost.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.LinkedList;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
-import frost.Core;
-import frost.SettingsClass;
-import frost.fileTransfer.download.FrostDownloadItem;
-import frost.gui.model.AddNewDownloadsTableModel;
-import frost.gui.model.TableMember;
-import frost.storage.perst.TrackDownloadKeysStorage;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.translation.Language;
+import frost.*;
+import frost.fileTransfer.download.*;
+import frost.gui.model.*;
+import frost.storage.perst.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
@@ -60,23 +44,26 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 	private JButton okButton;
 	private JButton cancelButton;
 	private JSkinnablePopupMenu tablePopupMenu;
-	
-	private boolean addDownloads; 
+
+	private boolean addDownloads;
+
+	private final Frame parentFrame;
 
 	private static final long serialVersionUID = 1L;
 
-	public AddNewDownloadsDialog(JFrame frame, List<FrostDownloadItem> frostDownloadItemList) {
+	public AddNewDownloadsDialog(final JFrame frame, final List<FrostDownloadItem> frostDownloadItemList) {
 		super(frame);
+		parentFrame = frame;
 		setModal(true);
 		addDownloads = false;
 		language = Language.getInstance();
 		trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
-		
+
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		initGUI();
 	}
-	
+
 	private void initGUI() {
 		try {
 			setTitle(language.getString("AddNewDownloadsDialog.title"));
@@ -91,32 +78,32 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 					removeAlreadyDownloadedButton_actionPerformed(e);
 				}
 			});
-			
+
 			// Remove already exists Button
 			removeAlreadyExistsButton = new JButton(language.getString("AddNewDownloadsDialog.button.removeAlreadyExistsButton"));
 			removeAlreadyExistsButton.setToolTipText(language.getString("AddNewDownloadsDialog.buttonTooltip.removeAlreadyExistsButton"));
 			removeAlreadyExistsButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					removeAlreadyExistsButton_actionPerformed(e);
-				} 
+				}
 			});
-			
+
 			// OK Button
 			okButton = new JButton(language.getString("Common.ok"));
 			okButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					addDownloads = true;
 					dispose();
-				} 
+				}
 			});
-			
+
 			// Cancel Button
 			cancelButton = new JButton(language.getString("Common.cancel"));
 			cancelButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					addNewDownloadsTableModel.clearDataModel();
 					dispose();
-				} 
+				}
 			});
 
 			// Button row
@@ -155,34 +142,35 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
 			this.initPopupMenu();
 
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public List<FrostDownloadItem> startDialog(List<FrostDownloadItem> forstDownloadItmeList) {
+	public List<FrostDownloadItem> startDialog(List<FrostDownloadItem> frostDownloadItmeList) {
 		// load data into table
-		this.loadNewDownloadsIntoTable(forstDownloadItmeList);
-		
+		this.loadNewDownloadsIntoTable(frostDownloadItmeList);
+		setLocationRelativeTo(parentFrame);
+
 		// display table
 		setVisible(true); // blocking!
-		
+
 		// return items in table
-		forstDownloadItmeList = new LinkedList<FrostDownloadItem>();
+		frostDownloadItmeList = new LinkedList<FrostDownloadItem>();
 		if( addDownloads ) {
-			int numberOfRows = addNewDownloadsTableModel.getRowCount();
+			final int numberOfRows = addNewDownloadsTableModel.getRowCount();
 			for( int indexPos = 0; indexPos < numberOfRows; indexPos++) {
 				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
-				forstDownloadItmeList.add( row.getDownloadItem() );
+				frostDownloadItmeList.add( row.getDownloadItem() );
 			}
 		}
-		
-		return forstDownloadItmeList;
+
+		return frostDownloadItmeList;
 	}
 
-	private void loadNewDownloadsIntoTable(List<FrostDownloadItem> frostDownloadItmeList) {
+	private void loadNewDownloadsIntoTable(final List<FrostDownloadItem> frostDownloadItmeList) {
 		this.addNewDownloadsTableModel.clearDataModel();
-		for( FrostDownloadItem froDownloadItem : frostDownloadItmeList) {
+		for( final FrostDownloadItem froDownloadItem : frostDownloadItmeList) {
 			final AddNewDownloadsTableMember addNewDownloadsTableMember = new AddNewDownloadsTableMember(froDownloadItem);
 			this.addNewDownloadsTableModel.addRow(addNewDownloadsTableMember);
 		}
@@ -190,13 +178,13 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
 	private void initPopupMenu() {
 		tablePopupMenu = new JSkinnablePopupMenu();
-		
+
 		// Change Download Directory
 		final JMenuItem changeDownloadDir = new JMenuItem(language.getString("AddNewDownloadsDialog.button.changeDownloadDir"));
 		changeDownloadDir.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				changeDownloadDir_actionPerformed(actionEvent);
-			} 
+			}
 		});
 
 		// Remove item from list
@@ -204,14 +192,14 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		removeDownload.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				removeDownload_actionPerformed(actionEvent);
-			} 
+			}
 		});
-		
+
 		// Change Priority
-		JMenu changePriorityMenu = new JMenu(language.getString("Common.priority.changePriority"));
+		final JMenu changePriorityMenu = new JMenu(language.getString("Common.priority.changePriority"));
 		final int numberOfPriorities = 7;
-		JMenuItem[] prioItemList = new JMenuItem[numberOfPriorities];
-		
+		final JMenuItem[] prioItemList = new JMenuItem[numberOfPriorities];
+
 		for(int i = 0; i < numberOfPriorities; i++) {
 			final int priority = i;
 			prioItemList[priority] = new JMenuItem(language.getString("Common.priority.priority" + priority));
@@ -219,10 +207,10 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			prioItemList[priority].addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent actionEvent) {
 					changePriority_actionPerformed(actionEvent, priority);
-				} 
+				}
 			});
 		}
-		
+
 		// Compose popup menu
 		tablePopupMenu.add(changeDownloadDir);
 		tablePopupMenu.addSeparator();
@@ -232,11 +220,11 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
 		this.addNewDownloadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
-	
+
 	private void removeAlreadyDownloadedButton_actionPerformed(final ActionEvent actionEvent) {
-		int numberOfRows = addNewDownloadsTableModel.getRowCount();
+		final int numberOfRows = addNewDownloadsTableModel.getRowCount();
 		for( int indexPos = numberOfRows -1; indexPos >= 0; indexPos--) {
-			final AddNewDownloadsTableMember addNewDownloadsTableMember = 
+			final AddNewDownloadsTableMember addNewDownloadsTableMember =
 				(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
 			if( trackDownloadKeysStorage.searchItemKey( addNewDownloadsTableMember.getDownloadItem().getKey() ) ) {
 				addNewDownloadsTableModel.deleteRow(addNewDownloadsTableMember);
@@ -244,11 +232,11 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		}
 		addNewDownloadsTable.clearSelection();
 	}
-		
+
 	private void removeAlreadyExistsButton_actionPerformed(final ActionEvent actionEvent) {
-		int numberOfRows = addNewDownloadsTableModel.getRowCount();
+		final int numberOfRows = addNewDownloadsTableModel.getRowCount();
 		for( int indexPos = numberOfRows -1; indexPos >= 0; indexPos--) {
-			final AddNewDownloadsTableMember addNewDownloadsTableMember = 
+			final AddNewDownloadsTableMember addNewDownloadsTableMember =
 				(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
 			final FrostDownloadItem frostDownloadItem = addNewDownloadsTableMember.getDownloadItem();
 			if(new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename()).exists() ) {
@@ -260,10 +248,10 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
 	private void changeDownloadDir_actionPerformed(final ActionEvent actionEvent) {
 		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-		
+
 		if( selectedRows.length > 0 ) {
 			// Open choose Directory dialog
-			JFileChooser chooser = new JFileChooser(); 
+			final JFileChooser chooser = new JFileChooser();
 			chooser.setCurrentDirectory(
 					new java.io.File(
 							Core.frostSettings.getDefaultValue(SettingsClass.DIR_DOWNLOAD)
@@ -275,13 +263,13 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
-			
+
 			// Set new dir for selected items
-			for( int rowIndex : selectedRows ) {
+			for( final int rowIndex : selectedRows ) {
 				if( rowIndex >= addNewDownloadsTable.getRowCount() ) {
 					continue; // paranoia
 				}
-				
+
 				// add the board(s) to board tree and remove it from table
 				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex);
 				row.getDownloadItem().setDownloadDir(chooser.getSelectedFile().toString());
@@ -290,7 +278,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			addNewDownloadsTable.clearSelection();
 		}
 	}
-	
+
 	private void removeDownload_actionPerformed(final ActionEvent e) {
 		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
 
@@ -308,7 +296,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			addNewDownloadsTable.clearSelection();
 		}
 	}
-	
+
 	private void changePriority_actionPerformed(final ActionEvent e, final int priority) {
 		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
 
@@ -346,12 +334,12 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 					if( frostDownloadItem.getPriority() == -1 ) {
 						frostDownloadItem.setPriority( Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD ));
 					}
-					String prio = "Common.priority.priority" + frostDownloadItem.getPriority();
+					final String prio = "Common.priority.priority" + frostDownloadItem.getPriority();
 					return language.getString(prio);
 				case 3:
 					return frostDownloadItem.getDownloadDir();
 				case 4:
-					if(comment == null){
+					if(comment == null) {
 						this.updateComment();
 					}
 					return comment;
@@ -359,15 +347,21 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 					throw new RuntimeException("Unknown Column pos");
 			}
 		}
-		
+
 		public void updateComment() {
-			// Has this key already been downloaded?
-			if( trackDownloadKeysStorage.searchItemKey( frostDownloadItem.getKey() ) ) {
-				comment = language.getString("AddNewDownloadsDialog.table.alreadyDownloaded");
-			} else if(new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename()).exists() ) {
-				comment = language.getString("AddNewDownloadsDialog.table.alreadyExists");
-			} else {
-				comment = "";
+		    comment = "";
+
+		    // Has this key already been downloaded?
+		    if (trackDownloadKeysStorage.searchItemKey( frostDownloadItem.getKey() )) {
+				comment += language.getString("AddNewDownloadsDialog.table.alreadyDownloaded");
+			}
+
+            // Does target file already exist?
+		    if (new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename()).exists() ) {
+			    if (comment.length() > 0) {
+			        comment += ", ";
+			    }
+			    comment += language.getString("AddNewDownloadsDialog.table.alreadyExists");
 			}
 		}
 
@@ -376,7 +370,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			final String c2 = (String) anOther.getValueAt(tableColumIndex);
 			return c1.compareToIgnoreCase(c2);
 		}
-		
+
 		public FrostDownloadItem getDownloadItem(){
 			return frostDownloadItem;
 		}

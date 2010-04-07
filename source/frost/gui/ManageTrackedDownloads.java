@@ -19,79 +19,55 @@
 package frost.gui;
 
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
-import frost.Core;
-import frost.SettingsClass;
-import frost.fcp.FreenetKeys;
-import frost.gui.model.TableMember;
-import frost.gui.model.TrackedDownloadsModel;
-import frost.storage.perst.TrackDownloadKeys;
-import frost.storage.perst.TrackDownloadKeysStorage;
-import frost.util.DateFun;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.translation.Language;
+import frost.*;
+import frost.fcp.*;
+import frost.gui.model.*;
+import frost.storage.perst.*;
+import frost.util.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 public class ManageTrackedDownloads extends javax.swing.JDialog {
 	private final Language language;
 	private final TrackDownloadKeysStorage trackDownloadKeysStorage;
-	
+
 	private TrackedDownloadsModel trackedDownloadsModel;
 	private SortedTable trackedDownloadsTable;
-	
+
 	private JTextField maxAgeTextField;
 	private JButton maxAgeButton;
 	private JButton addKeysButton;
 	private JButton closeButton;
-	
+
 	private JSkinnablePopupMenu tablePopupMenu;
-	
+
 	private static final long serialVersionUID = 1L;
 
-	public ManageTrackedDownloads(JFrame frame) {
+	public ManageTrackedDownloads(final JFrame frame) {
 		super(frame);
 		setModal(true);
 		language = Language.getInstance();
 		trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
-		
+
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		initGUI();
 	}
-	
+
 	private void initGUI() {
 		try {
 			setTitle(language.getString("ManageDownloadTrackingDialog.title"));
 			setSize(800, 600);
 			this.setResizable(true);
-			
+
 			// Max Age
-			JLabel maxAgeLabel = new JLabel(language.getString("ManageDownloadTrackingDialog.button.maxAge"));
+			final JLabel maxAgeLabel = new JLabel(language.getString("ManageDownloadTrackingDialog.button.maxAge"));
 			maxAgeTextField = new JTextField(6);
 			maxAgeTextField.setText("100");
 			maxAgeTextField.setMaximumSize(new Dimension(30,20));
@@ -102,13 +78,13 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 				}
 			});
 			maxAgeButton.setToolTipText(language.getString("ManageDownloadTrackingDialog.buttonTooltip.maxAgeButton"));
-			
+
 			// Load files
 			addKeysButton = new JButton(language.getString("ManageDownloadTrackingDialog.button.addKeys"));
 			addKeysButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					addKeysButton_actionPerformed(e);
-				} 
+				}
 			});
 			addKeysButton.setToolTipText(language.getString("ManageDownloadTrackingDialog.buttonTooltip.addKeys"));
 
@@ -117,9 +93,9 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 			closeButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					dispose();
-				} 
+				}
 			});
-			
+
 			// Button row
 			final JPanel buttonsPanel = new JPanel(new BorderLayout());
 			buttonsPanel.setLayout( new BoxLayout( buttonsPanel, BoxLayout.X_AXIS ));
@@ -129,9 +105,9 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 			buttonsPanel.add( maxAgeTextField );
 			buttonsPanel.add(Box.createRigidArea(new Dimension(10,3)));
 			buttonsPanel.add( maxAgeButton );
-			
+
 			buttonsPanel.add( Box.createHorizontalGlue() );
-			
+
 			buttonsPanel.add( addKeysButton );
 			buttonsPanel.add(Box.createRigidArea(new Dimension(20,3)));
 			buttonsPanel.add( closeButton );
@@ -155,28 +131,28 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 			this.getContentPane().add(mainPanel, null);
 
 			this.initPopupMenu();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void initPopupMenu() {
 		tablePopupMenu = new JSkinnablePopupMenu();
-		
+
 		// remove
 		final JMenuItem removeMenuItem = new JMenuItem(language.getString("ManageDownloadTrackingDialog.button.remove"));
 		removeMenuItem.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				removeMenuItem_actionPerformed(actionEvent);
-			} 
+			}
 		});
-		
+
 		// remove all from same Board
 		final JMenuItem removeSameBoardMenuItem = new JMenuItem(language.getString("ManageDownloadTrackingDialog.button.removeSameBoard"));
 		removeSameBoardMenuItem.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				removeSameBoardMenuItem_actionPerformed(actionEvent);
-			} 
+			}
 		});
 
 		// Compose popup menu
@@ -186,21 +162,22 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 
 		this.trackedDownloadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
-	
-	public void startDialog() {
+
+	public void startDialog(final Frame owner) {
 		this.loadTrackedDownloadsIntoTable();
-		
+		setLocationRelativeTo(owner);
+
 		setVisible(true); // blocking!
 	}
-	
+
 	private void loadTrackedDownloadsIntoTable() {
 		this.trackedDownloadsModel.clearDataModel();
-		for( TrackDownloadKeys trackDownloadkey : trackDownloadKeysStorage.getDownloadKeyList()) {
-			TrackedDownloadTableMember trackedDownloadTableMember = new TrackedDownloadTableMember(trackDownloadkey);
+		for( final TrackDownloadKeys trackDownloadkey : trackDownloadKeysStorage.getDownloadKeyList()) {
+			final TrackedDownloadTableMember trackedDownloadTableMember = new TrackedDownloadTableMember(trackDownloadkey);
 			this.trackedDownloadsModel.addRow(trackedDownloadTableMember);
 		}
 	}
-	
+
 	private void removeMenuItem_actionPerformed(final ActionEvent e) {
 		final int[] selectedRows = trackedDownloadsTable.getSelectedRows();
 
@@ -230,7 +207,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 			return;
 		}
 		final String boardName = selectedRow.getTrackDownloadKeys().getBoardName();
-		
+
 		for( int z = trackedDownloadsModel.getRowCount() -1 ; z >= 0; z--) {
 			final TrackedDownloadTableMember row = (TrackedDownloadTableMember) trackedDownloadsModel.getRow(z);
 			if( boardName.compareTo(row.getTrackDownloadKeys().getBoardName()) == 0 ) {
@@ -240,10 +217,10 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 		}
 		trackedDownloadsTable.clearSelection();
 	}
-	
+
 	private void addKeysButton_actionPerformed(final ActionEvent e) {
 		// Open choose Directory dialog
-		JFileChooser fileChooser = new JFileChooser(); 
+		final JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(
 			new java.io.File(
 				Core.frostSettings.getDefaultValue(SettingsClass.DIR_DOWNLOAD)
@@ -255,43 +232,43 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 		if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		
+
 		try {
-			File selectedFile =fileChooser.getSelectedFile();
-			FileInputStream fileInputStrem = new FileInputStream(selectedFile);
-			DataInputStream dataInputStream = new DataInputStream(fileInputStrem);
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(dataInputStream));
+			final File selectedFile =fileChooser.getSelectedFile();
+			final FileInputStream fileInputStrem = new FileInputStream(selectedFile);
+			final DataInputStream dataInputStream = new DataInputStream(fileInputStrem);
+			final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(dataInputStream));
 			String strLine;
 			while ((strLine = bufferedReader.readLine()) != null)   {
 				if( strLine.startsWith("CHK@") && FreenetKeys.isValidKey(strLine) ) {
-					String fileName = strLine.substring(strLine.lastIndexOf("/")+1);
+					final String fileName = strLine.substring(strLine.lastIndexOf("/")+1);
 					trackDownloadKeysStorage.storeItem(new TrackDownloadKeys(strLine, fileName, "", selectedFile.length(), System.currentTimeMillis()));
 				}
 			}
-		}catch(FileNotFoundException ex) {
+		}catch(final FileNotFoundException ex) {
 			ex.printStackTrace();
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			ex.printStackTrace();
 		}
 		loadTrackedDownloadsIntoTable();
 	}
-	
+
 	private void maxAgeButton_actionPerformed(final ActionEvent e) {
 		int max_age = 4;
 		try {
 			max_age = Integer.parseInt(this.maxAgeTextField.getText());
-		} catch( NumberFormatException ex ) {
+		} catch( final NumberFormatException ex ) {
 			return;
 		}
-		
+
 		if( max_age < 0) {
 			return;
 		}
-		
+
 		trackDownloadKeysStorage.cleanupTable(max_age);
 		loadTrackedDownloadsIntoTable();
-	} 
-	
+	}
+
 	class TrackedDownloadTableMember implements TableMember {
 
 		TrackDownloadKeys trackDownloadKey;
@@ -312,7 +289,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 				case 3:
 					return trackDownloadKey.getFileSize();
 				case 4:
-					long date = trackDownloadKey.getDownloadFinishedTime();
+					final long date = trackDownloadKey.getDownloadFinishedTime();
 					return new StringBuilder()
 					.append(DateFun.FORMAT_DATE_VISIBLE.print(date))
 					.append(" - ")
@@ -322,18 +299,18 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 					throw new RuntimeException("Unknown Column pos");
 			}
 		}
-		
+
 		public TrackDownloadKeys getTrackDownloadKeys() {
 			return this.trackDownloadKey;
 		}
-		
+
 		public int compareTo(final TableMember anOther, final int tableColumIndex) {
 			final String c1 = (String) getValueAt(tableColumIndex);
 			final String c2 = (String) anOther.getValueAt(tableColumIndex);
 			return c1.compareToIgnoreCase(c2);
 		}
 	}
-	
+
 	class TablePopupMenuMouseListener implements MouseListener {
 		public void mouseReleased(final MouseEvent event) {
 			maybeShowPopup(event);
