@@ -24,6 +24,8 @@ import java.awt.event.*;
 import java.io.*;
 
 import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import frost.*;
 import frost.fcp.*;
@@ -38,7 +40,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 	private final TrackDownloadKeysStorage trackDownloadKeysStorage;
 
 	private TrackedDownloadsModel trackedDownloadsModel;
-	private SortedTable trackedDownloadsTable;
+	private TrackedDownloadsTable trackedDownloadsTable;
 
 	private JTextField maxAgeTextField;
 	private JButton maxAgeButton;
@@ -114,7 +116,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 
 			// Download Table
 			trackedDownloadsModel = new TrackedDownloadsModel();
-			trackedDownloadsTable = new SortedTable( trackedDownloadsModel );
+			trackedDownloadsTable = new TrackedDownloadsTable( trackedDownloadsModel );
 			trackedDownloadsTable.setRowSelectionAllowed(true);
 			trackedDownloadsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
 			trackedDownloadsTable.setRowHeight(18);
@@ -245,7 +247,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 					trackDownloadKeysStorage.storeItem(new TrackDownloadKeys(strLine, fileName, "", selectedFile.length(), System.currentTimeMillis()));
 				}
 			}
-		}catch(final FileNotFoundException ex) {
+		} catch(final FileNotFoundException ex) {
 			ex.printStackTrace();
 		} catch (final IOException ex) {
 			ex.printStackTrace();
@@ -268,11 +270,62 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 		trackDownloadKeysStorage.cleanupTable(max_age);
 		loadTrackedDownloadsIntoTable();
 	}
+	
+	private static class TrackedDownloadsModel extends SortedTableModel {
+		private static final long serialVersionUID = 1L;
 
-	class TrackedDownloadTableMember implements TableMember {
+		private Language language = null;
+
+		protected final static String columnNames[] = new String[5];
+
+		protected final static Class<?> columnClasses[] =  {
+			String.class,
+			String.class,
+			String.class,
+			String.class,
+			String.class
+		};
+
+		public TrackedDownloadsModel() {
+			super();
+			assert columnClasses.length == columnNames.length;
+			language = Language.getInstance();
+			refreshLanguage();
+		}
+
+		private void refreshLanguage() {
+			columnNames[0] = language.getString("ManageDownloadTrackingDialog.table.name");
+			columnNames[1] = language.getString("ManageDownloadTrackingDialog.table.key");
+			columnNames[2] = language.getString("ManageDownloadTrackingDialog.table.board");
+			columnNames[3] = language.getString("ManageDownloadTrackingDialog.table.size");
+			columnNames[4] = language.getString("ManageDownloadTrackingDialog.table.finished");
+		}
+
+		public boolean isCellEditable(int row, int col) {
+			return false;
+		}
+
+		public String getColumnName(int column) {
+			if( column >= 0 && column < columnNames.length )
+				return columnNames[column];
+			return null;
+		}
+
+		public int getColumnCount() {
+			return columnNames.length;
+		}
+
+		public Class<?> getColumnClass(int column) {
+			if( column >= 0 && column < columnClasses.length )
+				return columnClasses[column];
+			return null;
+		}
+	}
+	
+
+	private class TrackedDownloadTableMember implements TableMember {
 
 		TrackDownloadKeys trackDownloadKey;
-		String comment;
 
 		public TrackedDownloadTableMember(final TrackDownloadKeys trackDownloadkey){
 			this.trackDownloadKey = trackDownloadkey;
@@ -287,12 +340,12 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 				case 2:
 					return trackDownloadKey.getBoardName();
 				case 3:
-					return trackDownloadKey.getFileSize();
+					return FormatterUtils.formatSize(trackDownloadKey.getFileSize());
 				case 4:
 					final long date = trackDownloadKey.getDownloadFinishedTime();
 					return new StringBuilder()
 					.append(DateFun.FORMAT_DATE_VISIBLE.print(date))
-					.append(" - ")
+					.append(" ")
 					.append(DateFun.FORMAT_TIME_VISIBLE.print(date))
 					.toString();
 				default :
@@ -311,7 +364,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 		}
 	}
 
-	class TablePopupMenuMouseListener implements MouseListener {
+	private class TablePopupMenuMouseListener implements MouseListener {
 		public void mouseReleased(final MouseEvent event) {
 			maybeShowPopup(event);
 		}
@@ -325,9 +378,50 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 		protected void maybeShowPopup(final MouseEvent e) {
 			if( e.isPopupTrigger() ) {
 				if( trackedDownloadsTable.getSelectedRowCount() > 0 ) {
-					// don't show menu if nothing is selected
 					tablePopupMenu.show(trackedDownloadsTable, e.getX(), e.getY());
 				}
+			}
+		}
+	}
+	
+	
+	private class TrackedDownloadsTable extends SortedTable {
+		private static final long serialVersionUID = 1L;
+		
+		final TableCellRenderer sizeColumnRenderer;
+
+		public TrackedDownloadsTable(final TrackedDownloadsModel trackDownloadsModel) {
+			super(trackDownloadsModel);
+			this.setIntercellSpacing(new Dimension(5, 1));
+			
+			sizeColumnRenderer = new SizeColumnTableCellRenderer();
+		}
+
+		public String getToolTipText(final MouseEvent mouseEvent) {
+			final java.awt.Point point = mouseEvent.getPoint();
+			final int rowIndex = rowAtPoint(point);
+			final int colIndex = columnAtPoint(point);
+			final int realColumnIndex = convertColumnIndexToModel(colIndex);
+			final TableModel tableModel = getModel();
+			return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
+		}
+		
+		public TableCellRenderer getCellRenderer(final int row, final int column) {
+			if(column == 3) {
+				return sizeColumnRenderer;
+			}
+			return super.getCellRenderer(row, column);
+		}
+		
+		private class SizeColumnTableCellRenderer extends JLabel implements TableCellRenderer {
+			private static final long serialVersionUID = 1L;
+
+			public Component getTableCellRendererComponent(final JTable table,
+					final Object value, final boolean isSelected, final boolean hasFocus,
+					final int row, final int column) {
+				this.setText(value.toString());
+				this.setHorizontalAlignment(SwingConstants.RIGHT);
+				return this;
 			}
 		}
 	}
