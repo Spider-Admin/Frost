@@ -20,25 +20,31 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 
 import frost.*;
 import frost.fileTransfer.download.*;
 import frost.gui.model.*;
 import frost.storage.perst.*;
+import frost.util.DateFun;
+import frost.util.FormatterUtils;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
 	private final Language language;
+
 	private final TrackDownloadKeysStorage trackDownloadKeysStorage;
 
 	private AddNewDownloadsTableModel addNewDownloadsTableModel;
-	private SortedTable addNewDownloadsTable;
+	private AddNewDownloadsTable addNewDownloadsTable;
 	private JButton removeAlreadyDownloadedButton;
 	private JButton removeAlreadyExistsButton;
 	private JButton okButton;
@@ -51,7 +57,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	public AddNewDownloadsDialog(final JFrame frame, final List<FrostDownloadItem> frostDownloadItemList) {
+	public AddNewDownloadsDialog(final JFrame frame, final List<FrostDownloadItem> frostDownloadItemList) { 
 		super(frame);
 		parentFrame = frame;
 		setModal(true);
@@ -124,7 +130,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
 			// Download Table
 			addNewDownloadsTableModel = new AddNewDownloadsTableModel();
-			addNewDownloadsTable = new SortedTable( addNewDownloadsTableModel );
+			addNewDownloadsTable = new AddNewDownloadsTable( addNewDownloadsTableModel );
 			addNewDownloadsTable.setRowSelectionAllowed(true);
 			addNewDownloadsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
 			addNewDownloadsTable.setRowHeight(18);
@@ -273,7 +279,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 				// add the board(s) to board tree and remove it from table
 				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex);
 				row.getDownloadItem().setDownloadDir(chooser.getSelectedFile().toString());
-				row.updateComment();
+				row.updateExistsCheck();
 			}
 			addNewDownloadsTable.clearSelection();
 		}
@@ -314,14 +320,95 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			addNewDownloadsTable.clearSelection();
 		}
 	}
+	
+	
+	private static class AddNewDownloadsTableModel extends SortedTableModel{
+		private static final long serialVersionUID = 1L;
 
-	class AddNewDownloadsTableMember implements TableMember {
+		private Language language = null;
 
-		FrostDownloadItem frostDownloadItem;
-		String comment;
+		protected final static String columnNames[] = new String[6];
+
+		protected final static Class<?> columnClasses[] =  {
+			String.class,
+			String.class,
+			String.class,
+			String.class,
+			String.class,
+			String.class
+		};
+
+		public AddNewDownloadsTableModel() {
+			super();
+			assert columnClasses.length == columnNames.length;
+			language = Language.getInstance();
+			refreshLanguage();
+		}
+
+		private void refreshLanguage() {
+			columnNames[0] = language.getString("AddNewDownloadsDialog.table.name");
+			columnNames[1] = language.getString("AddNewDownloadsDialog.table.key");
+			columnNames[2] = language.getString("AddNewDownloadsDialog.table.priority");
+			columnNames[3] = language.getString("AddNewDownloadsDialog.table.downloadDir");
+			columnNames[4] = language.getString("AddNewDownloadsDialog.table.downloaded");
+			columnNames[5] = language.getString("AddNewDownloadsDialog.table.exists");
+		}
+
+		public boolean isCellEditable(int row, int col) {
+			return false;
+		}
+
+		public String getColumnName(int column) {
+			if( column >= 0 && column < columnNames.length )
+				return columnNames[column];
+			return null;
+		}
+
+		public int getColumnCount() {
+			return columnNames.length;
+		}
+
+		public Class<?> getColumnClass(int column) {
+			if( column >= 0 && column < columnClasses.length )
+				return columnClasses[column];
+			return null;
+		}
+	}
+
+	private class AddNewDownloadsTableMember implements TableMember {
+
+		private FrostDownloadItem frostDownloadItem;
+		private boolean downloaded;
+		private String downloadedTooltip;
+		private boolean exists;
+		private String existsTooltip;
 
 		public AddNewDownloadsTableMember(final FrostDownloadItem frostDownloadItem){
 			this.frostDownloadItem = frostDownloadItem;
+			TrackDownloadKeys trackDownloadKeys = trackDownloadKeysStorage.getItemByKey(frostDownloadItem.getKey());
+			downloaded = trackDownloadKeys != null;
+			if( downloaded ) {
+				final long date = trackDownloadKeys.getDownloadFinishedTime();
+				downloadedTooltip = new StringBuilder("<html>")
+						.append(language.getString("ManageDownloadTrackingDialog.table.finished"))
+						.append(": ")
+						.append(DateFun.FORMAT_DATE_VISIBLE.print(date))
+						.append(" ")
+						.append(DateFun.FORMAT_TIME_VISIBLE.print(date))
+						.append("<br />\n")
+						.append(language.getString("ManageDownloadTrackingDialog.table.board"))
+						.append(": ")
+						.append(trackDownloadKeys.getBoardName())
+						.append("<br />\n")
+						.append(language.getString("ManageDownloadTrackingDialog.table.size"))
+						.append(": ")
+						.append(FormatterUtils.formatSize(trackDownloadKeys.getFileSize()))
+						.append("</html>")
+						.toString();
+			} else {
+				downloadedTooltip = "";
+			}
+			updateExistsCheck();
 		}
 
 		public Object getValueAt(final int column) {
@@ -339,29 +426,33 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 				case 3:
 					return frostDownloadItem.getDownloadDir();
 				case 4:
-					if(comment == null) {
-						this.updateComment();
-					}
-					return comment;
+					return downloaded ? "X" : "";
+				case 5:
+					return exists ? "X" : "";
 				default :
 					throw new RuntimeException("Unknown Column pos");
 			}
 		}
 
-		public void updateComment() {
-		    comment = "";
-
-		    // Has this key already been downloaded?
-		    if (trackDownloadKeysStorage.searchItemKey( frostDownloadItem.getKey() )) {
-				comment += language.getString("AddNewDownloadsDialog.table.alreadyDownloaded");
-			}
-
-            // Does target file already exist?
-		    if (new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename()).exists() ) {
-			    if (comment.length() > 0) {
-			        comment += ", ";
-			    }
-			    comment += language.getString("AddNewDownloadsDialog.table.alreadyExists");
+		public void updateExistsCheck() {
+			File existingFile = new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename());
+			exists = existingFile.exists();
+			if( exists) {
+				final long date = existingFile.lastModified();
+				existsTooltip = new StringBuilder("<html>")
+				.append(language.getString("AddNewDownloadsDialog.table.lastModifiedTooltip"))
+				.append(": ")
+				.append(DateFun.FORMAT_DATE_VISIBLE.print(date))
+				.append(" ")
+				.append(DateFun.FORMAT_TIME_VISIBLE.print(date))
+				.append("<br />\n")
+				.append(language.getString("AddNewDownloadsDialog.table.fileSizeTooltip"))
+				.append(": ")
+				.append(FormatterUtils.formatSize(existingFile.length()))
+				.append("</html>")
+				.toString();
+			} else {
+				existsTooltip = "";
 			}
 		}
 
@@ -376,7 +467,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		}
 	}
 
-	class TablePopupMenuMouseListener implements MouseListener {
+	private class TablePopupMenuMouseListener implements MouseListener {
 		public void mouseReleased(final MouseEvent event) {
 			maybeShowPopup(event);
 		}
@@ -390,10 +481,92 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		protected void maybeShowPopup(final MouseEvent e) {
 			if( e.isPopupTrigger() ) {
 				if( addNewDownloadsTable.getSelectedRowCount() > 0 ) {
-					// don't show menu if nothing is selected
 					tablePopupMenu.show(addNewDownloadsTable, e.getX(), e.getY());
 				}
 			}
+		}
+	}
+	
+	private class AddNewDownloadsTable extends SortedTable {
+
+		private static final long serialVersionUID = 1L;
+		private CenterCellRenderer centerCellRenderer;
+		
+		private final String[] columnTooltips = {
+			null,
+			null,
+			null,
+			null,
+			language.getString("AddNewDownloadsDialog.tableToolltip.downloaded"),
+			language.getString("AddNewDownloadsDialog.tableToolltip.exists")
+		};
+
+		public AddNewDownloadsTable(final AddNewDownloadsTableModel addNewDownloadsTableModel) {
+			super(addNewDownloadsTableModel);
+			this.setIntercellSpacing(new Dimension(5, 1));
+			centerCellRenderer = new CenterCellRenderer();
+		}
+
+		public String getToolTipText(final MouseEvent mouseEvent) {
+			final java.awt.Point point = mouseEvent.getPoint();
+			final int rowIndex = rowAtPoint(point);
+			final int colIndex = columnAtPoint(point);
+			final int realColumnIndex = convertColumnIndexToModel(colIndex);
+			final AddNewDownloadsTableModel tableModel = (AddNewDownloadsTableModel) getModel();
+			switch(realColumnIndex){
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
+				case 4:
+					return ((AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex)).downloadedTooltip;
+				case 5:
+					return ((AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex)).existsTooltip;
+				default:
+					assert false;
+			}
+			return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
+		}
+		
+		public TableCellRenderer getCellRenderer(final int rowIndex, final int columnIndex) {
+			switch(columnIndex){
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					return super.getCellRenderer(rowIndex, columnIndex);
+				case 4:
+				case 5:
+					return centerCellRenderer;
+				default:
+					assert false;
+			}
+			return super.getCellRenderer(rowIndex, columnIndex);
+		}
+
+		private class CenterCellRenderer extends JLabel implements TableCellRenderer {
+			private static final long serialVersionUID = 1L;
+
+			public Component getTableCellRendererComponent(final JTable table,
+					final Object value, final boolean isSelected, final boolean hasFocus,
+					final int row, final int column) {
+				this.setText(value.toString());
+				this.setHorizontalAlignment(SwingConstants.CENTER);
+				return this;
+			}
+		}
+		
+		protected JTableHeader createDefaultTableHeader() {
+			return new JTableHeader(columnModel) {
+				private static final long serialVersionUID = 1L;
+				public String getToolTipText(final MouseEvent e) {
+					final java.awt.Point p = e.getPoint();
+					final int index = columnModel.getColumnIndexAtX(p.x);
+					final int realIndex = columnModel.getColumn(index).getModelIndex();
+					return columnTooltips[realIndex];
+				}
+			};
 		}
 	}
 }
