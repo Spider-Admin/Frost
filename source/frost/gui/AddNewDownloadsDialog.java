@@ -185,6 +185,22 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 	private void initPopupMenu() {
 		tablePopupMenu = new JSkinnablePopupMenu();
 
+		// Rename file
+		final JMenuItem renameFile = new JMenuItem(language.getString("AddNewDownloadsDialog.button.renameFile"));
+		renameFile.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				renameFile_actionPerformed(actionEvent);
+			}
+		});
+		
+		// prefix Filename
+		final JMenuItem prefixFilename = new JMenuItem(language.getString("AddNewDownloadsDialog.button.prefixFilename"));
+		prefixFilename.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				prefixFilename_actionPerformed(actionEvent);
+			}
+		});
+
 		// Change Download Directory
 		final JMenuItem changeDownloadDir = new JMenuItem(language.getString("AddNewDownloadsDialog.button.changeDownloadDir"));
 		changeDownloadDir.addActionListener( new java.awt.event.ActionListener() {
@@ -192,6 +208,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 				changeDownloadDir_actionPerformed(actionEvent);
 			}
 		});
+		
 
 		// Remove item from list
 		final JMenuItem removeDownload = new JMenuItem(language.getString("AddNewDownloadsDialog.button.removeDownload"));
@@ -218,6 +235,9 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		}
 
 		// Compose popup menu
+		tablePopupMenu.add(renameFile);
+		tablePopupMenu.add(prefixFilename);
+		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(changeDownloadDir);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(removeDownload);
@@ -250,6 +270,71 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			}
 		}
 		addNewDownloadsTable.clearSelection();
+	}
+	
+	private void renameFile_actionPerformed(final ActionEvent actionEvent) {
+		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
+
+		if( selectedRows.length > 0 ) {
+			
+			for( final int rowIndex : selectedRows ) {
+				if( rowIndex >= addNewDownloadsTable.getRowCount() ) {
+					continue; // paranoia
+				}
+				
+				// add the board(s) to board tree and remove it from table
+				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex);
+				String newName = askForNewname(row.getDownloadItem().getUnprefixedFilename());
+				if( newName != null ) {
+					row.getDownloadItem().setFileName(newName);
+				}
+				row.updateExistsCheck();
+			}
+			addNewDownloadsTable.clearSelection();
+		}
+	}
+	
+	private String askForNewname(final String oldName) {
+		return (String) JOptionPane.showInputDialog(
+				this,
+				language.getString("AddNewDownloadsDialog.renameFileDialog.dialogBody"),
+				language.getString("AddNewDownloadsDialog.renameFileDialog.dialogTitle"),
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				null,
+				oldName
+		);
+	}
+	
+	private void prefixFilename_actionPerformed(final ActionEvent actionEvent) {
+		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
+
+		if( selectedRows.length > 0 ) {
+			
+			final String prefix = askForPrefix();
+			
+			for( final int rowIndex : selectedRows ) {
+				if( rowIndex >= addNewDownloadsTable.getRowCount() ) {
+					continue; // paranoia
+				}
+				
+				// add the board(s) to board tree and remove it from table
+				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex);
+				row.getDownloadItem().setFilenamePrefix(prefix);
+				row.updateExistsCheck();
+			}
+			addNewDownloadsTable.clearSelection();
+		}
+	}
+	
+	
+	private final String askForPrefix() {
+		return (String) JOptionPane.showInputDialog(
+				this,
+				language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogBody"),
+				language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogTitle"),
+				JOptionPane.QUESTION_MESSAGE
+		);
 	}
 
 	private void changeDownloadDir_actionPerformed(final ActionEvent actionEvent) {
@@ -284,7 +369,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			addNewDownloadsTable.clearSelection();
 		}
 	}
-
+	
 	private void removeDownload_actionPerformed(final ActionEvent e) {
 		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
 
