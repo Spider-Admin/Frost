@@ -874,7 +874,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(DIR_DOWNLOAD, "downloads" + fs);
         defaults.put(DIR_LAST_USED, "." + fs);
 
-        defaults.put(DISABLE_FILESHARING, "false");
+        defaults.put(DISABLE_FILESHARING, "true");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
 
         defaults.put(STORAGE_STORE_INVALID_MESSAGES, "false");
