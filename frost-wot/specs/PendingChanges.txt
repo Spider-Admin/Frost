@@ -9,18 +9,23 @@ Pending changes since last release
 
 * Implemented the ability to track which files have already been downloaded.
   By default this feature is off, you can activate it in the properties menu.
-  When a new download was already downloaded, the user will be 
+  When a new download was already downloaded, the user will be
   warned and asked if he wants to continue the download.
 
-* When adding a new downloads from a post (keys or attachments) a dialog will 
-  be shown where the items can be attributed (currently download dir and priority). 
-  This dialog also states if the file has already been downloaded 
-  (download tracking) or if a file with the same name already exists in the 
+* When adding a new downloads from a post (keys or attachments) a dialog will
+  be shown where the items can be attributed:
+  - Download dir
+  - Filename
+  - Filename prefix
+  - Priority
+
+  This dialog also states if the file has already been downloaded
+  (download tracking) or if a file with the same name already exists in the
   download target directory.
 
-* Implemented tracking from which post / board a download was originated. 
-  Combined with a new setting (when enabled) the download directory will 
-  default to a subdirectory of the default download directory with the board name. 
+* Implemented tracking from which post / board a download was originated.
+  Combined with a new setting (when enabled) the download directory will
+  default to a subdirectory of the default download directory with the board name.
   If the target download directory does not already exist, it will be created.
 
 
@@ -89,7 +94,7 @@ Pending changes since last release
 * Ability to execute a program on download/upload completion.
 
   Enabled through Options -> Preferences -> Downloads/Uploads ->
-                  Execute program on completion. 
+                  Execute program on completion.
 
   To disable, simply set "Execute program on completion" to nothing.
 
@@ -167,7 +172,7 @@ Pending changes since last release
 
 * Download are associated with the currently selected message
   When you add keys through the quickload interface, the downloads are
-  associated with the currently selected news message. 
+  associated with the currently selected news message.
 
   Simply right-click on a download and select "View associated message" to
   view the associated message.

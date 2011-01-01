@@ -1,9 +1,11 @@
 Frost
 -----
-Karsten Graul <bback -AT+ users.sourceforge.net>
-S. Amoako <saces -AT+ users.sourceforge.net>
+Jan Gerritsen <artur8ur -AT+ users.sourceforge.net>
 
 (retired developers:)
+Karsten Graul <bback -AT+ users.sourceforge.net>
+
+S. Amoako <saces -AT+ users.sourceforge.net>
 Jan-Thomas Czornack <jantho -AT+ users.sourceforge.net>
 Thomas Mueller <thm2001 -AT+ users.sourceforge.net>
 Jim Hunziker <landtuna -AT+ users.sourceforge.net>
