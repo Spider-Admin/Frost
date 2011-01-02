@@ -18,24 +18,49 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.*;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
-import frost.*;
-import frost.fileTransfer.download.*;
-import frost.gui.model.*;
-import frost.storage.perst.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.gui.model.SortedTableModel;
+import frost.gui.model.TableMember;
+import frost.storage.perst.TrackDownloadKeys;
+import frost.storage.perst.TrackDownloadKeysStorage;
 import frost.util.DateFun;
 import frost.util.FormatterUtils;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.translation.Language;
 
 public class AddNewDownloadsDialog extends javax.swing.JDialog {
 
@@ -183,8 +208,6 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 	}
 
 	private void initPopupMenu() {
-		tablePopupMenu = new JSkinnablePopupMenu();
-
 		// Rename file
 		final JMenuItem renameFile = new JMenuItem(language.getString("AddNewDownloadsDialog.button.renameFile"));
 		renameFile.addActionListener( new java.awt.event.ActionListener() {
@@ -233,8 +256,35 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 				}
 			});
 		}
+		
+		// recent download directory
+		final JMenu downloadDirRecentMenu = new JMenu(language.getString("DownloadPane.toolbar.downloadDirMenu.setDownloadDirTo"));
+		JMenuItem item = new JMenuItem(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+		item.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				setDownload_actionPerformed(actionEvent, Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+			}
+		});
+		downloadDirRecentMenu.add(item);
+		final LinkedList<String> dirs = FileTransferManager.inst().getDownloadManager().getRecentDownloadDirs();
+		if( dirs.size() > 0 ) {
+			downloadDirRecentMenu.addSeparator();
+			final ListIterator<String> iter = dirs.listIterator(dirs.size());
+			while (iter.hasPrevious()) {
+				final String dir = (String) iter.previous();
+				
+				item = new JMenuItem(dir);
+				item.addActionListener( new java.awt.event.ActionListener() {
+					public void actionPerformed(final ActionEvent actionEvent) {
+						setDownload_actionPerformed(actionEvent, dir);
+					}
+				});
+				downloadDirRecentMenu.add(item);
+			}
+		}
 
 		// Compose popup menu
+		tablePopupMenu = new JSkinnablePopupMenu();
 		tablePopupMenu.add(renameFile);
 		tablePopupMenu.add(prefixFilename);
 		tablePopupMenu.addSeparator();
@@ -243,7 +293,9 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		tablePopupMenu.add(removeDownload);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(changePriorityMenu);
-
+		tablePopupMenu.addSeparator();
+		tablePopupMenu.add(downloadDirRecentMenu);
+		
 		this.addNewDownloadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
 
@@ -405,6 +457,27 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			addNewDownloadsTable.clearSelection();
 		}
 	}
+	
+	
+	private void setDownload_actionPerformed(final ActionEvent e, final String downloadDir) {{
+			final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
+
+			if( selectedRows.length > 0 ) {
+				for( int z = selectedRows.length - 1; z > -1; z-- ) {
+					final int rowIx = selectedRows[z];
+
+					if( rowIx >= addNewDownloadsTableModel.getRowCount() ) {
+						continue; // paranoia
+					}
+
+					final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIx);
+					row.getDownloadItem().setDownloadDir(downloadDir);
+				}
+				addNewDownloadsTable.clearSelection();
+			}
+		}
+	}
+
 	
 	
 	private static class AddNewDownloadsTableModel extends SortedTableModel{
