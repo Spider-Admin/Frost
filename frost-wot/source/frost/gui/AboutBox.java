@@ -94,7 +94,8 @@ public class AboutBox extends JDialogWithDetails {
     private void fillDetailsArea() {
         final StringBuilder details = new StringBuilder();
         details.append(language.getString("AboutBox.text.development") + "\n");
-        details.append("   Karsten Graul\n");
+        details.append("   Jan Gerritsen\n");
+        details.append("   Karsten Graul (suspended)\n");
         details.append("   S. Amoako (quit)\n");
         details.append("   Roman Glebov (quit)\n");
         details.append("   Jan-Thomas Czornack (quit)\n");
