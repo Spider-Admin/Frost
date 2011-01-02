@@ -54,6 +54,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.translate.*;
 
+@SuppressWarnings("serial")
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
 
     private static final Logger logger = Logger.getLogger(MainFrame.class.getName());

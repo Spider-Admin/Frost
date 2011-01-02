@@ -17,35 +17,88 @@
  */
 package frost.fileTransfer.download;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.datatransfer.*;
-import java.beans.*;
-import java.io.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.*;
+import java.util.ListIterator;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
+import javax.swing.tree.TreePath;
 
-import frost.*;
-import frost.ext.*;
-import frost.fcp.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.common.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.SettingsUpdater;
+import frost.ext.ExecuteDocument;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.PersistenceManager;
+import frost.fileTransfer.common.FileListFileDetailsDialog;
 import frost.gui.AddNewDownloadsDialog;
-import frost.storage.perst.TrackDownloadKeysStorage;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.search.*;
-import frost.util.gui.translation.*;
-import frost.util.model.*;
-import frost.messaging.frost.boards.*;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.boards.TofTree;
+import frost.util.CopyToClipboard;
+import frost.util.FileAccess;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.search.TableFindAction;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
+import frost.util.model.ModelItem;
+import frost.util.model.SortedModelTable;
 
+@SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private PopupMenuDownload popupMenuDownload = null;
@@ -60,6 +113,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private final JToolBar downloadToolBar = new JToolBar();
 	private final JButton downloadPasteButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-paste.png"));
+	private final JButton submitDownloadTextfieldButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/document-save-as.png"));
 	private final JButton downloadActivateButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-start.png"));
 	private final JButton downloadPauseButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-pause.png"));
 	private final JButton downloadPrefixApplyButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
@@ -115,6 +169,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			refreshLanguage();
 
 			MiscToolkit.configureButton(downloadPasteButton);
+			MiscToolkit.configureButton(submitDownloadTextfieldButton);
 			MiscToolkit.configureButton(downloadPrefixApplyButton);
 			MiscToolkit.configureButton(downloadDirSelectButton);
 			MiscToolkit.configureButton(downloadDirCreateButton);
@@ -139,8 +194,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			removeFinishedDownloadsCheckBox.setOpaque(false);
 			showExternalGlobalQueueItems.setOpaque(false);
 
-			final JPanel panelHeader = new JPanel(new BorderLayout());
-
 			// Toolbar
 			downloadToolBar.add(downloadActivateButton);
 			downloadToolBar.add(downloadPauseButton);
@@ -153,57 +206,75 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadToolBar.add(Box.createHorizontalGlue());
 			downloadToolBar.add(downloadItemCountLabel);
 
+			final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			final JPanel gridBagLayout = new JPanel(new GridBagLayout());
 
-			final GridBagConstraints c = new GridBagConstraints();
-			final JPanel gb = new JPanel(new GridBagLayout());
-
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.NONE;
-			c.insets = new Insets(0, 3, 0, 3);
-			c.weightx = 0.0;
-			c.weighty = 0.0;
-			c.gridwidth = 1;
-			c.gridheight = 1;
+			gridBagConstraints.anchor = GridBagConstraints.WEST;
+			gridBagConstraints.fill = GridBagConstraints.NONE;
+			gridBagConstraints.insets = new Insets(0, 3, 0, 3);
+			gridBagConstraints.weightx = 0.0;
+			gridBagConstraints.weighty = 0.0;
+			gridBagConstraints.gridwidth = 1;
+			gridBagConstraints.gridheight = 1;
 
 			// Quickload
-			c.fill = GridBagConstraints.NONE;
-			c.weightx = 0.0;
-			c.gridx = 0; c.gridy = 0; gb.add(downloadQuickloadLabel, c);
-			c.gridx = 1; c.gridy = 0; gb.add(downloadTextField, c);
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.weightx = 1.0;
-			c.gridx = 2; c.gridy = 0; {
+			gridBagConstraints.fill = GridBagConstraints.NONE;
+			gridBagConstraints.weightx = 0.0;
+			gridBagConstraints.gridx = 0; 
+			gridBagConstraints.gridy = 0; 
+			gridBagLayout.add(downloadQuickloadLabel, gridBagConstraints);
+			gridBagConstraints.gridx = 1; 
+			gridBagConstraints.gridy = 0; 
+			gridBagLayout.add(downloadTextField, gridBagConstraints);
+			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints.weightx = 1.0;
+			gridBagConstraints.gridx = 2; 
+			gridBagConstraints.gridy = 0; 
+			{
 				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+				p.add(submitDownloadTextfieldButton);
 				p.add(downloadPasteButton);
-				gb.add(p, c);
+				gridBagLayout.add(p, gridBagConstraints);
 			}
 
 			// Prefix
-			c.fill = GridBagConstraints.NONE;
-			c.weightx = 0.0;
-			c.gridx = 0; c.gridy = 1; gb.add(downloadPrefixLabel, c);
-			c.gridx = 1; c.gridy = 1; gb.add(downloadPrefixTextField, c);
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.weightx = 1.0;
-			c.gridx = 2; c.gridy = 1; {
+			gridBagConstraints.fill = GridBagConstraints.NONE;
+			gridBagConstraints.weightx = 0.0;
+			gridBagConstraints.gridx = 0; 
+			gridBagConstraints.gridy = 1; 
+			gridBagLayout.add(downloadPrefixLabel, gridBagConstraints);
+			gridBagConstraints.gridx = 1; 
+			gridBagConstraints.gridy = 1; 
+			gridBagLayout.add(downloadPrefixTextField, gridBagConstraints);
+			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints.weightx = 1.0;
+			gridBagConstraints.gridx = 2; 
+			gridBagConstraints.gridy = 1; 
+			{
 				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
 				p.add(downloadPrefixApplyButton);
-				gb.add(p, c);
+				gridBagLayout.add(p, gridBagConstraints);
 			}
 
 			// Download directory
-			c.fill = GridBagConstraints.NONE;
-			c.weightx = 0.0;
-			c.gridx = 0; c.gridy = 2; gb.add(downloadDirLabel, c);
-			c.gridx = 1; c.gridy = 2; gb.add(downloadDirTextField, c);
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.weightx = 1.0;
-			c.gridx = 2; c.gridy = 2; {
+			gridBagConstraints.fill = GridBagConstraints.NONE;
+			gridBagConstraints.weightx = 0.0;
+			gridBagConstraints.gridx = 0; 
+			gridBagConstraints.gridy = 2; 
+			gridBagLayout.add(downloadDirLabel, gridBagConstraints);
+			gridBagConstraints.gridx = 1; 
+			gridBagConstraints.gridy = 2; 
+			gridBagLayout.add(downloadDirTextField, gridBagConstraints);
+			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
+			gridBagConstraints.weightx = 1.0;
+			gridBagConstraints.gridx = 2; 
+			gridBagConstraints.gridy = 2;
+			{
 				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
 				p.add(downloadDirSelectButton);
 				p.add(downloadDirCreateButton);
 				p.add(downloadDirApplyButton);
-				gb.add(p, c);
+				gridBagLayout.add(p, gridBagConstraints);
 			}
 
 			downloadTextField.setMinimumSize(downloadTextField.getPreferredSize());
@@ -220,8 +291,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			modelTable = new SortedModelTable(model);
 			new TableFindAction().install(modelTable.getTable());
 			setLayout(new BorderLayout());
+			
+			final JPanel panelHeader = new JPanel(new BorderLayout());
 			panelHeader.add(downloadToolBar, BorderLayout.PAGE_START);
-			panelHeader.add(gb, BorderLayout.CENTER);
+			panelHeader.add(gridBagLayout, BorderLayout.CENTER);
 
 			add(panelHeader, BorderLayout.NORTH);
 			add(modelTable.getScrollPane(), BorderLayout.CENTER);
@@ -232,6 +305,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			// listeners
 			downloadTextField.addActionListener(listener);
 			downloadPasteButton.addActionListener(listener);
+			submitDownloadTextfieldButton.addActionListener(listener);
 			downloadActivateButton.addActionListener(listener);
 			downloadPauseButton.addActionListener(listener);
 			modelTable.getScrollPane().addMouseListener(listener);
@@ -268,6 +342,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private void refreshLanguage() {
 		downloadPasteButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pasteKeys"));
+		submitDownloadTextfieldButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.downloadKeys"));
 		downloadActivateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.activateDownloading"));
 		downloadPauseButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pauseDownloading"));
 		removeFinishedDownloadsCheckBox.setText(language.getString("DownloadPane.removeFinishedDownloads"));
@@ -313,8 +388,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void downloadDirTextField_focusLost(final FocusEvent e) {
-		final String dir = downloadDirTextField.getText();
-
 		updateDownloadDirTextFieldBackground();
 	}
 
@@ -400,19 +473,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * The textfield can contain 1 key to download or multiple keys separated by ';'.
 	 */
 	 private void downloadTextField_actionPerformed(final ActionEvent e) {
-		 
 		 String keylist = downloadTextField.getText();
-		 
-		 List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(keylist);
-
-		 final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
-				 MainFrame.getInstance(), frostDownloadItemList);
-		 frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-
-
-		 DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
-		 for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
-			 downloadModel.addDownloadItem(frostDownloadItem);
+		 if( keylist != null && keylist.length() != 0 ) {
+			 openAddNewDownloadsDialog(keylist);
 		 }
 	 }
 
@@ -513,32 +576,63 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 }
 
 	 private void downloadPasteButtonPressed(final ActionEvent e) {
-		 Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-		 String text;
-
-		 if (t == null)
+		 Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		 if (transferable == null) {
 			 return;
-
+		 }
+		 
+		 // try to get data from clipboard
+		 String clipboardText;
 		 try {
-			 if (!t.isDataFlavorSupported(DataFlavor.stringFlavor))
+			 if (!transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
 				 return;
-			 text = (String)t.getTransferData(DataFlavor.stringFlavor);
+			 }
+			 clipboardText = (String)transferable.getTransferData(DataFlavor.stringFlavor);
 		 } catch (Exception stfu) {
 			 return;
 		 }
 
-		 if (text != null) {
-			 List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(text);
+		 if (clipboardText != null && clipboardText.length() != 0) {
+			 openAddNewDownloadsDialog(clipboardText);
+		 }
+	 }
+	 
+	 
+	 private void openAddNewDownloadsDialog(final String keylist) {
+		 // parse plaintext to get key list
+		 List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(keylist);
+		 if(frostDownloadItemList.size() == 0 ) {
+			 return;
+		 }
+		 
+		 // add default download dir and prefix
+		 for( final FrostDownloadItem frostDownloadItem : frostDownloadItemList) {
+			 final String downloadDir = this.downloadDirTextField.getText();
+			 if( downloadDir != null && downloadDir.length() != 0 ) {
+				 frostDownloadItem.setDownloadDir(downloadDir);
+			 }
 			 
-			 final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
-					 MainFrame.getInstance(), frostDownloadItemList);
-			 frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-
-			 DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
-			 for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
-				 downloadModel.addDownloadItem(frostDownloadItem);
+			 final String filenamePrefix = this.downloadPrefixTextField.getText();
+			 if( filenamePrefix != null && filenamePrefix.length() != 0 ) {
+				 frostDownloadItem.setFilenamePrefix(this.downloadPrefixTextField.getText());
 			 }
 		 }
+
+		 // open dialog - blocking
+		 final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
+				 MainFrame.getInstance(), frostDownloadItemList);
+		 frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
+		 
+		 if(frostDownloadItemList.size() == 0)  {
+			 return;
+		 }
+
+		 // add files from dialog to download queue
+		 DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
+		 for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
+			 frostDownloadItem.setDownloadDir(downloadDirTextField.getText());
+			 downloadModel.addDownloadItem(frostDownloadItem);
+		 }		 
 	 }
 
 	 private void downloadActivateButtonPressed(final ActionEvent e) {
@@ -1029,9 +1123,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		 }
 	 }
 
-	 private class Listener
-	 extends MouseAdapter
-	 implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener, ItemListener, FocusListener, MenuListener {
+	 private class Listener  extends MouseAdapter implements LanguageListener, ActionListener, KeyListener, 
+	 			MouseListener, PropertyChangeListener, ItemListener, FocusListener, MenuListener {
 
 		 public Listener() {
 			 super();
@@ -1044,17 +1137,20 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		 public void actionPerformed(final ActionEvent e) {
 			 if (e.getSource() == downloadDirSelectButton) {
 				 downloadDirSelectButton_actionPerformed(e);
-			 }
-			 if (e.getSource() == downloadDirCreateButton) {
+			 } 
+			 else if (e.getSource() == downloadDirCreateButton) {
 				 downloadDirCreateButton_actionPerformed(e);
 			 }
-			 if (e.getSource() == downloadPrefixApplyButton) {
+			 else if (e.getSource() == downloadPrefixApplyButton) {
 				 downloadPrefixApplyButton_actionPerformed(e);
 			 }
-			 if (e.getSource() == downloadDirApplyButton) {
+			 else if (e.getSource() == downloadDirApplyButton) {
 				 downloadDirApplyButton_actionPerformed(e);
 			 }
-			 if (e.getSource() == downloadTextField) {
+			 else if (e.getSource() == submitDownloadTextfieldButton) {
+				 downloadTextField_actionPerformed(e);
+			 }
+			 else if (e.getSource() == downloadTextField) {
 				 downloadTextField_actionPerformed(e);
 			 }
 			 else if (e.getSource() == downloadPasteButton) {

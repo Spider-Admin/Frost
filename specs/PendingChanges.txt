@@ -71,12 +71,6 @@ Pending changes since last release
 * Invalid "keys" that are entered into the quickload text field are silently
   ignored.
 
-* The 20 most recently used download directories are remembered.
-
-  They are accessed by right-clicking the download directory text field on
-  the download pane ("Set to..."), and are available from the new
-  "Download keys to..." menu entry in the message window.
-
 * Restarting running downloads actually restarts the downloads.
 
   Frost normally does nothing when you tell it to restart a running download.
