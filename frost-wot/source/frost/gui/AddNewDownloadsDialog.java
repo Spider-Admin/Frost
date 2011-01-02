@@ -233,11 +233,19 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		});
 		
 
-		// Remove item from list
+		// Remove item item(s) list
 		final JMenuItem removeDownload = new JMenuItem(language.getString("AddNewDownloadsDialog.button.removeDownload"));
 		removeDownload.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				removeDownload_actionPerformed(actionEvent);
+			}
+		});
+
+		// Remove but selected item(s) from list
+		final JMenuItem removeButSelectedDownload = new JMenuItem(language.getString("AddNewDownloadsDialog.button.removeButSelectedDownload"));
+		removeButSelectedDownload.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				removeButSelectedDownload_actionPerformed(actionEvent);
 			}
 		});
 
@@ -291,6 +299,7 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 		tablePopupMenu.add(changeDownloadDir);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(removeDownload);
+		tablePopupMenu.add(removeButSelectedDownload);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(changePriorityMenu);
 		tablePopupMenu.addSeparator();
@@ -439,6 +448,20 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			addNewDownloadsTable.clearSelection();
 		}
 	}
+	
+	private void removeButSelectedDownload_actionPerformed(final ActionEvent e) {
+		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
+		java.util.Arrays.sort( selectedRows );
+
+		for( int z = addNewDownloadsTableModel.getRowCount() - 1 ; z > -1 ; z--) {
+			if( java.util.Arrays.binarySearch(selectedRows, z) < 0) {
+				addNewDownloadsTableModel.deleteRow(
+						(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(z)
+				);
+			}
+		}
+	}
+	
 
 	private void changePriority_actionPerformed(final ActionEvent e, final int priority) {
 		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
