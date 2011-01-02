@@ -113,13 +113,20 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private final JToolBar downloadToolBar = new JToolBar();
 	private final JButton downloadPasteButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-paste.png"));
-	private final JButton submitDownloadTextfieldButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/document-save-as.png"));
-	private final JButton downloadActivateButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-start.png"));
-	private final JButton downloadPauseButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-pause.png"));
-	private final JButton downloadPrefixApplyButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
-	private final JButton downloadDirSelectButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-open.png"));
-	private final JButton downloadDirCreateButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-new.png"));
-	private final JButton downloadDirApplyButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
+	private final JButton submitDownloadTextfieldButton = new JButton(MiscToolkit
+			.loadImageIcon("/data/toolbar/document-save-as.png"));
+	private final JButton downloadActivateButton = new JButton(MiscToolkit
+			.loadImageIcon("/data/toolbar/media-playback-start.png"));
+	private final JButton downloadPauseButton = new JButton(MiscToolkit
+			.loadImageIcon("/data/toolbar/media-playback-pause.png"));
+	private final JButton downloadPrefixApplyButton = new JButton(MiscToolkit
+			.loadImageIcon("/data/toolbar/view-refresh.png"));
+	private final JButton downloadDirSelectButton = new JButton(MiscToolkit
+			.loadImageIcon("/data/toolbar/folder-open.png"));
+	private final JButton downloadDirCreateButton = new JButton(MiscToolkit
+			.loadImageIcon("/data/toolbar/folder-new.png"));
+	private final JButton downloadDirApplyButton = new JButton(MiscToolkit
+			.loadImageIcon("/data/toolbar/view-refresh.png"));
 	private final JMenu downloadDirRecentMenu = new JMenu();
 	private final JTextField downloadPrefixTextField = new JTextField(30);
 	private final JTextField downloadDirTextField = new JTextField(30);
@@ -151,9 +158,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	/**
-	 * This Document changes all newlines in the text into semicolons.
-	 * Needed if the user pastes multiple download keys, each on a line,
-	 * into the download text field.
+	 * This Document changes all newlines in the text into semicolons. Needed if
+	 * the user pastes multiple download keys, each on a line, into the download
+	 * text field.
 	 */
 	protected class HandleMultiLineKeysDocument extends PlainDocument {
 		@Override
@@ -199,7 +206,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadToolBar.add(downloadPauseButton);
 			downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
 			downloadToolBar.add(removeFinishedDownloadsCheckBox);
-			if( PersistenceManager.isPersistenceEnabled() ) {
+			if (PersistenceManager.isPersistenceEnabled()) {
 				downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
 				downloadToolBar.add(showExternalGlobalQueueItems);
 			}
@@ -220,16 +227,16 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			// Quickload
 			gridBagConstraints.fill = GridBagConstraints.NONE;
 			gridBagConstraints.weightx = 0.0;
-			gridBagConstraints.gridx = 0; 
-			gridBagConstraints.gridy = 0; 
+			gridBagConstraints.gridx = 0;
+			gridBagConstraints.gridy = 0;
 			gridBagLayout.add(downloadQuickloadLabel, gridBagConstraints);
-			gridBagConstraints.gridx = 1; 
-			gridBagConstraints.gridy = 0; 
+			gridBagConstraints.gridx = 1;
+			gridBagConstraints.gridy = 0;
 			gridBagLayout.add(downloadTextField, gridBagConstraints);
 			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints.weightx = 1.0;
-			gridBagConstraints.gridx = 2; 
-			gridBagConstraints.gridy = 0; 
+			gridBagConstraints.gridx = 2;
+			gridBagConstraints.gridy = 0;
 			{
 				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
 				p.add(submitDownloadTextfieldButton);
@@ -240,16 +247,16 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			// Prefix
 			gridBagConstraints.fill = GridBagConstraints.NONE;
 			gridBagConstraints.weightx = 0.0;
-			gridBagConstraints.gridx = 0; 
-			gridBagConstraints.gridy = 1; 
+			gridBagConstraints.gridx = 0;
+			gridBagConstraints.gridy = 1;
 			gridBagLayout.add(downloadPrefixLabel, gridBagConstraints);
-			gridBagConstraints.gridx = 1; 
-			gridBagConstraints.gridy = 1; 
+			gridBagConstraints.gridx = 1;
+			gridBagConstraints.gridy = 1;
 			gridBagLayout.add(downloadPrefixTextField, gridBagConstraints);
 			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints.weightx = 1.0;
-			gridBagConstraints.gridx = 2; 
-			gridBagConstraints.gridy = 1; 
+			gridBagConstraints.gridx = 2;
+			gridBagConstraints.gridy = 1;
 			{
 				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
 				p.add(downloadPrefixApplyButton);
@@ -259,15 +266,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			// Download directory
 			gridBagConstraints.fill = GridBagConstraints.NONE;
 			gridBagConstraints.weightx = 0.0;
-			gridBagConstraints.gridx = 0; 
-			gridBagConstraints.gridy = 2; 
+			gridBagConstraints.gridx = 0;
+			gridBagConstraints.gridy = 2;
 			gridBagLayout.add(downloadDirLabel, gridBagConstraints);
-			gridBagConstraints.gridx = 1; 
-			gridBagConstraints.gridy = 2; 
+			gridBagConstraints.gridx = 1;
+			gridBagConstraints.gridy = 2;
 			gridBagLayout.add(downloadDirTextField, gridBagConstraints);
 			gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints.weightx = 1.0;
-			gridBagConstraints.gridx = 2; 
+			gridBagConstraints.gridx = 2;
 			gridBagConstraints.gridy = 2;
 			{
 				JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
@@ -291,7 +298,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			modelTable = new SortedModelTable(model);
 			new TableFindAction().install(modelTable.getTable());
 			setLayout(new BorderLayout());
-			
+
 			final JPanel panelHeader = new JPanel(new BorderLayout());
 			panelHeader.add(downloadToolBar, BorderLayout.PAGE_START);
 			panelHeader.add(gridBagLayout, BorderLayout.CENTER);
@@ -323,9 +330,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
 			Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
-			//Settings
-			removeFinishedDownloadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED));
-			showExternalGlobalQueueItems.setSelected(Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD));
+			// Settings
+			removeFinishedDownloadsCheckBox.setSelected(Core.frostSettings
+					.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED));
+			showExternalGlobalQueueItems.setSelected(Core.frostSettings
+					.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD));
 			setDownloadingActivated(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOADING_ACTIVATED));
 
 			assignHotkeys();
@@ -352,7 +361,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		downloadPrefixTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.downloadPrefix"));
 		downloadDirTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.downloadDir"));
 
-		downloadPrefixApplyButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.applyDownloadPrefix"));
+		downloadPrefixApplyButton
+				.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.applyDownloadPrefix"));
 		downloadDirSelectButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.selectDownloadDir"));
 		downloadDirCreateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.createDownloadDir"));
 		downloadDirApplyButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.applyDownloadDir"));
@@ -436,7 +446,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		final ModelItem[] selectedItems = modelTable.getSelectedItems();
 
 		for (final ModelItem mi : selectedItems) {
-			final FrostDownloadItem i = (FrostDownloadItem)mi;
+			final FrostDownloadItem i = (FrostDownloadItem) mi;
 
 			if (!i.isExternal()) {
 				i.setFilenamePrefix(getDownloadPrefix());
@@ -449,7 +459,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		final ModelItem[] selectedItems = modelTable.getSelectedItems();
 
 		for (final ModelItem mi : selectedItems) {
-			final FrostDownloadItem i = (FrostDownloadItem)mi;
+			final FrostDownloadItem i = (FrostDownloadItem) mi;
 
 			if (!i.isExternal()) {
 				i.setDownloadDir(getDownloadDir());
@@ -465,817 +475,823 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private void downloadPrefixApplyButton_actionPerformed(final ActionEvent e) {
 		applyDownloadPrefixToSelectedDownloads();
 	}
-	
-	
 
 	/**
-	 * downloadTextField Action Listener (Download/Quickload)
-	 * The textfield can contain 1 key to download or multiple keys separated by ';'.
+	 * downloadTextField Action Listener (Download/Quickload) The textfield can
+	 * contain 1 key to download or multiple keys separated by ';'.
 	 */
-	 private void downloadTextField_actionPerformed(final ActionEvent e) {
-		 String keylist = downloadTextField.getText();
-		 if( keylist != null && keylist.length() != 0 ) {
-			 openAddNewDownloadsDialog(keylist);
-		 }
-	 }
-
-	 /**
-	  * Get keyTyped for downloadTable
-	  */
-	 private void downloadTable_keyPressed(final KeyEvent e) {
-		 final char key = e.getKeyChar();
-		 if (key == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
-			 removeSelectedDownloads();
-		 }
-	 }
-
-	 private void removeSelectedDownloads() {
-		 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-
-		 final List<String> externalRequestsToRemove = new LinkedList<String>();
-		 final List<ModelItem> requestsToRemove = new LinkedList<ModelItem>();
-		 for( final ModelItem mi : selectedItems ) {
-			 final FrostDownloadItem i = (FrostDownloadItem)mi;
-			 requestsToRemove.add(mi);
-			 if( i.isExternal() ) {
-				 externalRequestsToRemove.add(i.getGqIdentifier());
-			 }
-		 }
-
-		 final ModelItem[] ri = requestsToRemove.toArray(new ModelItem[requestsToRemove.size()]);
-		 model.removeItems(ri);
-
-		 modelTable.getTable().clearSelection();
-
-		 if( FileTransferManager.inst().getPersistenceManager() != null && externalRequestsToRemove.size() > 0 ) {
-			 new Thread() {
-				 @Override
-				 public void run() {
-					 FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
-				 }
-			 }.start();
-		 }
-	 }
-
-	 public boolean isDownloadingActivated() {
-		 return downloadingActivated;
-	 }
-
-	 public void setDownloadingActivated(final boolean b) {
-		 downloadingActivated = b;
-
-		 downloadActivateButton.setEnabled(!downloadingActivated);
-		 downloadPauseButton.setEnabled(downloadingActivated);
-	 }
-
-	 public void setDownloadItemCount(final int newDownloadItemCount) {
-		 downloadItemCount = newDownloadItemCount;
-
-		 final String s =
-			 new StringBuilder()
-				 .append(language.getString("DownloadPane.toolbar.waiting"))
-				 .append(": ")
-				 .append(downloadItemCount)
-				 .toString();
-		 downloadItemCountLabel.setText(s);
-	 }
-
-	 private PopupMenuDownload getPopupMenuDownload() {
-		 if (popupMenuDownload == null) {
-			 popupMenuDownload = new PopupMenuDownload();
-			 language.addLanguageListener(popupMenuDownload);
-		 }
-		 return popupMenuDownload;
-	 }
-
-	 private void showDownloadTablePopupMenu(final MouseEvent e) {
-		 // select row where rightclick occurred if row under mouse is NOT selected
-		 final Point p = e.getPoint();
-		 final int y = modelTable.getTable().rowAtPoint(p);
-		 if( y < 0 ) {
-			 return;
-		 }
-		 if( !modelTable.getTable().getSelectionModel().isSelectedIndex(y) ) {
-			 modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
-		 }
-		 getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
-	 }
-
-	 private void fontChanged() {
-		 final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
-		 final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
-		 final int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
-		 Font font = new Font(fontName, fontStyle, fontSize);
-		 if (!font.getFamily().equals(fontName)) {
-			 logger.severe("The selected font was not found in your system\n" +
-			 "That selection will be changed to \"SansSerif\".");
-			 Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
-			 font = new Font("SansSerif", fontStyle, fontSize);
-		 }
-		 modelTable.setFont(font);
-	 }
-
-	 private void downloadPasteButtonPressed(final ActionEvent e) {
-		 Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
-		 if (transferable == null) {
-			 return;
-		 }
-		 
-		 // try to get data from clipboard
-		 String clipboardText;
-		 try {
-			 if (!transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-				 return;
-			 }
-			 clipboardText = (String)transferable.getTransferData(DataFlavor.stringFlavor);
-		 } catch (Exception stfu) {
-			 return;
-		 }
-
-		 if (clipboardText != null && clipboardText.length() != 0) {
-			 openAddNewDownloadsDialog(clipboardText);
-		 }
-	 }
-	 
-	 
-	 private void openAddNewDownloadsDialog(final String keylist) {
-		 // parse plaintext to get key list
-		 List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(keylist);
-		 if(frostDownloadItemList.size() == 0 ) {
-			 return;
-		 }
-		 
-		 // add default download dir and prefix
-		 for( final FrostDownloadItem frostDownloadItem : frostDownloadItemList) {
-			 final String downloadDir = this.downloadDirTextField.getText();
-			 if( downloadDir != null && downloadDir.length() != 0 ) {
-				 frostDownloadItem.setDownloadDir(downloadDir);
-			 }
-			 
-			 final String filenamePrefix = this.downloadPrefixTextField.getText();
-			 if( filenamePrefix != null && filenamePrefix.length() != 0 ) {
-				 frostDownloadItem.setFilenamePrefix(this.downloadPrefixTextField.getText());
-			 }
-		 }
-
-		 // open dialog - blocking
-		 final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
-				 MainFrame.getInstance(), frostDownloadItemList);
-		 frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-		 
-		 if(frostDownloadItemList.size() == 0)  {
-			 return;
-		 }
-
-		 // add files from dialog to download queue
-		 DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
-		 for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
-			 frostDownloadItem.setDownloadDir(downloadDirTextField.getText());
-			 downloadModel.addDownloadItem(frostDownloadItem);
-		 }		 
-	 }
-
-	 private void downloadActivateButtonPressed(final ActionEvent e) {
-		 setDownloadingActivated(true);
-	 }
-
-	 private void downloadPauseButtonPressed(final ActionEvent e) {
-		 setDownloadingActivated(false);
-	 }
-
-	 private void downloadTableDoubleClick(final MouseEvent e) {
-		 final int clickedCol = modelTable.getTable().columnAtPoint(e.getPoint());
-		 final int modelIx = modelTable.getTable().getColumnModel().getColumn(clickedCol).getModelIndex();
-		 if (modelIx == 0) {
-			 return;
-		 }
-
-		 final ModelItem selectedItem = modelTable.getSelectedItem();
-		 if (selectedItem != null) {
-			 final FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
-			 final File targetFile = new File(dlItem.getDownloadFilename());
-			 if( !targetFile.isFile() ) {
-				 return;
-			 }
-			 logger.info("Executing: " + targetFile.getAbsolutePath());
-			 try {
-				 ExecuteDocument.openDocument(targetFile);
-			 } catch(final Throwable t) {
-				 JOptionPane.showMessageDialog(this,
-						 "Could not open the file: "+targetFile.getAbsolutePath()+"\n"+t.toString(),
-						 "Error",
-						 JOptionPane.ERROR_MESSAGE);
-			 }
-		 }
-	 }
-
-	 /* (non-Javadoc)
-	  * @see frost.SettingsUpdater#updateSettings()
-	  */
-	 public void updateSettings() {
-		 Core.frostSettings.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
-	 }
-
-	 private void assignHotkeys() {
-
-		 // assign keys 1-6 - set priority of selected items
-		 final Action setPriorityAction = new AbstractAction() {
-			 public void actionPerformed(final ActionEvent event) {
-				 final int prio = new Integer(event.getActionCommand()).intValue();
-				 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-				 FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
-			 }
-		 };
-		 getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "SETPRIO");
-		 getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "SETPRIO");
-		 getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "SETPRIO");
-		 getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0), "SETPRIO");
-		 getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0), "SETPRIO");
-		 getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0), "SETPRIO");
-		 getActionMap().put("SETPRIO", setPriorityAction);
-	 }
-
-	 /**
-	  * Renderer draws background of DONE items in green.
-	  */
-	 private class CellRenderer extends DefaultTableCellRenderer {
-
-		 private final Color col_green    = new Color(0x00, 0x80, 0x00);
-
-		 public CellRenderer() {
-			 super();
-		 }
-
-		 @Override
-		 public Component getTableCellRendererComponent(
-				 final JTable table,
-				 final Object value,
-				 final boolean isSelected,
-				 final boolean hasFocus,
-				 final int row,
-				 final int column) {
-
-			 super.getTableCellRendererComponent(table, value, isSelected, /*hasFocus*/ false, row, column);
-
-			 final FrostDownloadItem item = (FrostDownloadItem)model.getItemAt(row);
-
-			 // set background of DONE downloads green
-			 if( item.getState() == FrostDownloadItem.STATE_DONE ) {
-				 setBackground(col_green);
-			 } else {
-				 setBackground(modelTable.getTable().getBackground());
-			 }
-
-			 return this;
-		 }
-	 }
-
-	 private class PopupMenuDownload extends JSkinnablePopupMenu
-	 implements ActionListener, LanguageListener {
-
-		 private final JMenuItem detailsItem = new JMenuItem();
-		 private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-		 private final JMenuItem copyExtendedInfoItem = new JMenuItem();
-		 private final JMenuItem disableAllDownloadsItem = new JMenuItem();
-		 private final JMenuItem disableSelectedDownloadsItem = new JMenuItem();
-		 private final JMenuItem enableAllDownloadsItem = new JMenuItem();
-		 private final JMenuItem enableSelectedDownloadsItem = new JMenuItem();
-		 private final JMenuItem invertEnabledAllItem = new JMenuItem();
-		 private final JMenuItem invertEnabledSelectedItem = new JMenuItem();
-		 private final JMenuItem removeSelectedDownloadsItem = new JMenuItem();
-		 private final JMenuItem restartSelectedDownloadsItem = new JMenuItem();
-
-		 private final JMenuItem startSelectedDownloadsNow = new JMenuItem();
-
-		 private final JMenuItem useThisDownloadDirItem = new JMenuItem();
-		 private final JMenuItem jumpToAssociatedMessage = new JMenuItem();
-
-		 private JMenu changePriorityMenu = null;
-		 private JMenuItem prio0Item = null;
-		 private JMenuItem prio1Item = null;
-		 private JMenuItem prio2Item = null;
-		 private JMenuItem prio3Item = null;
-		 private JMenuItem prio4Item = null;
-		 private JMenuItem prio5Item = null;
-		 private JMenuItem prio6Item = null;
-		 private JMenuItem removeFromGqItem = null;
-
-		 private JMenuItem retrieveDirectExternalDownloads = null;
-
-		 public PopupMenuDownload() {
-			 super();
-			 initialize();
-		 }
-
-		 private void initialize() {
-
-			 if( PersistenceManager.isPersistenceEnabled() ) {
-				 changePriorityMenu = new JMenu();
-				 prio0Item = new JMenuItem();
-				 prio1Item = new JMenuItem();
-				 prio2Item = new JMenuItem();
-				 prio3Item = new JMenuItem();
-				 prio4Item = new JMenuItem();
-				 prio5Item = new JMenuItem();
-				 prio6Item = new JMenuItem();
-				 removeFromGqItem = new JMenuItem();
-
-				 changePriorityMenu.add(prio0Item);
-				 changePriorityMenu.add(prio1Item);
-				 changePriorityMenu.add(prio2Item);
-				 changePriorityMenu.add(prio3Item);
-				 changePriorityMenu.add(prio4Item);
-				 changePriorityMenu.add(prio5Item);
-				 changePriorityMenu.add(prio6Item);
-
-				 prio0Item.addActionListener(this);
-				 prio1Item.addActionListener(this);
-				 prio2Item.addActionListener(this);
-				 prio3Item.addActionListener(this);
-				 prio4Item.addActionListener(this);
-				 prio5Item.addActionListener(this);
-				 prio6Item.addActionListener(this);
-				 removeFromGqItem.addActionListener(this);
-
-				 retrieveDirectExternalDownloads = new JMenuItem();
-				 retrieveDirectExternalDownloads.addActionListener(this);
-			 }
-
-			 refreshLanguage();
-
-			 // TODO: implement cancel of downloads
-
-			 copyKeysAndNamesItem.addActionListener(this);
-			 copyExtendedInfoItem.addActionListener(this);
-			 restartSelectedDownloadsItem.addActionListener(this);
-			 removeSelectedDownloadsItem.addActionListener(this);
-			 enableAllDownloadsItem.addActionListener(this);
-			 disableAllDownloadsItem.addActionListener(this);
-			 enableSelectedDownloadsItem.addActionListener(this);
-			 disableSelectedDownloadsItem.addActionListener(this);
-			 invertEnabledAllItem.addActionListener(this);
-			 invertEnabledSelectedItem.addActionListener(this);
-			 detailsItem.addActionListener(this);
-			 startSelectedDownloadsNow.addActionListener(this);
-			 useThisDownloadDirItem.addActionListener(this);
-			 jumpToAssociatedMessage.addActionListener(this);
-		 }
-
-		 private void refreshLanguage() {
-			 detailsItem.setText(language.getString("Common.details"));
-			 copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
-			 copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
-			 restartSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.restartSelectedDownloads"));
-			 removeSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeSelectedDownloads"));
-			 enableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableAllDownloads"));
-			 disableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableAllDownloads"));
-			 enableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableSelectedDownloads"));
-			 disableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableSelectedDownloads"));
-			 invertEnabledAllItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
-			 invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
-			 startSelectedDownloadsNow.setText(language.getString("DownloadPane.fileTable.popupmenu.startSelectedDownloadsNow"));
-			 useThisDownloadDirItem.setText(language.getString("DownloadPane.fileTable.popupmenu.useThisDownloadDir"));
-			 jumpToAssociatedMessage.setText(language.getString("DownloadPane.fileTable.popupmenu.jumpToAssociatedMessage"));
-
-			 if( PersistenceManager.isPersistenceEnabled() ) {
-				 changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
-				 prio0Item.setText(language.getString("Common.priority.priority0"));
-				 prio1Item.setText(language.getString("Common.priority.priority1"));
-				 prio2Item.setText(language.getString("Common.priority.priority2"));
-				 prio3Item.setText(language.getString("Common.priority.priority3"));
-				 prio4Item.setText(language.getString("Common.priority.priority4"));
-				 prio5Item.setText(language.getString("Common.priority.priority5"));
-				 prio6Item.setText(language.getString("Common.priority.priority6"));
-				 removeFromGqItem.setText(language.getString("DownloadPane.fileTable.popupmenu.removeFromGlobalQueue"));
-
-				 retrieveDirectExternalDownloads.setText(language.getString("DownloadPane.fileTable.popupmenu.retrieveDirectExternalDownloads"));
-			 }
-		 }
-
-		 public void actionPerformed(final ActionEvent e) {
-			 if (e.getSource() == copyKeysAndNamesItem) {
-				 CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
-			 } else if (e.getSource() == copyExtendedInfoItem) {
-				 CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
-			 } else if (e.getSource() == restartSelectedDownloadsItem) {
-				 restartSelectedDownloads();
-			 } else if (e.getSource() == useThisDownloadDirItem) {
-				 useThisDownloadDirectory();
-			 } else if (e.getSource() == jumpToAssociatedMessage) {
-				 jumpToAssociatedMessage();
-			 } else if (e.getSource() == removeSelectedDownloadsItem) {
-				 removeSelectedDownloads();
-			 } else if (e.getSource() == enableAllDownloadsItem) {
-				 enableAllDownloads();
-			 } else if (e.getSource() == disableAllDownloadsItem) {
-				 disableAllDownloads();
-			 } else if (e.getSource() == enableSelectedDownloadsItem) {
-				 enableSelectedDownloads();
-			 } else if (e.getSource() == disableSelectedDownloadsItem) {
-				 disableSelectedDownloads();
-			 } else if (e.getSource() == invertEnabledAllItem) {
-				 invertEnabledAll();
-			 } else if (e.getSource() == invertEnabledSelectedItem) {
-				 invertEnabledSelected();
-			 } else if (e.getSource() == detailsItem) {
-				 showDetails();
-			 } else if (e.getSource() == prio0Item) {
-				 changePriority(0);
-			 } else if (e.getSource() == prio1Item) {
-				 changePriority(1);
-			 } else if (e.getSource() == prio2Item) {
-				 changePriority(2);
-			 } else if (e.getSource() == prio3Item) {
-				 changePriority(3);
-			 } else if (e.getSource() == prio4Item) {
-				 changePriority(4);
-			 } else if (e.getSource() == prio5Item) {
-				 changePriority(5);
-			 } else if (e.getSource() == prio6Item) {
-				 changePriority(6);
-			 } else if (e.getSource() == removeFromGqItem) {
-				 removeSelectedUploadsFromGlobalQueue();
-			 } else if (e.getSource() == retrieveDirectExternalDownloads) {
-				 retrieveDirectExternalDownloads();
-			 } else if (e.getSource() == startSelectedDownloadsNow ) {
-				 startSelectedDownloadsNow();
-			 }
-		 }
-
-		 private void removeSelectedUploadsFromGlobalQueue() {
-			 if( FileTransferManager.inst().getPersistenceManager() == null ) {
-				 return;
-			 }
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 final List<String> requestsToRemove = new ArrayList<String>();
-			 final List<FrostDownloadItem> itemsToUpdate = new ArrayList<FrostDownloadItem>();
-			 for(final ModelItem mi : selectedItems) {
-				 final FrostDownloadItem item = (FrostDownloadItem) mi;
-				 if( FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
-					 requestsToRemove.add( item.getGqIdentifier() );
-					 itemsToUpdate.add(item);
-					 item.setInternalRemoveExpected(true);
-				 }
-			 }
-			 FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
-			 // after remove, update state of removed items
-			 for(final FrostDownloadItem item : itemsToUpdate) {
-				 item.setState(FrostDownloadItem.STATE_WAITING);
-				 item.setEnabled(Boolean.FALSE);
-				 item.setPriority(-1);
-				 item.fireValueChanged();
-			 }
-		 }
-
-		 private void retrieveDirectExternalDownloads() {
-			 if( FileTransferManager.inst().getPersistenceManager() == null ) {
-				 return;
-			 }
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 for(final ModelItem mi : selectedItems) {
-				 final FrostDownloadItem item = (FrostDownloadItem) mi;
-				 if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
-					 final long expectedFileSize = item.getFileSize(); // set from global queue
-					 FileTransferManager.inst().getPersistenceManager().maybeEnqueueDirectGet(item, expectedFileSize);
-				 }
-			 }
-		 }
-
-		 private void startSelectedDownloadsNow() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-
-			 final List<FrostDownloadItem> itemsToStart = new LinkedList<FrostDownloadItem>();
-			 for( final ModelItem mi : selectedItems ) {
-				 final FrostDownloadItem i = (FrostDownloadItem)mi;
-				 if( i.isExternal() ) {
-					 continue;
-				 }
-				 if( i.getState() != FrostDownloadItem.STATE_WAITING ) {
-					 continue;
-				 }
-				 if( i.getKey() == null ) {
-					 continue;
-				 }
-				 itemsToStart.add(i);
-			 }
-
-			 for(final FrostDownloadItem dlItem : itemsToStart) {
-				 dlItem.setEnabled(true);
-				 FileTransferManager.inst().getDownloadManager().startDownload(dlItem);
-			 }
-		 }
-
-		 private void changePriority(final int prio) {
-			 if( FileTransferManager.inst().getPersistenceManager() == null ) {
-				 return;
-			 }
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
-		 }
-
-		 private void showDetails() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 if (selectedItems.length != 1) {
-				 return;
-			 }
-			 final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
-			 if( !item.isSharedFile() ) {
-				 return;
-			 }
-			 new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFileListFileObject());
-		 }
-
-		 private void invertEnabledSelected() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 model.setItemsEnabled(null, selectedItems);
-		 }
-
-		 private void invertEnabledAll() {
-			 model.setAllItemsEnabled(null);
-		 }
-
-		 private void disableSelectedDownloads() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 model.setItemsEnabled(Boolean.FALSE, selectedItems);
-		 }
-
-		 private void enableSelectedDownloads() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 model.setItemsEnabled(Boolean.TRUE, selectedItems);
-		 }
-
-		 private void disableAllDownloads() {
-			 model.setAllItemsEnabled(Boolean.FALSE);
-		 }
-
-		 private void enableAllDownloads() {
-			 model.setAllItemsEnabled(Boolean.TRUE);
-		 }
-
-		 private void restartSelectedDownloads() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 model.restartItems(selectedItems);
-		 }
-
-		 private void useThisDownloadDirectory() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 if (selectedItems.length > 0) {
-				 final FrostDownloadItem item = (FrostDownloadItem)selectedItems[0];
-
-				 downloadDirTextField.setText(item.getDownloadDir());
-			 }
-		 }
-
-		 private void jumpToAssociatedMessage() {
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			 if (selectedItems.length > 0) {
-				 final FrostDownloadItem item = (FrostDownloadItem)selectedItems[0];
-				 final String boardName = item.getAssociatedBoardName();
-				 final String messageId = item.getAssociatedMessageId();
-
-				 if (boardName != null && messageId != null) {
-					 final Board board = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getBoardByName(boardName);
-					 final TofTree t = MainFrame.getInstance().getFrostMessageTab().getTofTree();
-
-					 if (board != null && t != null) {
-						 t.clearSelection();
-						 MainFrame.getInstance().getFrostMessageTab().forceSelectMessageId(messageId);
-						 t.setSelectionPath(new TreePath(board.getPath()));
-						 MainFrame.getInstance().selectTabbedPaneTab("MainFrame.tabbedPane.news");
-					 }
-				 }
-			 }
-		 }
-
-		 public void languageChanged(final LanguageEvent event) {
-			 refreshLanguage();
-		 }
-
-		 @Override
-		 public void show(final Component invoker, final int x, final int y) {
-			 removeAll();
-
-			 final ModelItem[] selectedItems = modelTable.getSelectedItems();
-
-			 if( selectedItems.length == 0 ) {
-				 return;
-			 }
-
-			 add(copyKeysAndNamesItem);
-			 add(copyExtendedInfoItem);
-			 addSeparator();
-			 add(startSelectedDownloadsNow);
-			 add(restartSelectedDownloadsItem);
-			 addSeparator();
-
-			 if( PersistenceManager.isPersistenceEnabled() ) {
-				 add(changePriorityMenu);
-				 addSeparator();
-			 }
-
-			 final JMenu enabledSubMenu = new JMenu(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads") + "...");
-			 enabledSubMenu.add(enableSelectedDownloadsItem);
-			 enabledSubMenu.add(disableSelectedDownloadsItem);
-			 enabledSubMenu.add(invertEnabledSelectedItem);
-			 enabledSubMenu.addSeparator();
-
-			 enabledSubMenu.add(enableAllDownloadsItem);
-			 enabledSubMenu.add(disableAllDownloadsItem);
-			 enabledSubMenu.add(invertEnabledAllItem);
-			 add(enabledSubMenu);
-
-			 // we only find external items if persistence is enabled
-			 if( PersistenceManager.isPersistenceEnabled() ) {
-				 for(final ModelItem mi : selectedItems) {
-					 final FrostDownloadItem item = (FrostDownloadItem) mi;
-					 if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
-						 add(retrieveDirectExternalDownloads);
-						 break;
-					 }
-				 }
-			 }
-			 add(removeSelectedDownloadsItem);
-			 if(  FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null ) {
-				 // add only if there are removable items selected
-				 for(final ModelItem mi : selectedItems) {
-					 final FrostDownloadItem item = (FrostDownloadItem) mi;
-					 if(  FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
-						 add(removeFromGqItem);
-						 break;
-					 }
-				 }
-			 }
-			 if( selectedItems.length == 1 ) {
-				 final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
-				 if( item.isSharedFile() ) {
-					 addSeparator();
-					 add(detailsItem);
-				 }
-				 addSeparator();
-				 add(useThisDownloadDirItem);
-				 if (item.getAssociatedMessageId() != null) {
-					 addSeparator();
-					 add(jumpToAssociatedMessage);
-				 }
-			 }
-
-			 super.show(invoker, x, y);
-		 }
-	 }
-
-	 private class Listener  extends MouseAdapter implements LanguageListener, ActionListener, KeyListener, 
-	 			MouseListener, PropertyChangeListener, ItemListener, FocusListener, MenuListener {
-
-		 public Listener() {
-			 super();
-		 }
-
-		 public void languageChanged(final LanguageEvent event) {
-			 refreshLanguage();
-		 }
-
-		 public void actionPerformed(final ActionEvent e) {
-			 if (e.getSource() == downloadDirSelectButton) {
-				 downloadDirSelectButton_actionPerformed(e);
-			 } 
-			 else if (e.getSource() == downloadDirCreateButton) {
-				 downloadDirCreateButton_actionPerformed(e);
-			 }
-			 else if (e.getSource() == downloadPrefixApplyButton) {
-				 downloadPrefixApplyButton_actionPerformed(e);
-			 }
-			 else if (e.getSource() == downloadDirApplyButton) {
-				 downloadDirApplyButton_actionPerformed(e);
-			 }
-			 else if (e.getSource() == submitDownloadTextfieldButton) {
-				 downloadTextField_actionPerformed(e);
-			 }
-			 else if (e.getSource() == downloadTextField) {
-				 downloadTextField_actionPerformed(e);
-			 }
-			 else if (e.getSource() == downloadPasteButton) {
-				 downloadPasteButtonPressed(e);
-			 }
-			 else if (e.getSource() == downloadActivateButton) {
-				 downloadActivateButtonPressed(e);
-			 }
-			 else if (e.getSource() == downloadPauseButton) {
-				 downloadPauseButtonPressed(e);
-			 } else {
-				 for (int i = 0; i < downloadDirRecentMenu.getItemCount(); i++) {
-					 final JMenuItem item = downloadDirRecentMenu.getItem(i);
-					 if (e.getSource() == item) {
-						 downloadDirTextField.setText(item.getText());
-					 }
-				 }
-			 }
-		 }
-
-		 public void keyPressed(final KeyEvent e) {
-			 if (e.getSource() == modelTable.getTable()) {
-				 downloadTable_keyPressed(e);
-			 }
-		 }
-
-		 public void keyReleased(final KeyEvent e) {
-			 if (e.getSource() == downloadDirTextField) {
-				 downloadDirTextField_keyReleased(e);
-			 }
-		 }
-
-		 public void keyTyped(final KeyEvent e) {
-		 }
-
-		 public void focusGained(final FocusEvent e) {
-		 }
-
-		 public void focusLost(final FocusEvent e) {
-			 if (e.getSource() == downloadDirTextField) {
-				 downloadDirTextField_focusLost(e);
-			 }
-		 }
-
-		 @Override
-		 public void mousePressed(final MouseEvent e) {
-			 if (e.getClickCount() == 2) {
-				 if (e.getSource() == modelTable.getTable()) {
-					 // Start file from download table. Is this a good idea?
-							 downloadTableDoubleClick(e);
-				 }
-			 } else if (e.isPopupTrigger()) {
-				 if ((e.getSource() == modelTable.getTable())
-						 || (e.getSource() == modelTable.getScrollPane())) {
-					 showDownloadTablePopupMenu(e);
-				 }
-			 }
-		 }
-
-		 @Override
-		 public void mouseReleased(final MouseEvent e) {
-			 if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-
-				 if ((e.getSource() == modelTable.getTable())
-						 || (e.getSource() == modelTable.getScrollPane())) {
-					 showDownloadTablePopupMenu(e);
-				 }
-
-			 }
-		 }
-
-		 public void propertyChange(final PropertyChangeEvent evt) {
-			 if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
-				 fontChanged();
-			 }
-			 if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
-				 fontChanged();
-			 }
-			 if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
-				 fontChanged();
-			 }
-		 }
-
-		 public void itemStateChanged(final ItemEvent e) {
-			 if( removeFinishedDownloadsCheckBox.isSelected() ) {
-				 Core.frostSettings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, true);
-				 model.removeFinishedDownloads();
-			 } else {
-				 Core.frostSettings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, false);
-			 }
-			 if( showExternalGlobalQueueItems.isSelected() ) {
-				 Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, true);
-			 } else {
-				 Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, false);
-				 model.removeExternalDownloads();
-			 }
-		 }
-
-		 public void menuCanceled(MenuEvent e) {
-		 }
-
-		 public void menuDeselected(MenuEvent e) {
-		 }
-
-		 public void menuSelected(MenuEvent e) {
-			 if (e.getSource() == downloadDirRecentMenu) {
-				 JMenuItem item;
-
-				 downloadDirRecentMenu.removeAll();
-
-				 item = new JMenuItem(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
-				 downloadDirRecentMenu.add(item);
-				 item.addActionListener(this);
-
-				 downloadDirRecentMenu.addSeparator();
-				 final LinkedList<String> dirs = FileTransferManager.inst().getDownloadManager().getRecentDownloadDirs();
-				 final ListIterator<String> iter = dirs.listIterator(dirs.size());
-				 while (iter.hasPrevious()) {
-					 final String dir = (String)iter.previous();
-
-					 item = new JMenuItem(dir);
-					 downloadDirRecentMenu.add(item);
-					 item.addActionListener(this);
-				 }
-			 }
-		 }
-	 }
+	private void downloadTextField_actionPerformed(final ActionEvent e) {
+		String keylist = downloadTextField.getText();
+		if (keylist != null && keylist.length() != 0) {
+			openAddNewDownloadsDialog(keylist);
+		}
+	}
+
+	/**
+	 * Get keyTyped for downloadTable
+	 */
+	private void downloadTable_keyPressed(final KeyEvent e) {
+		final char key = e.getKeyChar();
+		if (key == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
+			removeSelectedDownloads();
+		}
+	}
+
+	private void removeSelectedDownloads() {
+		final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
+		final List<String> externalRequestsToRemove = new LinkedList<String>();
+		final List<ModelItem> requestsToRemove = new LinkedList<ModelItem>();
+		for (final ModelItem mi : selectedItems) {
+			final FrostDownloadItem frostDownloadItem = (FrostDownloadItem) mi;
+			requestsToRemove.add(mi);
+			if (frostDownloadItem.isExternal()) {
+				externalRequestsToRemove.add(frostDownloadItem.getGqIdentifier());
+			}
+		}
+
+		final ModelItem[] ri = requestsToRemove.toArray(new ModelItem[requestsToRemove.size()]);
+		model.removeItems(ri);
+
+		modelTable.getTable().clearSelection();
+
+		if (FileTransferManager.inst().getPersistenceManager() != null && externalRequestsToRemove.size() > 0) {
+			new Thread() {
+				@Override
+				public void run() {
+					FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
+				}
+			}.start();
+		}
+	}
+
+	public boolean isDownloadingActivated() {
+		return downloadingActivated;
+	}
+
+	public void setDownloadingActivated(final boolean b) {
+		downloadingActivated = b;
+
+		downloadActivateButton.setEnabled(!downloadingActivated);
+		downloadPauseButton.setEnabled(downloadingActivated);
+	}
+
+	public void setDownloadItemCount(final int newDownloadItemCount) {
+		downloadItemCount = newDownloadItemCount;
+
+		final String s = new StringBuilder().append(language.getString("DownloadPane.toolbar.waiting")).append(": ")
+				.append(downloadItemCount).toString();
+		downloadItemCountLabel.setText(s);
+	}
+
+	private PopupMenuDownload getPopupMenuDownload() {
+		if (popupMenuDownload == null) {
+			popupMenuDownload = new PopupMenuDownload();
+			language.addLanguageListener(popupMenuDownload);
+		}
+		return popupMenuDownload;
+	}
+
+	private void showDownloadTablePopupMenu(final MouseEvent e) {
+		// select row where rightclick occurred if row under mouse is NOT
+		// selected
+		final Point p = e.getPoint();
+		final int y = modelTable.getTable().rowAtPoint(p);
+		if (y < 0) {
+			return;
+		}
+		if (!modelTable.getTable().getSelectionModel().isSelectedIndex(y)) {
+			modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
+		}
+		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
+	}
+
+	private void fontChanged() {
+		final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+		final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+		final int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+		Font font = new Font(fontName, fontStyle, fontSize);
+		if (!font.getFamily().equals(fontName)) {
+			logger.severe("The selected font was not found in your system\n"
+					+ "That selection will be changed to \"SansSerif\".");
+			Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
+			font = new Font("SansSerif", fontStyle, fontSize);
+		}
+		modelTable.setFont(font);
+	}
+
+	private void downloadPasteButtonPressed(final ActionEvent e) {
+		Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+		if (transferable == null) {
+			return;
+		}
+
+		// try to get data from clipboard
+		String clipboardText;
+		try {
+			if (!transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+				return;
+			}
+			clipboardText = (String) transferable.getTransferData(DataFlavor.stringFlavor);
+		} catch (Exception stfu) {
+			return;
+		}
+
+		if (clipboardText != null && clipboardText.length() != 0) {
+			openAddNewDownloadsDialog(clipboardText);
+		}
+	}
+
+	private void openAddNewDownloadsDialog(final String keylist) {
+		// parse plaintext to get key list
+		List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(keylist);
+		if (frostDownloadItemList.size() == 0) {
+			return;
+		}
+
+		// add default download dir and prefix
+		for (final FrostDownloadItem frostDownloadItem : frostDownloadItemList) {
+			final String downloadDir = this.downloadDirTextField.getText();
+			if (downloadDir != null && downloadDir.length() != 0) {
+				frostDownloadItem.setDownloadDir(downloadDir);
+			}
+
+			final String filenamePrefix = this.downloadPrefixTextField.getText();
+			if (filenamePrefix != null && filenamePrefix.length() != 0) {
+				frostDownloadItem.setFilenamePrefix(this.downloadPrefixTextField.getText());
+			}
+		}
+
+		// open dialog - blocking
+		final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(MainFrame.getInstance(),
+				frostDownloadItemList);
+		frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
+
+		if (frostDownloadItemList.size() == 0) {
+			return;
+		}
+
+		// add files from dialog to download queue
+		DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
+		for (final FrostDownloadItem frostDownloadItem : frostDownloadItemList) {
+			frostDownloadItem.setDownloadDir(downloadDirTextField.getText());
+			downloadModel.addDownloadItem(frostDownloadItem);
+		}
+	}
+
+	private void downloadActivateButtonPressed(final ActionEvent e) {
+		setDownloadingActivated(true);
+	}
+
+	private void downloadPauseButtonPressed(final ActionEvent e) {
+		setDownloadingActivated(false);
+	}
+
+	private void downloadTableDoubleClick(final MouseEvent e) {
+		final int clickedCol = modelTable.getTable().columnAtPoint(e.getPoint());
+		final int modelIx = modelTable.getTable().getColumnModel().getColumn(clickedCol).getModelIndex();
+		if (modelIx == 0) {
+			return;
+		}
+
+		final ModelItem selectedItem = modelTable.getSelectedItem();
+		if (selectedItem != null) {
+			final FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
+			final File targetFile = new File(dlItem.getDownloadFilename());
+			if (!targetFile.isFile()) {
+				return;
+			}
+			logger.info("Executing: " + targetFile.getAbsolutePath());
+			try {
+				ExecuteDocument.openDocument(targetFile);
+			} catch (final Throwable t) {
+				JOptionPane.showMessageDialog(this, "Could not open the file: " + targetFile.getAbsolutePath() + "\n"
+						+ t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see frost.SettingsUpdater#updateSettings()
+	 */
+	public void updateSettings() {
+		Core.frostSettings.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
+	}
+
+	private void assignHotkeys() {
+
+		// assign keys 1-6 - set priority of selected items
+		final Action setPriorityAction = new AbstractAction() {
+			public void actionPerformed(final ActionEvent event) {
+				final int prio = new Integer(event.getActionCommand()).intValue();
+				final ModelItem[] selectedItems = modelTable.getSelectedItems();
+				FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
+			}
+		};
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0),
+				"SETPRIO");
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0),
+				"SETPRIO");
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0),
+				"SETPRIO");
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0),
+				"SETPRIO");
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0),
+				"SETPRIO");
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0),
+				"SETPRIO");
+		getActionMap().put("SETPRIO", setPriorityAction);
+	}
+
+	/**
+	 * Renderer draws background of DONE items in green.
+	 */
+	private class CellRenderer extends DefaultTableCellRenderer {
+
+		private final Color col_green = new Color(0x00, 0x80, 0x00);
+
+		public CellRenderer() {
+			super();
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(final JTable table, final Object value,
+				final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+
+			super.getTableCellRendererComponent(table, value, isSelected, /* hasFocus */
+			false, row, column);
+
+			final FrostDownloadItem item = (FrostDownloadItem) model.getItemAt(row);
+
+			// set background of DONE downloads green
+			if (item.getState() == FrostDownloadItem.STATE_DONE) {
+				setBackground(col_green);
+			} else {
+				setBackground(modelTable.getTable().getBackground());
+			}
+
+			return this;
+		}
+	}
+
+	private class PopupMenuDownload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+
+		private final JMenuItem detailsItem = new JMenuItem();
+		private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
+		private final JMenuItem copyExtendedInfoItem = new JMenuItem();
+		private final JMenuItem disableAllDownloadsItem = new JMenuItem();
+		private final JMenuItem disableSelectedDownloadsItem = new JMenuItem();
+		private final JMenuItem enableAllDownloadsItem = new JMenuItem();
+		private final JMenuItem enableSelectedDownloadsItem = new JMenuItem();
+		private final JMenuItem invertEnabledAllItem = new JMenuItem();
+		private final JMenuItem invertEnabledSelectedItem = new JMenuItem();
+		private final JMenuItem removeSelectedDownloadsItem = new JMenuItem();
+		private final JMenuItem restartSelectedDownloadsItem = new JMenuItem();
+
+		private final JMenuItem startSelectedDownloadsNow = new JMenuItem();
+
+		private final JMenuItem useThisDownloadDirItem = new JMenuItem();
+		private final JMenuItem jumpToAssociatedMessage = new JMenuItem();
+
+		private JMenu changePriorityMenu = null;
+		private JMenuItem prio0Item = null;
+		private JMenuItem prio1Item = null;
+		private JMenuItem prio2Item = null;
+		private JMenuItem prio3Item = null;
+		private JMenuItem prio4Item = null;
+		private JMenuItem prio5Item = null;
+		private JMenuItem prio6Item = null;
+		private JMenuItem removeFromGqItem = null;
+
+		private JMenuItem retrieveDirectExternalDownloads = null;
+
+		public PopupMenuDownload() {
+			super();
+			initialize();
+		}
+
+		private void initialize() {
+
+			if (PersistenceManager.isPersistenceEnabled()) {
+				changePriorityMenu = new JMenu();
+				prio0Item = new JMenuItem();
+				prio1Item = new JMenuItem();
+				prio2Item = new JMenuItem();
+				prio3Item = new JMenuItem();
+				prio4Item = new JMenuItem();
+				prio5Item = new JMenuItem();
+				prio6Item = new JMenuItem();
+				removeFromGqItem = new JMenuItem();
+
+				changePriorityMenu.add(prio0Item);
+				changePriorityMenu.add(prio1Item);
+				changePriorityMenu.add(prio2Item);
+				changePriorityMenu.add(prio3Item);
+				changePriorityMenu.add(prio4Item);
+				changePriorityMenu.add(prio5Item);
+				changePriorityMenu.add(prio6Item);
+
+				prio0Item.addActionListener(this);
+				prio1Item.addActionListener(this);
+				prio2Item.addActionListener(this);
+				prio3Item.addActionListener(this);
+				prio4Item.addActionListener(this);
+				prio5Item.addActionListener(this);
+				prio6Item.addActionListener(this);
+				removeFromGqItem.addActionListener(this);
+
+				retrieveDirectExternalDownloads = new JMenuItem();
+				retrieveDirectExternalDownloads.addActionListener(this);
+			}
+
+			refreshLanguage();
+
+			// TODO: implement cancel of downloads
+
+			copyKeysAndNamesItem.addActionListener(this);
+			copyExtendedInfoItem.addActionListener(this);
+			restartSelectedDownloadsItem.addActionListener(this);
+			removeSelectedDownloadsItem.addActionListener(this);
+			enableAllDownloadsItem.addActionListener(this);
+			disableAllDownloadsItem.addActionListener(this);
+			enableSelectedDownloadsItem.addActionListener(this);
+			disableSelectedDownloadsItem.addActionListener(this);
+			invertEnabledAllItem.addActionListener(this);
+			invertEnabledSelectedItem.addActionListener(this);
+			detailsItem.addActionListener(this);
+			startSelectedDownloadsNow.addActionListener(this);
+			useThisDownloadDirItem.addActionListener(this);
+			jumpToAssociatedMessage.addActionListener(this);
+		}
+
+		private void refreshLanguage() {
+			detailsItem.setText(language.getString("Common.details"));
+			copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+			copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+			restartSelectedDownloadsItem.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.restartSelectedDownloads"));
+			removeSelectedDownloadsItem.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.remove.removeSelectedDownloads"));
+			enableAllDownloadsItem.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableAllDownloads"));
+			disableAllDownloadsItem.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableAllDownloads"));
+			enableSelectedDownloadsItem.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableSelectedDownloads"));
+			disableSelectedDownloadsItem.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableSelectedDownloads"));
+			invertEnabledAllItem.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
+			invertEnabledSelectedItem
+					.setText(language
+							.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
+			startSelectedDownloadsNow.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.startSelectedDownloadsNow"));
+			useThisDownloadDirItem.setText(language.getString("DownloadPane.fileTable.popupmenu.useThisDownloadDir"));
+			jumpToAssociatedMessage.setText(language
+					.getString("DownloadPane.fileTable.popupmenu.jumpToAssociatedMessage"));
+
+			if (PersistenceManager.isPersistenceEnabled()) {
+				changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
+				prio0Item.setText(language.getString("Common.priority.priority0"));
+				prio1Item.setText(language.getString("Common.priority.priority1"));
+				prio2Item.setText(language.getString("Common.priority.priority2"));
+				prio3Item.setText(language.getString("Common.priority.priority3"));
+				prio4Item.setText(language.getString("Common.priority.priority4"));
+				prio5Item.setText(language.getString("Common.priority.priority5"));
+				prio6Item.setText(language.getString("Common.priority.priority6"));
+				removeFromGqItem.setText(language.getString("DownloadPane.fileTable.popupmenu.removeFromGlobalQueue"));
+
+				retrieveDirectExternalDownloads.setText(language
+						.getString("DownloadPane.fileTable.popupmenu.retrieveDirectExternalDownloads"));
+			}
+		}
+
+		public void actionPerformed(final ActionEvent e) {
+			if (e.getSource() == copyKeysAndNamesItem) {
+				CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
+			} else if (e.getSource() == copyExtendedInfoItem) {
+				CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
+			} else if (e.getSource() == restartSelectedDownloadsItem) {
+				restartSelectedDownloads();
+			} else if (e.getSource() == useThisDownloadDirItem) {
+				useThisDownloadDirectory();
+			} else if (e.getSource() == jumpToAssociatedMessage) {
+				jumpToAssociatedMessage();
+			} else if (e.getSource() == removeSelectedDownloadsItem) {
+				removeSelectedDownloads();
+			} else if (e.getSource() == enableAllDownloadsItem) {
+				enableAllDownloads();
+			} else if (e.getSource() == disableAllDownloadsItem) {
+				disableAllDownloads();
+			} else if (e.getSource() == enableSelectedDownloadsItem) {
+				enableSelectedDownloads();
+			} else if (e.getSource() == disableSelectedDownloadsItem) {
+				disableSelectedDownloads();
+			} else if (e.getSource() == invertEnabledAllItem) {
+				invertEnabledAll();
+			} else if (e.getSource() == invertEnabledSelectedItem) {
+				invertEnabledSelected();
+			} else if (e.getSource() == detailsItem) {
+				showDetails();
+			} else if (e.getSource() == prio0Item) {
+				changePriority(0);
+			} else if (e.getSource() == prio1Item) {
+				changePriority(1);
+			} else if (e.getSource() == prio2Item) {
+				changePriority(2);
+			} else if (e.getSource() == prio3Item) {
+				changePriority(3);
+			} else if (e.getSource() == prio4Item) {
+				changePriority(4);
+			} else if (e.getSource() == prio5Item) {
+				changePriority(5);
+			} else if (e.getSource() == prio6Item) {
+				changePriority(6);
+			} else if (e.getSource() == removeFromGqItem) {
+				removeSelectedUploadsFromGlobalQueue();
+			} else if (e.getSource() == retrieveDirectExternalDownloads) {
+				retrieveDirectExternalDownloads();
+			} else if (e.getSource() == startSelectedDownloadsNow) {
+				startSelectedDownloadsNow();
+			}
+		}
+
+		private void removeSelectedUploadsFromGlobalQueue() {
+			if (FileTransferManager.inst().getPersistenceManager() == null) {
+				return;
+			}
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			final List<String> requestsToRemove = new ArrayList<String>();
+			final List<FrostDownloadItem> itemsToUpdate = new ArrayList<FrostDownloadItem>();
+			for (final ModelItem mi : selectedItems) {
+				final FrostDownloadItem item = (FrostDownloadItem) mi;
+				if (FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item)) {
+					requestsToRemove.add(item.getGqIdentifier());
+					itemsToUpdate.add(item);
+					item.setInternalRemoveExpected(true);
+				}
+			}
+			FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
+			// after remove, update state of removed items
+			for (final FrostDownloadItem item : itemsToUpdate) {
+				item.setState(FrostDownloadItem.STATE_WAITING);
+				item.setEnabled(Boolean.FALSE);
+				item.setPriority(-1);
+				item.fireValueChanged();
+			}
+		}
+
+		private void retrieveDirectExternalDownloads() {
+			if (FileTransferManager.inst().getPersistenceManager() == null) {
+				return;
+			}
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			for (final ModelItem mi : selectedItems) {
+				final FrostDownloadItem item = (FrostDownloadItem) mi;
+				if (item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE) {
+					final long expectedFileSize = item.getFileSize(); // set
+					// from
+					// global
+					// queue
+					FileTransferManager.inst().getPersistenceManager().maybeEnqueueDirectGet(item, expectedFileSize);
+				}
+			}
+		}
+
+		private void startSelectedDownloadsNow() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
+			final List<FrostDownloadItem> itemsToStart = new LinkedList<FrostDownloadItem>();
+			for (final ModelItem mi : selectedItems) {
+				final FrostDownloadItem i = (FrostDownloadItem) mi;
+				if (i.isExternal()) {
+					continue;
+				}
+				if (i.getState() != FrostDownloadItem.STATE_WAITING) {
+					continue;
+				}
+				if (i.getKey() == null) {
+					continue;
+				}
+				itemsToStart.add(i);
+			}
+
+			for (final FrostDownloadItem dlItem : itemsToStart) {
+				dlItem.setEnabled(true);
+				FileTransferManager.inst().getDownloadManager().startDownload(dlItem);
+			}
+		}
+
+		private void changePriority(final int prio) {
+			if (FileTransferManager.inst().getPersistenceManager() == null) {
+				return;
+			}
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
+		}
+
+		private void showDetails() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			if (selectedItems.length != 1) {
+				return;
+			}
+			final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+			if (!item.isSharedFile()) {
+				return;
+			}
+			new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFileListFileObject());
+		}
+
+		private void invertEnabledSelected() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.setItemsEnabled(null, selectedItems);
+		}
+
+		private void invertEnabledAll() {
+			model.setAllItemsEnabled(null);
+		}
+
+		private void disableSelectedDownloads() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.setItemsEnabled(Boolean.FALSE, selectedItems);
+		}
+
+		private void enableSelectedDownloads() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.setItemsEnabled(Boolean.TRUE, selectedItems);
+		}
+
+		private void disableAllDownloads() {
+			model.setAllItemsEnabled(Boolean.FALSE);
+		}
+
+		private void enableAllDownloads() {
+			model.setAllItemsEnabled(Boolean.TRUE);
+		}
+
+		private void restartSelectedDownloads() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.restartItems(selectedItems);
+		}
+
+		private void useThisDownloadDirectory() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			if (selectedItems.length > 0) {
+				final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+
+				downloadDirTextField.setText(item.getDownloadDir());
+			}
+		}
+
+		private void jumpToAssociatedMessage() {
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			if (selectedItems.length > 0) {
+				final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+				final String boardName = item.getAssociatedBoardName();
+				final String messageId = item.getAssociatedMessageId();
+
+				if (boardName != null && messageId != null) {
+					final Board board = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getBoardByName(
+							boardName);
+					final TofTree t = MainFrame.getInstance().getFrostMessageTab().getTofTree();
+
+					if (board != null && t != null) {
+						t.clearSelection();
+						MainFrame.getInstance().getFrostMessageTab().forceSelectMessageId(messageId);
+						t.setSelectionPath(new TreePath(board.getPath()));
+						MainFrame.getInstance().selectTabbedPaneTab("MainFrame.tabbedPane.news");
+					}
+				}
+			}
+		}
+
+		public void languageChanged(final LanguageEvent event) {
+			refreshLanguage();
+		}
+
+		@Override
+		public void show(final Component invoker, final int x, final int y) {
+			removeAll();
+
+			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
+			if (selectedItems.length == 0) {
+				return;
+			}
+
+			add(copyKeysAndNamesItem);
+			add(copyExtendedInfoItem);
+			addSeparator();
+			add(startSelectedDownloadsNow);
+			add(restartSelectedDownloadsItem);
+			addSeparator();
+
+			if (PersistenceManager.isPersistenceEnabled()) {
+				add(changePriorityMenu);
+				addSeparator();
+			}
+
+			final JMenu enabledSubMenu = new JMenu(language
+					.getString("DownloadPane.fileTable.popupmenu.enableDownloads")
+					+ "...");
+			enabledSubMenu.add(enableSelectedDownloadsItem);
+			enabledSubMenu.add(disableSelectedDownloadsItem);
+			enabledSubMenu.add(invertEnabledSelectedItem);
+			enabledSubMenu.addSeparator();
+
+			enabledSubMenu.add(enableAllDownloadsItem);
+			enabledSubMenu.add(disableAllDownloadsItem);
+			enabledSubMenu.add(invertEnabledAllItem);
+			add(enabledSubMenu);
+
+			// we only find external items if persistence is enabled
+			if (PersistenceManager.isPersistenceEnabled()) {
+				for (final ModelItem mi : selectedItems) {
+					final FrostDownloadItem item = (FrostDownloadItem) mi;
+					if (item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE) {
+						add(retrieveDirectExternalDownloads);
+						break;
+					}
+				}
+			}
+			add(removeSelectedDownloadsItem);
+			if (FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null) {
+				// add only if there are removable items selected
+				for (final ModelItem mi : selectedItems) {
+					final FrostDownloadItem item = (FrostDownloadItem) mi;
+					if (FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item)) {
+						add(removeFromGqItem);
+						break;
+					}
+				}
+			}
+			if (selectedItems.length == 1) {
+				final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+				if (item.isSharedFile()) {
+					addSeparator();
+					add(detailsItem);
+				}
+				addSeparator();
+				add(useThisDownloadDirItem);
+				if (item.getAssociatedMessageId() != null) {
+					addSeparator();
+					add(jumpToAssociatedMessage);
+				}
+			}
+
+			super.show(invoker, x, y);
+		}
+	}
+
+	private class Listener extends MouseAdapter implements LanguageListener, ActionListener, KeyListener,
+			MouseListener, PropertyChangeListener, ItemListener, FocusListener, MenuListener {
+
+		public Listener() {
+			super();
+		}
+
+		public void languageChanged(final LanguageEvent event) {
+			refreshLanguage();
+		}
+
+		public void actionPerformed(final ActionEvent e) {
+			if (e.getSource() == downloadDirSelectButton) {
+				downloadDirSelectButton_actionPerformed(e);
+			} else if (e.getSource() == downloadDirCreateButton) {
+				downloadDirCreateButton_actionPerformed(e);
+			} else if (e.getSource() == downloadPrefixApplyButton) {
+				downloadPrefixApplyButton_actionPerformed(e);
+			} else if (e.getSource() == downloadDirApplyButton) {
+				downloadDirApplyButton_actionPerformed(e);
+			} else if (e.getSource() == submitDownloadTextfieldButton) {
+				downloadTextField_actionPerformed(e);
+			} else if (e.getSource() == downloadTextField) {
+				downloadTextField_actionPerformed(e);
+			} else if (e.getSource() == downloadPasteButton) {
+				downloadPasteButtonPressed(e);
+			} else if (e.getSource() == downloadActivateButton) {
+				downloadActivateButtonPressed(e);
+			} else if (e.getSource() == downloadPauseButton) {
+				downloadPauseButtonPressed(e);
+			} else {
+				for (int i = 0; i < downloadDirRecentMenu.getItemCount(); i++) {
+					final JMenuItem item = downloadDirRecentMenu.getItem(i);
+					if (e.getSource() == item) {
+						downloadDirTextField.setText(item.getText());
+					}
+				}
+			}
+		}
+
+		public void keyPressed(final KeyEvent e) {
+			if (e.getSource() == modelTable.getTable()) {
+				downloadTable_keyPressed(e);
+			}
+		}
+
+		public void keyReleased(final KeyEvent e) {
+			if (e.getSource() == downloadDirTextField) {
+				downloadDirTextField_keyReleased(e);
+			}
+		}
+
+		public void keyTyped(final KeyEvent e) {
+		}
+
+		public void focusGained(final FocusEvent e) {
+		}
+
+		public void focusLost(final FocusEvent e) {
+			if (e.getSource() == downloadDirTextField) {
+				downloadDirTextField_focusLost(e);
+			}
+		}
+
+		@Override
+		public void mousePressed(final MouseEvent e) {
+			if (e.getClickCount() == 2) {
+				if (e.getSource() == modelTable.getTable()) {
+					// Start file from download table. Is this a good idea?
+					downloadTableDoubleClick(e);
+				}
+			} else if (e.isPopupTrigger()) {
+				if ((e.getSource() == modelTable.getTable()) || (e.getSource() == modelTable.getScrollPane())) {
+					showDownloadTablePopupMenu(e);
+				}
+			}
+		}
+
+		@Override
+		public void mouseReleased(final MouseEvent e) {
+			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
+
+				if ((e.getSource() == modelTable.getTable()) || (e.getSource() == modelTable.getScrollPane())) {
+					showDownloadTablePopupMenu(e);
+				}
+
+			}
+		}
+
+		public void propertyChange(final PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
+				fontChanged();
+			}
+		}
+
+		public void itemStateChanged(final ItemEvent e) {
+			if (removeFinishedDownloadsCheckBox.isSelected()) {
+				Core.frostSettings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, true);
+				model.removeFinishedDownloads();
+			} else {
+				Core.frostSettings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, false);
+			}
+			if (showExternalGlobalQueueItems.isSelected()) {
+				Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, true);
+			} else {
+				Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, false);
+				model.removeExternalDownloads();
+			}
+		}
+
+		public void menuCanceled(MenuEvent e) {
+		}
+
+		public void menuDeselected(MenuEvent e) {
+		}
+
+		public void menuSelected(MenuEvent e) {
+			if (e.getSource() == downloadDirRecentMenu) {
+				JMenuItem item;
+
+				downloadDirRecentMenu.removeAll();
+
+				item = new JMenuItem(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+				downloadDirRecentMenu.add(item);
+				item.addActionListener(this);
+
+				final LinkedList<String> dirs = FileTransferManager.inst().getDownloadManager().getRecentDownloadDirs();
+				if( dirs.size() > 0 ) {
+					downloadDirRecentMenu.addSeparator();
+					
+					final ListIterator<String> iter = dirs.listIterator(dirs.size());
+					while (iter.hasPrevious()) {
+						final String dir = (String) iter.previous();
+						
+						item = new JMenuItem(dir);
+						downloadDirRecentMenu.add(item);
+						item.addActionListener(this);
+					}
+				}
+			}
+		}
+	}
 }
