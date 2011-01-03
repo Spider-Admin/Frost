@@ -37,6 +37,7 @@ import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
+@SuppressWarnings("serial")
 public class UploadPanel extends JPanel {
 
     private PopupMenuUpload popupMenuUpload = null;
@@ -53,6 +54,7 @@ public class UploadPanel extends JPanel {
     private final JButton uploadAddFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-open.png"));
     private final JCheckBox removeFinishedUploadsCheckBox = new JCheckBox();
     private final JCheckBox showExternalGlobalQueueItems = new JCheckBox();
+    private final JCheckBox compressUploadsCheckBox = new JCheckBox();
 
     private SortedModelTable modelTable;
 
@@ -81,6 +83,7 @@ public class UploadPanel extends JPanel {
 
             removeFinishedUploadsCheckBox.setOpaque(false);
             showExternalGlobalQueueItems.setOpaque(false);
+            compressUploadsCheckBox.setOpaque(false);
 
             // create the top panel
             MiscToolkit.configureButton(uploadAddFilesButton);
@@ -91,6 +94,9 @@ public class UploadPanel extends JPanel {
                 uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
                 uploadToolBar.add(showExternalGlobalQueueItems);
             }
+            uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
+            uploadToolBar.add(compressUploadsCheckBox);
+            
             uploadToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
             uploadToolBar.add(Box.createHorizontalGlue());
             uploadToolBar.add(uploadItemCountLabel);
@@ -110,12 +116,14 @@ public class UploadPanel extends JPanel {
             modelTable.getTable().addMouseListener(listener);
             removeFinishedUploadsCheckBox.addItemListener(listener);
             showExternalGlobalQueueItems.addItemListener(listener);
+            compressUploadsCheckBox.addItemListener(listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
             removeFinishedUploadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED));
             showExternalGlobalQueueItems.setSelected(Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD));
+            compressUploadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.COMPRESS_UPLOADS));
 
             assignHotkeys();
 
@@ -139,6 +147,7 @@ public class UploadPanel extends JPanel {
         uploadItemCountLabel.setText(waiting + ": " + uploadItemCount);
         removeFinishedUploadsCheckBox.setText(language.getString("UploadPane.removeFinishedUploads"));
         showExternalGlobalQueueItems.setText(language.getString("UploadPane.showExternalGlobalQueueItems"));
+        compressUploadsCheckBox.setText(language.getString("UploadPane.compressUploads"));
     }
 
     private PopupMenuUpload getPopupMenuUpload() {
@@ -216,8 +225,9 @@ public class UploadPanel extends JPanel {
         }
 
         for(final File file : uploadFileItems ) {
-            final FrostUploadItem ulItem = new FrostUploadItem(file);
-            model.addNewUploadItem(ulItem);
+            model.addNewUploadItem(
+            	new FrostUploadItem(file, compressUploadsCheckBox.isSelected())
+            );
         }
     }
 

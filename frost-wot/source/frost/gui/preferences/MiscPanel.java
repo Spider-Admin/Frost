@@ -47,6 +47,9 @@ class MiscPanel extends JPanel {
     private final JLabel freenetNodeLabel = new JLabel();
     private final JTextField freenetNodeTextField = new JTextField();
 
+    private final JLabel browserAddressLabel = new JLabel();
+    private final JTextField browserAddressTextField = new JTextField();
+
     private final JCheckBox useDDACheckBox = new JCheckBox();
     private final JCheckBox usePersistenceCheckBox = new JCheckBox();
     private final JCheckBox enableLoggingCheckBox = new JCheckBox();
@@ -126,6 +129,7 @@ class MiscPanel extends JPanel {
         new TextComponentClipboardMenu(autoSaveIntervalTextField, language);
         new TextComponentClipboardMenu(freenetNodeTextField, language);
         new TextComponentClipboardMenu(logFileSizeTextField, language);
+        new TextComponentClipboardMenu(browserAddressTextField, language);
 
         // Adds all of the components
         final GridBagConstraints constraints = new GridBagConstraints();
@@ -190,6 +194,19 @@ class MiscPanel extends JPanel {
         constraints.gridwidth = 3;
         add(getLoggingPanel(), constraints);
 
+        constraints.insets = insets0555;
+
+        // browserAddress
+        constraints.gridy++;
+        constraints.gridwidth = 2;
+        add(browserAddressLabel, constraints);
+        constraints.gridy++;
+        constraints.weightx = 3;
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        add(browserAddressTextField, constraints);
+        constraints.weightx = 0;
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -198,6 +215,7 @@ class MiscPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
+        
 
         // Add listeners
         enableLoggingCheckBox.addActionListener(listener);
@@ -222,6 +240,8 @@ class MiscPanel extends JPanel {
         splashScreenCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
         useDDACheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_DDA));
         usePersistenceCheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE));
+        
+        browserAddressTextField.setText(settings.getValue(SettingsClass.BROWSER_ADDRESS));
 
         refreshLoggingState();
     }
@@ -237,6 +257,16 @@ class MiscPanel extends JPanel {
                         "Warning: Persistence is not possible");
                 usePersistenceCheckBox.setSelected(false);
             }
+        }
+        
+        final String broserAddress = browserAddressTextField.getText();
+        if( broserAddress.length() > 0) {
+        	if( ! broserAddress.matches( "^https?://.+")) {
+        		System.out.println("### INFO - Unrecognized URI format: "+ broserAddress);
+        		browserAddressTextField.setText("");
+        	} else if( ! broserAddress.endsWith("/") ){
+        		browserAddressTextField.setText(broserAddress + "/");
+        	}
         }
 
         saveSettings();
@@ -260,6 +290,8 @@ class MiscPanel extends JPanel {
         logLevelLabel.setText(language.getString("Options.miscellaneous.loggingLevel") +
                     " (" + language.getString("Options.miscellaneous.logLevel.low") + ") ");
         logFileSizeLabel.setText(language.getString("Options.miscellaneous.logFileSizeLimit"));
+
+        browserAddressLabel.setText(language.getString("Options.miscellaneous.browserAddress"));
     }
 
     private void refreshLoggingState() {
@@ -286,5 +318,6 @@ class MiscPanel extends JPanel {
         settings.setValue(SettingsClass.DISABLE_SPLASHSCREEN, splashScreenCheckBox.isSelected());
         settings.setValue(SettingsClass.FCP2_USE_DDA, useDDACheckBox.isSelected());
         settings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, usePersistenceCheckBox.isSelected());
+        settings.setValue(SettingsClass.BROWSER_ADDRESS, browserAddressTextField.getText());
     }
 }

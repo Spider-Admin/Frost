@@ -26,7 +26,8 @@ import org.xml.sax.*;
 
 import frost.util.*;
 
-public class AttachmentList extends LinkedList implements XMLizable {
+@SuppressWarnings("serial")
+public class AttachmentList extends LinkedList<Attachment> implements XMLizable {
 
 	private static final Logger logger = Logger.getLogger(AttachmentList.class.getName());
 

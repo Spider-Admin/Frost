@@ -22,11 +22,14 @@ package frost.messaging.frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.Desktop;
 import java.beans.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -45,6 +48,7 @@ import frost.util.gui.search.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class MessageTextPane extends JPanel {
 
     private final Language language = Language.getInstance();
@@ -601,6 +605,32 @@ public class MessageTextPane extends JPanel {
     }
     
     
+    private void addKeysInText(final String text) {
+    	List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(text);
+
+    	final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
+    			MainFrame.getInstance(), frostDownloadItemList);
+    	
+    	frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
+
+    	getDownloadModel().addDownloadItemList(frostDownloadItemList);
+    }
+    
+    private void addKeysOfCurrentMessage() {
+    	// get message content
+    	String threadMessageContent = selectedMessage.getContent();
+    	
+    	// get start of current message
+    	int pos = selectedMessage.getIdLinePos();
+    	String currentMessageText; 
+    	if( pos > -1 ) {
+    		currentMessageText = threadMessageContent.substring(pos);
+    	} else {
+    		currentMessageText = threadMessageContent;
+    	}
+
+    	addKeysInText(currentMessageText);
+    }
    
     private class PopupMenuAttachmentBoard
     extends JSkinnablePopupMenu
@@ -671,6 +701,9 @@ public class MessageTextPane extends JPanel {
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
 
+        private final JMenuItem openFileInBrowserItem = new JMenuItem();
+        private final JMenuItem openAllFilesInBrowserItem = new JMenuItem();
+
         public PopupMenuAttachmentFile() throws HeadlessException {
             super();
             initialize();
@@ -683,6 +716,10 @@ public class MessageTextPane extends JPanel {
                 CopyToClipboard.copyKeysAndFilenames( getItems().toArray() );
             } else if (e.getSource() == copyExtendedInfoItem) {
                 CopyToClipboard.copyExtendedInfo( getItems().toArray() );
+            } else if (e.getSource() == openFileInBrowserItem) {
+            	openFileInBrowser_actionWrapper( getItems() );
+            } else if (e.getSource() == openAllFilesInBrowserItem) {
+            	openFileInBrowser_actionWrapper( getItems() );
             }
         }
 
@@ -697,6 +734,12 @@ public class MessageTextPane extends JPanel {
 
             saveAttachmentsItem.addActionListener(this);
             saveAttachmentItem.addActionListener(this);
+            
+            String browserAddress = Core.frostSettings.getValue(SettingsClass.BROWSER_ADDRESS);
+            if( browserAddress != null && browserAddress.length() > 0 ) {
+	            openFileInBrowserItem.addActionListener(this);
+	            openAllFilesInBrowserItem.addActionListener(this);
+            }
         }
 
         public void languageChanged(final LanguageEvent event) {
@@ -706,6 +749,9 @@ public class MessageTextPane extends JPanel {
 
             saveAttachmentsItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadAttachments"));
             saveAttachmentItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadSelectedAttachment"));
+
+            openFileInBrowserItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.openAttachmentInBrowser"));
+            openAllFilesInBrowserItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.openAllAttachementsInBrowser"));
         }
 
         @Override
@@ -720,8 +766,14 @@ public class MessageTextPane extends JPanel {
             } else {
                 add(saveAttachmentItem);
             }
-//            addSeparator();
-//            add(cancelItem);
+
+            addSeparator();
+
+            if (filesTable.getSelectedRow() == -1) {
+                add(openAllFilesInBrowserItem);
+            } else {
+                add(openFileInBrowserItem);
+            }
 
             super.show(invoker, x, y);
         }
@@ -777,16 +829,14 @@ public class MessageTextPane extends JPanel {
             final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
             frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
             
-            for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
-            	getDownloadModel().addDownloadItem(frostDownloadItem);
-            }
+            getDownloadModel().addDownloadItemList(frostDownloadItemList);
         }
 
         /**
          * Returns a list of all items to process, either selected ones or all.
          */
         private List<FileAttachment> getItems() {
-            List<FileAttachment> items = null;
+            List items = null;
             final int[] selectedRows = filesTable.getSelectedRows();
             if (selectedRows.length == 0) {
                 // If no rows are selected, add all attachments to download table
@@ -801,9 +851,17 @@ public class MessageTextPane extends JPanel {
             }
             return items;
         }
+        
+        private void openFileInBrowser_actionWrapper(final List<FileAttachment> fileAttachementList) {
+        	List<String> keys = new LinkedList<String>();
+        	for(final FileAttachment fileAttachement : fileAttachementList) {
+        		keys.add(fileAttachement.getKey());
+            }
+        	openFileInBrowser_action(keys);
+        }
     }
 
-    private class PopupMenuHyperLink
+	private class PopupMenuHyperLink
     extends JSkinnablePopupMenu
     implements ActionListener, LanguageListener {
 
@@ -818,6 +876,10 @@ public class MessageTextPane extends JPanel {
 
         private final JMenuItem downloadFile = new JMenuItem();
         private final JMenuItem downloadAllFiles = new JMenuItem();
+        private final JMenuItem downloadAllFilesOfMessage = new JMenuItem();
+
+        private final JMenuItem openFileInBrowser = new JMenuItem();
+        private final JMenuItem openAllFilesInBrowser = new JMenuItem();
 
         private String clickedKey = null;
         private List<String> allKeys = null;
@@ -847,6 +909,12 @@ public class MessageTextPane extends JPanel {
                 downloadItems(false);
             } else if( e.getSource() == downloadAllFiles ) {
                 downloadItems(true);
+            } else if( e.getSource() == downloadAllFilesOfMessage ) {
+            	addKeysOfCurrentMessage();
+            } else if( e.getSource() == openFileInBrowser ) {
+            	openFileInBrowser_action(getItems(false));
+            } else if( e.getSource() == openAllFilesInBrowser ) {
+            	openFileInBrowser_action(getItems(true));
             }
         }
 
@@ -859,6 +927,10 @@ public class MessageTextPane extends JPanel {
             copyAllFileLinksToClipboard.addActionListener(this);
             downloadFile.addActionListener(this);
             downloadAllFiles.addActionListener(this);
+            downloadAllFilesOfMessage.addActionListener(this);
+            
+        	openFileInBrowser.addActionListener(this);
+            openAllFilesInBrowser.addActionListener(this);
         }
 
         public void languageChanged(final LanguageEvent event) {
@@ -868,6 +940,9 @@ public class MessageTextPane extends JPanel {
             copyAllFileLinksToClipboard.setText(language.getString("MessagePane.hyperlink.popupmenu.copyAllFileKeysToClipboard"));
             downloadFile.setText(language.getString("MessagePane.hyperlink.popupmenu.downloadFileKey"));
             downloadAllFiles.setText(language.getString("MessagePane.hyperlink.popupmenu.downloadAllFileKeys"));
+            downloadAllFilesOfMessage.setText(language.getString("MessagePane.hyperlink.popupmenu.downloadAllFileKeysOfMessage"));
+            openFileInBrowser.setText(language.getString("MessagePane.hyperlink.popupmenu.openFileInBrowser"));
+            openAllFilesInBrowser.setText(language.getString("MessagePane.hyperlink.popupmenu.openAllFlesInBrowser"));
 
             cancelItem.setText(language.getString("Common.cancel"));
         }
@@ -880,14 +955,22 @@ public class MessageTextPane extends JPanel {
             // if clickedLink ends with a '/' its a freesite link, allow to copy this to clipboard only
             // else the clickedLink is a filelink, allow to copy/download this link or ALL filelinks
 
-            if( clickedKey.indexOf("/") < 0 ||
-                !Character.isLetterOrDigit(clickedKey.charAt(clickedKey.length()-1)) )
-            {
+			if (clickedKey.indexOf("/") < 0) {
                 // key only
                 add(copyKeyOnlyToClipboard);
             } else if( clickedKey.endsWith("/") ) {
                 // freesite link
                 add(copyFreesiteLinkToClipboard);
+
+				String browserAddress = Core.frostSettings.getValue(SettingsClass.BROWSER_ADDRESS);
+	            if( browserAddress != null && browserAddress.length() > 0 ) {
+	            	addSeparator();
+	            	add(openFileInBrowser);
+					if (allKeys.size() > 1) {
+						add(openAllFilesInBrowser);
+					}
+	            }
+				
             } else {
                 // file key
                 add(copyFileLinkToClipboard);
@@ -896,10 +979,19 @@ public class MessageTextPane extends JPanel {
                 }
                 addSeparator();
                 add(downloadFile);
+                add(downloadAllFilesOfMessage);
                 if( allKeys.size() > 1 ) {
                     add(downloadAllFiles);
                 }
-            }
+                String browserAddress = Core.frostSettings.getValue(SettingsClass.BROWSER_ADDRESS);
+	            if( browserAddress != null && browserAddress.length() > 0 ) {
+	            	addSeparator();
+	            	add(openFileInBrowser);
+					if (allKeys.size() > 1) {
+						add(openAllFilesInBrowser);
+					}
+	            }
+			}
 
             addSeparator();
             add(cancelItem);
@@ -955,11 +1047,10 @@ public class MessageTextPane extends JPanel {
             final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
             frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
             
-            for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
-            	getDownloadModel().addDownloadItem(frostDownloadItem);
-            }
+        	getDownloadModel().addDownloadItemList(frostDownloadItemList);
         }
-
+        
+        
         private List<String> getItems(final boolean getAll) {
             List<String> items;
             if( getAll ) {
@@ -996,8 +1087,41 @@ public class MessageTextPane extends JPanel {
             }
             CopyToClipboard.copyText(text);
         }
+        
     }
 
+    private void openFileInBrowser_action(final List<String> items) {
+		if (!java.awt.Desktop.isDesktopSupported()) {
+			return;
+		}
+		if (!Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+			return;
+		}
+
+		final String browserAddress = Core.frostSettings
+				.getValue(SettingsClass.BROWSER_ADDRESS);
+		if (browserAddress.length() == 0) {
+			System.out.println("DEBUG - Borser address not configured");
+			return;
+		}
+		if (items == null || items.size() < 1) {
+			return;
+		}
+
+		for (final String key : items) {
+			try {
+				final URI browserURI = new URI(browserAddress);
+				final URI uri = new URI(browserURI.getScheme(), browserURI
+						.getSchemeSpecificPart()
+						+ key, null);
+				Desktop.getDesktop().browse(uri);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
     private class PopupMenuTofText extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
@@ -1008,6 +1132,7 @@ public class MessageTextPane extends JPanel {
         private final JMenuItem copyItem = new JMenuItem();
         private final JMenuItem saveMessageItem = new JMenuItem();
         private final JMenuItem downloadKeys = new JMenuItem();
+        private final JMenuItem downloadAllFilesOfMessage = new JMenuItem();
 
         public PopupMenuTofText(final JTextComponent sourceTextComponent) {
             super();
@@ -1018,23 +1143,16 @@ public class MessageTextPane extends JPanel {
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == saveMessageItem) {
                 saveMessageButton_actionPerformed();
+                
             } else if (e.getSource() == copyItem) {
-                // copy selected text
-                final String text = sourceTextComponent.getSelectedText();
+            	final String text = sourceTextComponent.getSelectedText();
                 CopyToClipboard.copyText(text);
                 
-            } if(e.getSource() == downloadKeys ) {
+            } else if(e.getSource() == downloadKeys ) {
+            	addKeysInText(sourceTextComponent.getSelectedText());
             	
-            	List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(sourceTextComponent.getSelectedText());
-
-            	final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
-            			MainFrame.getInstance(), frostDownloadItemList);
-            	frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-
-            	DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
-            	for(final FrostDownloadItem frostDownloadItem : frostDownloadItemList ) {
-            		downloadModel.addDownloadItem(frostDownloadItem);
-            	}
+            } else if(e.getSource() == downloadAllFilesOfMessage ) {
+            	addKeysOfCurrentMessage();
             }
         }
 
@@ -1044,18 +1162,21 @@ public class MessageTextPane extends JPanel {
             copyItem.addActionListener(this);
             saveMessageItem.addActionListener(this);
             downloadKeys.addActionListener(this);
+            downloadAllFilesOfMessage.addActionListener(this);
 
             add(copyItem);
             addSeparator();
             add(saveMessageItem);
             addSeparator();
             add(downloadKeys);
+            add(downloadAllFilesOfMessage);
         }
 
         public void languageChanged(final LanguageEvent event) {
             copyItem.setText(language.getString("MessagePane.messageText.popupmenu.copy"));
             saveMessageItem.setText(language.getString("MessagePane.messageText.popupmenu.saveMessageToDisk"));
             downloadKeys.setText(language.getString("MessagePane.messageText.popupmenu.downloadKeys"));
+            downloadAllFilesOfMessage.setText(language.getString("MessagePane.hyperlink.popupmenu.downloadAllFileKeysOfMessage"));
         }
 
         @Override
