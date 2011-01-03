@@ -55,12 +55,9 @@
         <name><![CDATA[fuqid]]></name>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
-        <name><![CDATA[successful]]></name>
-        <description><![CDATA[Report successful downloads here]]></description>
-      </FrostBoardTreeEntry>
-      <FrostBoardTreeEntry>
-        <name><![CDATA[unsuccessful]]></name>
-        <description><![CDATA[Request reinserts for unsuccessful downloads here]]></description>
+        <name><![CDATA[fuqid]]></name>
+        <publicKey><![CDATA[SSK@qoY-E5SKRu66pmKH64xa~R~w3hXmS5ZNtqnpEGoCVww,HTVcdWChaaebfRAublHSxBSRaRFG91qCwsa3mGF3-QE,AQACAAE]]></publicKey>
+        <description><![CDATA[Announcement of new Fuqid versions]]></description>
       </FrostBoardTreeEntry>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
