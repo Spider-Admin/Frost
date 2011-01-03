@@ -156,6 +156,8 @@ public class SettingsClass implements ExitSavable {
     public static final String GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD = "showExternalGlobalQueueDownloads";
     public static final String GQ_SHOW_EXTERNAL_ITEMS_UPLOAD = "showExternalGlobalQueueUploads";
 
+    public static final String COMPRESS_UPLOADS = "compressUploads";
+
     public static final String SAVE_SORT_STATES = "saveSortStates";
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
@@ -277,6 +279,8 @@ public class SettingsClass implements ExitSavable {
     public static final String TRACK_DOWNLOADS_ENABLED = "trackDownloads";
 
     public static final String USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED = "useBoardnameDownloadSubfolder";
+    
+    public static final String BROWSER_ADDRESS = "browserAddress";
 
     public SettingsClass() {
         settingsHash = new Hashtable<String,Object>();
@@ -957,6 +961,8 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, "false");
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, "false");
+
+        defaults.put(COMPRESS_UPLOADS, "true");
 
         defaults.put(BOARDLIST_LAST_SELECTED_BOARD, "0");
         defaults.put(UPLOAD_MAX_THREADS, "3");

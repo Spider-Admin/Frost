@@ -47,7 +47,7 @@ public class UploadModel extends SortedModel implements ExitSavable {
     }
 
     public boolean addNewUploadItemFromSharedFile(final FrostSharedFileItem sfi) {
-        final FrostUploadItem newUlItem = new FrostUploadItem(sfi.getFile());
+        final FrostUploadItem newUlItem = new FrostUploadItem(sfi.getFile(), true);
         newUlItem.setSharedFileItem(sfi);
         return addNewUploadItem(newUlItem);
     }

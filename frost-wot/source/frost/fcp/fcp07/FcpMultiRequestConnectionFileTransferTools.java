@@ -80,10 +80,11 @@ public class FcpMultiRequestConnectionFileTransferTools {
             final String id,
             final File sourceFile,
             final boolean doMime,
-            final boolean setTargetFileName)
+            final boolean setTargetFileName,
+            final boolean compress)
     {
         // else start a new request with DDA
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
 
@@ -140,7 +141,8 @@ public class FcpMultiRequestConnectionFileTransferTools {
             final String id,
             final File sourceFile,
             final boolean doMime,
-            final boolean setTargetFileName)
+            final boolean setTargetFileName,
+            final boolean compress)
     {
         final LinkedList<String> lst = new LinkedList<String>();
         lst.add("ClientPut");
@@ -148,7 +150,9 @@ public class FcpMultiRequestConnectionFileTransferTools {
         lst.add("Identifier=" + id);
         lst.add("Verbosity=-1");
         lst.add("MaxRetries=-1");
-        lst.add("DontCompress=true");
+        if( ! compress ) {
+         	lst.add("DontCompress=true");
+        }
         if( setTargetFileName ) {
             lst.add("TargetFilename="+sourceFile.getName()); // prevents problems downloading this file with other apps
         } else {
@@ -175,7 +179,8 @@ public class FcpMultiRequestConnectionFileTransferTools {
             final String id,
             final File sourceFile,
             final boolean doMime,
-            final boolean setTargetFileName)
+            final boolean setTargetFileName,
+            final boolean compress)
     throws IOException
     {
         final FcpSocket newSocket = FcpSocket.create(fcpPersistentConnection.getNodeAddress());
@@ -185,7 +190,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
 
         final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
 
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
         msg.add("Data");
@@ -326,7 +331,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("Identifier=" + id );
         msg.add("Verbosity=0");
         msg.add("MaxRetries=1");
-        msg.add("DontCompress=true");
+        //msg.add("DontCompress=true");
         msg.add("PriorityClass="+Integer.toString(priority));
         msg.add("Persistence=connection");
         msg.add("UploadFrom=direct");
