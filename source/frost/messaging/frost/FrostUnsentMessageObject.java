@@ -28,6 +28,7 @@ import frost.util.*;
 /**
  * Same as FrostMessageObject, but adds some stuff needed only for unsend messages.
  */
+@SuppressWarnings("serial")
 public class FrostUnsentMessageObject extends FrostMessageObject {
 
     private PerstFrostUnsentMessageObject perstFrostUnsentMessageObject = null;
@@ -56,14 +57,17 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
         return timeAddedString;
     }
 
-    @SuppressWarnings("unchecked")
     public LinkedList<FileAttachment> getUnsentFileAttachments() {
         final LinkedList<FileAttachment> result = new LinkedList<FileAttachment>();
-        final List<FileAttachment> fileAttachments = getAttachmentsOfType(Attachment.FILE);
+        final AttachmentList fileAttachments =  getAttachmentsOfType(Attachment.FILE);
         if( fileAttachments == null || fileAttachments.size() == 0 ) {
             return result;
         }
-        for( final FileAttachment fa : fileAttachments ) {
+        for( final Attachment attachment : fileAttachments ) {
+        	if( !(attachment instanceof FileAttachment)) {
+        		continue;
+        	}
+        	FileAttachment fa = (FileAttachment) attachment;
             if( fa.getKey() == null || fa.getKey().length() == 0 ) {
                 result.add(fa);
             }

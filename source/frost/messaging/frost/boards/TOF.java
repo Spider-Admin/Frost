@@ -1016,12 +1016,16 @@ public class TOF implements PropertyChangeListener {
             }
             // Block by attached boards
             if ( blockMsgBoardname ) {
-                final List<BoardAttachment> boards = message.getAttachmentsOfType(Attachment.BOARD);
+                final AttachmentList boards = message.getAttachmentsOfType(Attachment.BOARD);
                 final StringTokenizer blockWords =
                     new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
                 while (blockWords.hasMoreTokens()) {
                     final String blockWord = blockWords.nextToken().trim();
-                    for( final BoardAttachment boardAttachment : boards ) {
+                    for( final Attachment attachment : boards ) {
+                    	if( !(attachment instanceof BoardAttachment) ) {
+                    		continue;
+                    	}
+                    	BoardAttachment boardAttachment = (BoardAttachment) attachment;
                         final Board boardObject = boardAttachment.getBoardObj();
                         if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
                             return true;

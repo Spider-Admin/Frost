@@ -549,7 +549,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     ulItem.getGqIdentifier(),
                     ulItem.getFile(),
                     doMime,
-                    setTargetFileName);
+                    setTargetFileName,
+                    ulItem.getCompress());
         } else {
             // if UploadManager selected this file then it is not already in progress!
             directTransferQueue.appendItemToQueue(ulItem);
@@ -731,7 +732,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             doMime = true;
                             setTargetFileName = true;
                         }
-                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, sourceFile, doMime, setTargetFileName);
+                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, sourceFile, doMime, setTargetFileName, ulItem.getCompress());
                         if( answer == null ) {
                             final String desc = "Could not open a new FCP2 socket for direct put!";
                             final FcpResultPut result = new FcpResultPut(FcpResultPut.Error, -1, desc, false);

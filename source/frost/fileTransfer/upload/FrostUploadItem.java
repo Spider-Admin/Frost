@@ -50,6 +50,8 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private int retries = 0;
     private long lastUploadStopTimeMillis = 0; // millis when upload stopped the last time, needed to schedule uploads
     private String gqIdentifier = null;
+    
+    private boolean compress = true;
 
     private boolean isLoggedToFile = false;
     private boolean isCompletionProgRun = false;
@@ -82,10 +84,12 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      * Used to add a new file to upload.
      * Either manually added or a shared file.
      */
-    public FrostUploadItem(final File newFile) {
+    public FrostUploadItem(final File file, final boolean compress) {
 
-        file = newFile;
+        this.file = file;
         fileSize = file.length();
+
+        this.compress = compress;
 
         gqIdentifier = buildGqIdentifier(file.getName());
 
@@ -110,7 +114,9 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
             final long newLastUploadStopTimeMillis,
             final String newGqIdentifier,
             final boolean newIsLoggedToFile,
-            final boolean newIsCompletionProgRun)
+            final boolean newIsCompletionProgRun,
+            final boolean newCompress
+            )
     {
         file = newFile;
         fileSize = newFilesize;
@@ -125,6 +131,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         gqIdentifier = newGqIdentifier;
         isLoggedToFile = newIsLoggedToFile;
         isCompletionProgRun = newIsCompletionProgRun;
+        compress = newCompress;
 
         // set correct state
         if( state == FrostUploadItem.STATE_PROGRESS ) {
@@ -180,8 +187,16 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         retries = newRetries;
         fireChange();
     }
+    
+    public boolean getCompress() {
+		return compress;
+	}
 
-    public int getDoneBlocks() {
+	public void setCompress(final boolean compress) {
+		this.compress = compress;
+	}
+
+	public int getDoneBlocks() {
         return doneBlocks;
     }
     public void setDoneBlocks(final int newDoneBlocks) {
