@@ -17,19 +17,32 @@
  */
 package frost.fileTransfer.download;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fcp.*;
-import frost.fileTransfer.*;
-import frost.messaging.frost.*;
-import frost.storage.*;
-import frost.storage.perst.*;
-import frost.storage.perst.filelist.*;
-import frost.util.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.fcp.FcpResultGet;
+import frost.fcp.FreenetKeys;
+import frost.fileTransfer.FileTransferInformation;
+import frost.fileTransfer.FileTransferManager;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
+import frost.storage.perst.TrackDownloadKeys;
+import frost.storage.perst.TrackDownloadKeysStorage;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.util.FileAccess;
+import frost.util.Mixed;
+import frost.util.model.ModelItem;
 
 public class DownloadManager implements ExitSavable {
 

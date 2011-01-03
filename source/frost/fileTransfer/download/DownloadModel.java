@@ -42,6 +42,15 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	public DownloadModel(final SortedTableFormat f) {
 		super(f);
 	}
+	
+	public synchronized boolean addDownloadItemList(final List<FrostDownloadItem> itemsToAddList) {
+		for(final FrostDownloadItem frostDownloadItem : itemsToAddList ) {
+    		if( ! this.addDownloadItem(frostDownloadItem) ) {
+    			return false;
+    		}
+    	}
+		return true;
+	}
 
 	/**
 	 * Will add this item to model if not already in model.
