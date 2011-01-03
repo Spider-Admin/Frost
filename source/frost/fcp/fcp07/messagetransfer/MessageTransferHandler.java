@@ -131,12 +131,16 @@ public class MessageTransferHandler implements NodeMessageListener {
             onGetFailed(task, nm);
         } else if( nm.isMessageName("DataFound") ) {
             // ignore
+        } else if( nm.isMessageName("ExpectedMIME") ) {
+            // ignore
 
         } else if( nm.isMessageName("PutSuccessful") ) {
             onPutSuccessful(task, nm);
         } else if( nm.isMessageName("PutFailed") ) {
             onPutFailed(task, nm);
         } else if( nm.isMessageName("URIGenerated") ) {
+            // ignore
+        } else if( nm.isMessageName("ExpectedHashes") ) {
             // ignore
 
         } else if( nm.isMessageName("ProtocolError") ) {

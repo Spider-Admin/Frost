@@ -120,6 +120,12 @@ public class FcpPersistentQueue implements NodeMessageListener {
             onIdentifierCollision(id, nm);
         } else if( nm.isMessageName("ProtocolError") ) {
             onProtocolError(id, nm);
+            
+        } else if( nm.isMessageName("ExpectedHashes") ) {
+            // ignore
+        } else if( nm.isMessageName("ExpectedMIME") ) {
+            // ignore
+            
         } else {
             // unhandled msg
             System.out.println("### INFO - Unhandled msg: "+nm);
