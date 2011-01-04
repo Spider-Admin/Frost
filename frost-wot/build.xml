@@ -27,8 +27,8 @@
   <property name="deprecation" value="true" />
   <property name="verbose" value="false" />
   <property name="optimize" value="true" />
-  <property name="source" value="1.5" />         <!-- overwritten by atomative -->
-  <property name="target" value="1.5" />         <!-- overwritten by atomative -->
+  <property name="source" value="1.6" />         <!-- overwritten by atomative -->
+  <property name="target" value="1.6" />         <!-- overwritten by atomative -->
 
   <!-- moved to target main, the old one should keep alive. :)  -->
   <!-- property name="revision" value="${NOW.DATE}"/ --> <!-- overwritten by atomative -->
