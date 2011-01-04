@@ -407,7 +407,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 if (laf.isSupportedLookAndFeel()) {
                     final JRadioButtonMenuItem rmItem = new JRadioButtonMenuItem(laf.getName()+"  ["+lfClassName+"]");
                     rmItem.setActionCommand(lfClassName);
-                    rmItem.setSelected(UIManager.getLookAndFeel().getName().equals(laf.getName()));
+                    rmItem.setSelected(UIManager.getLookAndFeel().getClass().getName().equals(lfClassName));
                     group.add(rmItem);
                     rmItem.addActionListener(al);
                     lfMenu.add(rmItem);
