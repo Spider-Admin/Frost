@@ -420,6 +420,11 @@ public class FreetalkMessageTab implements LanguageListener {
     }
 
     public void languageChanged(final LanguageEvent event) {
+        if (newBoardButton == null) {
+            // freetalk is not enabled and not visible ...
+            return;
+        }
+
         // tool bar
         newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
         newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
