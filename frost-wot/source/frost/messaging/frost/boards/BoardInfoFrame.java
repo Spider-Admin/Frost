@@ -40,6 +40,7 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener {
 
     private final boolean showColoredLines;
@@ -138,8 +139,34 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         catch( final Exception e ) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
-        setSize((int) (parentFrame.getWidth() * 0.75),
-                (int) (parentFrame.getHeight() * 0.75));
+        
+        int width = (int) (parentFrame.getWidth() * 0.75);
+        int height = (int) (parentFrame.getHeight() * 0.75);
+        
+        if( width < 1000 ) {
+        	Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        	
+        	if( screenSize.width > 1300 ) {
+        		width = 1200;
+
+        	} else if( screenSize.width > 1000 ) {
+        		width = (int) (parentFrame.getWidth() * 0.99);
+        	}
+        }
+        
+        if( height < 500 ) {
+        	Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        	
+        	if( screenSize.width > 900 ) {
+        		height = 800;
+        	} else {
+        		height = (int) (screenSize.width * 0.85);
+        	}
+        }
+        
+        parentFrame.getWidth();
+        
+        setSize(width, height);
         setLocationRelativeTo(parentFrame);
 
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
