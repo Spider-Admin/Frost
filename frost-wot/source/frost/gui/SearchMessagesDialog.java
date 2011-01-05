@@ -20,15 +20,14 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.text.*;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
-import mseries.Calendar.*;
-import mseries.ui.*;
+import com.toedter.calendar.*;
+
 import frost.*;
 import frost.gui.model.*;
 import frost.messaging.frost.*;
@@ -44,6 +43,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private final Language language = Language.getInstance();
 
     private SearchMessagesConfig searchMessagesConfig = null;
+
+    private HashSet<Component> previouslyEnabledComponents = new HashSet<Component>();
 
     private String resultCountPrefix = null;
     private String startSearchStr = null;
@@ -78,9 +79,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JPanel Pdate = null;
     private JRadioButton date_RBdisplayed = null;
     private JRadioButton date_RBbetweenDates = null;
-    private MDateEntryField date_TFstartDate = null;
+    private JDateChooser date_TFstartDate = null;
     private JLabel date_Lto = null;
-    private MDateEntryField date_TFendDate = null;
+    private JDateChooser date_TFendDate = null;
     private JRadioButton date_RBdaysBackward = null;
     private JTextField date_TFdaysBackward = null;
     private JPanel PtrustState = null;
@@ -581,13 +582,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      *
      * @return javax.swing.JTextField
      */
-    private MDateEntryField getDate_TFstartDate() {
+    private JDateChooser getDate_TFstartDate() {
         if( date_TFstartDate == null ) {
-            date_TFstartDate = new MDateEntryField();
-            final MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
-            c.firstDay = Calendar.MONDAY;
-            c.changerStyle=MDateChanger.SPINNER;
-            date_TFstartDate.setConstraints(c);
+            date_TFstartDate = new JDateChooser();
         }
         return date_TFstartDate;
     }
@@ -597,13 +594,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      *
      * @return javax.swing.JTextField
      */
-    private MDateEntryField getDate_TFendDate() {
+    private JDateChooser getDate_TFendDate() {
         if( date_TFendDate == null ) {
-            date_TFendDate = new MDateEntryField();
-            final MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
-            c.firstDay = Calendar.MONDAY;
-            c.changerStyle=MDateChanger.SPINNER;
-            date_TFendDate.setConstraints(c);
+            date_TFendDate = new JDateChooser();
         }
         return date_TFendDate;
     }
@@ -1342,8 +1335,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         } else if( getDate_RBbetweenDates().isSelected() ) {
             scfg.searchDates = SearchMessagesConfig.DATE_BETWEEN_DATES;
             try {
-                scfg.startDate = getDate_TFstartDate().getValue().getTime();
-                scfg.endDate = getDate_TFendDate().getValue().getTime();
+                // NOTE: getDate() can be null when field is empty. NPE is catched below.
+                scfg.startDate = getDate_TFstartDate().getDate().getTime();
+                scfg.endDate = getDate_TFendDate().getDate().getTime();
 
                 // check start before end
                 if( scfg.startDate > scfg.endDate ) {
@@ -1353,7 +1347,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                             JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
-            } catch(final ParseException ex) {
+            } catch(final Exception ex) {
                 JOptionPane.showMessageDialog(this,
                         language.getString("SearchMessages.errorDialogs.invalidStartOrEndDate"),
                         language.getString("SearchMessages.errorDialogs.title"),
@@ -1428,8 +1422,6 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void setRunningSearchThread(final SearchMessagesThread t) {
         runningSearchThread = t;
     }
-
-    HashSet previouslyEnabledComponents = new HashSet();
 
     /**
      * Disables all input panels during run of search, remembers disabled

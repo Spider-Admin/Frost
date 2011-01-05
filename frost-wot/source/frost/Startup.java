@@ -71,6 +71,11 @@ public class Startup {
         if( oldJarFile.isFile() ) {
             oldJarFile.delete();
         }
+        // remove datechooser.jar
+        oldJarFile = new File("lib/datechooser.jar");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
     }
 
     // Copy some files from the jar file, if they don't exist

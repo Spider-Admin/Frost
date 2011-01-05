@@ -329,7 +329,12 @@ public class FrostMessageTab implements LanguageListener {
 
     public SearchMessagesDialog getSearchMessagesDialog() {
         if( searchMessagesDialog == null ) {
-            searchMessagesDialog = new SearchMessagesDialog();
+            try {
+                searchMessagesDialog = new SearchMessagesDialog();
+            } catch(Throwable t) {
+                logger.log(Level.SEVERE, "SearchMessagesDialog could not be created.", t);
+                t.printStackTrace();
+            }
         }
         return searchMessagesDialog;
     }

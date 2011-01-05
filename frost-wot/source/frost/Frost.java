@@ -46,12 +46,12 @@ public class Frost {
      */
     public static void main(final String[] args) {
         System.out.println();
-        System.out.println("Frost, Copyright (C) 2001,2009 Frost Project");
+        System.out.println("Frost, Copyright (C) 2001,2011 Frost Project");
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
         System.out.println("Frost uses code from bouncycastle.org (BSD license),");
-        System.out.println("Martin Newstead (LGPL license), Volker H. Simonis (GPL v2 license)");
+        System.out.println("Kai Toedter (LGPL license), Volker H. Simonis (GPL v2 license)");
         System.out.println("and McObject LLC (GPL v2 license).");
         System.out.println();
 
@@ -278,9 +278,9 @@ public class Frost {
         // check for needed .jar files by loading a class and catching the error
         String jarFileName = "";
         try {
-            // check for datechooser.jar
-            jarFileName = "datechooser.jar";
-            Class.forName("mseries.ui.MDateEntryField");
+            // check for jcalendar.jar
+            jarFileName = "jcalendar.jar";
+            Class.forName("com.toedter.calendar.JDateChooser");
             // check for joda-time.jar
             jarFileName = "joda-time.jar";
             Class.forName("org.joda.time.DateTime");
