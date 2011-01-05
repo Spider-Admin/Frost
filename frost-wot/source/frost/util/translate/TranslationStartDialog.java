@@ -24,17 +24,20 @@ import java.util.List;
 
 import javax.swing.*;
 
+import frost.Core;
+import frost.SettingsClass;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class TranslationStartDialog extends JFrame {
 
     Language language = Language.getInstance();
 
     private JPanel jContentPane = null;
     private JLabel jLabel = null;
-    private JComboBox CBoxTargetLanguage = null;
+    private JComboBox comboBoxTargetLanguage = null;
     private JLabel jLabel1 = null;
-    private JComboBox CBoxSourceLanguage = null;
+    private JComboBox comboBoxSourceLanguage = null;
     private JPanel jPanel = null;
     private JButton Bok = null;
     private JButton Bcancel = null;
@@ -126,21 +129,28 @@ public class TranslationStartDialog extends JFrame {
      * @return javax.swing.JComboBox
      */
     private JComboBox getCBoxTargetLanguage() {
-        if( CBoxTargetLanguage == null ) {
-            CBoxTargetLanguage = new JComboBox();
+        if( comboBoxTargetLanguage == null ) {
+            comboBoxTargetLanguage = new JComboBox();
+            
             final Locale availableLocales[] = Locale.getAvailableLocales();
             final List<Locale> buildIns = LanguageGuiSupport.getBuildInLocales();
             final List<Locale> externals = Language.getExternalLocales();
+            
             final TreeMap<ComboBoxEntry,ComboBoxEntry> tm = new TreeMap<ComboBoxEntry,ComboBoxEntry>();
+            
+            ComboBoxEntry selectedEntry = null;
+            String current_locale = Core.frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE);
+            if( current_locale.equals("default") ) {
+            	current_locale = "en";
+            }
+            
             for( final Locale element : availableLocales ) {
                 if( element.getCountry().length() > 0 ) {
                     // for now we concentrate on the main languages ;)
                     continue;
                 }
+                
                 final String langCode = element.getLanguage();
-//                if( availableLocales[i].getCountry().length() > 0 ) {
-//                    langCode += "_" + availableLocales[i].getCountry();
-//                }
                 String newOrChangeStr;
                 boolean isExternal = false;
                 boolean isNew = false;
@@ -154,15 +164,25 @@ public class TranslationStartDialog extends JFrame {
                     isNew = true;
                 }
                 final String localeDesc = element.getDisplayName() + "  (" + newOrChangeStr+ ") ("+ langCode + ")";
-                final ComboBoxEntry cbe = new ComboBoxEntry(element, isExternal, isNew, localeDesc);
-                tm.put(cbe, cbe);
+                final ComboBoxEntry comboBoxEntry = new ComboBoxEntry(element, isExternal, isNew, localeDesc);
+                tm.put(comboBoxEntry, comboBoxEntry);
+                
+                // check if local of item matches current local of frost
+                if( langCode.equals(current_locale) ) {
+                	selectedEntry = comboBoxEntry;
+                }
             }
             // get sorted
             for( final Object element : tm.keySet() ) {
-                CBoxTargetLanguage.addItem(element);
+                comboBoxTargetLanguage.addItem(element);
+            }
+            
+            // configure selected item
+            if( selectedEntry != null ) {
+            	comboBoxTargetLanguage.setSelectedItem(selectedEntry);
             }
         }
-        return CBoxTargetLanguage;
+        return comboBoxTargetLanguage;
     }
 
     /**
@@ -171,26 +191,25 @@ public class TranslationStartDialog extends JFrame {
      * @return javax.swing.JComboBox
      */
     private JComboBox getCBoxSourceLanguage() {
-        if( CBoxSourceLanguage == null ) {
-            CBoxSourceLanguage = new JComboBox();
+        if( comboBoxSourceLanguage == null ) {
+            comboBoxSourceLanguage = new JComboBox();
 
             ComboBoxEntry defaultEntry = null;
 
             final List<Locale> lst_buildin = LanguageGuiSupport.getBuildInLocales();
             final TreeMap<ComboBoxEntry,ComboBoxEntry> tm_buildin = new TreeMap<ComboBoxEntry,ComboBoxEntry>();
-            for( final Locale locale2 : lst_buildin ) {
-                final Locale locale = locale2;
+            for( final Locale locale : lst_buildin ) {
                 final String localeDesc = locale.getDisplayName() + "  (" + locale.getLanguage() + ")";
-                final ComboBoxEntry cbe = new ComboBoxEntry(locale, false, false, localeDesc);
-                tm_buildin.put(cbe, cbe);
+                final ComboBoxEntry comboBoxEntry = new ComboBoxEntry(locale, false, false, localeDesc);
+                tm_buildin.put(comboBoxEntry, comboBoxEntry);
 
                 if( locale.getLanguage().equals("en") ) {
-                    defaultEntry = cbe;
+                    defaultEntry = comboBoxEntry;
                 }
             }
             // get sorted
             for( final ComboBoxEntry comboBoxEntry : tm_buildin.keySet() ) {
-                CBoxSourceLanguage.addItem(comboBoxEntry);
+                comboBoxSourceLanguage.addItem(comboBoxEntry);
             }
 
             final List<Locale> lst_external = Language.getExternalLocales();
@@ -203,17 +222,15 @@ public class TranslationStartDialog extends JFrame {
             }
             // get sorted
             for( final Object element : tm_external.keySet() ) {
-                CBoxSourceLanguage.addItem(element);
+                comboBoxSourceLanguage.addItem(element);
             }
 
             // select english as source by default
             if( defaultEntry != null ) {
-                CBoxSourceLanguage.setSelectedItem(defaultEntry);
+                comboBoxSourceLanguage.setSelectedItem(defaultEntry);
             }
-
-
         }
-        return CBoxSourceLanguage;
+        return comboBoxSourceLanguage;
     }
 
     /**
