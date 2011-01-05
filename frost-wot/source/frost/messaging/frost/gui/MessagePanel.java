@@ -41,6 +41,7 @@ import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private MessageTreeTable messageTable = null;
@@ -179,7 +180,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private class PopupMenuSubjectText
+	private class PopupMenuSubjectText
         extends JSkinnablePopupMenu
         implements ActionListener, LanguageListener
     {
@@ -216,7 +217,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private class PopupMenuMessageTable
+	private class PopupMenuMessageTable
         extends JSkinnablePopupMenu
         implements ActionListener, LanguageListener {
 
@@ -787,6 +788,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     // remove ENTER assignment from table
         messageTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).getParent().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0));
+  
     // assign ENTER key - open message viewer
         final Action openMessageAction = new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
@@ -796,12 +798,12 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         frostMessageTab.setKeyActionForNewsTab(openMessageAction, "OPEN_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 
     // assign N key - next unread (to whole news panel, including tree)
-        final Action nextUnreadAction = new AbstractAction() {
+        this.getActionMap().put("NEXT_MSG", new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
                 selectNextUnreadMessage();
             }
-        };
-        frostMessageTab.setKeyActionForNewsTab(nextUnreadAction, "NEXT_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
+        });
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), "NEXT_MSG");
 
     // assign B key - set BAD
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "SET_BAD");
