@@ -20,7 +20,6 @@ package frost.messaging.frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.List;
 import java.util.logging.*;
 
@@ -29,7 +28,6 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.ext.*;
 import frost.gui.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
@@ -411,13 +409,8 @@ public class FrostMessageTab implements LanguageListener {
 
             systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    try {
-                        // Hide the Frost window
-                        // JSysTray icon automatically detects if we were maximized or not
-                        if (JSysTrayIcon.getInstance() != null) {
-                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
-                        }
-                    } catch (final IOException _IoExc) {
+                    if (SystraySupport.isSupported()) {
+                        SystraySupport.minimizeToTray();
                     }
                 }
             });
@@ -450,7 +443,7 @@ public class FrostMessageTab implements LanguageListener {
             buttonToolBar.add(boardInfoButton);
             buttonToolBar.add(knownBoardsButton);
             buttonToolBar.add(searchMessagesButton);
-            if (JSysTrayIcon.getInstance() != null) {
+            if (SystraySupport.isSupported()) {
                 buttonToolBar.add(Box.createRigidArea(blankSpace));
                 buttonToolBar.addSeparator();
                 buttonToolBar.add(Box.createRigidArea(blankSpace));

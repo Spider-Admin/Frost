@@ -21,19 +21,17 @@ package frost;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.UIManager.*;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import org.joda.time.*;
 
-import frost.ext.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
@@ -476,7 +474,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     /**
      * File | Exit action performed
      */
-    private void fileExitMenuItem_actionPerformed(final ActionEvent e) {
+    public void fileExitMenuItem_actionPerformed(final ActionEvent e) {
 
         // warn if create message windows are open
         if (MessageFrame.getOpenInstanceCount() > 0 || FreetalkMessageFrame.getOpenInstanceCount() > 0) {
@@ -833,42 +831,19 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
         getStatusBar().showNewMessageIcon(showNewMessageIcon);
 
-        if( JSysTrayIcon.getInstance() != null ) {
-            try {
-                if( showNewMessageIcon ) {
-                    JSysTrayIcon.getInstance().setIcon(5); // new message icon
-                } else {
-                    JSysTrayIcon.getInstance().setIcon(0); // default icon
-                }
-            } catch(final IOException ex) {
-                logger.log(Level.SEVERE, "Exception during JSysTrayIcon.setIcon()", ex);
+        if( SystraySupport.isSupported() ) {
+            if( showNewMessageIcon ) {
+                SystraySupport.setIconNewMessage();
+            } else {
+                SystraySupport.setIconNormal();
             }
         }
 
         final ImageIcon iconToSet;
         if (showNewMessageIcon) {
             iconToSet = frameIconNewMessage;
-            // The title should never be changed on Windows systems (JSysTray.dll expects "Frost" as title)
-            if( System.getProperty("os.name").startsWith("Windows") == false ) {
-                String t = getTitle();
-                // if not already done, append * on begin and end of title string
-                if( !t.equals("*") && !(t.startsWith("*") && t.endsWith("*")) ) {
-                    t = "*" + t + "*";
-                }
-                setTitle(t);
-            }
         } else {
             iconToSet = frameIconDefault;
-            // The title should never be changed on Windows systems (JSysTray.dll expects "Frost" as title)
-            if( System.getProperty("os.name").startsWith("Windows") == false ) {
-                String t = getTitle();
-                // if not already done, remove * on begin and end of title string
-                if( !t.equals("*") && t.startsWith("*") && t.endsWith("*") ) {
-                    // remove * on begin and end
-                    t = t.substring(1, t.length()-1);
-                }
-                setTitle(t);
-            }
         }
         setIconImage(iconToSet.getImage());
     }
@@ -946,25 +921,25 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private class WindowStateListener extends WindowAdapter {
         @Override
         public void windowStateChanged(final WindowEvent e) {
-            // maybe minimize to tray
-            if( (e.getNewState() & Frame.ICONIFIED) != 0 ) {
-                // Hide the Frost window
-                // because this WindowEvent arrives when we are already minimized, JSYstray can't know
-                // if we were maimized before or not. Therefore tell JSystrayIcon if we were maximized.
-                if ( Core.frostSettings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY)
-                        && JSysTrayIcon.getInstance() != null)
-                {
-                    final boolean wasMaximized = ((e.getOldState() & Frame.MAXIMIZED_BOTH) != 0);
-                    try {
-                        if( wasMaximized ) {
-                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE_WAS_MAXIMIZED);
-                        } else {
-                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
-                        }
-                    } catch (final IOException _IoExc) {
-                    }
-                }
-            }
+//            // maybe minimize to tray
+//            if( (e.getNewState() & Frame.ICONIFIED) != 0 ) {
+//                // Hide the Frost window
+//                // because this WindowEvent arrives when we are already minimized, JSYstray can't know
+//                // if we were maimized before or not. Therefore tell JSystrayIcon if we were maximized.
+//                if ( Core.frostSettings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY)
+//                        && JSysTrayIcon.getInstance() != null)
+//                {
+//                    final boolean wasMaximized = ((e.getOldState() & Frame.MAXIMIZED_BOTH) != 0);
+//                    try {
+//                        if( wasMaximized ) {
+//                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE_WAS_MAXIMIZED);
+//                        } else {
+//                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
+//                        }
+//                    } catch (final IOException _IoExc) {
+//                    }
+//                }
+//            }
         }
     }
 

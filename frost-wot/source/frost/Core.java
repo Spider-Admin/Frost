@@ -26,7 +26,6 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-import frost.ext.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
 import frost.fileTransfer.*;
@@ -449,9 +448,11 @@ public class Core {
         splashscreen.setProgress(70);
 
         // Display the tray icon (do this before mainframe initializes)
-        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
+        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true && SystraySupport.isSupported()) {
             try {
-                JSysTrayIcon.createInstance(0, title, title);
+                if (!SystraySupport.initialize(title)) {
+                    logger.log(Level.SEVERE, "Could not create systray icon.");
+                }
             } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Could not create systray icon.", t);
             }
