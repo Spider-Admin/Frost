@@ -625,10 +625,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		// open dialog - blocking
 		final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(MainFrame.getInstance(),
 				frostDownloadItemList);
-		frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-
-		// add files from dialog to download queue
-		FileTransferManager.inst().getDownloadManager().getModel().addDownloadItemList(frostDownloadItemList);
+		addNewDownloadsDialog.startDialog(frostDownloadItemList);
+//		frostDownloadItemList = 
+//
+//		// add files from dialog to download queue
+//		FileTransferManager.inst().getDownloadManager().getModel().addDownloadItemList(frostDownloadItemList);
 	}
 
 	private void downloadActivateButtonPressed(final ActionEvent e) {

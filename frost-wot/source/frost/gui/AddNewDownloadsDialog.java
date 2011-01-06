@@ -60,9 +60,10 @@ import frost.storage.perst.TrackDownloadKeysStorage;
 import frost.util.DateFun;
 import frost.util.FormatterUtils;
 import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 
-public class AddNewDownloadsDialog extends javax.swing.JDialog {
+public class AddNewDownloadsDialog extends javax.swing.JFrame {
 
 	private final Language language;
 
@@ -83,9 +84,9 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 	private static final long serialVersionUID = 1L;
 
 	public AddNewDownloadsDialog(final JFrame frame, final List<FrostDownloadItem> frostDownloadItemList) { 
-		super(frame);
+		//super(frame);
 		parentFrame = frame;
-		setModal(true);
+		//setModalityType(java.awt.Dialog.DEFAULT_MODALITY_TYPE);
 		addDownloads = false;
 		language = Language.getInstance();
 		trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
@@ -98,8 +99,36 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 	private void initGUI() {
 		try {
 			setTitle(language.getString("AddNewDownloadsDialog.title"));
-			setSize(800, 500);
+			
+			int width = (int) (parentFrame.getWidth() * 0.75);
+			int height = (int) (parentFrame.getHeight() * 0.75);
+
+			if( width < 1000 ) {
+				Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+
+				if( screenSize.width > 1300 ) {
+					width = 1200;
+
+				} else if( screenSize.width > 1000 ) {
+					width = (int) (parentFrame.getWidth() * 0.99);
+				}
+			}
+
+			if( height < 500 ) {
+				Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+
+				if( screenSize.width > 900 ) {
+					height = 800;
+				} else {
+					height = (int) (screenSize.width * 0.85);
+				}
+			}
+
+
+			setSize(width, height);
 			this.setResizable(true);
+			
+			setIconImage(MiscToolkit.loadImageIcon("/data/toolbar/document-save-as.png").getImage());
 
 			// Remove already Downloaded Button
 			removeAlreadyDownloadedButton = new JButton(language.getString("AddNewDownloadsDialog.button.removeAlreadyDownloadedButton"));
@@ -124,6 +153,9 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			okButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					addDownloads = true;
+					
+					FileTransferManager.inst().getDownloadManager().getModel().addDownloadItemList(getDownloads());
+					
 					dispose();
 				}
 			});
@@ -177,17 +209,9 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 			e.printStackTrace();
 		}
 	}
-
-	public List<FrostDownloadItem> startDialog(List<FrostDownloadItem> frostDownloadItmeList) {
-		// load data into table
-		this.loadNewDownloadsIntoTable(frostDownloadItmeList);
-		setLocationRelativeTo(parentFrame);
-
-		// display table
-		setVisible(true); // blocking!
-
-		// return items in table
-		frostDownloadItmeList = new LinkedList<FrostDownloadItem>();
+	
+	private List<FrostDownloadItem> getDownloads() {
+		List<FrostDownloadItem> frostDownloadItmeList = new LinkedList<FrostDownloadItem>();
 		if( addDownloads ) {
 			final int numberOfRows = addNewDownloadsTableModel.getRowCount();
 			for( int indexPos = 0; indexPos < numberOfRows; indexPos++) {
@@ -195,8 +219,16 @@ public class AddNewDownloadsDialog extends javax.swing.JDialog {
 				frostDownloadItmeList.add( row.getDownloadItem() );
 			}
 		}
-
 		return frostDownloadItmeList;
+	}
+
+	public void startDialog(List<FrostDownloadItem> frostDownloadItmeList) {
+		// load data into table
+		this.loadNewDownloadsIntoTable(frostDownloadItmeList);
+		setLocationRelativeTo(parentFrame);
+
+		// display table
+		setVisible(true); // blocking!
 	}
 
 	private void loadNewDownloadsIntoTable(final List<FrostDownloadItem> frostDownloadItmeList) {

@@ -611,9 +611,10 @@ public class MessageTextPane extends JPanel {
     	final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
     			MainFrame.getInstance(), frostDownloadItemList);
     	
-    	frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-
-    	getDownloadModel().addDownloadItemList(frostDownloadItemList);
+    	addNewDownloadsDialog.startDialog(frostDownloadItemList);
+//    	frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
+//
+//    	getDownloadModel().addDownloadItemList(frostDownloadItemList);
     }
     
     private void addKeysOfCurrentMessage() {
@@ -827,9 +828,10 @@ public class MessageTextPane extends JPanel {
             frostDownloadItemNameMap.clear();
             
             final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
-            frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-            
-            getDownloadModel().addDownloadItemList(frostDownloadItemList);
+            addNewDownloadsDialog.startDialog(frostDownloadItemList);
+//            frostDownloadItemList = 
+//            
+//            getDownloadModel().addDownloadItemList(frostDownloadItemList);
         }
 
         /**
@@ -1045,9 +1047,10 @@ public class MessageTextPane extends JPanel {
             frostDownloadItemNameMap.clear();
             
             final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
-            frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-            
-        	getDownloadModel().addDownloadItemList(frostDownloadItemList);
+            addNewDownloadsDialog.startDialog(frostDownloadItemList);
+//            frostDownloadItemList = 
+//            
+//        	getDownloadModel().addDownloadItemList(frostDownloadItemList);
         }
         
         
