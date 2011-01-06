@@ -125,6 +125,10 @@ public class FcpPersistentQueue implements NodeMessageListener {
             // ignore
         } else if( nm.isMessageName("ExpectedMIME") ) {
             // ignore
+        } else if( nm.isMessageName("CompatibilityMode") ) {
+            // ignore
+        } else if( nm.isMessageName("SendingToNetwork") ) {
+            // ignore
             
         } else {
             // unhandled msg
