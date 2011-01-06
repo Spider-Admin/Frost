@@ -1,2 +1,2 @@
 #!/bin/sh
-java -Xmx96M -ea -jar frost.jar "$@"
+java -Xmx192M -ea -jar frost.jar "$@"
