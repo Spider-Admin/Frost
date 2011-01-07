@@ -1,10 +1,14 @@
 Frost
 -----
-Jan Gerritsen <artur8ur -AT+ users.sourceforge.net>
+Jan Gerritsen
+<frost.artur -AT+ googlemail.com>
+artur@K7dLGJvoXF_QQeUhZq9bNp0lFx4
+
+Karsten Graul
+<bback -AT+ users.sourceforge.net>
+bback@xgVRApPk+Yngy+jmtOeGzIbN_A0
 
 (retired developers:)
-Karsten Graul <bback -AT+ users.sourceforge.net>
-
 S. Amoako <saces -AT+ users.sourceforge.net>
 Jan-Thomas Czornack <jantho -AT+ users.sourceforge.net>
 Thomas Mueller <thm2001 -AT+ users.sourceforge.net>
@@ -14,7 +18,7 @@ José Manuel Arnesto <jarnesto -AT+ computer.org>
 Roman Glebov <bleon -AT+ gmx.net>
 SuperSlut Yoda
 
-JSysTray (System Tray)
+JSysTray (Old system tray code)
 -----------------------
 Ingo Franzki
 
