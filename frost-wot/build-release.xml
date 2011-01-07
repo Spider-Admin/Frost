@@ -192,7 +192,6 @@ Build log  : ${logfilename}</echo>
     </copy>
 
     <mkdir dir="${dist.dir}/downloads"/>
-    <mkdir dir="${dist.dir}/exec"/>
 
     <!-- create the help-zip -->
     <antcall target="helpzip"/>
