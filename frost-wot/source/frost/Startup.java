@@ -73,6 +73,16 @@ public class Startup {
         if( oldJarFile.isFile() ) {
             oldJarFile.delete();
         }
+        // remove JSysTray.dll
+        oldJarFile = new File("exec/JSysTray.dll");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
+        // remove obsolete exec directory
+        File dir = new File("exec");
+        if (dir.isDirectory()) {
+            dir.delete(); // fails if not empty
+        }
     }
 
     // Copy some files from the jar file, if they don't exist
@@ -109,11 +119,11 @@ public class Startup {
             downloadDirectory.mkdirs();
         }
 
-        final File execDirectory = new File("exec");
-        if( !execDirectory.isDirectory() ) {
-            logger.warning("Creating exec directory");
-            execDirectory.mkdirs();
-        }
+//        final File execDirectory = new File("exec");
+//        if( !execDirectory.isDirectory() ) {
+//            logger.warning("Creating exec directory");
+//            execDirectory.mkdirs();
+//        }
 
         final File tempDirectory = new File(settings.getValue(SettingsClass.DIR_TEMP));
         if( !tempDirectory.isDirectory() ) {
