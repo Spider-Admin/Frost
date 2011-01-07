@@ -165,6 +165,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JTextField getSearch_TFsubject() {
         if( search_TFsubject == null ) {
             search_TFsubject = new JTextField();
+            new TextComponentClipboardMenu(search_TFsubject, language);
         }
         return search_TFsubject;
     }
@@ -455,6 +456,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JTextField getSearch_TFsender() {
         if( search_TFsender == null ) {
             search_TFsender = new JTextField();
+            new TextComponentClipboardMenu(search_TFsender, language);
         }
         return search_TFsender;
     }
@@ -467,6 +469,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JTextField getSearch_TFcontent() {
         if( search_TFcontent == null ) {
             search_TFcontent = new JTextField();
+            new TextComponentClipboardMenu(search_TFcontent, language);
         }
         return search_TFcontent;
     }
