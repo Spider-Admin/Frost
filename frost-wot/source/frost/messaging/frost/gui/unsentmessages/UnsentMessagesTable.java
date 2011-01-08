@@ -30,7 +30,8 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-public class UnsentMessagesTable extends SortedModelTable {
+@SuppressWarnings("serial")
+public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableItem> {
 
     private final UnsentMessagesTableModel tableModel;
     private final UnsentMessagesTableFormat tableFormat;
@@ -190,12 +191,12 @@ public class UnsentMessagesTable extends SortedModelTable {
         }
 
         private void deleteSelectedMessages() {
-            final ModelItem[] selectedItems = getSelectedItems();
-            if( selectedItems.length == 0 ) {
+            final java.util.List<UnsentMessagesTableItem> selectedItems = getSelectedItems();
+            if( selectedItems.size() == 0 ) {
                 return;
             }
             int answer;
-            if( selectedItems.length == 1 ) {
+            if( selectedItems.size() == 1 ) {
                 answer = JOptionPane.showConfirmDialog(
                         MainFrame.getInstance(),
                         language.getString("UnsentMessages.confirmDeleteOneMessageDialog.text"),
@@ -205,7 +206,7 @@ public class UnsentMessagesTable extends SortedModelTable {
             } else {
                 answer = JOptionPane.showConfirmDialog(
                         MainFrame.getInstance(),
-                        language.formatMessage("UnsentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.length)),
+                        language.formatMessage("UnsentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.size())),
                         language.getString("UnsentMessages.confirmDeleteMessagesDialog.title"),
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
@@ -234,18 +235,17 @@ public class UnsentMessagesTable extends SortedModelTable {
         public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            final ModelItem[] selectedItems = getSelectedItems();
+            final java.util.List<UnsentMessagesTableItem> selectedItems = getSelectedItems();
 
-            if (selectedItems.length == 0) {
+            if (selectedItems.size() == 0) {
                 return;
             }
 
             deleteItem.setEnabled(true);
             add(deleteItem);
 
-            if (selectedItems.length == 1) {
-                final UnsentMessagesTableItem item = (UnsentMessagesTableItem) selectedItems[0];
-                if( item.getFrostUnsentMessageObject().getCurrentUploadThread() != null ) {
+            if (selectedItems.size() == 1) {
+                if( selectedItems.get(0).getFrostUnsentMessageObject().getCurrentUploadThread() != null ) {
                     deleteItem.setEnabled(false);
                 }
             }

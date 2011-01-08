@@ -26,6 +26,7 @@ import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class AttachedBoardTableModel extends DefaultTableModel implements LanguageListener
 {
     private Language language = null;
@@ -74,12 +75,11 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
      * in the list passed as a parameter
      * @param boardAttachments list of BoardAttachments fo fill the model with
      */
-    public void setData(List boardAttachments) {
+    public void setData(List<BoardAttachment> boardAttachments) {
         setRowCount(0);
-        Iterator boards = boardAttachments.iterator();
+        Iterator<BoardAttachment> boards = boardAttachments.iterator();
         while (boards.hasNext()) {
-            BoardAttachment attachment = (BoardAttachment) boards.next();
-            Board board = attachment.getBoardObj();
+            Board board = boards.next().getBoardObj();
             Object[] row = new Object[3];
             // There is no point in showing a board without name
             if (board.getName() != null) {
@@ -125,8 +125,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
     @Override
-    public Class getColumnClass(int column)
-    {
+    public Class getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];
         return null;

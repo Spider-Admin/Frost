@@ -20,9 +20,9 @@ package frost.fileTransfer.common;
 
 import frost.util.model.*;
 
-public class FileListFileDetailsTableModel extends SortedModel {
+public class FileListFileDetailsTableModel extends SortedModel<FileListFileDetailsItem> {
 
-    public FileListFileDetailsTableModel(SortedTableFormat f) {
+    public FileListFileDetailsTableModel(SortedTableFormat<FileListFileDetailsItem> f) {
         super(f);
     }
 

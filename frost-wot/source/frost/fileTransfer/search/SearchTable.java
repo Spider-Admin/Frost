@@ -21,6 +21,7 @@ package frost.fileTransfer.search;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -32,7 +33,8 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-public class SearchTable extends SortedModelTable {
+@SuppressWarnings("serial")
+public class SearchTable extends SortedModelTable<FrostSearchItem> {
 
     private final SearchModel searchModel;
     private final CloseableTabbedPane tabPane;
@@ -113,30 +115,28 @@ public class SearchTable extends SortedModelTable {
     }
 
     private void showDetails() {
-        final ModelItem[] selectedItems = getSelectedItems();
-        if (selectedItems.length != 1) {
+        final List<FrostSearchItem> selectedItems = getSelectedItems();
+        if (selectedItems.size() != 1) {
             return;
         }
-        final FrostSearchItem item = (FrostSearchItem) selectedItems[0];
-        new FileListFileDetailsDialog(MainFrame.getInstance(), true).startDialog(item.getFrostFileListFileObject());
+        new FileListFileDetailsDialog(MainFrame.getInstance(), true).startDialog(selectedItems.get(0).getFrostFileListFileObject());
     }
 
     /**
      * Add selected items, or all item if called with null, to the download table.
      * Updates state of item in search table.
      */
-    private void addItemsToDownloadTable(ModelItem[] selectedItems) {
+    private void addItemsToDownloadTable(List <FrostSearchItem> selectedItems) {
         if( selectedItems == null ) {
             // add all items
-            selectedItems = (ModelItem[]) searchModel.getItems().toArray();
+            selectedItems = searchModel.getItems();
         }
 
         searchModel.addItemsToDownloadTable(selectedItems);
 
         // redraw items in model
-        for( final ModelItem selectedItem : selectedItems ) {
-            final FrostSearchItem si = (FrostSearchItem) selectedItem;
-            final int i = model.indexOf(si);
+        for( final FrostSearchItem selectedItem : selectedItems ) {
+            final int i = model.indexOf(selectedItem);
             fireTableRowsUpdated(i,i);
         }
     }
@@ -244,10 +244,10 @@ public class SearchTable extends SortedModelTable {
                 downloadAllKeys();
             }
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(getSelectedItems());
+                CopyToClipboard.copyKeysAndFilenames(getSelectedItems().toArray());
             }
             if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo(getSelectedItems());
+                CopyToClipboard.copyExtendedInfo(getSelectedItems().toArray());
             }
             if (e.getSource() == hideSelectedKeysItem) {
                 hideSelectedFiles();
@@ -266,8 +266,8 @@ public class SearchTable extends SortedModelTable {
         }
 
         private void hideSelectedFiles() {
-            final ModelItem[] selectedItems = getSelectedItems();
-            if (selectedItems == null || selectedItems.length == 0) {
+            final List<FrostSearchItem> selectedItems = getSelectedItems();
+            if (selectedItems == null || selectedItems.size() == 0) {
                 return;
             }
 
@@ -277,8 +277,8 @@ public class SearchTable extends SortedModelTable {
                 public void run() {
                     if( FileListStorage.inst().beginExclusiveThreadTransaction() ) {
                         try {
-                            for (int x=selectedItems.length -1; x >= 0; x--) {
-                                final FrostSearchItem si = (FrostSearchItem) selectedItems[x];
+                            for (int x=selectedItems.size() -1; x >= 0; x--) {
+                                final FrostSearchItem si =  selectedItems.get(x);
                                 if (si.getFrostFileListFileObject() != null) {
                                     FileListStorage.inst().markFileListFileHidden(si.getFrostFileListFileObject());
                                 }
@@ -302,14 +302,14 @@ public class SearchTable extends SortedModelTable {
         public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            final ModelItem[] selectedItems = getSelectedItems();
+            final List<FrostSearchItem> selectedItems = getSelectedItems();
 
-            if (selectedItems.length > 0) {
+            if (selectedItems.size() > 0) {
                 add(copyToClipboardMenu);
                 addSeparator();
             }
 
-            if (selectedItems.length != 0) {
+            if (selectedItems.size() != 0) {
                 // If at least 1 item is selected
                 add(downloadSelectedKeysItem);
                 addSeparator();
@@ -318,7 +318,7 @@ public class SearchTable extends SortedModelTable {
             addSeparator();
             add(hideSelectedKeysItem);
 
-            if (selectedItems.length == 1) {
+            if (selectedItems.size() == 1) {
                 addSeparator();
                 add(detailsItem);
             }

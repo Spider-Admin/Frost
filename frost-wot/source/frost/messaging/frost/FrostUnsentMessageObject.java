@@ -59,7 +59,7 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
 
     public LinkedList<FileAttachment> getUnsentFileAttachments() {
         final LinkedList<FileAttachment> result = new LinkedList<FileAttachment>();
-        final AttachmentList fileAttachments =  getAttachmentsOfType(Attachment.FILE);
+        final AttachmentList<Attachment> fileAttachments =  getAttachmentsOfType(Attachment.FILE);
         if( fileAttachments == null || fileAttachments.size() == 0 ) {
             return result;
         }

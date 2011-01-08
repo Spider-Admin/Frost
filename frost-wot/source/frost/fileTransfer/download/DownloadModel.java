@@ -35,11 +35,11 @@ import frost.util.model.*;
  * Its implementation is thread-safe (subclasses should synchronize against protected attribute data when necessary). It
  * is also assumed that the load and save methods will not be used while other threads are under way.
  */
-public class DownloadModel extends SortedModel implements ExitSavable {
+public class DownloadModel extends SortedModel<FrostDownloadItem> implements ExitSavable {
 
 	private static final Logger logger = Logger.getLogger(DownloadModel.class.getName());
 
-	public DownloadModel(final SortedTableFormat f) {
+	public DownloadModel(final SortedTableFormat<FrostDownloadItem> f) {
 		super(f);
 	}
 	
@@ -80,7 +80,7 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 		}
 
 		for (int x = 0; x < getItemCount(); x++) {
-			final FrostDownloadItem item = (FrostDownloadItem) getItemAt(x);
+			final FrostDownloadItem item = getItemAt(x);
 
 			// maybe null of manually added
 			final FrostFileListFileObject flf = item.getFileListFileObject();
@@ -136,8 +136,7 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	 */
 	public synchronized boolean containsItemWithSha(final String sha) {
 		for (int x = 0; x < getItemCount(); x++) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(x);
-			final FrostFileListFileObject flf = dlItem.getFileListFileObject();
+			final FrostFileListFileObject flf = getItemAt(x).getFileListFileObject();
 			if (flf != null) {
 				if (flf.getSha().equals(sha)) {
 					return true;
@@ -153,17 +152,13 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	public synchronized void removeFinishedDownloads() {
 		final ArrayList<FrostDownloadItem> items = new ArrayList<FrostDownloadItem>();
 		for (int i = getItemCount() - 1; i >= 0; i--) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(i);
+			final FrostDownloadItem dlItem = getItemAt(i);
 			if (dlItem.getState() == FrostDownloadItem.STATE_DONE) {
 				items.add(dlItem);
 			}
 		}
 		if (items.size() > 0) {
-			final FrostDownloadItem[] itemsArray = new FrostDownloadItem[items.size()];
-			for (int i = 0; i < itemsArray.length; i++) {
-				itemsArray[i] = items.get(i);
-			}
-			removeItems(itemsArray);
+			removeItems(items);
 		}
 	}
 
@@ -173,26 +168,24 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	public synchronized void removeExternalDownloads() {
 		final ArrayList<FrostDownloadItem> items = new ArrayList<FrostDownloadItem>();
 		for (int i = getItemCount() - 1; i >= 0; i--) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(i);
+			final FrostDownloadItem dlItem = getItemAt(i);
 			if (dlItem.isExternal()) {
 				items.add(dlItem);
 			}
 		}
 		if (items.size() > 0) {
-			final FrostDownloadItem[] itemsArray = new FrostDownloadItem[items.size()];
-			items.toArray(itemsArray);
-			removeItems(itemsArray);
+			removeItems(items);
 		}
 	}
 
 	/**
 	 * Called to restart the item.
 	 */
-	public void restartItems(final ModelItem[] items) {
+	public void restartItems(final List<FrostDownloadItem> items) {
 		final LinkedList<FrostDownloadItem> running = new LinkedList<FrostDownloadItem>();
 
-		for (int x = items.length - 1; x >= 0; x--) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) items[x];
+		for (int x = items.size() - 1; x >= 0; x--) {
+			final FrostDownloadItem dlItem = items.get(x);
 
 			if (dlItem.getState() == FrostDownloadItem.STATE_FAILED
 					|| dlItem.getState() == FrostDownloadItem.STATE_WAITING
@@ -219,7 +212,7 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	 */
 	public synchronized void setAllItemsEnabled(final Boolean enabled) {
 		for (int x = 0; x < getItemCount(); x++) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(x);
+			final FrostDownloadItem dlItem = getItemAt(x);
 			if (dlItem.getState() != FrostDownloadItem.STATE_DONE) {
 				dlItem.setEnabled(enabled);
 				FileTransferManager.inst().getDownloadManager().notifyDownloadItemEnabledStateChanged(dlItem);
@@ -236,9 +229,8 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	 * @param items
 	 *            items to modify
 	 */
-	public void setItemsEnabled(final Boolean enabled, final ModelItem[] items) {
-		for (final ModelItem element : items) {
-			final FrostDownloadItem item = (FrostDownloadItem) element;
+	public void setItemsEnabled(final Boolean enabled, final List<FrostDownloadItem> items) {
+		for (final FrostDownloadItem item : items) {
 			if (item.getState() != FrostDownloadItem.STATE_DONE) {
 				item.setEnabled(enabled);
 				FileTransferManager.inst().getDownloadManager().notifyDownloadItemEnabledStateChanged(item);
@@ -279,16 +271,12 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 
 	public boolean restartRunningDownloads(final List<FrostDownloadItem> dlItems) {
 
-		final FrostDownloadItem[] itemsArray = new FrostDownloadItem[dlItems.size()];
-
 		// don't flag as failed later when item is removed from gq
 		for (final FrostDownloadItem dlItem : dlItems) {
 			dlItem.setInternalRemoveExpected(true);
 		}
 
-		dlItems.toArray(itemsArray);
-
-		removeItems(itemsArray);
+		removeItems(dlItems);
 
 		new Thread() {
 			@Override

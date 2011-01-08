@@ -18,17 +18,25 @@
 */
 package frost.fileTransfer.upload;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fcp.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.sharing.*;
-import frost.storage.*;
-import frost.util.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.fcp.FcpResultPut;
+import frost.fileTransfer.FileTransferInformation;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
+import frost.util.FileAccess;
+import frost.util.Mixed;
 
 public class UploadManager implements ExitSavable {
 
@@ -281,14 +289,13 @@ public class UploadManager implements ExitSavable {
             return;
         }
         final boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
+        List<FrostUploadItem> frostUploadItems = new ArrayList<FrostUploadItem>();
+        frostUploadItems.add(ulItem);
+        int prio = 6;
         if( itemIsEnabled ) {
-            // item is now enabled
-            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
-            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {ulItem}, prio);
-        } else {
-            // item is now disabled
-            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {ulItem}, 6);
+            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
         }
+        panel.changeItemPriorites(frostUploadItems, prio);
     }
 
     private static final Comparator<FrostUploadItem> nextItemCmp = new Comparator<FrostUploadItem>() {

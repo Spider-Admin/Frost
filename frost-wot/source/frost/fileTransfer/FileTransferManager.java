@@ -18,14 +18,18 @@
 */
 package frost.fileTransfer;
 
-import frost.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.search.*;
-import frost.fileTransfer.sharing.*;
-import frost.fileTransfer.upload.*;
-import frost.identities.*;
-import frost.storage.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.fileTransfer.download.DownloadManager;
+import frost.fileTransfer.search.SearchManager;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.fileTransfer.sharing.SharedFilesManager;
+import frost.fileTransfer.upload.FrostUploadItem;
+import frost.fileTransfer.upload.UploadManager;
+import frost.identities.LocalIdentity;
+import frost.storage.AutoSavable;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
 
 public class FileTransferManager implements ExitSavable, AutoSavable {
 
@@ -139,7 +143,9 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
             }
             final FrostSharedFileItem suf = (FrostSharedFileItem)obj;
             if( suf.getOwner().equals(li.getUniqueName()) ) {
-                getUploadManager().getModel().removeItems(new ModelItem[] { suf });
+            	// FIXME: why do we have a FrostSharedFileItem and try to remove a FrostUploadItem?
+            	FrostUploadItem frostSharedFileItem = (FrostUploadItem) (Object) suf;
+                getUploadManager().getModel().removeItem(frostSharedFileItem);
             }
         }
 
@@ -147,7 +153,7 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
         for (int x = 0; x < getSharedFilesManager().getModel().getItemCount(); x++) {
             final FrostSharedFileItem item = (FrostSharedFileItem) getSharedFilesManager().getModel().getItemAt(x);
             if( item.getOwner().equals( li.getUniqueName()) ) {
-                getSharedFilesManager().getModel().removeItems(new ModelItem[] { item });
+                getSharedFilesManager().getModel().removeItem(item);
             }
         }
     }

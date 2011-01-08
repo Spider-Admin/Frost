@@ -25,7 +25,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 
-public abstract class AbstractTableFormat implements ModelTableFormat {
+public abstract class AbstractTableFormat<T extends ModelItem> implements ModelTableFormat<T> {
 
 	private static final Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
 
@@ -33,7 +33,7 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 	private String columnNames[];
 	private boolean columnEditable[];
 	
-	protected Vector tables;
+	protected Vector<JTable> tables;
 
 	protected AbstractTableFormat(int newColumnCount) {
 		super();
@@ -49,11 +49,11 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 	/* (non-Javadoc)
 	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(frost.util.model.gui.ModelTable)
 	 */
-	public void customizeTable(ModelTable modelTable) {
+	public void customizeTable(ModelTable<T> modelTable){
 		// Nothing here. Override in subclasses if necessary.
 	}
 
-    public void customizeTableAfterInitialize(ModelTable modelTable) {
+    public void customizeTableAfterInitialize(ModelTable<T> modelTable) {
         // Nothing here. Override in subclasses if necessary.
     }
 
@@ -69,7 +69,7 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 	 */
 	public synchronized void addTable(JTable table) {
 		if (tables == null) { 
-			tables = new Vector();
+			tables = new Vector<JTable>();
 		}
 		tables.add(table);
 	}
@@ -91,9 +91,9 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 	
 	protected synchronized void refreshColumnNames() {
 		if (tables != null) {
-			Iterator iterator = tables.iterator();
+			Iterator<JTable> iterator = tables.iterator();
 			while (iterator.hasNext()) {
-				JTable table = (JTable) iterator.next();
+				JTable table = iterator.next();
 				TableColumnModel columnModel = table.getColumnModel();
 				for (int i = 0; i < table.getColumnCount(); i++) {
 					TableColumn column = columnModel.getColumn(i);

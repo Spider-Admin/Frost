@@ -30,7 +30,7 @@ import frost.fileTransfer.common.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-public class UnsentMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
+public class UnsentMessagesTableFormat extends SortedTableFormat<UnsentMessagesTableItem> implements LanguageListener, PropertyChangeListener {
 
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "UnsentMessagesTable.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "UnsentMessagesTable.sortState.sortedAscending";
@@ -41,7 +41,7 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
 
     private final static int COLUMN_COUNT = 6;
 
-    private SortedModelTable modelTable;
+    private SortedModelTable<UnsentMessagesTableItem> modelTable;
     
     private String stateWaitingString;
     private String stateUploadingString;
@@ -122,10 +122,10 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
     }
 
     @Override
-    public void customizeTable(ModelTable lModelTable) {
+    public void customizeTable(ModelTable<UnsentMessagesTableItem> lModelTable) {
         super.customizeTable(lModelTable);
         
-        modelTable = (SortedModelTable) lModelTable;
+        modelTable = (SortedModelTable<UnsentMessagesTableItem>) lModelTable;
         
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
@@ -227,55 +227,44 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
         return true;
     }
     
-    private class DateComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((UnsentMessagesTableItem) o1).getTimeAddedString();
-            String i2 = ((UnsentMessagesTableItem) o2).getTimeAddedString();
-            return i1.compareTo(i2);
-        }
+    private class DateComparator implements Comparator<UnsentMessagesTableItem> {
+    	public int compare(UnsentMessagesTableItem left, UnsentMessagesTableItem right) {
+    		return left.getTimeAddedString().compareTo(right.getTimeAddedString());
+    	}
     }
 
-    private class ToComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((UnsentMessagesTableItem) o1).getTo();
-            String i2 = ((UnsentMessagesTableItem) o2).getTo();
-            return i1.compareTo(i2);
-        }
+    private class ToComparator implements Comparator<UnsentMessagesTableItem> {
+    	public int compare(UnsentMessagesTableItem left, UnsentMessagesTableItem right) {
+    		return left.getTo().compareTo(right.getTo());
+    	}
     }
 
-    private class FromComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((UnsentMessagesTableItem) o1).getFrom();
-            String i2 = ((UnsentMessagesTableItem) o2).getFrom();
-            return i1.compareTo(i2);
-        }
+    private class FromComparator implements Comparator<UnsentMessagesTableItem> {
+    	public int compare(UnsentMessagesTableItem left, UnsentMessagesTableItem right) {
+    		return left.getFrom().compareTo(right.getFrom());
+    	}
     }
 
-    private class StateComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            int i1 = ((UnsentMessagesTableItem) o1).getState();
-            int i2 = ((UnsentMessagesTableItem) o2).getState();
-            return new Integer(i1).compareTo(new Integer(i2));
-        }
+    private class StateComparator implements Comparator<UnsentMessagesTableItem> {
+    	public int compare(UnsentMessagesTableItem left, UnsentMessagesTableItem right) {
+    		return new Integer(left.getState()).compareTo(new Integer(right.getState()));
+    	}
     }
 
-    private class SubjectComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((UnsentMessagesTableItem) o1).getSubject();
-            String i2 = ((UnsentMessagesTableItem) o2).getSubject();
-            return i1.compareTo(i2);
-        }
+    private class SubjectComparator implements Comparator<UnsentMessagesTableItem> {
+    	public int compare(UnsentMessagesTableItem left, UnsentMessagesTableItem right) {
+    		return left.getSubject().compareTo(right.getSubject());
+    	}
     }
 
-    private class BoardComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((UnsentMessagesTableItem) o1).getBoardName();
-            String i2 = ((UnsentMessagesTableItem) o2).getBoardName();
-            return i1.compareTo(i2);
-        }
+    private class BoardComparator implements Comparator<UnsentMessagesTableItem> {
+    	public int compare(UnsentMessagesTableItem left, UnsentMessagesTableItem right) {
+    		return left.getBoardName().compareTo(right.getBoardName());
+    	}
     }
 
-    private class SubjectRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class SubjectRenderer extends ShowColoredLinesRenderer {
         public SubjectRenderer() {
             super();
         }
@@ -304,7 +293,8 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
         }
     }
 
-    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -330,7 +320,8 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
         }
     }
     
-    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+    @SuppressWarnings("serial")
+	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
         public ShowColoredLinesRenderer() {
             super();
         }

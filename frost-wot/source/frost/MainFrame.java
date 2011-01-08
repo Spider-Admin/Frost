@@ -637,7 +637,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             public void run() {
                 while (true) {
                     Mixed.wait(1000);
-                    // refactor this method in Core. lots of work :)
+                    // TODO: refactor this method in Core. lots of work :)
                     timer_actionPerformed();
                 }
             }

@@ -18,6 +18,7 @@
 */
 package frost.fcp;
 
+@SuppressWarnings("serial")
 public class DataNotFoundException extends FcpToolsException {
     
     public DataNotFoundException() {

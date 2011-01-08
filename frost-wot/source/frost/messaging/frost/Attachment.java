@@ -25,6 +25,7 @@ import org.xml.sax.*;
 
 import frost.util.*;
 
+@SuppressWarnings("serial")
 public abstract class Attachment implements XMLizable, Comparable {
 	public static final int FILE = 0;
 	public static final int BOARD = 1;

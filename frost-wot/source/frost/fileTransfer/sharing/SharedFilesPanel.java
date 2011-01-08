@@ -37,6 +37,7 @@ import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
+@SuppressWarnings("serial")
 public class SharedFilesPanel extends JPanel {
 
     private PopupMenu popupMenuUpload = null;
@@ -55,7 +56,7 @@ public class SharedFilesPanel extends JPanel {
     private int sharedFilesCount = 0;
     private final JLabel sharedFilesCountLabel = new JLabel();
 
-    private SortedModelTable modelTable;
+    private SortedModelTable<FrostSharedFileItem> modelTable;
 
     private boolean initialized = false;
 
@@ -82,7 +83,7 @@ public class SharedFilesPanel extends JPanel {
             sharedFilesToolBar.add(sharedFilesCountLabel);
 
             // create the main upload panel
-            modelTable = new SortedModelTable(model);
+            modelTable = new SortedModelTable<FrostSharedFileItem>(model);
             new TableFindAction().install(modelTable.getTable());
             setLayout(new BorderLayout());
             add(sharedFilesToolBar, BorderLayout.NORTH);
@@ -106,7 +107,7 @@ public class SharedFilesPanel extends JPanel {
         return (SharedFilesTableFormat) modelTable.getTableFormat();
     }
 
-    public ModelTable getModelTable() {
+    public ModelTable<FrostSharedFileItem> getModelTable() {
         return modelTable;
     }
 
@@ -146,7 +147,7 @@ public class SharedFilesPanel extends JPanel {
     }
 
     private void removeSelectedFiles() {
-        final ModelItem[] selectedItems = modelTable.getSelectedItems();
+        final List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
         model.removeItems(selectedItems);
 
         modelTable.getTable().clearSelection();
@@ -258,30 +259,29 @@ public class SharedFilesPanel extends JPanel {
     public void setModel(final SharedFilesModel model) {
         this.model = model;
 
-        model.addOrderedModelListener(new SortedModelListener() {
+        model.addOrderedModelListener(new SortedModelListener<FrostSharedFileItem>() {
             public void modelCleared() {
                 updateSharedFilesItemCount();
             }
-            public void itemAdded(final int position, final ModelItem item) {
+            public void itemAdded(final int position, final FrostSharedFileItem item) {
                 updateSharedFilesItemCount();
             }
-            public void itemChanged(final int position, final ModelItem item) {
+            public void itemChanged(final int position, final FrostSharedFileItem item) {
             }
-            public void itemsRemoved(final int[] positions, final ModelItem[] items) {
+            public void itemsRemoved( int[] positions, List<FrostSharedFileItem> items) {
                 updateSharedFilesItemCount();
             }
         });
     }
 
     private void showProperties() {
-        final ModelItem[] selectedItems = modelTable.getSelectedItems();
-        if( selectedItems.length == 0 ) {
+        final List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
+        if( selectedItems.size() == 0 ) {
             return;
         }
 
         final List<FrostSharedFileItem> items = new LinkedList<FrostSharedFileItem>();
-        for( final ModelItem element : selectedItems ) {
-            final FrostSharedFileItem item = (FrostSharedFileItem) element;
+        for( final FrostSharedFileItem item : selectedItems ) {
             items.add(item);
         }
         final FrostSharedFileItem defaultItem = items.get(0);
@@ -326,8 +326,7 @@ public class SharedFilesPanel extends JPanel {
     private void updateSharedFilesItemCount() {
         sharedFilesCount = model.getItemCount();
         long sharedFilesSize = 0;
-        for( final Object it : model.getItems() ) {
-            final FrostSharedFileItem sfi = (FrostSharedFileItem) it;
+        for( final FrostSharedFileItem sfi : model.getItems() ) {
             sharedFilesSize += sfi.getFileSize();
         }
 
@@ -400,10 +399,10 @@ public class SharedFilesPanel extends JPanel {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
+                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
             }
             if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
+                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems().toArray());
             }
             if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();
@@ -420,8 +419,7 @@ public class SharedFilesPanel extends JPanel {
          * Reload selected files
          */
         private void uploadSelectedFiles() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.requestItems(selectedItems);
+            model.requestItems(modelTable.getSelectedItems());
         }
 
         public void languageChanged(final LanguageEvent event) {
@@ -432,16 +430,15 @@ public class SharedFilesPanel extends JPanel {
         public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
 
-            if( selectedItems.length == 0 ) {
+            if( selectedItems.size() == 0 ) {
                 return;
             }
 
             // if all selected items are valid, then show long menu
             boolean allValid = true;
-            for( final ModelItem element : selectedItems ) {
-                final FrostSharedFileItem sfItem = (FrostSharedFileItem) element;
+            for( final FrostSharedFileItem sfItem : selectedItems ) {
                 if( !sfItem.isValid() ) {
                     allValid = false;
                     break;

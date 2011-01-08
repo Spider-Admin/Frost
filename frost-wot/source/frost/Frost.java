@@ -248,6 +248,7 @@ public class Frost {
             core.initialize();
         } catch (final Exception e) {
             logger.log(Level.SEVERE, "There was a problem while initializing Frost.", e);
+            System.out.println(e.getStackTrace().toString());
             System.exit(3);
         }
     }

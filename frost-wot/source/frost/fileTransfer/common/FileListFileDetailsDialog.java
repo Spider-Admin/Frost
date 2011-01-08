@@ -21,6 +21,7 @@ package frost.fileTransfer.common;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -34,6 +35,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
+@SuppressWarnings("serial")
 public class FileListFileDetailsDialog extends JDialog {
 
     Language language = Language.getInstance();
@@ -43,7 +45,7 @@ public class FileListFileDetailsDialog extends JDialog {
     private JPanel mainPanel = null;
     private JButton Bclose = null;
 
-    private SortedModelTable modelTable = null;
+    private SortedModelTable<FileListFileDetailsItem> modelTable = null;
     private FileListFileDetailsTableModel model = null;
     private FileListFileDetailsTableFormat tableFormat = null;
 
@@ -163,11 +165,11 @@ public class FileListFileDetailsDialog extends JDialog {
         return mainPanel;
     }
 
-    private SortedModelTable getModelTable() {
+    private SortedModelTable<FileListFileDetailsItem> getModelTable() {
         if( modelTable == null ) {
             tableFormat = new FileListFileDetailsTableFormat();
             model = new FileListFileDetailsTableModel(tableFormat);
-            modelTable = new SortedModelTable(model);
+            modelTable = new SortedModelTable<FileListFileDetailsItem>(model);
 
             modelTable.getScrollPane().addMouseListener(listener);
             modelTable.getTable().addMouseListener(listener);
@@ -246,7 +248,7 @@ public class FileListFileDetailsDialog extends JDialog {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
+                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
             } else if (e.getSource() == showOwnerFilesItem) {
                 searchFilesOfOwner();
             } else if (e.getSource() == setGoodItem) {
@@ -261,9 +263,9 @@ public class FileListFileDetailsDialog extends JDialog {
         }
 
         private void changeTrustState(final IdentityState is) {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length == 1) {
-                final FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
+            final List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.size() == 1) {
+                final FileListFileDetailsItem item =  selectedItems.get(0);
                 if( is == IdentityState.GOOD ) {
                     item.getOwnerIdentity().setGOOD();
                 } else if( is == IdentityState.CHECK ) {
@@ -280,9 +282,9 @@ public class FileListFileDetailsDialog extends JDialog {
         }
 
         private void searchFilesOfOwner() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length == 1) {
-                final FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
+            final List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.size() == 1) {
+                final FileListFileDetailsItem item = selectedItems.get(0);
                 final String owner = item.getOwnerIdentity().getUniqueName();
 
                 final SearchParameters sp = new SearchParameters(false);
@@ -299,16 +301,16 @@ public class FileListFileDetailsDialog extends JDialog {
         public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
 
-            if( selectedItems.length == 0 ) {
+            if( selectedItems.size() == 0 ) {
                 return;
             }
 
             // if at least 1 item is selected
             add(copyToClipboardMenu);
 
-            if (selectedItems.length == 1) {
+            if (selectedItems.size() == 1) {
 
                 addSeparator();
 
@@ -321,7 +323,7 @@ public class FileListFileDetailsDialog extends JDialog {
                 setCheckItem.setEnabled(false);
                 setBadItem.setEnabled(false);
 
-                final FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
+                final FileListFileDetailsItem item =  selectedItems.get(0);
                 final Identity ownerId = item.getOwnerIdentity();
 
                 if( ownerId instanceof LocalIdentity ) {
@@ -347,7 +349,7 @@ public class FileListFileDetailsDialog extends JDialog {
                 }
             }
 
-            if( isOwnerSearchAllowed && selectedItems.length == 1 ) {
+            if( isOwnerSearchAllowed && selectedItems.size() == 1 ) {
                 addSeparator();
                 add(showOwnerFilesItem);
             }

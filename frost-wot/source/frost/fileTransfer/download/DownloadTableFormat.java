@@ -32,7 +32,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-class DownloadTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
+class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implements LanguageListener, PropertyChangeListener {
 
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "DownloadTable.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "DownloadTable.sortState.sortedAscending";
@@ -45,11 +45,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
     private static final long CONST_32k = 32 * 1024;
 
-    private SortedModelTable modelTable = null;
+    private SortedModelTable<FrostDownloadItem> modelTable = null;
 
     private boolean showColoredLines;
 
-    private class BaseRenderer extends DefaultTableCellRenderer {
+    @SuppressWarnings("serial")
+	private class BaseRenderer extends DefaultTableCellRenderer {
         public BaseRenderer() {
             super();
         }
@@ -85,7 +86,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-    private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
+    @SuppressWarnings("serial")
+	private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
         public BlocksProgressRenderer() {
             super();
             setMinimum(0);
@@ -134,6 +136,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
+	@SuppressWarnings("serial")
 	private class RightAlignRenderer extends BaseRenderer {
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
         public RightAlignRenderer() {
@@ -155,7 +158,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		}
 	}
 
-    private class ShowContentTooltipRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class ShowContentTooltipRenderer extends BaseRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -180,7 +184,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-    private class ShowNameTooltipRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class ShowNameTooltipRenderer extends BaseRenderer {
         public ShowNameTooltipRenderer() {
             super();
         }
@@ -226,7 +231,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-    private class ShowStateContentTooltipRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class ShowStateContentTooltipRenderer extends BaseRenderer {
         public ShowStateContentTooltipRenderer() {
             super();
         }
@@ -253,7 +259,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-    private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
+    @SuppressWarnings("serial")
+	private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
         public IsEnabledRenderer() {
             super();
             setHorizontalAlignment(SwingConstants.CENTER);
@@ -292,7 +299,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-    private class IsSharedRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class IsSharedRenderer extends BaseRenderer {
         public IsSharedRenderer() {
             super();
         }
@@ -321,7 +329,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-    private class IsRequestedRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class IsRequestedRenderer extends BaseRenderer {
         public IsRequestedRenderer() {
             super();
         }
@@ -350,7 +359,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-    private class IsDDARenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class IsDDARenderer extends BaseRenderer {
         public IsDDARenderer() {
             super();
         }
@@ -794,11 +804,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		}
 	}
 
-	@Override
-    public void customizeTable(final ModelTable lModelTable) {
+    public void customizeTable(final ModelTable<FrostDownloadItem> lModelTable) {
 		super.customizeTable(lModelTable);
 
-        modelTable = (SortedModelTable) lModelTable;
+        modelTable = (SortedModelTable<FrostDownloadItem>) lModelTable;
 
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null

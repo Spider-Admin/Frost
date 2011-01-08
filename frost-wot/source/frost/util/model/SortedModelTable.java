@@ -20,7 +20,8 @@ package frost.util.model;
 
 import frost.util.gui.*;
 
-public class SortedModelTable extends ModelTable {
+@SuppressWarnings("serial")
+public class SortedModelTable<T extends ModelItem> extends ModelTable<T> {
 	
 	/**
 	 * Index in the ModelTable of the column the model is 
@@ -33,7 +34,7 @@ public class SortedModelTable extends ModelTable {
 	 * @param newModel
 	 * @param newTableFormat
 	 */
-	public SortedModelTable(SortedModel newModel) {
+	public SortedModelTable(SortedModel<T> newModel) {
 
         super(newModel.getTableFormat());
         

@@ -23,18 +23,16 @@ import java.util.*;
 import frost.messaging.frost.*;
 import frost.util.model.*;
 
-public class UnsentMessagesTableModel extends SortedModel {
+public class UnsentMessagesTableModel extends SortedModel<UnsentMessagesTableItem> {
 
-    public UnsentMessagesTableModel(SortedTableFormat f) {
+    public UnsentMessagesTableModel(SortedTableFormat<UnsentMessagesTableItem> f) {
         super(f);
     }
     
     public void loadTableModel() {
-        List msgs = UnsentMessagesManager.getUnsentMessages();
-        for( Iterator i = msgs.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
-            UnsentMessagesTableItem item = new UnsentMessagesTableItem(mo);
-            addUnsentMessageItem(item);
+        List<FrostUnsentMessageObject> msgs = UnsentMessagesManager.getUnsentMessages();
+        for( Iterator<FrostUnsentMessageObject> i = msgs.iterator(); i.hasNext(); ) {
+            addUnsentMessageItem(new UnsentMessagesTableItem(i.next()));
         }
     }
     
@@ -52,9 +50,9 @@ public class UnsentMessagesTableModel extends SortedModel {
      */
     public void removeFrostUnsentMessageObject( FrostUnsentMessageObject mo ) {
         for(int x=0; x < getItemCount(); x++) {
-            UnsentMessagesTableItem i = (UnsentMessagesTableItem) getItemAt(x);
-            if( i.getFrostUnsentMessageObject().getMessageId().equals(mo.getMessageId()) ) {
-                removeItems(new ModelItem[] { i } );
+            UnsentMessagesTableItem item = getItemAt(x);
+            if( item.getFrostUnsentMessageObject().getMessageId().equals(mo.getMessageId()) ) {
+            	removeItem(item);
                 return;
             }
         }
@@ -62,9 +60,9 @@ public class UnsentMessagesTableModel extends SortedModel {
 
     public void updateFrostUnsentMessageObject( FrostUnsentMessageObject mo ) {
         for(int x=0; x < getItemCount(); x++) {
-            UnsentMessagesTableItem i = (UnsentMessagesTableItem) getItemAt(x);
-            if( i.getFrostUnsentMessageObject().getMessageId().equals(mo.getMessageId()) ) {
-                i.fireChange();
+            UnsentMessagesTableItem item = getItemAt(x);
+            if( item.getFrostUnsentMessageObject().getMessageId().equals(mo.getMessageId()) ) {
+                item.fireChange();
                 return;
             }
         }
@@ -73,13 +71,14 @@ public class UnsentMessagesTableModel extends SortedModel {
     /**
      * Returns null if ok, or the item that failed deletion.
      */
-    public FrostUnsentMessageObject deleteItems(ModelItem[] selectedItems) {
-        for(int x=0; x < selectedItems.length; x++) {
-            UnsentMessagesTableItem item = (UnsentMessagesTableItem) selectedItems[x];
+    public FrostUnsentMessageObject deleteItems(List<UnsentMessagesTableItem> selectedItems) {
+    	final int size = selectedItems.size();
+        for(int x=0; x < size; x++) {
+            UnsentMessagesTableItem item =  selectedItems.get(x);
             if( !UnsentMessagesManager.deleteMessage(item.getFrostUnsentMessageObject()) ) {
                 return item.getFrostUnsentMessageObject();
             }
-            super.removeItems( new ModelItem[] { item } );
+            super.removeItem( item );
         }
         return null;
     }

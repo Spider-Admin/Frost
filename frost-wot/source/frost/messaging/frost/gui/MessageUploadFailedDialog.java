@@ -31,6 +31,7 @@ import javax.swing.border.*;
 import frost.messaging.frost.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class MessageUploadFailedDialog extends JDialog {
 
     private class ButtonListener implements ActionListener {

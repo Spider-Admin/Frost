@@ -39,7 +39,8 @@ import javax.swing.table.*;
  * Besides, the user can choose which columns will be shown via a menu
  * that pops up when he right clicks on the header.
  */
-public class ModelTable extends AbstractTableModel {
+@SuppressWarnings("serial")
+abstract public class ModelTable<T extends ModelItem> extends AbstractTableModel {
 
 	/**
 	 * Helper class to be able to safely get the selection fron any thread
@@ -51,15 +52,15 @@ public class ModelTable extends AbstractTableModel {
 
 		int mode = 0;
 
-		ModelItem[] selectedItems;
-		ModelItem selectedItem;
+		List<T> selectedItems;
+		T selectedItem;
 
 		/**
-		 * This method returns an array of all the ModelItems that are
+		 * This method returns an array of all the Ts that are
 		 * selected in the JTable.
-		 *  @return an array containing the ModelItems that are selected
+		 *  @return an array containing the Ts that are selected
 		 */
-		public ModelItem[] getSelectedItems() {
+		public List<T> getSelectedItems() {
 			mode = MODE_MULTIPLE;
 			if (SwingUtilities.isEventDispatchThread()) {
 				run();
@@ -76,14 +77,14 @@ public class ModelTable extends AbstractTableModel {
 		}
 
 		/**
-		 * This method returns the ModelItem that is selected in
+		 * This method returns the T that is selected in
 		 * the JTable (or the first one if there are several). If there is
 		 * none, it returns null.
-		 *  @return the ModelItem that is selected in the JTable, or
+		 *  @return the T that is selected in the JTable, or
 		 * 			 the first one if there are several. null if there is
 		 * 			 none.
 		 */
-		public ModelItem getSelectedItem() {
+		public T getSelectedItem() {
 			mode = MODE_SINGLE;
 			if (SwingUtilities.isEventDispatchThread()) {
 				run();
@@ -109,11 +110,10 @@ public class ModelTable extends AbstractTableModel {
 			synchronized (model) {
 				switch (mode) {
 					case MODE_MULTIPLE :
-						final int selectionCount = table.getSelectedRowCount();
-						selectedItems = new ModelItem[selectionCount];
+						selectedItems = new ArrayList<T>();
 						final int[] selectedRows = table.getSelectedRows();
 						for (int i = 0; i < selectedRows.length; i++) {
-							selectedItems[i] = model.getItemAt(selectedRows[i]);
+							selectedItems.add( model.getItemAt(selectedRows[i]));
 						}
 						break;
 					case MODE_SINGLE :
@@ -130,8 +130,8 @@ public class ModelTable extends AbstractTableModel {
 
 	private static final Logger logger = Logger.getLogger(ModelTable.class.getName());
 
-	protected ModelTableFormat tableFormat;
-	protected SortedModel model;
+	protected ModelTableFormat<T> tableFormat;
+	protected SortedModel<T> model;
 
 	protected JTable table;
 	private JScrollPane scrollPane;
@@ -153,7 +153,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @param newTableFormat the ModelTableFormat that defines the visual representation
 	 * 						  of the data in the OrderedModel.
 	 */
-	protected ModelTable(final ModelTableFormat newTableFormat) {
+	protected ModelTable(final ModelTableFormat<T> newTableFormat) {
 		super();
 
 		tableFormat = newTableFormat;
@@ -166,7 +166,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @param newTableFormat the ModelTableFormat that defines the visual representation
 	 * 						  of the data in the OrderedModel.
 	 */
-	protected ModelTable(final SortedModel newModel, final ModelTableFormat newTableFormat) {
+	protected ModelTable(final SortedModel<T> newModel, final ModelTableFormat<T> newTableFormat) {
 		super();
 
 		model = newModel;
@@ -218,7 +218,7 @@ public class ModelTable extends AbstractTableModel {
 	 */
 	public Object getValueAt(final int rowIndex, final int columnIndex) {
 		final int index = convertColumnIndexToFormat(columnIndex);
-		final ModelItem mi = model.getItemAt(rowIndex);
+		final T mi = model.getItemAt(rowIndex);
 		if( mi == null ) {
 		    return "ModelTable.getValueAt(): index "+rowIndex+" is null";
 		} else {
@@ -244,7 +244,7 @@ public class ModelTable extends AbstractTableModel {
 	 * selected in the JTable.
 	 * @return an array containing the ModelItems that are selected
 	 */
-	public ModelItem[] getSelectedItems() {
+	public List<T> getSelectedItems() {
 		return new SelectionGetter().getSelectedItems();
 	}
 
@@ -254,7 +254,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @return the selected ModelItem, or the first one if there was
 	 * 			several of them. null if there was none.
 	 */
-	public ModelItem getSelectedItem() {
+	public T getSelectedItem() {
 		return new SelectionGetter().getSelectedItem();
 	}
 
@@ -377,7 +377,7 @@ public class ModelTable extends AbstractTableModel {
 	 * used in conjunction with the constructor that is only passed a ModelTableFormat)
 	 * @param model the OrderedModel this ModelTable will get the data from
 	 */
-	protected void setModel(final SortedModel newModel) {
+	protected void setModel(final SortedModel<T> newModel) {
 		model = newModel;
 	}
 
@@ -387,11 +387,11 @@ public class ModelTable extends AbstractTableModel {
 	 * @return an Iterator of all the TableColumns that this
 	 * 			ModelTable may show.
 	 */
-	public Iterator getColumns() {
+	public Iterator<TableColumn> getColumns() {
 		return columns.iterator();
 	}
 
-    public List getColumnsList() {
+    public List<TableColumn> getColumnsList() {
         return columns;
     }
 
@@ -418,7 +418,7 @@ public class ModelTable extends AbstractTableModel {
 		return index.intValue();
 	}
 
-    public ModelTableFormat getTableFormat() {
+    public ModelTableFormat<T> getTableFormat() {
         return tableFormat;
     }
 }

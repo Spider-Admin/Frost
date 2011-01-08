@@ -31,7 +31,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-public class FileListFileDetailsTableFormat extends SortedTableFormat implements LanguageListener {
+public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFileDetailsItem> implements LanguageListener {
 
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "FileListFileDetailsDialog.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "FileListFileDetailsDialog.sortState.sortedAscending";
@@ -338,7 +338,8 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
     }
 
-    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -364,7 +365,8 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
     }
 
-    private class IdentityStateRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class IdentityStateRenderer extends ShowColoredLinesRenderer {
         public IdentityStateRenderer() {
             super();
         }
@@ -398,7 +400,8 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
     }
 
-    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+    @SuppressWarnings("serial")
+	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
         public ShowColoredLinesRenderer() {
             super();
         }

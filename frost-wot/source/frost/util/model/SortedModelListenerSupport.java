@@ -24,20 +24,20 @@ import java.util.*;
  * This class provides support for sending change events of models 
  * that are ordered. 
  */
-public class SortedModelListenerSupport {
+public class SortedModelListenerSupport<T extends ModelItem> {
 
-	private Vector<SortedModelListener> listeners;
+	private Vector<SortedModelListener<T>> listeners;
 
 	/**
 	 * @param item
 	 */
-	public void fireItemChanged(ModelItem item, int position) {
+	public void fireItemChanged(T item, int position) {
         if( listeners == null ) {
             return;
         }
         synchronized (listeners) {
     		for (int i = 0; i < listeners.size(); i++) {
-    			SortedModelListener target = listeners.elementAt(i);
+    			SortedModelListener<T> target = listeners.elementAt(i);
     			target.itemChanged(position, item);
     		}
         }
@@ -46,14 +46,14 @@ public class SortedModelListenerSupport {
 	/**
 	 * @param item
 	 */
-	public void fireItemAdded(ModelItem item, int position) {
+	public void fireItemAdded(T item, int position) {
         if( listeners == null ) {
             return;
         }
 		
 		synchronized(listeners) {
 			for (int i = 0; i < listeners.size(); i++) {
-				SortedModelListener target = listeners.elementAt(i);
+				SortedModelListener<T> target = listeners.elementAt(i);
 				target.itemAdded(position, item);
 			}
 		}
@@ -62,13 +62,15 @@ public class SortedModelListenerSupport {
 	/**
 	 * @param items
 	 */
-	public void fireItemsRemoved(int[] positions, ModelItem[] items) {
+	public void fireItemsRemoved(int[] positions, ArrayList<T> items) {
         if( listeners == null ) {
             return;
         }
         synchronized(listeners) {
 			for (int i = 0; i < listeners.size(); i++) {
-				SortedModelListener target = listeners.elementAt(i);
+				
+				SortedModelListener<T> target = listeners.elementAt(i);
+				
 				target.itemsRemoved(positions, items);
 			}
 		}
@@ -83,7 +85,7 @@ public class SortedModelListenerSupport {
         }
         synchronized(listeners) {
 			for (int i = 0; i < listeners.size(); i++) {
-				SortedModelListener target = listeners.elementAt(i);
+				SortedModelListener<T> target = listeners.elementAt(i);
 				target.modelCleared();
 			}
 		}
@@ -95,9 +97,9 @@ public class SortedModelListenerSupport {
 	 *
 	 * @param listener  The OrderedModelListener to be added
 	 */
-	public synchronized void addModelListener(SortedModelListener listener) {
+	public synchronized void addModelListener(SortedModelListener<T> listener) {
 		if (listeners == null) {
-			listeners = new Vector<SortedModelListener>();
+			listeners = new Vector<SortedModelListener<T>>();
 		}
 		listeners.addElement(listener);
 	}

@@ -23,9 +23,9 @@ import java.util.*;
 import frost.messaging.frost.*;
 import frost.util.model.*;
 
-public class SentMessagesTableModel extends SortedModel {
+public class SentMessagesTableModel extends SortedModel<SentMessagesTableItem> {
 
-    public SentMessagesTableModel(SortedTableFormat f) {
+    public SentMessagesTableModel(SortedTableFormat<SentMessagesTableItem> f) {
         super(f);
     }
     
@@ -48,11 +48,10 @@ public class SentMessagesTableModel extends SortedModel {
     }
     
     @Override
-    public boolean removeItems(ModelItem[] selectedItems) {
+    public boolean removeItems(List<SentMessagesTableItem> selectedItems) {
         LinkedList<FrostMessageObject> itemsToDelete = new LinkedList<FrostMessageObject>();
-        for( int x = selectedItems.length - 1; x >= 0; x-- ) {
-            SentMessagesTableItem item = (SentMessagesTableItem) selectedItems[x];
-            itemsToDelete.add(item.getFrostMessageObject());
+        for( int x = selectedItems.size() - 1; x >= 0; x-- ) {
+            itemsToDelete.add(selectedItems.get(x).getFrostMessageObject());
         }
         if( SentMessagesManager.deleteSentMessages(itemsToDelete) == 0 ) {
             return false;

@@ -18,8 +18,11 @@
 */
 package frost.messaging.frost.gui.sentmessages;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -30,7 +33,8 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-public class SentMessagesTable extends SortedModelTable {
+@SuppressWarnings("serial")
+public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
 
     private final SentMessagesTableModel tableModel;
     private final SentMessagesTableFormat tableFormat;
@@ -182,12 +186,12 @@ public class SentMessagesTable extends SortedModelTable {
         }
 
         private void deleteSelectedMessages() {
-            final ModelItem[] selectedItems = getSelectedItems();
-            if( selectedItems.length == 0 ) {
+            final List<SentMessagesTableItem> selectedItems = getSelectedItems();
+            if( selectedItems.size() == 0 ) {
                 return;
             }
             int answer;
-            if( selectedItems.length == 1 ) {
+            if( selectedItems.size() == 1 ) {
                 answer = JOptionPane.showConfirmDialog(
                         MainFrame.getInstance(),
                         language.getString("SentMessages.confirmDeleteOneMessageDialog.text"),
@@ -197,7 +201,7 @@ public class SentMessagesTable extends SortedModelTable {
             } else {
                 answer = JOptionPane.showConfirmDialog(
                         MainFrame.getInstance(),
-                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.length)),
+                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.size())),
                         language.getString("SentMessages.confirmDeleteMessagesDialog.title"),
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
@@ -215,13 +219,10 @@ public class SentMessagesTable extends SortedModelTable {
             refreshLanguage();
         }
 
-        @Override
         public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            final ModelItem[] selectedItems = getSelectedItems();
-
-            if (selectedItems.length == 0) {
+            if (getSelectedItems().size() == 0) {
                 return;
             }
 

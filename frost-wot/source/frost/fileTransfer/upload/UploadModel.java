@@ -38,11 +38,11 @@ import frost.util.model.*;
  * protected attribute data when necessary). It is also assumed that the load
  * and save methods will not be used while other threads are under way.
  */
-public class UploadModel extends SortedModel implements ExitSavable {
+public class UploadModel extends SortedModel<FrostUploadItem> implements ExitSavable {
 
     private static final Logger logger = Logger.getLogger(UploadModel.class.getName());
 
-    public UploadModel(final SortedTableFormat f) {
+    public UploadModel(final SortedTableFormat<FrostUploadItem> f) {
         super(f);
     }
 
@@ -65,7 +65,7 @@ public class UploadModel extends SortedModel implements ExitSavable {
         final String pathToAdd = itemToAdd.getFile().getPath();
 
         for (int x = 0; x < getItemCount(); x++) {
-            final FrostUploadItem item = (FrostUploadItem) getItemAt(x);
+            final FrostUploadItem item = getItemAt(x);
             // add if file is not already in list (path)
             // if we add a shared file and the same file is already in list (manually added), we connect them
             if( pathToAdd.equals(item.getFile().getPath()) ) {
@@ -94,12 +94,16 @@ public class UploadModel extends SortedModel implements ExitSavable {
     /**
      * if upload was successful, remove item from uploadtable
      */
-    public void notifySharedFileUploadWasSuccessful(final FrostUploadItem ulItemToRemove) {
+    public void notifySharedFileUploadWasSuccessful(final FrostUploadItem frostUploadItemToRemove) {
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
-            if( ulItem == ulItemToRemove ) {
-                // remove this item
-                removeItems(new FrostUploadItem[] { ulItemToRemove } );
+            
+        	final FrostUploadItem ulItem =  getItemAt(i);
+
+            if( ulItem == frostUploadItemToRemove ) {
+            	// remove this item
+            	final List<FrostUploadItem> frostUploadiItems = new ArrayList<FrostUploadItem>();
+            	frostUploadiItems.add(frostUploadItemToRemove);
+                removeItems(frostUploadiItems );
                 break;
             }
         }
@@ -112,25 +116,24 @@ public class UploadModel extends SortedModel implements ExitSavable {
      */
     public synchronized void removeNotExistingFiles() {
         final ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
+        
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            final FrostUploadItem ulItem = getItemAt(i);
+            
             if( ulItem.isExternal() ) {
                 continue;
             }
             if (!ulItem.getFile().exists()) {
                 items.add(ulItem);
                 logger.severe("Upload items file does not exist, removed from upload files: "+ulItem.getFile().getPath());
+            
             } else if( ulItem.getFileSize() != ulItem.getFile().length() ){
                 items.add(ulItem);
                 logger.severe("Upload items file size changed, removed from upload files: "+ulItem.getFile().getPath());
             }
         }
         if (items.size() > 0) {
-            final FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
-            for (int i = 0; i < itemsArray.length; i++) {
-                itemsArray[i] = items.get(i);
-            }
-            removeItems(itemsArray);
+            removeItems(items);
 
             // don't notify user that files were removed
             final Language language = Language.getInstance();
@@ -148,9 +151,8 @@ public class UploadModel extends SortedModel implements ExitSavable {
      * This method tells items passed as a parameter to start uploading
      * (if their current state allows it)
      */
-    public void uploadItems(final ModelItem[] items) {
-        for( final ModelItem element : items ) {
-            final FrostUploadItem ulItem = (FrostUploadItem) element;
+    public void uploadItems(final List<FrostUploadItem> items) {
+        for( final FrostUploadItem ulItem : items ) {
             if (ulItem.getState() == FrostUploadItem.STATE_FAILED
                 || ulItem.getState() == FrostUploadItem.STATE_DONE)
             {
@@ -167,9 +169,8 @@ public class UploadModel extends SortedModel implements ExitSavable {
      * (if their current state allows it).
      * For shared files no CHK will be generated until we uploaded the file.
      */
-    public void generateChkItems(final ModelItem[] items) {
-        for( final ModelItem element : items ) {
-            final FrostUploadItem ulItem = (FrostUploadItem) element;
+    public void generateChkItems(final List<FrostUploadItem> items) {
+        for( final FrostUploadItem ulItem : items ) {
             // Since it is difficult to identify the states where we are allowed to
             // start an upload we decide based on the states in which we are not allowed
             // start gen chk only if IDLE
@@ -188,16 +189,15 @@ public class UploadModel extends SortedModel implements ExitSavable {
      */
     public synchronized void removeFinishedUploads() {
         final ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
+        
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            final FrostUploadItem ulItem = getItemAt(i);
             if (ulItem.getState() == FrostUploadItem.STATE_DONE) {
                 items.add(ulItem);
             }
         }
         if (items.size() > 0) {
-            final FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
-            items.toArray(itemsArray);
-            removeItems(itemsArray);
+            removeItems(items);
         }
     }
 
@@ -207,15 +207,13 @@ public class UploadModel extends SortedModel implements ExitSavable {
     public synchronized void removeExternalUploads() {
         final ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            final FrostUploadItem ulItem = getItemAt(i);
             if (ulItem.isExternal()) {
                 items.add(ulItem);
             }
         }
         if (items.size() > 0) {
-            final FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
-            items.toArray(itemsArray);
-            removeItems(itemsArray);
+            removeItems(items);
         }
     }
 
@@ -256,7 +254,7 @@ public class UploadModel extends SortedModel implements ExitSavable {
      */
     public synchronized void setAllItemsEnabled(final Boolean enabled) {
         for (int x = 0; x < getItemCount(); x++) {
-            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(x);
+            final FrostUploadItem ulItem = getItemAt(x);
             if (ulItem.getState() != FrostUploadItem.STATE_DONE) {
                 ulItem.setEnabled(enabled);
                 FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(ulItem);
@@ -271,9 +269,8 @@ public class UploadModel extends SortedModel implements ExitSavable {
      *        is inverted
      * @param items items to modify
      */
-    public void setItemsEnabled(final Boolean enabled, final ModelItem[] items) {
-        for( final ModelItem element : items ) {
-            final FrostUploadItem item = (FrostUploadItem) element;
+    public void setItemsEnabled(final Boolean enabled, final List<FrostUploadItem> items) {
+        for( final FrostUploadItem item : items ) {
             if (item.getState() != FrostUploadItem.STATE_DONE) {
                 item.setEnabled(enabled);
                 FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(item);

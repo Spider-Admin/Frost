@@ -24,6 +24,7 @@ import org.xml.sax.*;
 import frost.messaging.frost.boards.*;
 import frost.util.*;
 
+@SuppressWarnings("serial")
 public class BoardAttachment extends Attachment {
 
 	private Board boardObj;

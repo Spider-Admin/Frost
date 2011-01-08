@@ -30,6 +30,7 @@ import javax.swing.table.*;
 import frost.messaging.frost.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener {
 
     private Language language = null;
@@ -72,7 +73,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
      * in the list passed as a parameter
      * @param fileAttachments list of FileAttachments fo fill the model with
      */
-    public void setData(List fileAttachments) {
+    public void setData(List<FileAttachment> fileAttachments) {
         setRowCount(0);
         Iterator files = fileAttachments.iterator();
         while (files.hasNext()) {

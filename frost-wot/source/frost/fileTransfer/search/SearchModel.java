@@ -18,17 +18,18 @@
 */
 package frost.fileTransfer.search;
 
+import java.util.List;
 import java.util.logging.*;
 
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.util.model.*;
 
-public class SearchModel extends SortedModel {
+public class SearchModel extends SortedModel<FrostSearchItem> {
 
     final static Logger logger = Logger.getLogger(SearchModel.class.getName());
 
-    public SearchModel(final SortedTableFormat f) {
+    public SearchModel(final SortedTableFormat<FrostSearchItem> f) {
         super(f);
     }
 
@@ -36,7 +37,7 @@ public class SearchModel extends SortedModel {
         addItem(searchItem);
     }
 
-    public void addItemsToDownloadTable(final ModelItem[] selectedItems) {
+    public void addItemsToDownloadTable(final List<FrostSearchItem> selectedItems) {
 
         if( selectedItems == null ) {
             return;
@@ -44,9 +45,8 @@ public class SearchModel extends SortedModel {
 
         final DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
 
-        for (int i = selectedItems.length - 1; i >= 0; i--) {
-            final FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
-            final FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
+        for (int i = selectedItems.size() - 1; i >= 0; i--) {
+            final FrostFileListFileObject flf = selectedItems.get(i).getFrostFileListFileObject();
             String filename = flf.getDisplayName();
             // maybe convert html codes (e.g. %2c -> , )
             if( filename.indexOf("%") > 0 ) {
@@ -58,7 +58,7 @@ public class SearchModel extends SortedModel {
             }
             final FrostDownloadItem dlItem = new FrostDownloadItem(flf, filename);
             downloadModel.addDownloadItem(dlItem);
-            searchItem.updateState();
+            selectedItems.get(i).updateState();
         }
     }
 }

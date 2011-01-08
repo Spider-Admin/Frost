@@ -138,7 +138,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private final JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
 	private final JCheckBox showExternalGlobalQueueItems = new JCheckBox();
 	private Color downloadDirDefaultBackground;
-	private SortedModelTable modelTable;
+	private SortedModelTable<FrostDownloadItem> modelTable;
 
 	private boolean initialized = false;
 
@@ -295,7 +295,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			updateDownloadDirTextFieldBackground();
 
 			// create the main download panel
-			modelTable = new SortedModelTable(model);
+			modelTable = new SortedModelTable<FrostDownloadItem>(model);
 			new TableFindAction().install(modelTable.getTable());
 			setLayout(new BorderLayout());
 
@@ -443,10 +443,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void applyDownloadPrefixToSelectedDownloads() {
-		final ModelItem[] selectedItems = modelTable.getSelectedItems();
+		final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 
-		for (final ModelItem mi : selectedItems) {
-			final FrostDownloadItem i = (FrostDownloadItem) mi;
+		for (final FrostDownloadItem i : selectedItems) {
 
 			if (!i.isExternal()) {
 				i.setFilenamePrefix(getDownloadPrefix());
@@ -456,10 +455,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void applyDownloadDirToSelectedDownloads() {
-		final ModelItem[] selectedItems = modelTable.getSelectedItems();
+		final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 
-		for (final ModelItem mi : selectedItems) {
-			final FrostDownloadItem i = (FrostDownloadItem) mi;
+		for (final FrostDownloadItem i : selectedItems) {
 
 			if (!i.isExternal()) {
 				i.setDownloadDir(getDownloadDir());
@@ -498,20 +496,18 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void removeSelectedDownloads() {
-		final ModelItem[] selectedItems = modelTable.getSelectedItems();
+		final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 
 		final List<String> externalRequestsToRemove = new LinkedList<String>();
-		final List<ModelItem> requestsToRemove = new LinkedList<ModelItem>();
-		for (final ModelItem mi : selectedItems) {
-			final FrostDownloadItem frostDownloadItem = (FrostDownloadItem) mi;
-			requestsToRemove.add(mi);
+		final List<FrostDownloadItem> requestsToRemove = new LinkedList<FrostDownloadItem>();
+		for (final FrostDownloadItem frostDownloadItem : selectedItems) {
+			requestsToRemove.add(frostDownloadItem);
 			if (frostDownloadItem.isExternal()) {
 				externalRequestsToRemove.add(frostDownloadItem.getGqIdentifier());
 			}
 		}
 
-		final ModelItem[] ri = requestsToRemove.toArray(new ModelItem[requestsToRemove.size()]);
-		model.removeItems(ri);
+		model.removeItems(requestsToRemove);
 
 		modelTable.getTable().clearSelection();
 
@@ -626,10 +622,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(MainFrame.getInstance(),
 				frostDownloadItemList);
 		addNewDownloadsDialog.startDialog(frostDownloadItemList);
-//		frostDownloadItemList = 
-//
-//		// add files from dialog to download queue
-//		FileTransferManager.inst().getDownloadManager().getModel().addDownloadItemList(frostDownloadItemList);
 	}
 
 	private void downloadActivateButtonPressed(final ActionEvent e) {
@@ -672,6 +664,22 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	public void updateSettings() {
 		Core.frostSettings.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
+	
+	public void changeItemPriorites(final List<FrostDownloadItem> items, final int newPrio) {
+        if (items == null || items.size() == 0 || FileTransferManager.inst().getPersistenceManager() == null) {
+            return;
+        }
+        for (final FrostDownloadItem di : items) {
+            String gqid = null;
+            if (di.getState() == FrostDownloadItem.STATE_PROGRESS) {
+                gqid = di.getGqIdentifier();
+                di.setPriority(newPrio);
+            }
+            if (gqid != null) {
+            	FileTransferManager.inst().getPersistenceManager().getFcpTools().changeRequestPriority(gqid, newPrio);
+            }
+        }
+    }
 
 	private void assignHotkeys() {
 
@@ -679,8 +687,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		final Action setPriorityAction = new AbstractAction() {
 			public void actionPerformed(final ActionEvent event) {
 				final int prio = new Integer(event.getActionCommand()).intValue();
-				final ModelItem[] selectedItems = modelTable.getSelectedItems();
-				FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
+				final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
+				changeItemPriorites(selectedItems, prio);
+				
 			}
 		};
 		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0),
@@ -864,9 +873,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		public void actionPerformed(final ActionEvent e) {
 			if (e.getSource() == copyKeysAndNamesItem) {
-				CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
+				CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
 			} else if (e.getSource() == copyExtendedInfoItem) {
-				CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
+				CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems().toArray());
 			} else if (e.getSource() == restartSelectedDownloadsItem) {
 				restartSelectedDownloads();
 			} else if (e.getSource() == useThisDownloadDirItem) {
@@ -916,11 +925,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			if (FileTransferManager.inst().getPersistenceManager() == null) {
 				return;
 			}
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 			final List<String> requestsToRemove = new ArrayList<String>();
 			final List<FrostDownloadItem> itemsToUpdate = new ArrayList<FrostDownloadItem>();
-			for (final ModelItem mi : selectedItems) {
-				final FrostDownloadItem item = (FrostDownloadItem) mi;
+			for (final FrostDownloadItem item : selectedItems) {
 				if (FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item)) {
 					requestsToRemove.add(item.getGqIdentifier());
 					itemsToUpdate.add(item);
@@ -941,9 +949,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			if (FileTransferManager.inst().getPersistenceManager() == null) {
 				return;
 			}
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			for (final ModelItem mi : selectedItems) {
-				final FrostDownloadItem item = (FrostDownloadItem) mi;
+			final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
+			for (final FrostDownloadItem item : selectedItems) {
 				if (item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE) {
 					final long expectedFileSize = item.getFileSize(); // set
 					// from
@@ -955,11 +962,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		private void startSelectedDownloadsNow() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 
 			final List<FrostDownloadItem> itemsToStart = new LinkedList<FrostDownloadItem>();
-			for (final ModelItem mi : selectedItems) {
-				final FrostDownloadItem i = (FrostDownloadItem) mi;
+			for (final FrostDownloadItem i : selectedItems) {
 				if (i.isExternal()) {
 					continue;
 				}
@@ -982,25 +988,22 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			if (FileTransferManager.inst().getPersistenceManager() == null) {
 				return;
 			}
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
+			changeItemPriorites(modelTable.getSelectedItems(), prio);
 		}
 
 		private void showDetails() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			if (selectedItems.length != 1) {
+			final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
+			if (selectedItems.size() != 1) {
 				return;
 			}
-			final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
-			if (!item.isSharedFile()) {
+			if (!selectedItems.get(0).isSharedFile()) {
 				return;
 			}
-			new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFileListFileObject());
+			new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(selectedItems.get(0).getFileListFileObject());
 		}
 
 		private void invertEnabledSelected() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(null, selectedItems);
+			model.setItemsEnabled(null, modelTable.getSelectedItems());
 		}
 
 		private void invertEnabledAll() {
@@ -1008,13 +1011,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		private void disableSelectedDownloads() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(Boolean.FALSE, selectedItems);
+			model.setItemsEnabled(Boolean.FALSE, modelTable.getSelectedItems());
 		}
 
 		private void enableSelectedDownloads() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(Boolean.TRUE, selectedItems);
+			model.setItemsEnabled(Boolean.TRUE, modelTable.getSelectedItems());
 		}
 
 		private void disableAllDownloads() {
@@ -1026,23 +1027,18 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		private void restartSelectedDownloads() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.restartItems(selectedItems);
+			model.restartItems(modelTable.getSelectedItems());
 		}
 
 		private void useThisDownloadDirectory() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			if (selectedItems.length > 0) {
-				final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
-
-				downloadDirTextField.setText(item.getDownloadDir());
+			if (modelTable.getSelectedItems().size() > 0) {
+				downloadDirTextField.setText(modelTable.getSelectedItems().get(0).getDownloadDir());
 			}
 		}
 
 		private void jumpToAssociatedMessage() {
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
-			if (selectedItems.length > 0) {
-				final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+			if (modelTable.getSelectedItems().size() > 0) {
+				final FrostDownloadItem item = modelTable.getSelectedItems().get(0);
 				final String boardName = item.getAssociatedBoardName();
 				final String messageId = item.getAssociatedMessageId();
 
@@ -1069,9 +1065,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		public void show(final Component invoker, final int x, final int y) {
 			removeAll();
 
-			final ModelItem[] selectedItems = modelTable.getSelectedItems();
+			final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 
-			if (selectedItems.length == 0) {
+			if (selectedItems.size() == 0) {
 				return;
 			}
 
@@ -1102,8 +1098,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			// we only find external items if persistence is enabled
 			if (PersistenceManager.isPersistenceEnabled()) {
-				for (final ModelItem mi : selectedItems) {
-					final FrostDownloadItem item = (FrostDownloadItem) mi;
+				for (final FrostDownloadItem item : selectedItems) {
 					if (item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE) {
 						add(retrieveDirectExternalDownloads);
 						break;
@@ -1113,16 +1108,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			add(removeSelectedDownloadsItem);
 			if (FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null) {
 				// add only if there are removable items selected
-				for (final ModelItem mi : selectedItems) {
-					final FrostDownloadItem item = (FrostDownloadItem) mi;
+				for (final FrostDownloadItem item : selectedItems) {
 					if (FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item)) {
 						add(removeFromGqItem);
 						break;
 					}
 				}
 			}
-			if (selectedItems.length == 1) {
-				final FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+			if (selectedItems.size() == 1) {
+				final FrostDownloadItem item = selectedItems.get(0);
 				if (item.isSharedFile()) {
 					addSeparator();
 					add(detailsItem);

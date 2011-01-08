@@ -25,6 +25,7 @@ import org.xml.sax.*;
 
 import frost.util.*;
 
+@SuppressWarnings("serial")
 public class SharedFileXmlFile implements XMLizable {
 
     public static final int MAX_COMMENT_LENGTH = 100;
@@ -71,11 +72,7 @@ public class SharedFileXmlFile implements XMLizable {
         }
         // rather than marking a file invalid if invalid chars are in the name we replace this chars
         ensureValidity();
-//        for( int i = 0; i < invalidChars.length; i++ ) {
-//            if( filename.indexOf(invalidChars[i]) != -1 ) {
-//                return false;
-//            }
-//        }
+
         return true;
     }
 

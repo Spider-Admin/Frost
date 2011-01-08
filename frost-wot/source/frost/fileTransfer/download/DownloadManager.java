@@ -42,7 +42,6 @@ import frost.storage.perst.TrackDownloadKeysStorage;
 import frost.storage.perst.filelist.FileListStorage;
 import frost.util.FileAccess;
 import frost.util.Mixed;
-import frost.util.model.ModelItem;
 
 public class DownloadManager implements ExitSavable {
 
@@ -246,9 +245,8 @@ public class DownloadManager implements ExitSavable {
 	 *            file name
 	 */
 	public FrostDownloadItem addNewDownload(final String key,
-			final String fileName, final String dlDir, final String prefix) {
-		// TODO: enhancement: search for key in shared files, maybe add as
-		// shared file
+		final String fileName, final String dlDir, final String prefix) {
+		// TODO: enhancement: search for key in shared files, maybe add as shared file
 		final FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
 		dlItem.setDownloadDir(dlDir);
 		dlItem.setFilenamePrefix(prefix);
@@ -538,7 +536,6 @@ public class DownloadManager implements ExitSavable {
 		return retryImmediately;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<FrostDownloadItem> getDownloadItemList() {
 		return getModel().getItems();
 	}
@@ -594,33 +591,29 @@ public class DownloadManager implements ExitSavable {
 		return waitingItems.get(0);
 	}
 
-	public void notifyDownloadItemEnabledStateChanged(
-			final FrostDownloadItem dlItem) {
+	public void notifyDownloadItemEnabledStateChanged(final FrostDownloadItem dlItem) {
 		// for persistent items, set priority to 6 (pause) when disabled; and to
 		// configured default if enabled
-		if (FileTransferManager.inst().getPersistenceManager() == null) {
-			return;
-		}
 		if (dlItem.isExternal()) {
 			return;
 		}
+
 		if (dlItem.getState() != FrostDownloadItem.STATE_PROGRESS) {
 			// not running, not in queue
 			return;
 		}
+		
 		final boolean itemIsEnabled = (dlItem.isEnabled() == null ? true
 				: dlItem.isEnabled().booleanValue());
+		int prio = 6;
 		if (itemIsEnabled) {
-			// item is now enabled
-			final int prio = Core.frostSettings
-					.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
-			FileTransferManager.inst().getPersistenceManager()
-					.changeItemPriorites(new ModelItem[] { dlItem }, prio);
-		} else {
-			// item is now disabled
-			FileTransferManager.inst().getPersistenceManager()
-					.changeItemPriorites(new ModelItem[] { dlItem }, 6);
+			prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
 		}
+		
+		List<FrostDownloadItem> frostDownloadItems = new ArrayList<FrostDownloadItem>();
+		frostDownloadItems.add(dlItem);
+		
+		panel.changeItemPriorites(frostDownloadItems, prio);
 	}
 
 	/**

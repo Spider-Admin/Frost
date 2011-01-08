@@ -137,16 +137,20 @@ public class FrostFileListFileObject extends Persistent {
         }
         return frostFileListFileObjectOwnerList;
     }
+    
     public void addFrostFileListFileObjectOwner(final FrostFileListFileObjectOwner v) {
         v.setFileListFileObject(this);
         getFrostFileListFileObjectOwnerList().add(v);
     }
+    
     public void deleteFrostFileListFileObjectOwner(final FrostFileListFileObjectOwner v) {
         getFrostFileListFileObjectOwnerList().remove(v);
     }
+    
     public Iterator<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerIterator() {
         return getFrostFileListFileObjectOwnerList().iterator();
     }
+    
     public int getFrostFileListFileObjectOwnerListSize() {
         return getFrostFileListFileObjectOwnerList().size();
     }

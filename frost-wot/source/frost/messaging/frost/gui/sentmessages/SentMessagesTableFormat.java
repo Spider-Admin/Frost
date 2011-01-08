@@ -30,7 +30,7 @@ import frost.fileTransfer.common.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-public class SentMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
+public class SentMessagesTableFormat extends SortedTableFormat<SentMessagesTableItem> implements LanguageListener, PropertyChangeListener {
 
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "SentMessagesTable.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "SentMessagesTable.sortState.sortedAscending";
@@ -41,7 +41,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
 
     private final static int COLUMN_COUNT = 5;
 
-    private SortedModelTable modelTable;
+    private SortedModelTable<SentMessagesTableItem> modelTable;
     
     private boolean showColoredLines;
 
@@ -106,10 +106,10 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
     }
 
     @Override
-    public void customizeTable(ModelTable lModelTable) {
+    public void customizeTable(ModelTable<SentMessagesTableItem> lModelTable) {
         super.customizeTable(lModelTable);
         
-        modelTable = (SortedModelTable) lModelTable;
+        modelTable = (SortedModelTable<SentMessagesTableItem>) lModelTable;
         
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
@@ -209,47 +209,38 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         return true;
     }
     
-    private class DateComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((SentMessagesTableItem) o1).getDateAndTimeString();
-            String i2 = ((SentMessagesTableItem) o2).getDateAndTimeString();
-            return i1.compareTo(i2);
+    private class DateComparator implements Comparator<SentMessagesTableItem> {
+        public int compare(SentMessagesTableItem left, SentMessagesTableItem right) {
+        	return left.getDateAndTimeString().compareTo(right.getDateAndTimeString());
         }
     }
 
-    private class ToComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((SentMessagesTableItem) o1).getTo();
-            String i2 = ((SentMessagesTableItem) o2).getTo();
-            return i1.compareTo(i2);
+    private class ToComparator implements Comparator<SentMessagesTableItem> {
+        public int compare(SentMessagesTableItem left, SentMessagesTableItem right) {
+        	return left.getTo().compareTo(right.getTo());
         }
     }
 
-    private class FromComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((SentMessagesTableItem) o1).getFrom();
-            String i2 = ((SentMessagesTableItem) o2).getFrom();
-            return i1.compareTo(i2);
+    private class FromComparator implements Comparator<SentMessagesTableItem> {
+        public int compare(SentMessagesTableItem left, SentMessagesTableItem right) {
+        	return left.getFrom().compareTo(right.getFrom());
         }
     }
     
-    private class SubjectComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((SentMessagesTableItem) o1).getSubject();
-            String i2 = ((SentMessagesTableItem) o2).getSubject();
-            return i1.compareTo(i2);
+    private class SubjectComparator implements Comparator<SentMessagesTableItem> {
+        public int compare(SentMessagesTableItem left, SentMessagesTableItem right) {
+        	return left.getSubject().compareTo(right.getSubject());
         }
     }
 
-    private class BoardComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String i1 = ((SentMessagesTableItem) o1).getBoardName();
-            String i2 = ((SentMessagesTableItem) o2).getBoardName();
-            return i1.compareTo(i2);
+    private class BoardComparator implements Comparator<SentMessagesTableItem> {
+    	public int compare(SentMessagesTableItem left, SentMessagesTableItem right) {
+        	return left.getBoardName().compareTo(right.getBoardName());
         }
     }
 
-    private class SubjectRenderer extends ShowContentTooltipRenderer {
+    @SuppressWarnings("serial")
+	private class SubjectRenderer extends ShowContentTooltipRenderer {
         public SubjectRenderer() {
             super();
         }
@@ -277,7 +268,8 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         }
     }
 
-    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -303,7 +295,8 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         }
     }
     
-    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+    @SuppressWarnings("serial")
+	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
         public ShowColoredLinesRenderer() {
             super();
         }

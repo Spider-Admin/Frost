@@ -172,8 +172,8 @@ public class MessageTextPane extends JPanel {
             textHighlighter.removeHighlights(messageTextArea);
         }
 
-        final List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-        final List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
+        final AttachmentList fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+        final AttachmentList boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
         attachedFilesModel.setData(fileAttachments);
         attachedBoardsModel.setData(boardAttachments);
 
@@ -612,9 +612,6 @@ public class MessageTextPane extends JPanel {
     			MainFrame.getInstance(), frostDownloadItemList);
     	
     	addNewDownloadsDialog.startDialog(frostDownloadItemList);
-//    	frostDownloadItemList = addNewDownloadsDialog.startDialog(frostDownloadItemList);
-//
-//    	getDownloadModel().addDownloadItemList(frostDownloadItemList);
     }
     
     private void addKeysOfCurrentMessage() {
@@ -829,9 +826,6 @@ public class MessageTextPane extends JPanel {
             
             final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
             addNewDownloadsDialog.startDialog(frostDownloadItemList);
-//            frostDownloadItemList = 
-//            
-//            getDownloadModel().addDownloadItemList(frostDownloadItemList);
         }
 
         /**
@@ -1048,9 +1042,6 @@ public class MessageTextPane extends JPanel {
             
             final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
             addNewDownloadsDialog.startDialog(frostDownloadItemList);
-//            frostDownloadItemList = 
-//            
-//        	getDownloadModel().addDownloadItemList(frostDownloadItemList);
         }
         
         

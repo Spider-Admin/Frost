@@ -62,7 +62,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private final FcpListenThreadConnection fcpConn;
     private final FcpMultiRequestConnectionFileTransferTools fcpTools;
 
-    private final Set<String> directGETsInProgress = new HashSet<String>();
+
+	private final Set<String> directGETsInProgress = new HashSet<String>();
     private final Set<String> directPUTsInProgress = new HashSet<String>();
 
     private final Set<String> directPUTsWithoutAnswer = new HashSet<String>();
@@ -134,7 +135,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
         // enqueue listeners to keep updated about the model items
         uploadModel.addOrderedModelListener(
-                new SortedModelListener() {
+                new SortedModelListener<FrostUploadItem>() {
                     public void modelCleared() {
                         for( final FrostUploadItem ul : uploadModelItems.values() ) {
                             if( ul.isExternal() == false ) {
@@ -143,29 +144,27 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         }
                         uploadModelItems.clear();
                     }
-                    public void itemAdded(final int position, final ModelItem item) {
-                        final FrostUploadItem ul = (FrostUploadItem) item;
-                        uploadModelItems.put(ul.getGqIdentifier(), ul);
-                        if( !ul.isExternal() ) {
+                    public void itemAdded(final int position, final FrostUploadItem item) {
+                        uploadModelItems.put(item.getGqIdentifier(), item);
+                        if( !item.isExternal() ) {
                             // maybe start immediately
                             startNewUploads();
                         }
                     }
-                    public void itemChanged(final int position, final ModelItem item) {
+                    public void itemChanged(final int position, final FrostUploadItem item) {
                     }
-                    public void itemsRemoved(final int[] positions, final ModelItem[] items) {
-                        for(final ModelItem item : items) {
-                            final FrostUploadItem ul = (FrostUploadItem) item;
-                            uploadModelItems.remove(ul.getGqIdentifier());
-                            if( ul.isExternal() == false ) {
-                                fcpTools.removeRequest(ul.getGqIdentifier());
+                    public void itemsRemoved(final int[] positions, final List<FrostUploadItem> items) {
+                        for(final FrostUploadItem item : items) {
+                            uploadModelItems.remove(item.getGqIdentifier());
+                            if( item.isExternal() == false ) {
+                                fcpTools.removeRequest(item.getGqIdentifier());
                             }
                         }
                     }
                 });
 
         downloadModel.addOrderedModelListener(
-                new SortedModelListener() {
+                new SortedModelListener<FrostDownloadItem>() {
                     public void modelCleared() {
                         for( final FrostDownloadItem ul : downloadModelItems.values() ) {
                             if( ul.isExternal() == false ) {
@@ -174,22 +173,20 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         }
                         downloadModelItems.clear();
                     }
-                    public void itemAdded(final int position, final ModelItem item) {
-                        final FrostDownloadItem ul = (FrostDownloadItem) item;
-                        downloadModelItems.put(ul.getGqIdentifier(), ul);
-                        if( !ul.isExternal() ) {
+                    public void itemAdded(final int position, final FrostDownloadItem item) {
+                        downloadModelItems.put(item.getGqIdentifier(), item);
+                        if( !item.isExternal() ) {
                             // maybe start immediately
                             startNewDownloads();
                         }
                     }
-                    public void itemChanged(final int position, final ModelItem item) {
+                    public void itemChanged(final int position, final FrostDownloadItem item) {
                     }
-                    public void itemsRemoved(final int[] positions, final ModelItem[] items) {
-                        for(final ModelItem item : items) {
-                            final FrostDownloadItem ul = (FrostDownloadItem) item;
-                            downloadModelItems.remove(ul.getGqIdentifier());
-                            if( ul.isExternal() == false ) {
-                                fcpTools.removeRequest(ul.getGqIdentifier());
+                    public void itemsRemoved(final int[] positions, final List<FrostDownloadItem> items) {
+                        for(final FrostDownloadItem item : items) {
+                            downloadModelItems.remove(item.getGqIdentifier());
+                            if( item.isExternal() == false ) {
+                                fcpTools.removeRequest(item.getGqIdentifier());
                             }
                         }
                     }
@@ -199,6 +196,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         directTransferThread = new DirectTransferThread();
 
         persistentQueue = new FcpPersistentQueue(fcpTools, this);
+    }
+
+    public FcpMultiRequestConnectionFileTransferTools getFcpTools() {
+    	return fcpTools;
     }
 
     public void startThreads() {
@@ -219,31 +220,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public void changeItemPriorites(final ModelItem[] items, final int newPrio) {
-        if (items == null || items.length == 0) {
-            return;
-        }
-        for (final ModelItem item : items) {
-            String gqid = null;
-            if (item instanceof FrostUploadItem) {
-                final FrostUploadItem ui = (FrostUploadItem) item;
-                if (ui.getState() == FrostUploadItem.STATE_PROGRESS) {
-                    ui.setPriority(newPrio);
-                    gqid = ui.getGqIdentifier();
-                }
-            } else if (item instanceof FrostDownloadItem) {
-                final FrostDownloadItem di = (FrostDownloadItem) item;
-                if (di.getState() == FrostDownloadItem.STATE_PROGRESS) {
-                    gqid = di.getGqIdentifier();
-                    di.setPriority(newPrio);
-                }
-            }
-            if (gqid != null) {
-                fcpTools.changeRequestPriority(gqid, newPrio);
-            }
-        }
-    }
-
+    
     /**
      * @param dlItem  items whose global identifier is to check
      * @return  true if this item is currently in the global queue, no matter in what state
@@ -834,10 +811,6 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             notifyAll(); // notify all waiters (if any) of new record
         }
 
-
-        public synchronized int getQueueSize() {
-            return queue.size();
-        }
     }
 
     public void persistentRequestError(final String id, final NodeMessage nm) {
@@ -900,7 +873,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             if( ulItem.isExternal() ) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        uploadModel.removeItems(new ModelItem[] { ulItem });
+                    	List<FrostUploadItem> itemList = new ArrayList<FrostUploadItem>();
+                    	itemList.add(ulItem);
+                        uploadModel.removeItems(itemList);
                     }
                 });
             } else {
@@ -921,7 +896,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             if( dlItem.isExternal() ) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        downloadModel.removeItems(new ModelItem[] { dlItem });
+                    	List<FrostDownloadItem> itemList = new ArrayList<FrostDownloadItem>();
+                    	itemList.add(dlItem);
+                        downloadModel.removeItems(itemList);
                     }
                 });
             } else {

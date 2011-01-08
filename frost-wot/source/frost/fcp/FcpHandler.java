@@ -39,6 +39,7 @@ public abstract class FcpHandler {
     }
 
     public static void initializeFcp(final String node) throws UnsupportedOperationException, Exception {
+    	// Currently hardcoded to version 0.7 (The only existing version)
         instance = new FcpHandler07();
         instance.initialize(node);
         FreenetKeys.initializeFor07();

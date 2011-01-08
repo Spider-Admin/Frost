@@ -21,7 +21,6 @@ package frost.fcp;
 /**
  * This class is a utility class to provide a datatype for results
  * returned from an FCP operation.
- * This class is used by freenet 05 and 07. 07 does not use the metadata.
  */
 public class FcpResultGet {
 

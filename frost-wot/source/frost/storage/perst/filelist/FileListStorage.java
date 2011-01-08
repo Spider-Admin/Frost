@@ -83,7 +83,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         System.out.println("INFO: FileListStorage closed.");
     }
 
-    public IPersistentList createList() {
+    public IPersistentList<FrostFileListFileObjectOwner> createList() {
         return getStorage().createScalableList();
     }
 

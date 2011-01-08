@@ -33,7 +33,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-class UploadTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
+class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements LanguageListener, PropertyChangeListener {
 
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "UploadTable.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "UploadTable.sortState.sortedAscending";
@@ -42,14 +42,15 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
 
     private static ImageIcon isSharedIcon = MiscToolkit.loadImageIcon("/data/shared.png");
 
-    private SortedModelTable modelTable = null;
+    private SortedModelTable<FrostUploadItem> modelTable = null;
 
     private boolean showColoredLines;
 
     /**
      * Renders DONE with green background and FAILED with red background.
      */
-    private class BaseRenderer extends DefaultTableCellRenderer {
+    @SuppressWarnings("serial")
+	private class BaseRenderer extends DefaultTableCellRenderer {
         public BaseRenderer() {
             super();
         }
@@ -84,7 +85,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
+    @SuppressWarnings("serial")
+	private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
         public BlocksProgressRenderer() {
             super();
             setMinimum(0);
@@ -130,7 +132,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private class ShowContentTooltipRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class ShowContentTooltipRenderer extends BaseRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -155,7 +158,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private class ShowNameTooltipRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class ShowNameTooltipRenderer extends BaseRenderer {
         public ShowNameTooltipRenderer() {
             super();
         }
@@ -201,7 +205,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private class ShowStateContentTooltipRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class ShowStateContentTooltipRenderer extends BaseRenderer {
         public ShowStateContentTooltipRenderer() {
             super();
         }
@@ -228,7 +233,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
+    @SuppressWarnings("serial")
+	private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
         public IsEnabledRenderer() {
             super();
         }
@@ -263,7 +269,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private class IsSharedRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class IsSharedRenderer extends BaseRenderer {
         public IsSharedRenderer() {
             super();
         }
@@ -294,7 +301,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the renderer for the column "FileSize"
      */
-    private class RightAlignRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class RightAlignRenderer extends BaseRenderer {
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
         public RightAlignRenderer() {
             super();
@@ -646,11 +654,10 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         return sb.toString();
     }
 
-    @Override
-    public void customizeTable(final ModelTable lModelTable) {
+    public void customizeTable(ModelTable<FrostUploadItem> lModelTable) {
         super.customizeTable(lModelTable);
 
-        modelTable = (SortedModelTable) lModelTable;
+        modelTable = (SortedModelTable<FrostUploadItem>) lModelTable;
 
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null

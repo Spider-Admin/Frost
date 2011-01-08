@@ -18,24 +18,56 @@
 */
 package frost.fileTransfer.upload;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.beans.*;
-import java.io.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.sharing.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.search.*;
-import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.PersistenceManager;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.util.CopyToClipboard;
+import frost.util.FileAccess;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.search.TableFindAction;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
+import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")
 public class UploadPanel extends JPanel {
@@ -56,7 +88,7 @@ public class UploadPanel extends JPanel {
     private final JCheckBox showExternalGlobalQueueItems = new JCheckBox();
     private final JCheckBox compressUploadsCheckBox = new JCheckBox();
 
-    private SortedModelTable modelTable;
+    private SortedModelTable<FrostUploadItem> modelTable;
 
     private final JLabel uploadItemCountLabel = new JLabel();
     private int uploadItemCount = 0;
@@ -102,7 +134,7 @@ public class UploadPanel extends JPanel {
             uploadToolBar.add(uploadItemCountLabel);
 
             // create the main upload panel
-            modelTable = new SortedModelTable(model);
+            modelTable = new SortedModelTable<FrostUploadItem>(model);
             new TableFindAction().install(modelTable.getTable());
             setLayout(new BorderLayout());
             add(uploadToolBar, BorderLayout.NORTH);
@@ -168,20 +200,17 @@ public class UploadPanel extends JPanel {
      * Remove selected files
      */
     private void removeSelectedFiles() {
-        final ModelItem[] selectedItems = modelTable.getSelectedItems();
+        final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
 
         final List<String> externalRequestsToRemove = new LinkedList<String>();
-        final List<ModelItem> requestsToRemove = new LinkedList<ModelItem>();
-        for( final ModelItem mi : selectedItems ) {
-            final FrostUploadItem i = (FrostUploadItem)mi;
+        final List<FrostUploadItem> requestsToRemove = new LinkedList<FrostUploadItem>();
+        for( final FrostUploadItem mi : selectedItems ) {
             requestsToRemove.add(mi);
-            if( i.isExternal() ) {
-                externalRequestsToRemove.add(i.getGqIdentifier());
+            if( mi.isExternal() ) {
+                externalRequestsToRemove.add(mi.getGqIdentifier());
             }
         }
-
-        final ModelItem[] ri = requestsToRemove.toArray(new ModelItem[requestsToRemove.size()]);
-        model.removeItems(ri);
+        model.removeItems(requestsToRemove);
 
         modelTable.getTable().clearSelection();
 
@@ -245,17 +274,18 @@ public class UploadPanel extends JPanel {
     }
 
     private void uploadTableDoubleClick(final MouseEvent e) {
-        final ModelItem[] selectedItems = modelTable.getSelectedItems();
-        if (selectedItems.length != 0) {
-            final FrostUploadItem ulItem = (FrostUploadItem) selectedItems[0];
-            if( !ulItem.isSharedFile() ) {
-                return;
-            }
-            // jump to associated shared file in shared files table
-            final FrostSharedFileItem sfi = ulItem.getSharedFileItem();
-            FileTransferManager.inst().getSharedFilesManager().selectTab();
-            FileTransferManager.inst().getSharedFilesManager().selectModelItem(sfi);
+        final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
+        if (selectedItems.size() == 0) {
+        	return;
         }
+        final FrostUploadItem ulItem = selectedItems.get(0);
+        if( ! ulItem.isSharedFile() ) {
+            return;
+        }
+        // jump to associated shared file in shared files table
+        final FrostSharedFileItem sfi = ulItem.getSharedFileItem();
+        FileTransferManager.inst().getSharedFilesManager().selectTab();
+        FileTransferManager.inst().getSharedFilesManager().selectModelItem(sfi);
     }
 
     private void fontChanged() {
@@ -287,6 +317,22 @@ public class UploadPanel extends JPanel {
                 .toString();
         uploadItemCountLabel.setText(s);
     }
+    
+    public void changeItemPriorites(final List<FrostUploadItem> items, final int newPrio) {
+        if (items == null || items.size() == 0 || FileTransferManager.inst().getPersistenceManager() == null) {
+            return;
+        }
+        for (final FrostUploadItem ui : items) {
+            String gqid = null;
+            if (ui.getState() == FrostUploadItem.STATE_PROGRESS) {
+                ui.setPriority(newPrio);
+                gqid = ui.getGqIdentifier();
+            }
+            if (gqid != null) {
+            	FileTransferManager.inst().getPersistenceManager().getFcpTools().changeRequestPriority(gqid, newPrio);
+            }
+        }
+    }
 
     private void assignHotkeys() {
 
@@ -294,8 +340,8 @@ public class UploadPanel extends JPanel {
             final Action setPriorityAction = new AbstractAction() {
                 public void actionPerformed(final ActionEvent event) {
                     final int prio = new Integer(event.getActionCommand()).intValue();
-                    final ModelItem[] selectedItems = modelTable.getSelectedItems();
-                    FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
+                    final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
+                    changeItemPriorites(selectedItems, prio);
                 }
             };
             getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "SETPRIO");
@@ -420,9 +466,9 @@ public class UploadPanel extends JPanel {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
+                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
             } else if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
+                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems().toArray());
             } else if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();
             } else if (e.getSource() == uploadSelectedFilesItem) {
@@ -468,11 +514,10 @@ public class UploadPanel extends JPanel {
             if( FileTransferManager.inst().getPersistenceManager() == null ) {
                 return;
             }
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
             final List<String> requestsToRemove = new ArrayList<String>();
             final List<FrostUploadItem> itemsToUpdate = new ArrayList<FrostUploadItem>();
-            for(final ModelItem mi : selectedItems) {
-                final FrostUploadItem item = (FrostUploadItem) mi;
+            for(final FrostUploadItem item : selectedItems) {
                 if( FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
                     requestsToRemove.add( item.getGqIdentifier() );
                     itemsToUpdate.add(item);
@@ -490,33 +535,28 @@ public class UploadPanel extends JPanel {
         }
 
         private void changePriority(final int prio) {
-            if( FileTransferManager.inst().getPersistenceManager() != null ) {
-                final ModelItem[] selectedItems = modelTable.getSelectedItems();
-                FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
-            }
+        	changeItemPriorites(modelTable.getSelectedItems(), prio);
         }
 
         /**
          * Generate CHK for selected files
          */
         private void generateChkForSelectedFiles() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.generateChkItems(selectedItems);
+            model.generateChkItems(modelTable.getSelectedItems());
         }
 
         private void startSelectedUploadsNow() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
 
             final List<FrostUploadItem> itemsToStart = new LinkedList<FrostUploadItem>();
-            for( final ModelItem mi : selectedItems ) {
-                final FrostUploadItem i = (FrostUploadItem)mi;
-                if( i.isExternal() ) {
+            
+            for( final FrostUploadItem frostUploadItem : modelTable.getSelectedItems() ) {
+                if( frostUploadItem.isExternal() ) {
                     continue;
                 }
-                if( i.getState() != FrostUploadItem.STATE_WAITING ) {
+                if( frostUploadItem.getState() != FrostUploadItem.STATE_WAITING ) {
                     continue;
                 }
-                itemsToStart.add(i);
+                itemsToStart.add(frostUploadItem);
             }
 
             for(final FrostUploadItem ulItem : itemsToStart) {
@@ -529,8 +569,7 @@ public class UploadPanel extends JPanel {
          * Reload selected files
          */
         private void uploadSelectedFiles() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.uploadItems(selectedItems);
+            model.uploadItems(modelTable.getSelectedItems());
         }
 
         public void languageChanged(final LanguageEvent event) {
@@ -538,8 +577,7 @@ public class UploadPanel extends JPanel {
         }
 
         private void invertEnabledSelected() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.setItemsEnabled(null, selectedItems);
+            model.setItemsEnabled(null, modelTable.getSelectedItems());
         }
 
         private void invertEnabledAll() {
@@ -547,13 +585,11 @@ public class UploadPanel extends JPanel {
         }
 
         private void disableSelectedDownloads() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.setItemsEnabled(Boolean.FALSE, selectedItems);
+            model.setItemsEnabled(Boolean.FALSE, modelTable.getSelectedItems());
         }
 
         private void enableSelectedDownloads() {
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.setItemsEnabled(Boolean.TRUE, selectedItems);
+            model.setItemsEnabled(Boolean.TRUE, modelTable.getSelectedItems());
         }
 
         private void disableAllDownloads() {
@@ -568,9 +604,9 @@ public class UploadPanel extends JPanel {
         public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
 
-            if( selectedItems.length == 0 ) {
+            if( selectedItems.size() == 0 ) {
                 return;
             }
 
@@ -602,17 +638,15 @@ public class UploadPanel extends JPanel {
             add(removeSelectedFilesItem);
             if(  FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null ) {
                 // add only if there are removable items selected
-                for(final ModelItem mi : selectedItems) {
-                    final FrostUploadItem item = (FrostUploadItem) mi;
-                    if(  FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
+                for(final FrostUploadItem frostUploadItem : selectedItems) {
+                    if(  FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(frostUploadItem) ) {
                         add(removeFromGqItem);
                         break;
                     }
                 }
             }
-            if( selectedItems.length == 1 ) {
-                final FrostUploadItem item = (FrostUploadItem) selectedItems[0];
-                if( item.isSharedFile() ) {
+            if( selectedItems.size() == 1 ) {
+                if( selectedItems.get(0).isSharedFile() ) {
                     addSeparator();
                     add(showSharedFileItem);
                 }

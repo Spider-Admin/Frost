@@ -36,6 +36,7 @@ import frost.util.*;
  * This class holds all informations that are shown in the GUI and stored to the database.
  * It adds more fields than a MessageObjectFile uses.
  */
+@SuppressWarnings("serial")
 public class FrostMessageObject extends AbstractMessageObject implements TableMember {
 
     transient private PerstFrostMessageObject perstFrostMessageObject = null;
@@ -257,11 +258,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
      * Dynamically loads attachments.
      */
     @Override
-    public AttachmentList getAttachmentsOfType(final int type) {
+    public AttachmentList<Attachment> getAttachmentsOfType(final int type) {
 
         if( !containsAttachments() ) {
             if (attachments == null) {
-                attachments = new AttachmentList();
+                attachments = new AttachmentList<Attachment>();
             }
             return attachments.getAllOfType(type);
         }
@@ -269,12 +270,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         if (attachments == null) {
             MessageStorage.inst().retrieveAttachments(this);
             if (attachments == null) {
-                attachments = new AttachmentList();
+                attachments = new AttachmentList<Attachment>();
             }
         }
         return attachments.getAllOfType(type);
     }
-
+    
+    
     /*
      * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
      */

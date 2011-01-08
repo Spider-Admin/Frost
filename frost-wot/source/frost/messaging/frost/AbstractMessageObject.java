@@ -24,9 +24,12 @@ package frost.messaging.frost;
  * It is used by the MessageObjectFile (XML file representation)
  * and the FrostMessageObject (database representation).
  */
+@SuppressWarnings("serial")
 public abstract class AbstractMessageObject extends AbstractMessageStatusProvider {
 
-    protected AttachmentList attachments = null;
+	// FIXME: Remove attachment list, this list never gets filled with all attachments,
+	// only with attachments o the type last requests.
+    protected AttachmentList<Attachment> attachments = null;
     protected String content = null;
     private String subject = "";
     private String recipientName = ""; // set if msg was encrypted
@@ -86,14 +89,14 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
      * This method returns the AttachmentList. If no one exists, it creates a new one.
      * @return the AttachmentList
      */
-    public AttachmentList getAttachmentList() {
+    public AttachmentList<Attachment> getAttachmentList() {
         if (attachments == null) {
-            attachments = new AttachmentList();
+            attachments = new AttachmentList<Attachment>();
         }
         return attachments;
     }
 
-    public void setAttachmentList(final AttachmentList al) {
+    public void setAttachmentList(final AttachmentList<Attachment> al) {
         this.attachments = al;
     }
 
@@ -106,9 +109,9 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
      * @param type the type of attachments to return in the AttachmentList
      * @return an AttachmentList containing all of the attachments of the given type.
      */
-    public AttachmentList getAttachmentsOfType(final int type) {
+    public AttachmentList<Attachment> getAttachmentsOfType(final int type) {
         if (attachments == null) {
-            attachments = new AttachmentList();
+            attachments = new AttachmentList<Attachment>();
         }
         return attachments.getAllOfType(type);
     }

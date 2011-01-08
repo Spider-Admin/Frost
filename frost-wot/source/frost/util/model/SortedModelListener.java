@@ -20,25 +20,25 @@ package frost.util.model;
 
 import java.util.*;
 
-public interface SortedModelListener extends EventListener {
+public interface SortedModelListener<T extends ModelItem> extends EventListener {
 
 	/**
 	 * @param position
 	 * @param item 
 	 */
-	void itemChanged(int position, ModelItem item);
+	void itemChanged(int position, T item);
 
 	/**
 	 * @param position
 	 * @param item
 	 */
-	void itemAdded(int position, ModelItem item);
+	void itemAdded(int position, T item);
 
 	/**
 	 * @param positions
 	 * @param items
 	 */
-	void itemsRemoved(int[] positions, ModelItem[] items);
+	void itemsRemoved(int[] positions, List<T> items);
 	
 	/**
 	 * @param item

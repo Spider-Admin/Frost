@@ -35,7 +35,7 @@ import frost.util.model.*;
  * protected attribute data when necessary). It is also assumed that the load
  * and save methods will not be used while other threads are under way.
  */
-public class SharedFilesModel extends SortedModel implements ExitSavable {
+public class SharedFilesModel extends SortedModel<FrostSharedFileItem> implements ExitSavable {
 
     // TODO: for shared directories: add new files to another table, waiting for owner assignment
 
@@ -111,38 +111,13 @@ public class SharedFilesModel extends SortedModel implements ExitSavable {
         return false;
     }
 
-//    /**
-//     * This method removes from the model the items whose associated files
-//     * no longer exist on hard disk. Using this method may be very expensive
-//     * if the model has a lot of items.
-//     */
-//    public synchronized void removeNotExistingFiles() {
-//        ArrayList items = new ArrayList();
-//        for (int i = getItemCount() - 1; i >= 0; i--) {
-//            FrostSharedFileItem sfItem = (FrostSharedFileItem) getItemAt(i);
-//            if (!sfItem.getFile().exists()) {
-//                items.add(sfItem);
-//            }
-//        }
-//        if (items.size() > 0) {
-//            FrostSharedFileItem[] itemsArray = new FrostSharedFileItem[items.size()];
-//            for (int i = 0; i < itemsArray.length; i++) {
-//                itemsArray[i] = (FrostSharedFileItem) items.get(i);
-//            }
-//            removeItems(itemsArray);
-//
-//            // notify list upload thread that user changed something
-//            FileListUploadThread.getInstance().userActionOccured();
-//        }
-//    }
-
     /**
      * This method tells all items to start uploading (if their current state allows it)
      */
     public synchronized void requestAllItems() {
-        final Iterator<ModelItem> iterator = data.iterator();
+        final Iterator<FrostSharedFileItem> iterator = data.iterator();
         while (iterator.hasNext()) {
-            final FrostSharedFileItem sfItem = (FrostSharedFileItem) iterator.next();
+            final FrostSharedFileItem sfItem =  iterator.next();
             if( !sfItem.isCurrentlyUploading() ) {
                 FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfItem);
             }
@@ -152,9 +127,8 @@ public class SharedFilesModel extends SortedModel implements ExitSavable {
     /**
      * This method tells items passed as a parameter to start uploading (if their current state allows it)
      */
-    public void requestItems(final ModelItem[] items) {
-        for( final ModelItem element : items ) {
-            final FrostSharedFileItem sfItem = (FrostSharedFileItem) element;
+    public void requestItems(final List<FrostSharedFileItem> items) {
+        for( final FrostSharedFileItem sfItem : items ) {
             if( !sfItem.isCurrentlyUploading() ) {
                 FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfItem);
             }
@@ -180,7 +154,6 @@ public class SharedFilesModel extends SortedModel implements ExitSavable {
     /**
      * Saves the upload model to database.
      */
-    @SuppressWarnings("unchecked")
     public void exitSave() throws StorageException {
         final List<FrostSharedFileItem> itemList = getItems();
         try {

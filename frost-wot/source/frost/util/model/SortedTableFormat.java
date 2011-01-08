@@ -22,23 +22,26 @@ import java.util.*;
 
 import frost.util.*;
 
-public abstract class SortedTableFormat extends AbstractTableFormat {
+public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTableFormat<T> {
 
-	private Comparator[] comparators;
-	private Comparator[] reverseComparators;
+	private List<Comparator<T>> comparators;
+	private ReverseComparator[] reverseComparators;
 
 	protected SortedTableFormat(int newColumnCount) {
 		super(newColumnCount);
-		comparators = new Comparator[newColumnCount];
-		reverseComparators = new Comparator[newColumnCount];
+		comparators = new ArrayList<Comparator<T>>(newColumnCount);
+		for(int i = 0; i < newColumnCount; i++) {
+			comparators.add(null);
+		}
+		reverseComparators = new ReverseComparator[newColumnCount];
 	}
 	
 	/**
 	 * @param comparator
 	 * @param columnNumber
 	 */
-	public void setComparator(Comparator comparator, int columnNumber) {
-		comparators[columnNumber] = comparator;
+	public void setComparator(Comparator<T> comparator, int columnNumber) {
+		comparators.set(columnNumber, comparator);
 		reverseComparators[columnNumber] = new ReverseComparator(comparator);
 	}
 	
@@ -46,15 +49,15 @@ public abstract class SortedTableFormat extends AbstractTableFormat {
 	 * @param columnNumber
 	 * @return
 	 */
-	public Comparator getComparator(int columnNumber) {
-		return comparators[columnNumber];
+	public Comparator<T> getComparator(int columnNumber) {
+		return comparators.get(columnNumber);
 	}
 	
 	/**
 	 * @param columnNumber
 	 * @return
 	 */
-	public Comparator getReverseComparator(int columnNumber) {
+	public ReverseComparator getReverseComparator(int columnNumber) {
 		return reverseComparators[columnNumber];
 	}
 

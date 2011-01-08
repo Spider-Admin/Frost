@@ -27,7 +27,7 @@ import org.xml.sax.*;
 import frost.util.*;
 
 @SuppressWarnings("serial")
-public class AttachmentList extends LinkedList<Attachment> implements XMLizable {
+public class AttachmentList<T extends Attachment> extends LinkedList<T> implements XMLizable {
 
 	private static final Logger logger = Logger.getLogger(AttachmentList.class.getName());
 
@@ -36,22 +36,48 @@ public class AttachmentList extends LinkedList<Attachment> implements XMLizable 
 	 * @param type the type - BOARD, FILE, PERSON...
 	 * @return another list which contains only attachments of the specified type
 	 */
-	public AttachmentList getAllOfType(final int type) {
+	public AttachmentList<T> getAllOfType(final int type) {
 		assert type == Attachment.FILE ||
 					type == Attachment.BOARD ||
 					type == Attachment.PERSON :
 					"list of unknown type of attachments requested";
-
-		final Iterator<Attachment> i = iterator();
-		final AttachmentList result = new AttachmentList();
+		
+		final Iterator<T> i = iterator();
+		final AttachmentList<T> result = new AttachmentList<T>();
 		while (i.hasNext()) {
-			final Attachment current = i.next();
+			final T current = i.next();
 			if (current.getType() == type) {
+				switch(type) {
+					case Attachment.FILE :
+						assert current instanceof FileAttachment;
+						break;
+					case Attachment.BOARD :
+						assert current instanceof BoardAttachment;
+						break;
+					case Attachment.PERSON :
+						assert current instanceof PersonAttachment;
+						break;
+				}
 				result.add(current);
-            }
+			}
 		}
 
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public AttachmentList<FileAttachment> getAllOfTypeFile() {
+		return (AttachmentList<FileAttachment>) getAllOfType(Attachment.FILE);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public AttachmentList<BoardAttachment> getAllOfTypeBoard() {
+		return (AttachmentList<BoardAttachment>) getAllOfType(Attachment.BOARD);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public AttachmentList<PersonAttachment> getAllOfTypePerson() {
+		return (AttachmentList<PersonAttachment>) getAllOfType(Attachment.PERSON);
 	}
 
 	synchronized public Element getXMLElement(final Document d){
@@ -59,7 +85,7 @@ public class AttachmentList extends LinkedList<Attachment> implements XMLizable 
             return null;
         }
 		final Element el = d.createElement("AttachmentList");
-		final Iterator<Attachment> i = iterator();
+		final Iterator<T> i = iterator();
 		while (i.hasNext()) {
 			final Attachment current = i.next();
 			el.appendChild(current.getXMLElement(d));
@@ -67,6 +93,7 @@ public class AttachmentList extends LinkedList<Attachment> implements XMLizable 
 		return el;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void loadXMLElement(final Element el) throws SAXException {
         if( el == null ) {
             return;
@@ -74,7 +101,9 @@ public class AttachmentList extends LinkedList<Attachment> implements XMLizable 
 		final Iterator<Element> i = XMLTools.getChildElementsByTagName(el,"Attachment").iterator();
 		while (i.hasNext()){
 			final Element current = i.next();
-			final Attachment attachment = Attachment.getInstance(current);
+			// If this cast fails, someone has put an item of the wrong type into
+			// the list, specialized through generics.
+			final T attachment = (T) T.getInstance(current);
 			add(attachment);
 		}
 		if (size()==0) {
