@@ -25,13 +25,14 @@ import javax.swing.table.*;
 
 import frost.gui.*;
 
-public class SortedTableModel extends DefaultTableModel
+@SuppressWarnings("serial")
+public class SortedTableModel<T extends TableMember> extends DefaultTableModel
 {
     private static final Logger logger = Logger.getLogger(SortedTableModel.class.getName());
 
     private boolean bWasResized = false;
-    private ArrayList rows = null;
-    private SortedTable parentTable = null;
+    private ArrayList<T> rows = null;
+    private SortedTable<T> parentTable = null;
 
     // we always need to hold the actual sorting comparator to allow sorted insertion
     private ColumnComparator colComparator  = new ColumnComparator(0, true); // default
@@ -39,10 +40,10 @@ public class SortedTableModel extends DefaultTableModel
     public SortedTableModel()
     {
         super();
-        rows = new ArrayList();
+        rows = new ArrayList<T>();
     }
 
-    public void setParentTable(SortedTable t)
+    public void setParentTable(SortedTable<T> t)
     {
         this.parentTable = t;
     }
@@ -74,7 +75,7 @@ public class SortedTableModel extends DefaultTableModel
         }
     }
 
-    public class ColumnComparator implements Comparator
+    public class ColumnComparator implements Comparator<T>
     {
         protected int index;
         protected boolean ascending;
@@ -86,12 +87,9 @@ public class SortedTableModel extends DefaultTableModel
         }
 
         // uses implementation in ITableMember or default impl. in abstracttreemodel
-        public int compare(Object one, Object two)
+        public int compare(T oOne, T oTwo)
         {
             try {
-                TableMember oOne = (TableMember)one;
-                TableMember oTwo = (TableMember)two;
-
                 if( ascending )
                 {
                     return oOne.compareTo(oTwo, index);
@@ -112,7 +110,7 @@ public class SortedTableModel extends DefaultTableModel
      *
      * @see #setSortingColumn
      */
-    public void addRow(TableMember member)
+    public void addRow(T member)
     {
         // compute pos to insert and insert node sorted into table
         int insertPos = Collections.binarySearch(rows, member, colComparator);
@@ -132,7 +130,7 @@ public class SortedTableModel extends DefaultTableModel
         insertRowAt(member, insertPos);
     }
 
-    public void insertRowAt(TableMember member, int index)
+    public void insertRowAt(T member, int index)
     {
        if (index <= rows.size())
        {
@@ -190,13 +188,11 @@ public class SortedTableModel extends DefaultTableModel
      * @return Instance of ITableMember at index row. <I>null</I> if index contains
      * no ITableMember
      */
-    public TableMember getRow(int row)
+    public T getRow(int row)
     {
         if (row<getRowCount())
         {
-            Object obj = rows.get(row);
-            if (obj instanceof TableMember)
-                return (TableMember) obj;
+            return rows.get(row);
         }
         return null;
     }
@@ -246,10 +242,9 @@ public class SortedTableModel extends DefaultTableModel
         int size = rows.size();
         if (size>0)
         {
-            rows = new ArrayList();
+            rows = new ArrayList<T>();
             fireTableRowsDeleted(0,size);
         }
-        //System.gc();
     }
 
     /**

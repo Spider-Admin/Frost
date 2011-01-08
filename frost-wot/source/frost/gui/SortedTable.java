@@ -26,29 +26,30 @@ import javax.swing.table.*;
 
 import frost.gui.model.*;
 
-public class SortedTable extends JTable
+@SuppressWarnings("serial")
+public class SortedTable<T extends TableMember> extends JTable
 {
     protected int sortedColumnIndex = 0;
     protected boolean sortedColumnAscending = true;
 
     private SortHeaderRenderer columnHeadersRenderer = new SortHeaderRenderer();
 
-    public SortedTable(SortedTableModel model)
+    public SortedTable(SortedTableModel<T> model)
     {
         super(model);
 
         model.setParentTable(this);
 
         initSortHeader();
+        
     }
 
     public void sortColumn(int col, boolean ascending)
     {
-        SortedTableModel model = null;
-        model = (SortedTableModel)getModel();
+        SortedTableModel<T> model = getModel();
 
         // get the list of selected items
-        ArrayList list = getListOfSelectedItems();
+        ArrayList<T> list = getListOfSelectedItems();
         clearSelection();
 
         // sort this column
@@ -61,22 +62,22 @@ public class SortedTable extends JTable
     public void resortTable()
     {
         sortColumn( sortedColumnIndex, sortedColumnAscending );
-        ((SortedTableModel)getModel()).tableEntriesChanged();
+        getModel().tableEntriesChanged();
     }
 
-    protected void setSelectedItems( ArrayList items )
+    protected void setSelectedItems( ArrayList<T> items )
     {
-        if( !(getModel() instanceof SortedTableModel ))
+        if( !(getModel() instanceof SortedTableModel<?> ))
             return;
-        SortedTableModel model = (SortedTableModel)getModel();
+        SortedTableModel<T> model = getModel();
         for( int x=0; x<model.getRowCount(); x++ )
         {
-            Object item1 = model.getRow(x);
+            T item1 = model.getRow(x);
 
-            Iterator i = items.iterator();
+            Iterator<T> i = items.iterator();
             while( i.hasNext() )
             {
-                Object item2 = i.next();
+                T item2 = i.next();
 
                 if( item1 == item2 )
                 {
@@ -86,14 +87,14 @@ public class SortedTable extends JTable
         }
     }
 
-    protected ArrayList getListOfSelectedItems()
+    protected ArrayList<T> getListOfSelectedItems()
     {
         // build a list containing all selected items
-        ArrayList lst = new ArrayList();
-        if( !(getModel() instanceof SortedTableModel ))
+        ArrayList<T> lst = new ArrayList<T>();
+        if( !(getModel() instanceof SortedTableModel<?> ))
             return lst;
 
-        SortedTableModel model = (SortedTableModel)getModel();
+        SortedTableModel<T> model = (SortedTableModel<T>)getModel();
         int selectedRows[] = getSelectedRows();
         for( int x=0; x<selectedRows.length; x++ )
         {
@@ -104,7 +105,7 @@ public class SortedTable extends JTable
 
     public void setSavedSettings( int val, boolean val2 )
     {
-        if( !(getModel() instanceof SortedTableModel ))
+        if( !(getModel() instanceof SortedTableModel<?> ))
             return;
         sortedColumnIndex = val;
         sortedColumnAscending = val2;
@@ -122,7 +123,7 @@ public class SortedTable extends JTable
      * one put by the skin) for it to finish the job.
      */
     protected void initSortHeader() {
-        Enumeration enumeration = getColumnModel().getColumns();
+        Enumeration<TableColumn> enumeration = getColumnModel().getColumns();
         while (enumeration.hasMoreElements()) {
             TableColumn column = (TableColumn) enumeration.nextElement();
             column.setHeaderRenderer(columnHeadersRenderer);
@@ -141,10 +142,22 @@ public class SortedTable extends JTable
     }
 
     // used by TablePopupMenuMouseListener
-    public SortedTable instance()
+    public SortedTable<T> instance()
     {
         return this;
     }
+    
+    public SortedTableModel<T> getModel() {
+    	return (SortedTableModel<T>) super.getModel();
+    }
+    
+    public void setModel(TableModel tableModel) {
+    	if( !(tableModel instanceof SortedTableModel<?>)) {
+    		throw new IllegalArgumentException("TableModel must be of type SortedTableModel<?>");
+    	}
+    	super.setModel(tableModel);
+    }
+    
 
     class HeaderMouseListener implements MouseListener
     {
@@ -159,8 +172,7 @@ public class SortedTable extends JTable
             int index = colModel.getColumnIndexAtX(event.getX());
             int modelIndex = colModel.getColumn(index).getModelIndex();
 
-            SortedTableModel model = null;
-            model = (SortedTableModel)getModel();
+            SortedTableModel<T> model = getModel();
 
             boolean isSortable = false;
             if( model != null && model.isSortable(modelIndex) )

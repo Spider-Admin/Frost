@@ -535,7 +535,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 
 	
 	
-	private static class AddNewDownloadsTableModel extends SortedTableModel{
+	private static class AddNewDownloadsTableModel extends SortedTableModel<AddNewDownloadsTableMember>{
 		private static final long serialVersionUID = 1L;
 
 		private Language language = null;
@@ -700,7 +700,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		}
 	}
 	
-	private class AddNewDownloadsTable extends SortedTable {
+	private class AddNewDownloadsTable extends SortedTable<AddNewDownloadsTableMember> {
 
 		private static final long serialVersionUID = 1L;
 		private CenterCellRenderer centerCellRenderer;
