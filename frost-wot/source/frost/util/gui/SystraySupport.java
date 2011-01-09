@@ -45,7 +45,7 @@ public class SystraySupport {
         
         final ActionListener exitListener = new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                MainFrame.getInstance().fileExitMenuItem_actionPerformed(null);
+                MainFrame.getInstance().fileExitMenuItem_actionPerformed();
             }
         };
         final ActionListener showHideListener = new ActionListener() {

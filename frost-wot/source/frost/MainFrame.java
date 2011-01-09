@@ -274,7 +274,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             // add action listener
             fileExitMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    fileExitMenuItem_actionPerformed(e);
+                    fileExitMenuItem_actionPerformed();
                 }
             });
             fileStatisticsMenuItem.addActionListener(new ActionListener() {
@@ -284,7 +284,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             });
             optionsPreferencesMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    optionsPreferencesMenuItem_actionPerformed(e);
+                    optionsPreferencesMenuItem_actionPerformed();
                 }
             });
             optionsManageLocalIdentitiesMenuItem.addActionListener(new ActionListener() {
@@ -322,7 +322,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
             helpAboutMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    helpAboutMenuItem_actionPerformed(e);
+                    helpAboutMenuItem_actionPerformed();
                 }
             });
 
@@ -474,7 +474,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     /**
      * File | Exit action performed
      */
-    public void fileExitMenuItem_actionPerformed(final ActionEvent e) {
+    public void fileExitMenuItem_actionPerformed() {
 
         // warn if create message windows are open
         if (MessageFrame.getOpenInstanceCount() > 0 || FreetalkMessageFrame.getOpenInstanceCount() > 0) {
@@ -552,7 +552,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     /**
      * Help | About action performed
      */
-    private void helpAboutMenuItem_actionPerformed(final ActionEvent e) {
+    private void helpAboutMenuItem_actionPerformed() {
         final AboutBox dlg = new AboutBox(this);
         dlg.setVisible(true);
     }
@@ -648,7 +648,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     /**
      * Options | Preferences action performed
      */
-    private void optionsPreferencesMenuItem_actionPerformed(final ActionEvent e) {
+    private void optionsPreferencesMenuItem_actionPerformed() {
         try {
             frostSettings.exitSave();
         } catch (final StorageException se) {
@@ -914,7 +914,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private class WindowClosingListener extends WindowAdapter {
         @Override
         public void windowClosing(final WindowEvent e) {
-            fileExitMenuItem_actionPerformed(null);
+            fileExitMenuItem_actionPerformed();
         }
     }
 

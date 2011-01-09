@@ -55,18 +55,16 @@ public class KnownBoardsXmlDAO {
                 return knownBoards;
             }
             // pass this as an 'AttachmentList' to xml read method and get all board attachments
-            final AttachmentList al = new AttachmentList();
+            final AttachmentList<Attachment> attachmentList = new AttachmentList<Attachment>();
             try {
-                al.loadXMLElement(rootNode);
+                attachmentList.loadXMLElement(rootNode);
             } catch (final Exception ex) {
                 logger.log(Level.SEVERE, "Error - knownboards.xml: contains unexpected content.", ex);
                 return knownBoards;
             }
-            final List lst = al.getAllOfType(Attachment.BOARD);
-            for(final Iterator i=lst.iterator(); i.hasNext(); ) {
-                final BoardAttachment ba = (BoardAttachment)i.next();
-
-                final Board b = ba.getBoardObj();
+            final AttachmentList<BoardAttachment> lst = attachmentList.getAllOfTypeBoard();
+            for(final Iterator<BoardAttachment> i=lst.iterator(); i.hasNext(); ) {
+                final Board b = i.next().getBoardObj();
                 if( isBoardKeyValidForFreenetVersion(b) ) {
                     knownBoards.add(b);
                 } else {
@@ -101,10 +99,10 @@ public class KnownBoardsXmlDAO {
 
     /**
      * @param file
-     * @param knownBoards  List of KnownBoard
+     * @param knownBoardList  List of KnownBoard
      * @return
      */
-    public static boolean saveKnownBoards(final File file, final List<Board> knownBoards) {
+    public static boolean saveKnownBoards(final File file, final List<Board> knownBoardList) {
         final Document doc = XMLTools.createDomDocument();
         if (doc == null) {
             logger.severe("Error - saveBoardTree: factory couldn't create XML Document.");
@@ -114,12 +112,10 @@ public class KnownBoardsXmlDAO {
         final Element rootElement = doc.createElement("FrostKnownBoards");
         doc.appendChild(rootElement);
 
-        final Iterator i = knownBoards.iterator();
-        while (i.hasNext()) {
-            final Board b = (Board)i.next();
-            final BoardAttachment current = new BoardAttachment(b);
-            final Element anAttachment = current.getXMLElement(doc);
-            rootElement.appendChild(anAttachment);
+        final Iterator<Board> knownBoardListIterator = knownBoardList.iterator();
+        while (knownBoardListIterator.hasNext()) {
+            final BoardAttachment current = new BoardAttachment(knownBoardListIterator.next());
+            rootElement.appendChild(current.getXMLElement(doc));
         }
 
         boolean writeOK = false;

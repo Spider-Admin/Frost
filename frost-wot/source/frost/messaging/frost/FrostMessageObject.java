@@ -534,13 +534,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Overwritten add to add new nodes sorted to a parent node
      */
-    public void add(final MutableTreeNode nn, final boolean silent) {
+    public void add(final MutableTreeNode mutableTreeNode, final boolean silent) {
         // add sorted
-        final FrostMessageObject n = (FrostMessageObject)nn;
+        final FrostMessageObject frostMessageObject = (FrostMessageObject)mutableTreeNode;
         int[] ixs;
 
         if( children == null ) {
-            super.add(n);
+            super.add(frostMessageObject);
             ixs = new int[] { 0 };
         } else {
             // If threaded:
@@ -553,18 +553,18 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                 if( isRoot() ) {
                     // child of root, sort descending
                     if( sortThreadRootMsgsAscending ) {
-                        insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
+                        insertPoint = Collections.binarySearch(children, frostMessageObject, MessageTreeTableSortStateBean.dateComparatorAscending);
                     } else {
-                        insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorDescending);
+                        insertPoint = Collections.binarySearch(children, frostMessageObject, MessageTreeTableSortStateBean.dateComparatorDescending);
                     }
                 } else {
                     // inside a thread, sort ascending
-                    insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
+                    insertPoint = Collections.binarySearch(children, frostMessageObject, MessageTreeTableSortStateBean.dateComparatorAscending);
                 }
             } else {
                 final Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
                 if( comparator != null ) {
-                    insertPoint = Collections.binarySearch(children, n, comparator);
+                    insertPoint = Collections.binarySearch(children, frostMessageObject, comparator);
                 } else {
                     insertPoint = 0;
                 }
@@ -575,10 +575,10 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                 insertPoint *= -1;
             }
             if( insertPoint >= children.size() ) {
-                super.add(n);
+                super.add(frostMessageObject);
                 ixs = new int[] { children.size() - 1 };
             } else {
-                super.insert(n, insertPoint);
+                super.insert(frostMessageObject, insertPoint);
                 ixs = new int[] { insertPoint };
             }
         }
@@ -586,9 +586,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             if( MainFrame.getInstance().getMessageTreeTable().getTree().isExpanded(new TreePath(this.getPath())) ) {
                 // if node is already expanded, notify new inserted row to the models
                 MainFrame.getInstance().getMessageTreeModel().nodesWereInserted(this, ixs);
-                if( n.getChildCount() > 0 ) {
+                if( frostMessageObject.getChildCount() > 0 ) {
                     // added node has childs, expand them all
-                    MainFrame.getInstance().getMessageTreeTable().expandNode(n);
+                    MainFrame.getInstance().getMessageTreeTable().expandNode(frostMessageObject);
                 }
             } else {
                 // if node is not expanded, expand it, this will notify the model of the new child as well as of the old childs

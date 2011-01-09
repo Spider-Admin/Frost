@@ -37,6 +37,7 @@ import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSavable, PropertyChangeListener {
 
     private boolean showBoardDescriptionToolTips;

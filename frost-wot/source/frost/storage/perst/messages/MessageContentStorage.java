@@ -82,10 +82,13 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
         return storageRoot.getSignatureByMsgOid().put(oid, ps);
     }
 
-    protected synchronized boolean addAttachmentsForOid(final int oid, final AttachmentList boards, final AttachmentList files) {
-        final PerstAttachments pa = new PerstAttachments(getStorage(), boards, files);
-        return storageRoot.getAttachmentsByMsgOid().put(oid, pa);
-    }
+	protected synchronized boolean addAttachmentsForOid(final int oid,
+			final AttachmentList<BoardAttachment> boardAttachmentList,
+			final AttachmentList<FileAttachment> fileAttachmentList) {
+		
+		final PerstAttachments pa = new PerstAttachments(getStorage(), boardAttachmentList, fileAttachmentList);
+		return storageRoot.getAttachmentsByMsgOid().put(oid, pa);
+	}
 
     protected synchronized String getContentForOid(final int oid) {
         final PerstString ps = storageRoot.getContentByMsgOid().get(oid);

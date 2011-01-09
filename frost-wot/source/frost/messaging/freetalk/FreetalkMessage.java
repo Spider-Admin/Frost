@@ -32,6 +32,7 @@ import frost.util.*;
 /**
  * A Freetalk message.
  */
+@SuppressWarnings("serial")
 public class FreetalkMessage extends DefaultMutableTreeNode {
 
     private FreetalkBoard board = null;
