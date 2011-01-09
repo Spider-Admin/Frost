@@ -23,6 +23,7 @@ import org.xml.sax.*;
 import frost.identities.*;
 import frost.util.*;
 
+@SuppressWarnings("serial")
 public class PersonAttachment extends Attachment {
 
 	private Identity identity;

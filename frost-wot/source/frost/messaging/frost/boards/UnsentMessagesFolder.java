@@ -21,6 +21,7 @@ package frost.messaging.frost.boards;
 /**
  * Represents the unsent messages folder in the board tree.
  */
+@SuppressWarnings("serial")
 public class UnsentMessagesFolder extends AbstractNode  {
 
     public UnsentMessagesFolder(String newName) {

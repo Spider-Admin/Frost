@@ -25,6 +25,7 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.identities.*;
 
+@SuppressWarnings("serial")
 public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNode {
 
     private static final Logger logger = Logger.getLogger(AbstractMessageStatusProvider.class.getName());

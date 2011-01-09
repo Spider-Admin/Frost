@@ -33,6 +33,7 @@ import frost.util.gui.translation.*;
 /**
  * Represents the mainframe status bar.
  */
+@SuppressWarnings("serial")
 public class MainFrameStatusBar extends JPanel {
 
     private final Language language;

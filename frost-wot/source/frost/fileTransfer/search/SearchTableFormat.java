@@ -33,7 +33,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-public class SearchTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
+public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implements LanguageListener, PropertyChangeListener {
 
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "SearchFilesTable.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "SearchFilesTable.sortState.sortedAscending";
@@ -53,7 +53,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
     private String sourceCountTooltip;
 
-    private SortedModelTable modelTable;
+    private SortedModelTable<FrostSearchItem> modelTable;
 
     private boolean showColoredLines;
 
@@ -168,10 +168,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     }
 
     @Override
-    public void customizeTable(final ModelTable lModelTable) {
+    public void customizeTable(final ModelTable<FrostSearchItem> lModelTable) {
         super.customizeTable(lModelTable);
 
-        modelTable = (SortedModelTable) lModelTable;
+        modelTable = (SortedModelTable<FrostSearchItem>) lModelTable;
 
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
@@ -280,7 +280,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         return true;
     }
 
-    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -306,7 +307,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class RightAlignRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class RightAlignRenderer extends ShowColoredLinesRenderer {
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
         public RightAlignRenderer() {
             super();
@@ -333,7 +335,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
      * depending on state of search item.
      * States are: NONE, DOWNLOADED, DOWNLOADING, UPLOADING
      */
-    private class FileNameRenderer extends ShowContentTooltipRenderer {
+    @SuppressWarnings("serial")
+	private class FileNameRenderer extends ShowContentTooltipRenderer {
 
         public FileNameRenderer() {
             super();
@@ -374,7 +377,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class SourceCountRenderer extends ShowColoredLinesRenderer {
+    @SuppressWarnings("serial")
+	private class SourceCountRenderer extends ShowColoredLinesRenderer {
 
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
 
@@ -412,7 +416,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+    @SuppressWarnings("serial")
+	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
         public ShowColoredLinesRenderer() {
             super();
         }

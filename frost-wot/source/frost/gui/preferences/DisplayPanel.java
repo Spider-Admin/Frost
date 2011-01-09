@@ -31,6 +31,7 @@ import frost.util.gui.translation.*;
 /**
  * Display Panel. Contains appearance options
  */
+@SuppressWarnings("serial")
 class DisplayPanel extends JPanel {
 
     public class Listener implements ActionListener {

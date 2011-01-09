@@ -32,6 +32,7 @@ import frost.util.gui.translation.*;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class FontChooser extends JDialog {
 	private class Listener implements ActionListener, ListSelectionListener, LanguageListener {
 

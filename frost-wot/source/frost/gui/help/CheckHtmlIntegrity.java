@@ -51,29 +51,31 @@ public class CheckHtmlIntegrity {
         final byte[] zipData = new byte[4096];
 
         try {
-            ZipFile zf = new ZipFile(file);
-            for(Enumeration e=zf.entries(); e.hasMoreElements(); ) {
-                ZipEntry ze = (ZipEntry)e.nextElement();
-                String zn = ze.getName();
-                if( zn.endsWith(".html") || zn.endsWith(".htm") ) {
+            ZipFile zipFile = new ZipFile(file);
+            final Enumeration<? extends ZipEntry> zipFileEntryEnumeration = zipFile.entries();
+            while( zipFileEntryEnumeration.hasMoreElements() ) {
+                final ZipEntry zipFileEntry = zipFileEntryEnumeration.nextElement();
+                
+                final String zipFileEntryName = zipFileEntry.getName();
+                if( zipFileEntryName.endsWith(".html") || zipFileEntryName.endsWith(".htm") ) {
                     
-                    InputStream is = zf.getInputStream(ze);
-                    ByteArrayOutputStream out = new ByteArrayOutputStream((int)ze.getSize());
+                    InputStream zipFileEntryInputStream = zipFile.getInputStream(zipFileEntry);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream((int)zipFileEntry.getSize());
                     while( true ) {
-                        int len = is.read(zipData);
+                        int len = zipFileEntryInputStream.read(zipData);
                         if( len < 0 ) {
                             break;
                         }
-                        out.write(zipData, 0, len);
+                        byteArrayOutputStream.write(zipData, 0, len);
                     }
-                    is.close();
+                    zipFileEntryInputStream.close();
                     
-                    String htmlStr = new String(out.toByteArray(), "UTF-8").toLowerCase();
+                    String htmlStr = new String(byteArrayOutputStream.toByteArray(), "UTF-8").toLowerCase();
                     if( htmlStr.indexOf("http://") > -1 ||
                         htmlStr.indexOf("ftp://") > -1 ||
                         htmlStr.indexOf("nntp://") > -1 )
                     {
-                        logger.log(Level.SEVERE, "Unsecure HTML file in help.zip found: "+zn);
+                        logger.log(Level.SEVERE, "Unsecure HTML file in help.zip found: "+zipFileEntryName);
                         return isHtmlSecure;
                     }
                 }

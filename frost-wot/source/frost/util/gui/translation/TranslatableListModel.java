@@ -27,6 +27,7 @@ import javax.swing.*;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class TranslatableListModel extends DefaultListModel implements LanguageListener {
 
 	private Language language = null;

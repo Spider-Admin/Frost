@@ -29,6 +29,7 @@ import frost.gui.*;
 /**
  * Configure comment, rating and keywords for one or multiple FrostSharedFileItems. 
  */
+@SuppressWarnings("serial")
 public class SharedFilesPropertiesDialog extends JDialog {
 
     private JPanel jContentPane = null;

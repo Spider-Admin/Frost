@@ -109,7 +109,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private final JMenuItem MIremoveSelectedBoards = new JMenuItem();
 
     private BoardInfoTableModel boardTableModel = null;
-    private SortedTable boardTable = null;
+    private SortedTable<BoardInfoTableMember> boardTable = null;
 
     private void refreshLanguage() {
         setTitle(language.getString("BoardInfoFrame.title"));
@@ -178,7 +178,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private void Init() throws Exception {
 
         boardTableModel = new BoardInfoTableModel();
-        boardTable = new SortedTable(boardTableModel);
+        boardTable = new SortedTable<BoardInfoTableMember>(boardTableModel);
 
         //------------------------------------------------------------------------
         // Configure objects
@@ -340,7 +340,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             return;
         }
 
-        ((SortedTableModel)boardTable.getModel()).clearDataModel();
+        ((BoardInfoTableModel)boardTable.getModel()).clearDataModel();
 
         updateBoardInfoTableThread = new UpdateBoardInfoTableThread();
         updateBoardInfoTableThread.start();
@@ -594,6 +594,88 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
     }
 
+    static public class BoardInfoTableModel extends SortedTableModel<BoardInfoTableMember> implements LanguageListener
+    {
+        private Language language = null;
+
+        protected final static String columnNames[] = new String[8];
+
+        protected final static Class<?> columnClasses[] =  {
+            String.class,   // board name
+            String.class,   // board state
+            Integer.class,  // message count
+            Integer.class,  // today
+            Integer.class,  // flagged
+            Integer.class,  // starred
+            Integer.class,  // unread
+            String.class,   // date of last valid msg
+        };
+
+        public BoardInfoTableModel() {
+            super();
+            language = Language.getInstance();
+            refreshLanguage();
+        }
+
+        private void refreshLanguage() {
+            columnNames[0] = language.getString("BoardInfoFrame.table.board");
+            columnNames[1] = language.getString("BoardInfoFrame.table.state");
+            columnNames[2] = language.getString("BoardInfoFrame.table.messages");
+            columnNames[3] = language.getString("BoardInfoFrame.table.messagesToday");
+            columnNames[4] = language.getString("BoardInfoFrame.table.messagesFlagged");
+            columnNames[5] = language.getString("BoardInfoFrame.table.messagesStarred");
+            columnNames[6] = language.getString("BoardInfoFrame.table.messagesUnread");
+            columnNames[7] = language.getString("BoardInfoFrame.table.lastMsgDate");
+
+            fireTableStructureChanged();
+        }
+
+        /* (non-Javadoc)
+         * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+         */
+        public void languageChanged(final LanguageEvent event) {
+            refreshLanguage();
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#isCellEditable(int, int)
+         */
+        @Override
+        public boolean isCellEditable(final int row, final int col) {
+            return false;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnName(int)
+         */
+        @Override
+        public String getColumnName(final int column) {
+            if( column >= 0 && column < columnNames.length ) {
+                return columnNames[column];
+            }
+            return null;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnCount()
+         */
+        @Override
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnClass(int)
+         */
+        @Override
+        public Class<?> getColumnClass(final int column) {
+            if( column >= 0 && column < columnClasses.length ) {
+                return columnClasses[column];
+            }
+            return null;
+        }
+    }
+    
     private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer {
         final Font boldFont;
         final Font origFont;

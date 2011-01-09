@@ -25,6 +25,7 @@ import javax.swing.*;
 
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class FirstStartupDialog extends JDialog {
 
     private static Language language = Language.getInstance();

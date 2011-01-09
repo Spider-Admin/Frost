@@ -1103,9 +1103,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setBadButton.setEnabled( !(idState == IdentityState.BAD) );
                 setObserveButton.setEnabled( !(idState == IdentityState.OBSERVE) );
             }
-//            else {
-//                messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
-//            }
         }
     }
 
@@ -1413,14 +1410,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         final Board board = (Board) node;
         final LinkedList<FrostMessageObject> msgList = new LinkedList<FrostMessageObject>();
 
-        for(final Enumeration e = levelOneMsg.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-            if( mo.isNew() ) {
-                msgList.add(mo);
-                mo.setNew(false);
+        final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = levelOneMsg.depthFirstEnumeration();
+        while( frostMessageObjectEnumeration.hasMoreElements() ) {
+            final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+            
+            if( frostMessageObject.isNew() ) {
+                msgList.add(frostMessageObject);
+                frostMessageObject.setNew(false);
                 // don't update row when row is not shown, this corrupts treetable layout
-                if( MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().isVisible(new TreePath(mo.getPath())) ) {
-                    model.nodeChanged(mo);
+                if( MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().isVisible(new TreePath(frostMessageObject.getPath())) ) {
+                    model.nodeChanged(frostMessageObject);
                 }
                 board.decUnreadMessageCount();
             }
@@ -1566,9 +1565,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         } else if (node.isBoard()) {
             int allMessages = 0;
             final FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
-            for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                if( !mo.isDummy() ) {
+            
+            final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
+            while( frostMessageObjectEnumeration.hasMoreElements() ) {
+                if( !frostMessageObjectEnumeration.nextElement().isDummy() ) {
                     allMessages++;
                 }
             }
@@ -1622,13 +1622,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         final DefaultTreeModel model = getMessageTreeModel();
         final DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
 
-        for(final Enumeration e=rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            final Object o = e.nextElement();
-            if( !(o instanceof FrostMessageObject) ) {
+        for(final Enumeration<FrostMessageObject> e = rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+            final FrostMessageObject frostMessageObject = e.nextElement();
+            if( !(frostMessageObject instanceof FrostMessageObject) ) {
+            	logger.severe("frostMessageObject not of type FrostMessageObject");
                 continue;
             }
-            final FrostMessageObject message = (FrostMessageObject)o;
-            final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
+            final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(frostMessageObject);
             if( row >= 0 ) {
                 getMessageTableModel().fireTableRowsUpdated(row, row);
             }
@@ -1665,11 +1665,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             				break;
             			}
 
-            			final Enumeration children = message.children();
+            			final Enumeration<FrostMessageObject> children = message.children();
             			while( children.hasMoreElements() ) {
-                            final FrostMessageObject t = (FrostMessageObject) children.nextElement();
-            				if( !path_list.contains(t) ) {
-            					queue.add(t);
+                            final FrostMessageObject frostMessageObject = children.nextElement();
+            				if( !path_list.contains(frostMessageObject) ) {
+            					queue.add(frostMessageObject);
             				}
             			}
             		}
@@ -1677,16 +1677,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
         if( nextMessage == null ) {
-            for( final Enumeration e = ((DefaultMutableTreeNode) tableModel.getRoot()).depthFirstEnumeration();
-                 e.hasMoreElements(); )
-            {
-                final FrostMessageObject message = (FrostMessageObject) e.nextElement();
-                if( message.isNew() ) {
+        	final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = ((DefaultMutableTreeNode) tableModel.getRoot()).depthFirstEnumeration();
+            while( frostMessageObjectEnumeration.hasMoreElements() ) {
+                final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+                if( frostMessageObject.isNew() ) {
                     if( nextMessage == null ) {
-                        nextMessage = message;
+                        nextMessage = frostMessageObject;
                     } else {
-                        if( nextMessage.getDateAndTimeString().compareTo(message.getDateAndTimeString()) > 0 ) {
-                            nextMessage = message;
+                        if( nextMessage.getDateAndTimeString().compareTo(frostMessageObject.getDateAndTimeString()) > 0 ) {
+                            nextMessage = frostMessageObject;
                         }
                     }
                 }
@@ -1781,13 +1780,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             // update flagged/starred indicators in board tree
             boolean hasStarredWork = false;
             boolean hasFlaggedWork = false;
+            
             final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)firstMessage.getRoot();
-            for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                if( !hasStarredWork && mo.isStarred() ) {
+            final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
+            while( frostMessageObjectEnumeration.hasMoreElements()) {
+            	
+                final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+                if( !hasStarredWork && frostMessageObject.isStarred() ) {
                     hasStarredWork = true;
                 }
-                if( !hasFlaggedWork && mo.isFlagged() ) {
+                if( !hasFlaggedWork && frostMessageObject.isFlagged() ) {
                     hasFlaggedWork = true;
                 }
                 if( hasFlaggedWork && hasStarredWork ) {
@@ -1816,9 +1818,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setBadButton.setEnabled( false );
                 setObserveButton.setEnabled( true );
             }
-//            else {
-//                messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
-//            }
         }
 
         // save all changed messages

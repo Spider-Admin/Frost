@@ -45,6 +45,7 @@ import frost.util.gui.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 
     private static final Logger logger = Logger.getLogger(MessageFrame.class.getName());
@@ -819,7 +820,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     }
 
     protected void removeSelectedItemsFromTable( final JTable tbl ) {
-        final SortedTableModel m = (SortedTableModel)tbl.getModel();
+        final SortedTableModel<? extends TableMember> m = (SortedTableModel<? extends TableMember>)tbl.getModel();
         final int[] sel = tbl.getSelectedRows();
         for(int x=sel.length-1; x>=0; x--)
         {
@@ -842,7 +843,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
                 final int p1 = Math.max(caret.getDot(), caret.getMark());
 
                 final Document document = messageTextArea.getDocument();
-// FIXME: maybe check for a blank before insert of smiley text???
+                
+                // FIXME: maybe check for a blank before insert of smiley text???
                 if (document instanceof PlainDocument) {
                     ((PlainDocument) document).replace(p0, p1 - p0, chosedSmileyText, null);
                 } else {
@@ -1415,7 +1417,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedBoardsTable extends SortedTable {
+    private class MFAttachedBoardsTable extends SortedTable<MFAttachedBoard> {
         public MFAttachedBoardsTable(final MFAttachedBoardsTableModel m) {
             super(m);
             // set column sizes
@@ -1430,7 +1432,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedBoardsTableModel extends SortedTableModel {
+    private class MFAttachedBoardsTableModel extends SortedTableModel<MFAttachedBoard> {
         protected final Class<?> columnClasses[] = {
             String.class,
             String.class,
@@ -1497,8 +1499,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    @SuppressWarnings("serial")
-	private class MFAttachedFilesTable extends SortedTable {
+	private class MFAttachedFilesTable extends SortedTable<MFAttachedFile> {
         public MFAttachedFilesTable(final MFAttachedFilesTableModel m) {
             super(m);
             
@@ -1515,7 +1516,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedFilesTableModel extends SortedTableModel {
+    private class MFAttachedFilesTableModel extends SortedTableModel<MFAttachedFile> {
     	
         protected final Class<?> columnClasses[] = {
             String.class,

@@ -68,6 +68,7 @@ import frost.util.gui.*;
  * @author Philip Milne
  * @author Scott Violet
  */
+@SuppressWarnings("serial")
 public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     private static final Logger logger = Logger.getLogger(MessageTreeTable.class.getName());
@@ -244,16 +245,17 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     public void expandFirework(final DefaultMutableTreeNode node) {
 		if( SwingUtilities.isEventDispatchThread() ) {
 			// Expand all child nodes
-            for (final Enumeration e = node.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                DefaultMutableTreeNode n = (DefaultMutableTreeNode)e.nextElement();
+			final Enumeration<DefaultMutableTreeNode> defaultMutableTreeNodeEnumeration = node.depthFirstEnumeration();
+            while( defaultMutableTreeNodeEnumeration.hasMoreElements() ) {
+                DefaultMutableTreeNode defaultMutableTreeNode = defaultMutableTreeNodeEnumeration.nextElement();
 
-            	if (!n.isLeaf()) {
+            	if (!defaultMutableTreeNode.isLeaf()) {
             		continue;
             	}
 
-				n = (DefaultMutableTreeNode)n.getParent();
-				if (!n.isRoot()) {
-					tree.expandPath(new TreePath(n.getPath()));
+				defaultMutableTreeNode = (DefaultMutableTreeNode)defaultMutableTreeNode.getParent();
+				if (!defaultMutableTreeNode.isRoot()) {
+					tree.expandPath(new TreePath(defaultMutableTreeNode.getPath()));
 				}
             }
 
@@ -279,10 +281,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         // Traverse children
         final TreeNode node = (TreeNode)parent.getLastPathComponent();
         if (node.getChildCount() >= 0) {
-            for (final Enumeration e=node.children(); e.hasMoreElements(); ) {
-                final TreeNode n = (TreeNode)e.nextElement();
-                final TreePath path = parent.pathByAddingChild(n);
-                expandAll(path, expand);
+        	final Enumeration<TreeNode> textNodeEnumeration = node.children();
+            while( textNodeEnumeration.hasMoreElements() ) {
+                expandAll(parent.pathByAddingChild(textNodeEnumeration.nextElement()), expand);
             }
         }
 
@@ -308,9 +309,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     		return;
 		}
 
-		for (final Enumeration e = root.children(); e.hasMoreElements(); ) {
-			final DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.nextElement();
-			final TreePath path = new TreePath(node.getPath());
+    	final Enumeration<DefaultMutableTreeNode> e = root.children();
+		while( e.hasMoreElements() ) {
+			final TreePath path = new TreePath(e.nextElement().getPath());
 
 			expandAll(path, true);
 			tree.collapsePath(path);
@@ -430,7 +431,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     /**
      * A TreeCellRenderer that displays a JTree.
      */
-    public class TreeTableCellRenderer extends JTree implements TableCellRenderer {
+	public class TreeTableCellRenderer extends JTree implements TableCellRenderer {
     	/** Last table/tree row asked to renderer. */
     	protected int visibleRow;
 
@@ -683,7 +684,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
          * a change in the ListSelectionModel happens, the paths are updated
          * in the DefaultTreeSelectionModel.
          */
-        class ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel {
+		class ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel {
     	/** Set to true when we are updating the ListSelectionModel. */
     	protected boolean         updatingListSelectionModel;
 
@@ -773,7 +774,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	}
     }
 
-    private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
+	private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
 
         public BooleanCellRenderer() {
             super();
@@ -846,7 +847,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * New messages gets a bold look, messages with attachments a blue color.
      * Encrypted messages get a red color, no matter if they have attachments.
      */
-    private class StringCellRenderer extends DefaultTableCellRenderer {
+	private class StringCellRenderer extends DefaultTableCellRenderer {
 
         private Font boldFont;
         private Font boldItalicFont;
@@ -1018,7 +1019,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
     }
 
-    public class TreeTableCellEditor extends DefaultCellEditor {
+	public class TreeTableCellEditor extends DefaultCellEditor {
         public TreeTableCellEditor() {
             super(new JCheckBox());
         }

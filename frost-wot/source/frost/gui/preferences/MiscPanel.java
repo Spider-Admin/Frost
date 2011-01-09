@@ -28,6 +28,7 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 class MiscPanel extends JPanel {
 
     private class Listener implements ActionListener {

@@ -24,6 +24,7 @@ import javax.swing.table.*;
 /**
  * @author <a href="mailto:droden@gmail.com">David Roden</a>, ET
  */
+@SuppressWarnings("serial")
 public class FileProgressBar extends JPanel implements TableCellRenderer {
     
 //    public interface IFileProgress {

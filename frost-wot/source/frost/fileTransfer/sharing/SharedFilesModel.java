@@ -43,20 +43,8 @@ public class SharedFilesModel extends SortedModel<FrostSharedFileItem> implement
 
     Timer timer;
 
-    public SharedFilesModel(final SortedTableFormat f) {
+    public SharedFilesModel(final SortedTableFormat<FrostSharedFileItem> f) {
         super(f);
-//        timer = new Timer();
-//        TimerTask tt = new TimerTask() {
-//            public void run() {
-//                for (int x = 0; x < getItemCount(); x++) {
-//                    FrostSharedFileItem item = (FrostSharedFileItem) getItemAt(x);
-//                    if( !item.getFile().isFile()
-//                            || item.getFile().length() !=
-//                }
-//            }
-//        };
-//        // check for not existing files all 5 minutes
-//        timer.schedule(tt, 5L*60L, 5L*60L);
     }
 
     /**

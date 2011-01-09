@@ -147,7 +147,8 @@ public class SortedTable<T extends TableMember> extends JTable
         return this;
     }
     
-    public SortedTableModel<T> getModel() {
+    @SuppressWarnings("unchecked")
+	public SortedTableModel<T> getModel() {
     	return (SortedTableModel<T>) super.getModel();
     }
     

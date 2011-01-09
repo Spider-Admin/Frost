@@ -27,6 +27,7 @@ import javax.swing.text.html.*;
  * 
  * @author notitaccu
  */
+@SuppressWarnings("serial")
 public class HelpHTMLDocument extends HTMLDocument {
 
 //    private String url_prefix;

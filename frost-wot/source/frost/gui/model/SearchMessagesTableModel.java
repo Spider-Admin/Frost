@@ -18,9 +18,11 @@
 */
 package frost.gui.model;
 
+import frost.messaging.frost.FrostSearchResultMessageObject;
 import frost.util.gui.translation.*;
 
-public class SearchMessagesTableModel extends SortedTableModel implements LanguageListener {
+@SuppressWarnings("serial")
+public class SearchMessagesTableModel extends SortedTableModel<FrostSearchResultMessageObject> implements LanguageListener {
 
     private Language language = null;
 

@@ -26,6 +26,7 @@ import javax.swing.table.*;
 /**
  * Renderer to use an icon in table header.
  */
+@SuppressWarnings("serial")
 public class IconTableHeaderRenderer extends JLabel implements TableCellRenderer {
 
     public IconTableHeaderRenderer(final ImageIcon i) {

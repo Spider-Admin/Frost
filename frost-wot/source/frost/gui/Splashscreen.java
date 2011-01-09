@@ -43,6 +43,7 @@ import frost.util.gui.*;
  * Update: it seems the problem lies on the com.sun.java.swing.plaf.windows.WindowsLookAndFeel. If the user chooses
  * another one (like Metal) from the command line options, the issue is solved.
  */
+@SuppressWarnings("serial")
 public class Splashscreen extends JDialog {
 
     private static String SPLASH_LOGO_FILENAME = "/data/splash.png";

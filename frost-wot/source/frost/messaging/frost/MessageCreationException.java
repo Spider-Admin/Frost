@@ -22,6 +22,7 @@ package frost.messaging.frost;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class MessageCreationException extends Exception {
 
 	private boolean empty = false;

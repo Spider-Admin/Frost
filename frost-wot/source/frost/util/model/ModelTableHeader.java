@@ -30,7 +30,8 @@ import javax.swing.table.*;
  * It does nothing with them, but provides a couple of methods (headerClicked 
  * and headerReleased) that subclasses can override as necessary.
  */
-public class ModelTableHeader extends JTableHeader {
+@SuppressWarnings("serial")
+abstract public class ModelTableHeader extends JTableHeader {
 
 	/**
 	 * This inner class is the popup menu that will be shown to let the user choose
@@ -44,14 +45,12 @@ public class ModelTableHeader extends JTableHeader {
 		@Override
         public void show(Component invoker, int x, int y) {
 			removeAll();
-			Iterator columns = modelTable.getColumns();
+			Iterator<TableColumn> columns = modelTable.getColumns();
 			int i = 0;
 			int shownColumns = 0;
 			JCheckBoxMenuItem lastShownItem = null;
 			while (columns.hasNext()) {
-				TableColumn column = (TableColumn) columns.next();
-				JCheckBoxMenuItem menuItem =
-					new JCheckBoxMenuItem(column.getIdentifier().toString());
+				JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(columns.next().getIdentifier().toString());
 				if (modelTable.isColumnVisible(i)) {
 					menuItem.setSelected(true);
 					shownColumns++;
@@ -118,7 +117,7 @@ public class ModelTableHeader extends JTableHeader {
 
 	private Listener listener = new Listener();
 
-	private ModelTable modelTable;
+	private ModelTable<? extends ModelItem> modelTable;
 
 	private ColumnsPopupMenu popup;
 
@@ -127,7 +126,7 @@ public class ModelTableHeader extends JTableHeader {
 	 * to the ModelTable that is passed as a parameter.
 	 * @param cm the ModelTable that is going to have this header
 	 */
-	public ModelTableHeader(ModelTable newModelTable) {
+	public ModelTableHeader(ModelTable<? extends ModelItem> newModelTable) {
 		super(newModelTable.getTable().getColumnModel());
 
 		modelTable = newModelTable;

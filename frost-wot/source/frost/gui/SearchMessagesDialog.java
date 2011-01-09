@@ -38,6 +38,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.gui.tristatecheckbox.*;
 
+@SuppressWarnings("serial")
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     private final Language language = Language.getInstance();
@@ -1837,4 +1838,6 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         return Bhelp;
     }
+    
+  
 }  //  @jve:decl-index=0:visual-constraint="10,10"

@@ -25,6 +25,7 @@ import org.xml.sax.*;
 
 import frost.util.*;
 
+@SuppressWarnings("serial")
 public class FileAttachment extends Attachment implements CopyToClipboardItem {
 
     private File file = null;

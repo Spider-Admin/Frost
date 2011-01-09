@@ -29,6 +29,7 @@ public class ScrollableBarUI extends ComponentUI
     return new ScrollableBarUI();
   }
 
+@SuppressWarnings("serial")
 @Override
 public void installUI(final JComponent c) {
 

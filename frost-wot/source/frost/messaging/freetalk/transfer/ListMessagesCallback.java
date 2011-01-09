@@ -162,20 +162,21 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
         boolean foundParent = false;
         do {
             foundParent = false;
-            for (final Iterator<FreetalkMessage> i = msgList.iterator(); i.hasNext(); ) {
+            final Iterator<FreetalkMessage> freetalkMessageIterator = msgList.iterator();
+            while( freetalkMessageIterator.hasNext()) {
 
-                final FreetalkMessage newMsg = i.next();
+                final FreetalkMessage newMsg = freetalkMessageIterator.next();
                 final String parentMsgIdString = newMsg.getParentMsgID();
                 // find parent
-                final Enumeration e = rootNode.breadthFirstEnumeration();
-INNER_LOOP:
+                final Enumeration<FreetalkMessage> e = rootNode.breadthFirstEnumeration();
                 while (e.hasMoreElements()) {
-                    final FreetalkMessage m = (FreetalkMessage) e.nextElement();
-                    if (parentMsgIdString.equals(m.getMsgId())) {
-                        i.remove();
-                        m.add(newMsg, false);
+                	
+                    final FreetalkMessage freetalkMessage =  e.nextElement();
+                    if (parentMsgIdString.equals(freetalkMessage.getMsgId())) {
+                        freetalkMessageIterator.remove();
+                        freetalkMessage.add(newMsg, false);
                         foundParent = true;
-                        break INNER_LOOP;
+                        break;
                     }
                 }
             }

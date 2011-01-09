@@ -32,6 +32,7 @@ import javax.swing.text.*;
 
 //@author Santhosh Kumar T - santhosh@in.fiorano.com
 // source: http://jroller.com/page/santhosh?entry=incremental_search_jtextcomponent
+@SuppressWarnings("serial")
 public class TextComponentFindAction extends FindAction implements FocusListener{
 
     // 1. inits searchField with selected text

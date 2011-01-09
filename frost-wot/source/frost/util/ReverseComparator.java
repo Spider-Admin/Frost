@@ -24,14 +24,14 @@ import java.util.*;
  * This class implements a comparator that is the reverse of the one passed as the
  * parameter of the constructor.
  */
-public class ReverseComparator implements Comparator {
+public class ReverseComparator<T> implements Comparator<T> {
 
-	private Comparator delegate;
+	private Comparator<T> delegate;
 
 	/**
 	 * @param newDelegate 
 	 */
-	public ReverseComparator(Comparator newDelegate) {
+	public ReverseComparator(Comparator<T> newDelegate) {
 		super();
 		delegate = newDelegate;
 	}
@@ -39,7 +39,7 @@ public class ReverseComparator implements Comparator {
 	/* (non-Javadoc)
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(Object o1, Object o2) {
+	public int compare(T o1, T o2) {
 		return -delegate.compare(o1, o2);
 	}
 

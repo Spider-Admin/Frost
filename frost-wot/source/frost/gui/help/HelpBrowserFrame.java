@@ -27,6 +27,7 @@ import javax.swing.*;
 import frost.*;
 import frost.util.gui.*;
 
+@SuppressWarnings("serial")
 public class HelpBrowserFrame extends JFrame {
 
   private static final Logger logger = Logger.getLogger(HelpBrowserFrame.class.getName());

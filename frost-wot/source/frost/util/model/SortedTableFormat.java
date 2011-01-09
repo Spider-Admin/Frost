@@ -25,7 +25,7 @@ import frost.util.*;
 public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTableFormat<T> {
 
 	private List<Comparator<T>> comparators;
-	private ReverseComparator[] reverseComparators;
+	private List<ReverseComparator<T>> reverseComparators;
 
 	protected SortedTableFormat(int newColumnCount) {
 		super(newColumnCount);
@@ -33,7 +33,10 @@ public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTab
 		for(int i = 0; i < newColumnCount; i++) {
 			comparators.add(null);
 		}
-		reverseComparators = new ReverseComparator[newColumnCount];
+		reverseComparators = new ArrayList<ReverseComparator<T>>(newColumnCount);
+		for(int i = 0; i < newColumnCount; i++) {
+			reverseComparators.add(null);
+		}
 	}
 	
 	/**
@@ -42,7 +45,7 @@ public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTab
 	 */
 	public void setComparator(Comparator<T> comparator, int columnNumber) {
 		comparators.set(columnNumber, comparator);
-		reverseComparators[columnNumber] = new ReverseComparator(comparator);
+		reverseComparators.set(columnNumber, new ReverseComparator<T>(comparator));
 	}
 	
 	/**
@@ -57,8 +60,8 @@ public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTab
 	 * @param columnNumber
 	 * @return
 	 */
-	public ReverseComparator getReverseComparator(int columnNumber) {
-		return reverseComparators[columnNumber];
+	public ReverseComparator<T> getReverseComparator(int columnNumber) {
+		return reverseComparators.get(columnNumber);
 	}
 
 }

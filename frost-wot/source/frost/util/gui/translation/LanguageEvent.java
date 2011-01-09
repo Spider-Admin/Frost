@@ -25,6 +25,7 @@ import java.util.*;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class LanguageEvent extends EventObject {
 
 	/**

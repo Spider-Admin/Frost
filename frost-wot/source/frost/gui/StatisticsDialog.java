@@ -25,6 +25,7 @@ import javax.swing.*;
 
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class StatisticsDialog extends JDialog {
 
     private JPanel jContentPane = null;

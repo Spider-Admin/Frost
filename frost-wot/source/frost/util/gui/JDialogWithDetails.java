@@ -36,6 +36,7 @@ import frost.util.gui.translation.*;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class JDialogWithDetails extends JDialog {
 	
 	private class Listener extends WindowAdapter implements ActionListener {

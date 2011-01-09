@@ -271,7 +271,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 		loadTrackedDownloadsIntoTable();
 	}
 	
-	private static class TrackedDownloadsModel extends SortedTableModel {
+	private static class TrackedDownloadsModel extends SortedTableModel<TrackedDownloadTableMember> {
 		private static final long serialVersionUID = 1L;
 
 		private Language language = null;
@@ -386,7 +386,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 	}
 	
 	
-	private class TrackedDownloadsTable extends SortedTable {
+	private class TrackedDownloadsTable extends SortedTable<TrackedDownloadTableMember> {
 		private static final long serialVersionUID = 1L;
 		
 		final TableCellRenderer sizeColumnRenderer;

@@ -9,6 +9,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class ScrollButton extends JButton {
 
   private int direction;

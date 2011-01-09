@@ -43,6 +43,7 @@ import javax.swing.*;
 /**
  * Tracks Memory allocated & used, displayed in graph form.
  */
+@SuppressWarnings("serial")
 public class MemoryMonitor extends JPanel {
 
     public Surface surf;

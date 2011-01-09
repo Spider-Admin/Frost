@@ -29,6 +29,7 @@ import javax.swing.text.*;
  * Own hyperlink event containing the mouse position.
  * Needed to show a popup menu on the clicked point.
  */
+@SuppressWarnings("serial")
 public class MouseHyperlinkEvent extends HyperlinkEvent {
     
     MouseEvent mouseEvent;

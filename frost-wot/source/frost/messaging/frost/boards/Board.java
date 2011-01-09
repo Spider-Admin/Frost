@@ -31,6 +31,7 @@ import frost.util.gui.translation.*;
 /**
  * Represents a board in the board tree.
  */
+@SuppressWarnings("serial")
 public class Board extends AbstractNode {
 
     private static Language language = Language.getInstance();

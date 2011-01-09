@@ -28,6 +28,7 @@ import javax.swing.event.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class NewBoardDialog extends JDialog {
     
     private class Listener implements DocumentListener, ActionListener {

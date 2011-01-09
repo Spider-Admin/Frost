@@ -42,13 +42,14 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class IdentitiesBrowser extends JDialog {
 
     private Language language = null;
 
     private JPanel jContentPane = null;
     private JScrollPane jScrollPane = null;
-    private SortedTable identitiesTable = null;
+    private SortedTable<InnerTableMember> identitiesTable = null;
     private JPanel buttonPanel = null;
     private JPanel mainPanel = null;
     private JButton Bclose = null;
@@ -191,10 +192,10 @@ public class IdentitiesBrowser extends JDialog {
      *
      * @return javax.swing.JTable
      */
-    private SortedTable getIdentitiesTable() {
+    private SortedTable<InnerTableMember> getIdentitiesTable() {
         if( identitiesTable == null ) {
             tableModel = new InnerTableModel();
-            identitiesTable = new SortedTable(tableModel);
+            identitiesTable = new SortedTable<InnerTableMember>(tableModel);
             // set column sizes
             final int[] widths = { 130, 30, 30, 70, 20, 20 };
             for (int i = 0; i < widths.length; i++) {
@@ -670,7 +671,7 @@ public class IdentitiesBrowser extends JDialog {
         }
     }
 
-    public class InnerTableModel extends SortedTableModel {
+    public class InnerTableModel extends SortedTableModel<InnerTableMember> {
 
         protected final String columnNames[] = new String[6];
 

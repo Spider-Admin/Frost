@@ -29,6 +29,7 @@ import javax.swing.plaf.*;
  * Derived from  The Java Specialists' Newsletter Issue 145 (2007-05-25)
  * by Dr. Heinz M. Kabutz
  */
+@SuppressWarnings("serial")
 public final class TristateCheckBox extends JCheckBox {
 
     // Listener on model changes to maintain correct focusability

@@ -28,6 +28,7 @@ import frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 class UploadPanel extends JPanel {
 
     public class Listener implements ActionListener {
@@ -70,7 +71,6 @@ class UploadPanel extends JPanel {
     protected UploadPanel(final SettingsClass settings) {
         super();
 
-        this.owner = owner;
         this.language = Language.getInstance();
         this.settings = settings;
 

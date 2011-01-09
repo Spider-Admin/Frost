@@ -22,6 +22,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 //@author Santhosh Kumar T - santhosh@in.fiorano.com 
+@SuppressWarnings("serial")
 public class TableFindAction extends FindAction{ 
  
     @Override

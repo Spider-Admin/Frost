@@ -26,6 +26,7 @@ import frost.*;
 import frost.identities.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class SharedFilesOwnerDialog extends JDialog {
 
     public static int OK = 1;

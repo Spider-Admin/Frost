@@ -32,6 +32,7 @@ import frost.*;
 import frost.identities.*;
 import frost.util.*;
 
+@SuppressWarnings("serial")
 public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
     private static final Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
@@ -152,21 +153,26 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         allContent.append(getSubject()).append(escapeChar);
         allContent.append(getContent()).append(escapeChar);
         // attachments
-        for(final Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
-            final Attachment a = (Attachment)it.next();
-            if( a.getType() == Attachment.BOARD ) {
-                final BoardAttachment ba = (BoardAttachment)a;
-                allContent.append( ba.getBoardObj().getBoardFilename() ).append(escapeChar);
-                if( ba.getBoardObj().getPublicKey() != null ) {
-                    allContent.append( ba.getBoardObj().getPublicKey() ).append(escapeChar);
+        for(final Iterator<Attachment> attachmentIterator = getAttachmentList().iterator(); attachmentIterator.hasNext(); ) {
+            final Attachment attachment = attachmentIterator.next();
+            
+            if( attachment.getType() == Attachment.BOARD ) {
+                final BoardAttachment boardAttachment = (BoardAttachment)attachment;
+                
+                allContent.append( boardAttachment.getBoardObj().getBoardFilename() ).append(escapeChar);
+                
+                if( boardAttachment.getBoardObj().getPublicKey() != null ) {
+                    allContent.append( boardAttachment.getBoardObj().getPublicKey() ).append(escapeChar);
                 }
-                if( ba.getBoardObj().getPrivateKey() != null ) {
-                    allContent.append( ba.getBoardObj().getPrivateKey() ).append(escapeChar);
+                
+                if( boardAttachment.getBoardObj().getPrivateKey() != null ) {
+                    allContent.append( boardAttachment.getBoardObj().getPrivateKey() ).append(escapeChar);
                 }
-            } else if( a.getType() == Attachment.FILE ) {
-                final FileAttachment fa = (FileAttachment)a;
-                allContent.append( fa.getFilename() ).append(escapeChar);
-                allContent.append( fa.getKey() ).append(escapeChar);
+                
+            } else if( attachment.getType() == Attachment.FILE ) {
+                final FileAttachment fileAttachment = (FileAttachment)attachment;
+                allContent.append( fileAttachment.getFilename() ).append(escapeChar);
+                allContent.append( fileAttachment.getKey() ).append(escapeChar);
             }
         }
         return allContent.toString();
@@ -595,16 +601,18 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             if (!getFromName().equals(otherMsg.getFromName())) {
                 return false;
             }
-            final AttachmentList attachments1 = otherMsg.getAttachmentList();
-            final AttachmentList attachments2 = getAttachmentList();
+            
+            final AttachmentList<Attachment> attachments1 = otherMsg.getAttachmentList();
+            final AttachmentList<Attachment> attachments2 = getAttachmentList();
             if (attachments1.size() != attachments2.size()) {
                 return false;
             }
-            final Iterator iterator1 = attachments1.iterator();
-            final Iterator iterator2 = attachments2.iterator();
+            
+            final Iterator<Attachment> iterator1 = attachments1.iterator();
+            final Iterator<Attachment> iterator2 = attachments2.iterator();
             while (iterator1.hasNext()) {
-                final Attachment attachment1 = (Attachment) iterator1.next();
-                final Attachment attachment2 = (Attachment) iterator2.next();
+                final Attachment attachment1 = iterator1.next();
+                final Attachment attachment2 = iterator2.next();
                 if (attachment1.compareTo(attachment2) != 0) {
                     return false;
                 }

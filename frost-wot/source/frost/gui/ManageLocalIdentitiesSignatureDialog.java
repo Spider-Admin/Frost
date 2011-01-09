@@ -26,6 +26,7 @@ import frost.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class ManageLocalIdentitiesSignatureDialog extends JDialog {
 
     private Language language = Language.getInstance();

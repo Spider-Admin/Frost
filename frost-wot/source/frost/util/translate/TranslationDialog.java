@@ -29,6 +29,7 @@ import frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class TranslationDialog extends JFrame {
 
     private JPanel jContentPane = null;

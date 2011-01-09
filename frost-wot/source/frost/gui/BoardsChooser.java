@@ -31,6 +31,7 @@ import javax.swing.table.*;
 import frost.messaging.frost.boards.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class BoardsChooser extends JDialog {
 
     private final Language language = Language.getInstance();

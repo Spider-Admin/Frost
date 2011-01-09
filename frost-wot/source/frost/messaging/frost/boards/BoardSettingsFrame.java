@@ -33,6 +33,7 @@ import frost.util.gui.translation.*;
 /**
  * Settingsdialog for a single Board or a folder.
  */
+@SuppressWarnings("serial")
 public class BoardSettingsFrame extends JDialog {
 
 //  private static final Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());

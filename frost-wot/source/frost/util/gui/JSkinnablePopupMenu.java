@@ -23,6 +23,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class JSkinnablePopupMenu extends JPopupMenu {
 
 	/*

@@ -65,6 +65,7 @@ import frost.util.gui.*;
  * @author Philip Milne
  * @author Scott Violet
  */
+@SuppressWarnings("serial")
 public class FreetalkMessageTreeTable extends JTable implements PropertyChangeListener {
 
 //    private static final Logger logger = Logger.getLogger(FreetalkMessageTreeTable.class.getName());

@@ -24,6 +24,7 @@ import javax.swing.text.html.*;
 /**
  * @author notitaccu
  */
+@SuppressWarnings("serial")
 public class HelpHTMLEditorKit extends HTMLEditorKit {
 
 //    private static final Logger logger = Logger.getLogger(HelpHTMLEditorKit.class.getName());

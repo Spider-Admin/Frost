@@ -22,6 +22,7 @@ import java.util.*;
 
 import javax.swing.text.*;
 
+@SuppressWarnings("serial")
 public class ImmutableAreasDocument extends PlainDocument {
 
 	private final ArrayList<ImmutableArea> immutableAreas = new ArrayList<ImmutableArea>();

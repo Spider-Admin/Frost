@@ -30,6 +30,7 @@ import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class SearchPanel extends JPanel implements LanguageListener {
 
     private final Language language = Language.getInstance();

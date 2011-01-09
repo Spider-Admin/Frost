@@ -23,6 +23,9 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import frost.gui.model.TableMember;
+
+@SuppressWarnings("serial")
 public class SortHeaderRenderer extends DefaultTableCellRenderer
 {
     static class SortArrowIcon implements Icon
@@ -96,14 +99,15 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer
      *
      * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
         TableCellRenderer defaultRenderer = table.getTableHeader().getDefaultRenderer();
 
         if (defaultRenderer == null) {
             //No default renderer is set for the JTableHeader. We are on our own.
             if (table instanceof SortedTable) {
-                Icon icon = getArrow((SortedTable)table, col);
+                Icon icon = getArrow((SortedTable<? extends TableMember>)table, col);
                 setIcon(icon);
             }
             setText((value == null) ? "" : value.toString());
@@ -113,7 +117,7 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer
         } else if (defaultRenderer instanceof JLabel) {
             // There is a default renderer set for the JTableHeader and it is a JLabel.
             if (table instanceof SortedTable) {
-                Icon icon = getArrow((SortedTable)table, col);
+                Icon icon = getArrow((SortedTable<? extends TableMember>)table, col);
                 ((JLabel) defaultRenderer).setIcon(icon);
             }
         }
@@ -126,7 +130,7 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer
      * @param col
      * @return
      */
-    private Icon getArrow(SortedTable table, int col) {
+    private Icon getArrow(SortedTable<? extends TableMember> table, int col) {
         int index = -1;
         int modelIndex = -1;
         boolean ascending = true;

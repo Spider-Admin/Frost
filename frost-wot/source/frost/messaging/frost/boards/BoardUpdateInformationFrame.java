@@ -41,6 +41,7 @@ import frost.*;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
+@SuppressWarnings("serial")
 public class BoardUpdateInformationFrame extends javax.swing.JFrame implements BoardUpdateThreadListener, TreeSelectionListener {
 
     private JComboBox cbBoards;

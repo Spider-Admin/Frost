@@ -23,6 +23,7 @@ import javax.swing.text.*;
 import javax.swing.tree.*;
 
 //@author Santhosh Kumar T - santhosh@in.fiorano.com 
+@SuppressWarnings("serial")
 public class TreeFindAction extends FindAction{ 
     @Override
     protected boolean changed(JComponent comp2, String searchString, Position.Bias bias){ 

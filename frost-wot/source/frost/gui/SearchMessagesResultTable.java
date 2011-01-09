@@ -29,7 +29,8 @@ import frost.gui.model.*;
 import frost.messaging.frost.*;
 import frost.util.gui.*;
 
-public class SearchMessagesResultTable extends SortedTable {
+@SuppressWarnings("serial")
+public class SearchMessagesResultTable extends SortedTable<FrostSearchResultMessageObject> {
 
     private final CellRenderer cellRenderer = new CellRenderer();
     private final BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();

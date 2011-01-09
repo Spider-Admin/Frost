@@ -44,6 +44,7 @@ import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class FreetalkMessagePanel extends JPanel implements PropertyChangeListener {
 
     private FreetalkMessageTreeTable messageTable = null;
@@ -1354,14 +1355,14 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         final FreetalkBoard board = (FreetalkBoard) node;
         final LinkedList<FrostMessageObject> msgList = new LinkedList<FrostMessageObject>();
 
-        for(final Enumeration e = levelOneMsg.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-            if( mo.isNew() ) {
-                msgList.add(mo);
-                mo.setNew(false);
+        for(final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = levelOneMsg.depthFirstEnumeration(); frostMessageObjectEnumeration.hasMoreElements(); ) {
+            final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+            if( frostMessageObject.isNew() ) {
+                msgList.add(frostMessageObject);
+                frostMessageObject.setNew(false);
                 // don't update row when row is not shown, this corrupts treetable layout
-                if( MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().isVisible(new TreePath(mo.getPath())) ) {
-                    model.nodeChanged(mo);
+                if( MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().isVisible(new TreePath(frostMessageObject.getPath())) ) {
+                    model.nodeChanged(frostMessageObject);
                 }
 //                board.decUnreadMessageCount();
             }
@@ -1555,18 +1556,18 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         if( node == null || !node.isBoard() ) {
             return;
         }
-        final FreetalkBoard board = (FreetalkBoard) node;
         // a board is selected and shown
         final DefaultTreeModel model = getMessageTreeModel();
         final DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
 
-        for(final Enumeration e=rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            final Object o = e.nextElement();
-            if( !(o instanceof FreetalkMessage) ) {
+        final Enumeration<FreetalkMessage> freetalkMessageEnumeration = rootnode.depthFirstEnumeration();
+        while( freetalkMessageEnumeration.hasMoreElements() ) {
+            final FreetalkMessage freetalkMessage = freetalkMessageEnumeration.nextElement();
+            if( !(freetalkMessage instanceof FreetalkMessage) ) {
+            	logger.severe("freetalkMessage nor of type FreetalkMessage");
                 continue;
             }
-            final FreetalkMessage message = (FreetalkMessage)o;
-            final int row = MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().getRowForNode(message);
+            final int row = MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().getRowForNode(freetalkMessage);
             if( row >= 0 ) {
                 getMessageTableModel().fireTableRowsUpdated(row, row);
             }
@@ -1720,12 +1721,12 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             boolean hasStarredWork = false;
             boolean hasFlaggedWork = false;
             final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)firstMessage.getRoot();
-            for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                if( !hasStarredWork && mo.isStarred() ) {
+            for(final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration(); frostMessageObjectEnumeration.hasMoreElements(); ) {
+                final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+                if( !hasStarredWork && frostMessageObject.isStarred() ) {
                     hasStarredWork = true;
                 }
-                if( !hasFlaggedWork && mo.isFlagged() ) {
+                if( !hasFlaggedWork && frostMessageObject.isFlagged() ) {
                     hasFlaggedWork = true;
                 }
                 if( hasFlaggedWork && hasStarredWork ) {

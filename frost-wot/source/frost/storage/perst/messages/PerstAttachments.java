@@ -31,23 +31,24 @@ public class PerstAttachments extends Persistent {
 
     public PerstAttachments() {}
 
-    public PerstAttachments(final Storage store, final AttachmentList boards, final AttachmentList files) {
+    public PerstAttachments(final Storage store, final AttachmentList<BoardAttachment> boardAttachmentList, final AttachmentList<FileAttachment> fileAttachmentList) {
 
-        if( boards != null && boards.size() > 0 ) {
-            boardAttachments = store.createScalableList(boards.size());
-            for( final Iterator i=boards.iterator(); i.hasNext(); ) {
-                final BoardAttachment ba = (BoardAttachment)i.next();
-                final PerstBoardAttachment pba = new PerstBoardAttachment(ba);
+        if( boardAttachmentList != null && boardAttachmentList.size() > 0 ) {
+            boardAttachments = store.createScalableList(boardAttachmentList.size());
+            final Iterator<BoardAttachment> boardAttachmentIterator = boardAttachmentList.iterator();
+            while(  boardAttachmentIterator.hasNext() ) {
+                final PerstBoardAttachment pba = new PerstBoardAttachment(boardAttachmentIterator.next());
                 boardAttachments.add(pba);
             }
         } else {
             boardAttachments = null;
         }
 
-        if( files != null && files.size() > 0 ) {
-            fileAttachments = store.createScalableList(files.size());
-            for( final Iterator i=files.iterator(); i.hasNext(); ) {
-                final FileAttachment ba = (FileAttachment)i.next();
+        if( fileAttachmentList != null && fileAttachmentList.size() > 0 ) {
+            fileAttachments = store.createScalableList(fileAttachmentList.size());
+            final Iterator<FileAttachment> fileAttachmentIterator = fileAttachmentList.iterator();
+            while(  fileAttachmentIterator.hasNext() ) {
+                final FileAttachment ba = (FileAttachment)fileAttachmentIterator.next();
                 final PerstFileAttachment pba = new PerstFileAttachment(ba);
                 fileAttachments.add(pba);
             }

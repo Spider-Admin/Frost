@@ -31,6 +31,7 @@ import frost.util.gui.translation.*;
 /**
  * This class let the user choose a folder from the folders in tofTree.
  */
+@SuppressWarnings("serial")
 public class TargetFolderChooser extends JDialog {
 
     private JPanel jContentPane = null;

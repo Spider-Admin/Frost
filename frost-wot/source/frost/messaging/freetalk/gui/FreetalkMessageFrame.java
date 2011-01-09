@@ -1264,8 +1264,8 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
 
         public int compareTo( final TableMember anOther, final int tableColumIndex ) {
-            final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+            final Comparable c1 = getValueAt(tableColumIndex);
+            final Comparable c2 = anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
 

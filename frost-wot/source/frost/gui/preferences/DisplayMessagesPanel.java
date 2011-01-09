@@ -28,6 +28,7 @@ import frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class DisplayMessagesPanel extends JPanel {
 
     private class Listener implements ChangeListener {

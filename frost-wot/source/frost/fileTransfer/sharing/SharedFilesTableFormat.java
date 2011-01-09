@@ -32,7 +32,7 @@ import frost.util.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
-class SharedFilesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener  {
+class SharedFilesTableFormat extends SortedTableFormat<FrostSharedFileItem> implements LanguageListener, PropertyChangeListener  {
 
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "SharedFilesTable.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "SharedFilesTable.sortState.sortedAscending";
@@ -48,7 +48,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     
     private boolean showColoredLines;
     
-    SortedModelTable modelTable;
+    SortedModelTable<FrostSharedFileItem> modelTable;
 
     public SharedFilesTableFormat() {
         super(COLUMN_COUNT);
@@ -165,10 +165,10 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     }
 
     @Override
-    public void customizeTable(ModelTable lModelTable) {
+    public void customizeTable(ModelTable<FrostSharedFileItem> lModelTable) {
         super.customizeTable(lModelTable);
         
-        modelTable = (SortedModelTable) lModelTable;
+        modelTable = (SortedModelTable<FrostSharedFileItem>) lModelTable;
         
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null
@@ -286,7 +286,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         refreshLanguage();
     }
 
-    private class ShowContentTooltipRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class ShowContentTooltipRenderer extends BaseRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -312,7 +313,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
 
-    private class RightAlignRenderer extends BaseRenderer {
+    @SuppressWarnings("serial")
+	private class RightAlignRenderer extends BaseRenderer {
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
         public RightAlignRenderer() {
             super();
@@ -466,7 +468,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
     
-    private class BaseRenderer extends DefaultTableCellRenderer {
+    @SuppressWarnings("serial")
+	private class BaseRenderer extends DefaultTableCellRenderer {
         public BaseRenderer() {
             super();
         }

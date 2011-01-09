@@ -9,6 +9,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class ScrollableBar extends JComponent implements SwingConstants {
   
   static {

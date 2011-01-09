@@ -158,10 +158,10 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
     }
 
     @Override
-    public void customizeTable(final ModelTable table) {
+    public void customizeTable(final ModelTable<FileListFileDetailsItem> table) {
         super.customizeTable(table);
 
-        final SortedModelTable modelTable = (SortedModelTable)table;
+        final SortedModelTable<FileListFileDetailsItem> modelTable = (SortedModelTable<FileListFileDetailsItem>)table;
 
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
@@ -202,9 +202,9 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
         }
     }
 
-    public void saveTableLayout(final ModelTable table) {
+    public void saveTableLayout(final ModelTable<FileListFileDetailsItem> table) {
 
-        final SortedModelTable modelTable = (SortedModelTable)table;
+        final SortedModelTable<FileListFileDetailsItem> modelTable = (SortedModelTable<FileListFileDetailsItem>)table;
 
         final TableColumnModel tcm = modelTable.getTable().getColumnModel();
         for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {

@@ -28,6 +28,7 @@ import frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 class DownloadPanel extends JPanel {
 
     public class Listener implements ActionListener {

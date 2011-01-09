@@ -24,6 +24,7 @@ import javax.swing.*;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class JTranslatableComboBox extends JComboBox implements LanguageListener {
 
 	private class CheckBoxItem {

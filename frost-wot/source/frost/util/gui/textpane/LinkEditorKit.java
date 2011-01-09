@@ -29,6 +29,7 @@ import javax.swing.text.*;
  * Use by JOptionPane for correct display Freenet's keys link.
  * @author ET
  */
+@SuppressWarnings("serial")
 public class LinkEditorKit extends StyledEditorKit {
 
 	/**

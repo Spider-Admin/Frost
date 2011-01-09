@@ -33,6 +33,7 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.messaging.frost.boards.*;
 
+@SuppressWarnings("serial")
 public class JDragTree extends JTree implements DragGestureListener, DragSourceListener {
 
 	 //	DropTargetListener interface object...

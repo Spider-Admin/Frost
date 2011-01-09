@@ -21,6 +21,7 @@ package frost.messaging.frost.boards;
 /**
  * Represents the sent messages folder in the board tree.
  */
+@SuppressWarnings("serial")
 public class SentMessagesFolder extends AbstractNode {
 
     public SentMessagesFolder(String newName) {

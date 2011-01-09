@@ -19,8 +19,10 @@
 package frost.messaging.frost.threads;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import frost.*;
+import frost.messaging.freetalk.gui.FreetalkMessagePanel;
 import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
 
@@ -127,7 +129,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     /**
      * Returns the list of current download threads for a given board. Returns an empty list of no thread is running.
      */
-    public Vector getDownloadThreadsForBoard(final Board board) {
+    public Vector<BoardUpdateThread> getDownloadThreadsForBoard(final Board board) {
         return getVectorFromHashtable( runningDownloadThreads, board );
     }
 
@@ -230,7 +232,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         int downloadingThreads = 0;
 
         synchronized( runningDownloadThreads ) {
-            final Iterator i = runningDownloadThreads.values().iterator();
+            final Iterator<Vector> i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
                 final Object o = i.next();
                 if( o instanceof Vector ) {
@@ -251,14 +253,16 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         int downloadingBoards = 0;
 
         synchronized( runningDownloadThreads ) {
-            final Iterator i = runningDownloadThreads.values().iterator();
+            final Iterator<Vector> i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                final Object o = i.next();
+                final Vector o = i.next();
                 if( o instanceof Vector ) {
                     final Vector v = (Vector) o;
                     if( v.size() > 0 ) {
                         downloadingBoards++;
                     }
+                } else {
+                	Logger.getLogger(this.getClass().getName()).severe("Element not of expected type Vector");
                 }
             }
         }
@@ -284,9 +288,9 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         info.addToAttachmentsToUploadRemainingCount(FileAttachmentUploadThread.getInstance().getQueueSize());
 
         synchronized( runningDownloadThreads ) {
-            final Iterator i = runningDownloadThreads.values().iterator();
+            final Iterator<Vector> i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                final Object o = i.next();
+                final Vector o = i.next();
                 if( o instanceof Vector ) {
                     final Vector v = (Vector) o;
                     final int vsize = v.size();
@@ -294,6 +298,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
                         info.addToDownloadingBoardCount(1);
                         info.addToRunningDownloadThreadCount(vsize);
                     }
+                } else {
+                	Logger.getLogger(this.getClass().getName()).severe("Element not of expected type Vector");
                 }
             }
         }
@@ -312,10 +318,9 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     }
 
     public boolean isThreadOfTypeRunning(final Board board, final int type) {
-        final List threads = getDownloadThreadsForBoard(board);
+        final List<BoardUpdateThread> threads = getDownloadThreadsForBoard(board);
         for( int x = 0; x < threads.size(); x++ ) {
-            final BoardUpdateThread thread = (BoardUpdateThread) threads.get(x);
-            if( thread.getThreadType() == type ) {
+            if( threads.get(x).getThreadType() == type ) {
                 return true;
             }
         }

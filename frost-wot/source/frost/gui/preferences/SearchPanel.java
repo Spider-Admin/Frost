@@ -28,6 +28,7 @@ import frost.storage.perst.filelist.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 class SearchPanel extends JPanel {
 
     private SettingsClass settings = null;

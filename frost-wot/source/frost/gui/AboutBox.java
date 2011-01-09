@@ -29,6 +29,7 @@ import frost.util.gui.*;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class AboutBox extends JDialogWithDetails {
 
     private final static String product = "Frost";

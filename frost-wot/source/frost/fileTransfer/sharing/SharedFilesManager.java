@@ -81,7 +81,6 @@ public class SharedFilesManager implements PropertyChangeListener, ExitSavable {
         MainFrame.getInstance().setPanelEnabled("MainFrame.tabbedPane.sharing", !disableFileSharing);
     }
 
-    @SuppressWarnings("unchecked")
     public List<FrostSharedFileItem> getSharedFileItemList() {
         return getModel().getItems();
     }

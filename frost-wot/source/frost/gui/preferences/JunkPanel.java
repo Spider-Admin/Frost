@@ -26,6 +26,7 @@ import javax.swing.*;
 import frost.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class JunkPanel extends JPanel {
 
     private SettingsClass settings = null;

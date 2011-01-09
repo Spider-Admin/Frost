@@ -30,6 +30,7 @@ import javax.swing.*;
  * @author $Author$
  * @version $Revision$
  */
+@SuppressWarnings("serial")
 public class JTranslatableTabbedPane extends JTabbedPane implements LanguageListener {
 
 	private Language language;

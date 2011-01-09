@@ -26,6 +26,7 @@ import javax.swing.JToggleButton.*;
  * Derived from  The Java Specialists' Newsletter Issue 145 (2007-05-25)
  * by Dr. Heinz M. Kabutz
  */
+@SuppressWarnings("serial")
 public class TristateButtonModel extends ToggleButtonModel {
     private TristateState state = TristateState.DESELECTED;
 

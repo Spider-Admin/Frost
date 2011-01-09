@@ -26,6 +26,7 @@ import javax.swing.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class SmileyChooserDialog extends JDialog {
 
     Language language = Language.getInstance();

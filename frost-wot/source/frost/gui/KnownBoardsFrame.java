@@ -38,6 +38,7 @@ import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class KnownBoardsFrame extends JDialog {
 
     private static final Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
@@ -55,7 +56,7 @@ public class KnownBoardsFrame extends JDialog {
     private JCheckBox CBshowHidden;
     private JTextField TFlookupBoard;
     private JTextField TFfilterBoard;
-    private SortedTable boardsTable;
+    private SortedTable<KnownBoardsTableMember> boardsTable;
     private KnownBoardsTableModel tableModel;
     private NameColumnRenderer nameColRenderer;
     private DescColumnRenderer descColRenderer;
@@ -122,7 +123,7 @@ public class KnownBoardsFrame extends JDialog {
         nameColRenderer = new NameColumnRenderer();
         descColRenderer = new DescColumnRenderer();
         showContentTooltipRenderer = new ShowContentTooltipRenderer();
-        boardsTable = new SortedTable( tableModel ) {
+        boardsTable = new SortedTable<KnownBoardsTableMember>( tableModel ) {
                 @Override
                 public TableCellRenderer getCellRenderer(final int row, final int column) {
                     if( column == 0 ) {
@@ -841,5 +842,72 @@ public class KnownBoardsFrame extends JDialog {
     }
     private void removeHiddenName(final String n) {
         hiddenNames.remove(n.toLowerCase());
+    }
+    
+    static public class KnownBoardsTableModel extends SortedTableModel<KnownBoardsTableMember>
+    {
+        private Language language = null;
+
+        protected final static String columnNames[] = new String[4];
+
+        protected final static Class<?> columnClasses[] =  {
+            String.class,
+            String.class,
+            String.class,
+            String.class
+        };
+
+        public KnownBoardsTableModel() {
+            super();
+            language = Language.getInstance();
+            refreshLanguage();
+        }
+
+        private void refreshLanguage() {
+            columnNames[0] = language.getString("KnownBoardsFrame.table.boardName");
+            columnNames[1] = language.getString("KnownBoardsFrame.table.publicKey");
+            columnNames[2] = language.getString("KnownBoardsFrame.table.privateKey");
+            columnNames[3] = language.getString("KnownBoardsFrame.table.description");
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#isCellEditable(int, int)
+         */
+        @Override
+        public boolean isCellEditable(int row, int col)
+        {
+            return false;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnName(int)
+         */
+        @Override
+        public String getColumnName(int column)
+        {
+            if( column >= 0 && column < columnNames.length )
+                return columnNames[column];
+            return null;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnCount()
+         */
+        @Override
+        public int getColumnCount()
+        {
+            return columnNames.length;
+        }
+
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnClass(int)
+         */
+        @Override
+        public Class<?> getColumnClass(int column)
+        {
+            if( column >= 0 && column < columnClasses.length )
+                return columnClasses[column];
+            return null;
+        }
     }
 }

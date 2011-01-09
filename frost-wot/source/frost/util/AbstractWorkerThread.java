@@ -6,7 +6,8 @@ import javax.swing.event.*;
 
 public abstract class AbstractWorkerThread  extends Thread {
 
-    public class WorkerFinishedEvent extends EventObject {
+    @SuppressWarnings("serial")
+	public class WorkerFinishedEvent extends EventObject {
         public WorkerFinishedEvent(Object source) {
             super(source);
         }

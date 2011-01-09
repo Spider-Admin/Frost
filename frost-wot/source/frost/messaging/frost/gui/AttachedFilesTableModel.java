@@ -75,9 +75,9 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
      */
     public void setData(List<FileAttachment> fileAttachments) {
         setRowCount(0);
-        Iterator files = fileAttachments.iterator();
+        Iterator<FileAttachment> files = fileAttachments.iterator();
         while (files.hasNext()) {
-            FileAttachment attachment = (FileAttachment) files.next();
+            FileAttachment attachment = files.next();
             // maybe we show a file that is not yet uploaded (unsend message file attachment)
             String key;
             if (attachment.getKey() != null && attachment.getKey().length() > 40 ) {

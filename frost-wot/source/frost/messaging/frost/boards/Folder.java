@@ -23,6 +23,7 @@ import java.util.*;
 /**
  * Represents a folder in the board tree.
  */
+@SuppressWarnings("serial")
 public class Folder extends AbstractNode {
     
     public Folder(String newName) {

@@ -22,6 +22,7 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class TextPane extends JTextPane implements ImageObserver {
 
 	private Decoder decoder;

@@ -26,6 +26,7 @@ import frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 class ExpirationPanel extends JPanel {
 
     private SettingsClass settings = null;

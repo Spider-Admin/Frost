@@ -184,17 +184,17 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             return result;
         }
 
-        final Enumeration e = breadthFirstEnumeration();
-        while(e.hasMoreElements()) {
-            final FrostMessageObject m = (FrostMessageObject)e.nextElement();
-            if( m.isNew() ) {
+        final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = breadthFirstEnumeration();
+        while(frostMessageObjectEnumeration.hasMoreElements()) {
+            final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+            if( frostMessageObject.isNew() ) {
                 result[0] = true;
                 // both true? finished.
                 if( result[1] == true ) {
                     return result;
                 }
             }
-            if( m.isStarred() || m.isFlagged() ) {
+            if( frostMessageObject.isStarred() || frostMessageObject.isFlagged() ) {
                 result[1] = true;
                 // both true? finished.
                 if( result[0] == true ) {
@@ -482,18 +482,6 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         return inReplyToList;
     }
-
-//    private String dbg1(FrostMessageObject mo) {
-//        String s1;
-//        if( mo.isRoot() ) {
-//            s1 = "(root)";
-//        } else if( mo.isDummy() ) {
-//            s1 = "(dummy)";
-//        } else {
-//            s1 = mo.toString()+" ["+mo.getMessageId()+"]";
-//        }
-//        return s1;
-//    }
 
     public void resortChildren() {
         if( children == null || children.size() <= 1 ) {

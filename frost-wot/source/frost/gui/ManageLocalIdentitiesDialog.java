@@ -34,6 +34,7 @@ import frost.storage.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class ManageLocalIdentitiesDialog extends JDialog {
 
 //    private static final Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());

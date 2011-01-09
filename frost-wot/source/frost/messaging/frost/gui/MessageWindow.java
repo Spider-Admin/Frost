@@ -29,6 +29,7 @@ import frost.messaging.frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class MessageWindow extends JFrame {
 
     private final FrostMessageObject message;

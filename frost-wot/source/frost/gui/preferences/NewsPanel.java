@@ -29,6 +29,7 @@ import frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 class NewsPanel extends JPanel {
 
     private class Listener implements ActionListener, ChangeListener {

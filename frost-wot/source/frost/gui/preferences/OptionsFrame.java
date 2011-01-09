@@ -39,6 +39,7 @@ import frost.util.gui.translation.*;
 /**
  * Main options frame.
  */
+@SuppressWarnings("serial")
 public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     /**

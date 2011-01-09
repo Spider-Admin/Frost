@@ -20,6 +20,7 @@ package frost.gui;
 
 import frost.messaging.frost.boards.*;
 
+@SuppressWarnings("serial")
 public class KnownBoard extends Board {
     
     private boolean isHidden = false;

@@ -25,6 +25,7 @@ import java.awt.*;
  * Original code of Frost software
  * @author ET
  */
+@SuppressWarnings("serial")
 public class AntialiasedTextPane extends TextPane {
 
 	private boolean antiAliasEnabled = true;
