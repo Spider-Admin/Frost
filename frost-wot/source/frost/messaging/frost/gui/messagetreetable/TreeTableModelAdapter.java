@@ -223,7 +223,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
     }
 
     @Override
-    public Class getColumnClass(final int column) {
+    public Class<?> getColumnClass(final int column) {
         return treeTableModel.getColumnClass(column);
     }
 

@@ -38,7 +38,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
 
     protected final static String columnNames[] = new String[3];
 
-    protected final static Class columnClasses[] = {
+    protected final static Class<?> columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
         String.class, //LangRes.getString("Size")
         String.class // key
@@ -109,7 +109,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
     }
 
     @Override
-    public Class getColumnClass(int column) {
+    public Class<?> getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];
         return null;

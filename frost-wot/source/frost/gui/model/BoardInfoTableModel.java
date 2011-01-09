@@ -27,7 +27,7 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
 
     protected final static String columnNames[] = new String[8];
 
-    protected final static Class columnClasses[] =  {
+    protected final static Class<?> columnClasses[] =  {
         String.class,   // board name
         String.class,   // board state
         Integer.class,  // message count
@@ -95,7 +95,7 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
     @Override
-    public Class getColumnClass(final int column) {
+    public Class<?> getColumnClass(final int column) {
         if( column >= 0 && column < columnClasses.length ) {
             return columnClasses[column];
         }

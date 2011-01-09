@@ -588,6 +588,7 @@ public class IdentitiesBrowser extends JDialog {
 
             return true;
         }
+        
         private String buildHtmlName(final String n) {
             // TODO: html mode wraps words with blanks, maybe replace blanks by &nbsp;
 //            String a = n.substring(0, n.indexOf("@"));
@@ -597,6 +598,7 @@ public class IdentitiesBrowser extends JDialog {
 //            return r;
             return n;
         }
+        
         private String buildLastSeenString(final long lastSeen) {
             // date (days_before)
             if( lastSeen < 0 ) {
@@ -610,7 +612,9 @@ public class IdentitiesBrowser extends JDialog {
 
             return lsStr;
         }
-        public Object getValueAt(final int column) {
+        
+        @SuppressWarnings("unchecked")
+		public Comparable getValueAt(final int column) {
             switch(column) {
                 case 0: return htmlName;
                 case 1: return getIdentity().getStateString();
@@ -670,7 +674,7 @@ public class IdentitiesBrowser extends JDialog {
 
         protected final String columnNames[] = new String[6];
 
-        protected final Class columnClasses[] = {
+        protected final Class<?> columnClasses[] = {
             String.class, // name
             String.class, // state
             Integer.class, // received msgs

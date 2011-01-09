@@ -331,7 +331,8 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 			this.trackDownloadKey = trackDownloadkey;
 		}
 
-		public Object getValueAt(final int column) {
+		@SuppressWarnings("unchecked")
+		public Comparable getValueAt(final int column) {
 			switch( column ) {
 				case 0:
 					return trackDownloadKey.getFileName();

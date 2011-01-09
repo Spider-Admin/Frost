@@ -164,18 +164,20 @@ public class TOF implements PropertyChangeListener {
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
                 if( MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getSelectedNode() == board ) {
-                    for(final Enumeration e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                        final Object o = e.nextElement();
-                        if( o instanceof FrostMessageObject ) {
-                            final FrostMessageObject mo = (FrostMessageObject)o;
-                            if( mo.isNew() ) {
-                                mo.setNew(false);
+                    for(final Enumeration<FrostMessageObject> e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                        final FrostMessageObject frostMessageObject = e.nextElement();
+                        // this cast can only fail, if something other fails..
+                        if( frostMessageObject instanceof FrostMessageObject ) {
+                            if( frostMessageObject.isNew() ) {
+                                frostMessageObject.setNew(false);
                                 // fire update for visible rows in table model
-                                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(mo);
+                                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(frostMessageObject);
                                 if( row >= 0 ) {
                                     MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
                                 }
                             }
+                        } else {
+                        	logger.severe("error: frostMessageObject not of type FrostMessageObject");
                         }
                     }
                 }
@@ -371,19 +373,21 @@ public class TOF implements PropertyChangeListener {
     private boolean tryToFillDummyMsg(final FrostMessageObject newMessage) {
         final FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
         // is there a dummy msg for this msgid?
-        for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-            if( mo == rootNode ) {
+        final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
+        while(messageObjectEnumeration.hasMoreElements()){
+            final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
+            
+            if( frostMessageObject == rootNode ) {
                 continue;
             }
-            if( mo.getMessageId() != null &&
-                mo.getMessageId().equals(newMessage.getMessageId()) &&
-                mo.isDummy()
+            if( frostMessageObject.getMessageId() != null &&
+                frostMessageObject.getMessageId().equals(newMessage.getMessageId()) &&
+                frostMessageObject.isDummy()
               )
             {
                 // previously missing msg arrived, fill dummy with message data
-                mo.fillFromOtherMessage(newMessage);
-                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(mo);
+                frostMessageObject.fillFromOtherMessage(newMessage);
+                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(frostMessageObject);
                 if( row >= 0 ) {
                     MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
                 }
@@ -426,14 +430,16 @@ public class TOF implements PropertyChangeListener {
         while( msgParents.size() > 0 ) {
 
             final String directParentId = msgParents.removeLast();
-
-            for(final Enumeration e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                final FrostMessageObject mo = (FrostMessageObject) e.nextElement();
-                if( mo.getMessageId() != null &&
-                    mo.getMessageId().equals(directParentId)
+            
+            final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
+            while(messageObjectEnumeration.hasMoreElements()){
+                final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
+                
+                if( frostMessageObject.getMessageId() != null &&
+                    frostMessageObject.getMessageId().equals(directParentId)
                   )
                 {
-                    mo.add(newMessage, false);
+                    frostMessageObject.add(newMessage, false);
                     if (expandUnread) {
                     	treeTable.expandFirework(newMessage);
                     }
@@ -488,7 +494,6 @@ public class TOF implements PropertyChangeListener {
         Board board;
         int daysToRead;
         boolean isCancelled = false;
-        String fileSeparator = System.getProperty("file.separator");
         final String previousSelectedMsgId;
 
         List<FrostMessageObject> markAsReadMsgs = new ArrayList<FrostMessageObject>();
@@ -647,37 +652,41 @@ public class TOF implements PropertyChangeListener {
                 final List<FrostMessageObject> itemsToRemove = new ArrayList<FrostMessageObject>();
                 final Set<String> notBlockedMessageIds = new HashSet<String>();
                 while(true) {
-                    for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                        final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                        if( mo.isLeaf() && mo != rootNode ) {
-                            if( mo.isDummy() ) {
-                                itemsToRemove.add(mo);
-                            } else if( mo.getMessageId() == null ) {
-                                if( isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
-                                    itemsToRemove.add(mo);
+                	final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
+                    
+                	while(messageObjectEnumeration.hasMoreElements()){
+                        final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
+                    
+                        if( frostMessageObject.isLeaf() && frostMessageObject != rootNode ) {
+                            if( frostMessageObject.isDummy() ) {
+                                itemsToRemove.add(frostMessageObject);
+                            } else if( frostMessageObject.getMessageId() == null ) {
+                                if( isBlocked(frostMessageObject, frostMessageObject.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
+                                    itemsToRemove.add(frostMessageObject);
                                     // message is blocked. check if message is still new, and maybe mark as read
-                                    if( mo.isNew() ) {
-                                        markAsReadMsgs.add(mo);
+                                    if( frostMessageObject.isNew() ) {
+                                        markAsReadMsgs.add(frostMessageObject);
                                     }
                                 }
                             } else {
-                                if( notBlockedMessageIds.contains(mo.getMessageId()) ) {
+                                if( notBlockedMessageIds.contains(frostMessageObject.getMessageId()) ) {
                                     continue; // already checked, not blocked
                                 }
                                 // check if blocked
-                                if( isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
-                                    itemsToRemove.add(mo);
+                                if( isBlocked(frostMessageObject, frostMessageObject.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
+                                    itemsToRemove.add(frostMessageObject);
                                     // message is blocked. check if message is still new, and maybe mark as read
-                                    if( mo.isNew() ) {
-                                        markAsReadMsgs.add(mo);
+                                    if( frostMessageObject.isNew() ) {
+                                        markAsReadMsgs.add(frostMessageObject);
                                     }
                                 } else {
                                     // not blocked, mark as checked to avoid the block test in next iterations
-                                    notBlockedMessageIds.add(mo.getMessageId());
+                                    notBlockedMessageIds.add(frostMessageObject.getMessageId());
                                 }
                             }
                         }
                     }
+                	
                     if( itemsToRemove.size() > 0 ) {
                         for( final FrostMessageObject removeMo : itemsToRemove ) {
                             removeMo.removeFromParent();
@@ -692,16 +701,20 @@ public class TOF implements PropertyChangeListener {
                 notBlockedMessageIds.clear();
 
                 // apply the subject of first child message to dummy ROOT messages
-                for(final Enumeration e=rootNode.children(); e.hasMoreElements(); ) {
-                    final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                    if( mo.isDummy() ) {
+                final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
+                while(messageObjectEnumeration.hasMoreElements()){
+                    final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
+                    
+                    if( frostMessageObject.isDummy() ) {
                         // this thread root node has no subject, get subject of first valid child
-                        for(final Enumeration e2=mo.breadthFirstEnumeration(); e2.hasMoreElements(); ) {
-                            final FrostMessageObject childMo = (FrostMessageObject)e2.nextElement();
+                    	final Enumeration<FrostMessageObject> messageObjectEnumeration2 = frostMessageObject.depthFirstEnumeration();
+                        while( messageObjectEnumeration2.hasMoreElements() ) {
+                            final FrostMessageObject childMo = messageObjectEnumeration2.nextElement();
+                            
                             if( !childMo.isDummy() && childMo.getSubject() != null ) {
                                 final StringBuilder sb = new StringBuilder(childMo.getSubject().length() + 2);
                                 sb.append("[").append(childMo.getSubject()).append("]");
-                                mo.setSubject(sb.toString());
+                                frostMessageObject.setSubject(sb.toString());
                                 break;
                             }
                         }
@@ -843,15 +856,18 @@ public class TOF implements PropertyChangeListener {
                 int newMessageCountWork = 0;
                 boolean hasStarredWork = false;
                 boolean hasFlaggedWork = false;
-                for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                    final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                    if( mo.isNew() ) {
+                
+                final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
+                while(messageObjectEnumeration.hasMoreElements()){
+                    final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
+                    
+                    if( frostMessageObject.isNew() ) {
                         newMessageCountWork++;
                     }
-                    if( !hasStarredWork && mo.isStarred() ) {
+                    if( !hasStarredWork && frostMessageObject.isStarred() ) {
                         hasStarredWork = true;
                     }
-                    if( !hasFlaggedWork && mo.isFlagged() ) {
+                    if( !hasFlaggedWork && frostMessageObject.isFlagged() ) {
                         hasFlaggedWork = true;
                     }
                 }
@@ -898,12 +914,14 @@ public class TOF implements PropertyChangeListener {
 
                 if( previousSelectedMsgId != null ) {
                 	// select messageId
-                    for(final Enumeration e=rootNode.breadthFirstEnumeration(); e.hasMoreElements(); ) {
-                        final FrostMessageObject mo = (FrostMessageObject) e.nextElement();
-                        if( mo.getMessageId() != null && mo.getMessageId().equals(previousSelectedMsgId) ) {
-                        	treeTable.expandFirework(mo);
+                	final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
+                    while(messageObjectEnumeration.hasMoreElements()){
+                        final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
+                        
+                        if( frostMessageObject.getMessageId() != null && frostMessageObject.getMessageId().equals(previousSelectedMsgId) ) {
+                        	treeTable.expandFirework(frostMessageObject);
 
-                            int row = treeTable.getRowForNode(mo);
+                            int row = treeTable.getRowForNode(frostMessageObject);
                             if( row > -1 ) {
                                 treeTable.getSelectionModel().setSelectionInterval(row, row);
                                 // scroll to selected row
@@ -919,10 +937,12 @@ public class TOF implements PropertyChangeListener {
                 }
 
                 if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS) && Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_EXPAND_UNREAD_THREADS) ) {
-                    for(final Enumeration e=rootNode.breadthFirstEnumeration(); e.hasMoreElements(); ) {
-                        final FrostMessageObject mo = (FrostMessageObject) e.nextElement();
-                        if( mo.isNew() ) {
-                        	treeTable.expandFirework(mo);
+                	final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
+                    while(messageObjectEnumeration.hasMoreElements()){
+                        final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
+                        
+                        if( frostMessageObject.isNew() ) {
+                        	treeTable.expandFirework(frostMessageObject);
                         }
                     }
                 }
@@ -1063,7 +1083,7 @@ public class TOF implements PropertyChangeListener {
         } else {
             // either GOOD user or not blocked by user
             final LinkedList<Board> addBoards = new LinkedList<Board>();
-            for(final Iterator i=currentMsg.getAttachmentsOfType(Attachment.BOARD).iterator(); i.hasNext(); ) {
+            for(final Iterator<Attachment> i = currentMsg.getAttachmentsOfType(Attachment.BOARD).iterator(); i.hasNext(); ) {
                 final BoardAttachment ba = (BoardAttachment) i.next();
                 addBoards.add(ba.getBoardObj());
             }

@@ -33,7 +33,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
 
     protected final static String columnNames[] = new String[3];
 
-    protected final static Class columnClasses[] = {
+    protected final static Class<?> columnClasses[] = {
         String.class, //"Board Name",
         String.class, //"Access rights"
         String.class, //"Description"
@@ -125,7 +125,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
     @Override
-    public Class getColumnClass(int column) {
+    public Class<?> getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];
         return null;

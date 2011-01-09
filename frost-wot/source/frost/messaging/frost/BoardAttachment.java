@@ -106,9 +106,7 @@ public class BoardAttachment extends Attachment {
 		return "*ERR*";
 	}
 
-	public int compareTo(Object o) {
-		String me = toString();
-		String other = ((BoardAttachment) o).toString();
-		return me.compareToIgnoreCase(other);
+	public int compareTo(Attachment attachment) {
+		return toString().compareTo(attachment.toString());
 	}
 }

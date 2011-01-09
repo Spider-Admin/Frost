@@ -310,7 +310,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /*
      * @see frost.gui.model.TableMember#getValueAt(int)
      */
-    public Object getValueAt(final int column) {
+    @SuppressWarnings("unchecked")
+	public Comparable getValueAt(final int column) {
         switch(column) {
             case 0: return Integer.toString(getIndex());
             case 1: return getFromName();

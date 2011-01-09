@@ -26,7 +26,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
 
     protected final String columnNames[] = new String[8];
 
-    protected final Class columnClasses[] = {
+    protected final Class<?> columnClasses[] = {
         Boolean.class, // flagged
         Boolean.class, // starred
         String.class, //LangRes.getString("Index"),
@@ -73,7 +73,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
     @Override
-    public Class getColumnClass(int column) {
+    public Class<?> getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];
         return null;

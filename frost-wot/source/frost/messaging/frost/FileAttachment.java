@@ -114,10 +114,8 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
     /*
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(final Object o) {
-		final String myName = getFilename();
-		final String otherName = ((FileAttachment) o).getFilename();
-		return myName.compareTo(otherName);
+    public int compareTo(Attachment attachment) {
+		return toString().compareTo(attachment.toString());
 	}
 
     public String getFilename() {

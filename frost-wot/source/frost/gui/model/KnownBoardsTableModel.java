@@ -26,7 +26,7 @@ public class KnownBoardsTableModel extends SortedTableModel
 
     protected final static String columnNames[] = new String[4];
 
-    protected final static Class columnClasses[] =  {
+    protected final static Class<?> columnClasses[] =  {
         String.class,
         String.class,
         String.class,
@@ -79,7 +79,7 @@ public class KnownBoardsTableModel extends SortedTableModel
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
     @Override
-    public Class getColumnClass(int column)
+    public Class<?> getColumnClass(int column)
     {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];

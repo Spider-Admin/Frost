@@ -162,7 +162,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
      * Returns the column class for column <code>column</code>. This
      * is set in the constructor.
      */
-    public Class getColumnClass(final int column) {
+    public Class<?> getColumnClass(final int column) {
         if( column == COLUMN_INDEX_SUBJECT ) {
             return TreeTableModel.class;
         }

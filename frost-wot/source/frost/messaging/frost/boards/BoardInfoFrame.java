@@ -535,7 +535,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             this.dateOfLastMsg = null;
         }
 
-        public Object getValueAt(final int column) {
+        @SuppressWarnings("unchecked")
+		public Comparable getValueAt(final int column) {
             switch( column ) {
             case 0:
                 return board.getName();
@@ -557,9 +558,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             return "*ERR*";
         }
 
-        public int compareTo(final TableMember anOther, final int tableColumIndex) {
-            final Comparable c1 = (Comparable) getValueAt(tableColumIndex);
-            final Comparable c2 = (Comparable) anOther.getValueAt(tableColumIndex);
+        @SuppressWarnings("unchecked")
+		public int compareTo(final TableMember anOther, final int tableColumIndex) {
+            final Comparable c1 = getValueAt(tableColumIndex);
+            final Comparable c2 = anOther.getValueAt(tableColumIndex);
             return c1.compareTo(c2);
         }
 

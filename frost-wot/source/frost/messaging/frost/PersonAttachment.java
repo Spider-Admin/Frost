@@ -45,11 +45,10 @@ public class PersonAttachment extends Attachment {
 	/*
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(final Object o) {
-		final String myKey = identity.getPublicKey();
-		final String otherKey = ((PersonAttachment) o).getIdentity().getPublicKey();
-		return myKey.compareTo(otherKey);
+	public int compareTo(Attachment attachment) {
+		return toString().compareTo(attachment.toString());
 	}
+
 
 	/**
 	 * @return

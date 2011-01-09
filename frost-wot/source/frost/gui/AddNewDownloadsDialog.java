@@ -624,7 +624,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			updateExistsCheck();
 		}
 
-		public Object getValueAt(final int column) {
+		public Comparable<?> getValueAt(final int column) {
 			switch( column ) {
 				case 0:
 					return frostDownloadItem.getFilename();

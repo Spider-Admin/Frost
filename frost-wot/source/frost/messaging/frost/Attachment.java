@@ -26,7 +26,8 @@ import org.xml.sax.*;
 import frost.util.*;
 
 @SuppressWarnings("serial")
-public abstract class Attachment implements XMLizable, Comparable {
+
+public abstract class Attachment implements XMLizable, Comparable<Attachment> {
 	public static final int FILE = 0;
 	public static final int BOARD = 1;
 	public static final int PERSON = 2;
@@ -38,16 +39,20 @@ public abstract class Attachment implements XMLizable, Comparable {
 	 */
 	public abstract int getType();
 
-	public static Attachment getInstance(Element e) {
+	public static Attachment getInstance(Element element) {
 
-		assert e.getAttribute("type").length() > 0 : "attachment type not specified!";
+		assert element.getAttribute("type").length() > 0 : "attachment type not specified!";
+		
 		try {
-			if (e.getAttribute("type").equals("file"))
-				return new FileAttachment(e);
-			else if (e.getAttribute("type").equals("board"))
-				return new BoardAttachment(e);
+			if (element.getAttribute("type").equals("file"))
+				return new FileAttachment(element);
+			
+			else if (element.getAttribute("type").equals("board"))
+				return new BoardAttachment(element);
+			
 			else
-				return new PersonAttachment(e);
+				return new PersonAttachment(element);
+			
 		} catch (SAXException ex) {
 			logger.log(Level.SEVERE, "Exception thrown in getInstance(Element e)", ex);
 			return null;

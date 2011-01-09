@@ -1392,7 +1392,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             aBoard = ab;
         }
 
-        public int compareTo( final TableMember anOther, final int tableColumIndex ) {
+        @SuppressWarnings("unchecked")
+		public int compareTo( final TableMember anOther, final int tableColumIndex ) {
             final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
             final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
@@ -1402,7 +1403,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             return aBoard;
         }
 
-        public Object getValueAt(final int column) {
+        @SuppressWarnings("unchecked")
+		public Comparable getValueAt(final int column) {
             switch (column) {
                 case 0 : return aBoard.getName();
                 case 1 : return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();
@@ -1429,7 +1431,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     }
 
     private class MFAttachedBoardsTableModel extends SortedTableModel {
-        protected final Class columnClasses[] = {
+        protected final Class<?> columnClasses[] = {
             String.class,
             String.class,
             String.class,
@@ -1446,7 +1448,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             super();
         }
         @Override
-        public Class getColumnClass(final int column) {
+        public Class<?> getColumnClass(final int column) {
             if( column >= 0 && column < columnClasses.length ) {
                 return columnClasses[column];
             }
@@ -1476,7 +1478,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         public MFAttachedFile(final File af) {
             aFile = af;
         }
-        public int compareTo( final TableMember anOther, final int tableColumIndex ) {
+        @SuppressWarnings("unchecked")
+		public int compareTo( final TableMember anOther, final int tableColumIndex ) {
             final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
             final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
@@ -1484,7 +1487,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         public File getFile() {
             return aFile;
         }
-        public Object getValueAt(final int column)  {
+        @SuppressWarnings("unchecked")
+		public Comparable getValueAt(final int column)  {
             switch(column) {
                 case 0: return aFile.getName();
                 case 1: return Long.toString(aFile.length());
@@ -1493,14 +1497,17 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedFilesTable extends SortedTable {
+    @SuppressWarnings("serial")
+	private class MFAttachedFilesTable extends SortedTable {
         public MFAttachedFilesTable(final MFAttachedFilesTableModel m) {
             super(m);
+            
             // set column sizes
             final int[] widths = {250, 80};
             for (int i = 0; i < widths.length; i++) {
                 getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
             }
+            
             // default for sort: sort by name ascending ?
             sortedColumnIndex = 0;
             sortedColumnAscending = true;
@@ -1509,28 +1516,34 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     }
 
     private class MFAttachedFilesTableModel extends SortedTableModel {
-        protected final Class columnClasses[] = {
+    	
+        protected final Class<?> columnClasses[] = {
             String.class,
             String.class
         };
+        
         protected final String columnNames[] = {
             language.getString("MessageFrame.fileAttachmentTable.filename"),
             language.getString("MessageFrame.fileAttachmentTable.size")
         };
+        
         public MFAttachedFilesTableModel() {
             super();
         }
+        
         @Override
-        public Class getColumnClass(final int column) {
+        public Class<?> getColumnClass(final int column) {
             if( column >= 0 && column < columnClasses.length ) {
                 return columnClasses[column];
             }
             return null;
         }
+        
         @Override
         public int getColumnCount() {
             return columnNames.length;
         }
+        
         @Override
         public String getColumnName(final int column) {
             if( column >= 0 && column < columnNames.length ) {
@@ -1538,12 +1551,11 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             }
             return null;
         }
+        
         @Override
         public boolean isCellEditable(final int row, final int col) {
             return false;
         }
-        @Override
-        public void setValueAt(final Object aValue, final int row, final int column) {}
     }
 
     private class TransferObject {

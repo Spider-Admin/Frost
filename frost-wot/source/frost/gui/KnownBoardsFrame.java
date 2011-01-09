@@ -606,7 +606,8 @@ public class KnownBoardsFrame extends JDialog {
             this.frostboard = b;
         }
 
-        public Object getValueAt(final int column) {
+        @SuppressWarnings("unchecked")
+		public Comparable getValueAt(final int column) {
             switch( column ) {
             case 0:
                 if( frostboard.isHidden() ) {

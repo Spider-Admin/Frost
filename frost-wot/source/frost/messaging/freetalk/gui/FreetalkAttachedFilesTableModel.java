@@ -37,7 +37,7 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
 
     protected final static String columnNames[] = new String[3];
 
-    protected final static Class columnClasses[] = {
+    protected final static Class<?> columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
         String.class, //LangRes.getString("Size")
         String.class // key
@@ -112,7 +112,7 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
     }
 
     @Override
-    public Class getColumnClass(final int column) {
+    public Class<?> getColumnClass(final int column) {
         if( column >= 0 && column < columnClasses.length ) {
             return columnClasses[column];
         }
