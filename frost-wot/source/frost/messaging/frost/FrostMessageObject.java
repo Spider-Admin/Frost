@@ -253,14 +253,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         return content;
     }
-
-    public AttachmentList<FileAttachment> getAttachmentsOfTypeFile() {
-
-        if( !containsAttachments() ) {
+    
+    private AttachmentList<Attachment> getAttachmentListInstance() {
+    	if( !containsAttachments() ) {
             if (attachments == null) {
                 attachments = new AttachmentList<Attachment>();
             }
-            return attachments.getAllOfTypeFile();
+            return attachments;
         }
 
         if (attachments == null) {
@@ -269,43 +268,19 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                 attachments = new AttachmentList<Attachment>();
             }
         }
-        return attachments.getAllOfTypeFile();
+        return attachments;
+    }
+
+    public AttachmentList<FileAttachment> getAttachmentsOfTypeFile() {
+        return getAttachmentListInstance().getAllOfTypeFile();
     }
     
     public AttachmentList<BoardAttachment> getAttachmentsOfTypeBoard() {
-
-        if( !containsAttachments() ) {
-            if (attachments == null) {
-                attachments = new AttachmentList<Attachment>();
-            }
-            return attachments.getAllOfTypeBoard();
-        }
-
-        if (attachments == null) {
-            MessageStorage.inst().retrieveAttachments(this);
-            if (attachments == null) {
-                attachments = new AttachmentList<Attachment>();
-            }
-        }
-        return attachments.getAllOfTypeBoard();
+        return getAttachmentListInstance().getAllOfTypeBoard();
     }
     
     public AttachmentList<PersonAttachment> getAttachmentsOfTypePerson() {
-
-        if( !containsAttachments() ) {
-            if (attachments == null) {
-                attachments = new AttachmentList<Attachment>();
-            }
-            return attachments.getAllOfTypePerson();
-        }
-
-        if (attachments == null) {
-            MessageStorage.inst().retrieveAttachments(this);
-            if (attachments == null) {
-                attachments = new AttachmentList<Attachment>();
-            }
-        }
-        return attachments.getAllOfTypePerson();
+        return getAttachmentListInstance().getAllOfTypePerson();
     }
     
     
