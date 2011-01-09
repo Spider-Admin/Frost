@@ -831,7 +831,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
         getStatusBar().showNewMessageIcon(showNewMessageIcon);
 
-        if( SystraySupport.isSupported() ) {
+        if( SystraySupport.isInitialized() ) {
             if( showNewMessageIcon ) {
                 SystraySupport.setIconNewMessage();
             } else {

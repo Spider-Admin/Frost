@@ -33,7 +33,13 @@ public class SystraySupport {
     
     private static Image image_normal = null;
     private static Image image_newMessage = null;
+    
+    private static boolean isInitialized = false;
 
+    public static boolean isInitialized() {
+        return isInitialized;
+    }
+    
     public static boolean isSupported() {
         return SystemTray.isSupported();
     }
@@ -77,6 +83,9 @@ public class SystraySupport {
             System.err.println("TrayIcon could not be added.");
             return false;
         }
+        
+        isInitialized = true;
+        
         return true;
     }
     

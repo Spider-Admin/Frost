@@ -409,7 +409,7 @@ public class FrostMessageTab implements LanguageListener {
 
             systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    if (SystraySupport.isSupported()) {
+                    if (SystraySupport.isInitialized()) {
                         SystraySupport.minimizeToTray();
                     }
                 }
@@ -443,7 +443,7 @@ public class FrostMessageTab implements LanguageListener {
             buttonToolBar.add(boardInfoButton);
             buttonToolBar.add(knownBoardsButton);
             buttonToolBar.add(searchMessagesButton);
-            if (SystraySupport.isSupported()) {
+            if (SystraySupport.isInitialized()) {
                 buttonToolBar.add(Box.createRigidArea(blankSpace));
                 buttonToolBar.addSeparator();
                 buttonToolBar.add(Box.createRigidArea(blankSpace));
