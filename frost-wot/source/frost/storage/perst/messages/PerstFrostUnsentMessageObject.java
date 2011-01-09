@@ -112,15 +112,13 @@ public class PerstFrostUnsentMessageObject extends Persistent {
         timeAdded = umo.getTimeAdded();
         sendAfterTime = umo.getSendAfterTime();
 
-        final AttachmentList fileAttachmentList = umo.getAttachmentsOfType(Attachment.FILE);
-        final AttachmentList boardAttachmentList = umo.getAttachmentsOfType(Attachment.BOARD);
+        final AttachmentList<FileAttachment> fileAttachmentList = umo.getAttachmentsOfTypeFile();
+        final AttachmentList<BoardAttachment> boardAttachmentList = umo.getAttachmentsOfTypeBoard();
 
         if( boardAttachmentList != null && boardAttachmentList.size() > 0 ) {
             boardAttachments = store.createLink();
             for( final Iterator<BoardAttachment> i=boardAttachmentList.iterator(); i.hasNext(); ) {
-                final BoardAttachment ba = i.next();
-                final PerstFrostUnsentBoardAttachment pba = new PerstFrostUnsentBoardAttachment(ba);
-                boardAttachments.add(pba);
+                boardAttachments.add(new PerstFrostUnsentBoardAttachment(i.next()));
             }
         } else {
             boardAttachments = null;
@@ -131,8 +129,7 @@ public class PerstFrostUnsentMessageObject extends Persistent {
             for( final Iterator<FileAttachment> i = fileAttachmentList.iterator(); i.hasNext(); ) {
                 final FileAttachment ba = i.next();
                 if( ba.getInternalFile() != null ) {
-                    final PerstFrostUnsentFileAttachment pba = new PerstFrostUnsentFileAttachment(ba);
-                    fileAttachments.add(pba);
+                    fileAttachments.add(new PerstFrostUnsentFileAttachment(ba));
                 }
             }
         } else {

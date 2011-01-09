@@ -89,23 +89,25 @@ public class PerstFrostArchiveMessageObject extends Persistent {
         idLinePos = mo.getIdLinePos();
         idLineLen = mo.getIdLineLen();
 
-        final AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
-        if( boards != null && boards.size() > 0 ) {
-            boardAttachments = store.createLink(boards.size());
-            for( final Iterator i=boards.iterator(); i.hasNext(); ) {
-                final BoardAttachment ba = (BoardAttachment)i.next();
-                boardAttachments.add( new PerstFrostArchiveBoardAttachment(ba) );
+        final AttachmentList<BoardAttachment> boardAttachmentList = mo.getAttachmentsOfTypeBoard();
+        if( boardAttachmentList != null && boardAttachmentList.size() > 0 ) {
+        	
+            boardAttachments = store.createLink(boardAttachmentList.size());
+            
+            for( final Iterator<BoardAttachment> i=boardAttachmentList.iterator(); i.hasNext(); ) {
+                boardAttachments.add( new PerstFrostArchiveBoardAttachment(i.next()) );
             }
         } else {
             boardAttachments = null;
         }
 
-        final AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
-        if( files != null && files.size() > 0 ) {
-            fileAttachments = store.createLink(files.size());
-            for( final Iterator i=files.iterator(); i.hasNext(); ) {
-                final FileAttachment ba = (FileAttachment)i.next();
-                fileAttachments.add( new PerstFrostArchiveFileAttachment(ba) );
+        final AttachmentList<FileAttachment> fileAttachmentList = mo.getAttachmentsOfTypeFile();
+        if( fileAttachmentList != null && fileAttachmentList.size() > 0 ) {
+        	
+            fileAttachments = store.createLink(fileAttachmentList.size());
+            
+            for( final Iterator<FileAttachment> i=fileAttachmentList.iterator(); i.hasNext(); ) {
+                fileAttachments.add( new PerstFrostArchiveFileAttachment(i.next()) );
             }
         } else {
             fileAttachments = null;

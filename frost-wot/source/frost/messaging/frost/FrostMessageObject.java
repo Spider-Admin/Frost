@@ -165,8 +165,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setIdLinePos(mof.getIdLinePos());
         setIdLineLen(mof.getIdLineLen());
 
-        setHasBoardAttachments(mof.getAttachmentsOfType(Attachment.BOARD).size() > 0);
-        setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);
+        setHasBoardAttachments(mof.getAttachmentsOfTypeFile().size() > 0);
+        setHasFileAttachments(mof.getAttachmentsOfTypeBoard().size() > 0);
     }
 
     /**
@@ -254,17 +254,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return content;
     }
 
-    /**
-     * Dynamically loads attachments.
-     */
-    @Override
-    public AttachmentList<Attachment> getAttachmentsOfType(final int type) {
+    public AttachmentList<FileAttachment> getAttachmentsOfTypeFile() {
 
         if( !containsAttachments() ) {
             if (attachments == null) {
                 attachments = new AttachmentList<Attachment>();
             }
-            return attachments.getAllOfType(type);
+            return attachments.getAllOfTypeFile();
         }
 
         if (attachments == null) {
@@ -273,7 +269,43 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                 attachments = new AttachmentList<Attachment>();
             }
         }
-        return attachments.getAllOfType(type);
+        return attachments.getAllOfTypeFile();
+    }
+    
+    public AttachmentList<BoardAttachment> getAttachmentsOfTypeBoard() {
+
+        if( !containsAttachments() ) {
+            if (attachments == null) {
+                attachments = new AttachmentList<Attachment>();
+            }
+            return attachments.getAllOfTypeBoard();
+        }
+
+        if (attachments == null) {
+            MessageStorage.inst().retrieveAttachments(this);
+            if (attachments == null) {
+                attachments = new AttachmentList<Attachment>();
+            }
+        }
+        return attachments.getAllOfTypeBoard();
+    }
+    
+    public AttachmentList<PersonAttachment> getAttachmentsOfTypePerson() {
+
+        if( !containsAttachments() ) {
+            if (attachments == null) {
+                attachments = new AttachmentList<Attachment>();
+            }
+            return attachments.getAllOfTypePerson();
+        }
+
+        if (attachments == null) {
+            MessageStorage.inst().retrieveAttachments(this);
+            if (attachments == null) {
+                attachments = new AttachmentList<Attachment>();
+            }
+        }
+        return attachments.getAllOfTypePerson();
     }
     
     

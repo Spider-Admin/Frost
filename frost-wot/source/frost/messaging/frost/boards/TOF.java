@@ -1036,18 +1036,15 @@ public class TOF implements PropertyChangeListener {
             }
             // Block by attached boards
             if ( blockMsgBoardname ) {
-                final AttachmentList<Attachment> boards =  message.getAttachmentsOfType(Attachment.BOARD);
+                final AttachmentList<BoardAttachment> boardAttachmentList =  message.getAttachmentsOfTypeBoard();
                 final StringTokenizer blockWords =
                     new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
+                
                 while (blockWords.hasMoreTokens()) {
                     final String blockWord = blockWords.nextToken().trim();
-                    for( final Attachment attachment : boards ) {
-                    	if( !(attachment instanceof BoardAttachment) ) {
-                    		continue;
-                    	}
-                    	BoardAttachment boardAttachment = (BoardAttachment) attachment;
-                        final Board boardObject = boardAttachment.getBoardObj();
-                        if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
+                    
+                    for( final BoardAttachment boardAttachment : boardAttachmentList ) {
+                        if ((blockWord.length() > 0) && (boardAttachment.getBoardObj().getName().equalsIgnoreCase(blockWord))) {
                             return true;
                         }
                     }
@@ -1083,9 +1080,8 @@ public class TOF implements PropertyChangeListener {
         } else {
             // either GOOD user or not blocked by user
             final LinkedList<Board> addBoards = new LinkedList<Board>();
-            for(final Iterator<Attachment> i = currentMsg.getAttachmentsOfType(Attachment.BOARD).iterator(); i.hasNext(); ) {
-                final BoardAttachment ba = (BoardAttachment) i.next();
-                addBoards.add(ba.getBoardObj());
+            for(final Iterator<BoardAttachment> i = currentMsg.getAttachmentsOfTypeBoard().iterator(); i.hasNext(); ) {
+                addBoards.add(i.next().getBoardObj());
             }
             KnownBoardsManager.addNewKnownBoards(addBoards);
         }

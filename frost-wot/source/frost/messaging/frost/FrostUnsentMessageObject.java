@@ -18,12 +18,10 @@
 */
 package frost.messaging.frost;
 
-import java.util.*;
-
-import frost.*;
-import frost.messaging.frost.threads.*;
-import frost.storage.perst.messages.*;
-import frost.util.*;
+import frost.MainFrame;
+import frost.messaging.frost.threads.MessageThread;
+import frost.storage.perst.messages.PerstFrostUnsentMessageObject;
+import frost.util.DateFun;
 
 /**
  * Same as FrostMessageObject, but adds some stuff needed only for unsend messages.
@@ -57,17 +55,13 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
         return timeAddedString;
     }
 
-    public LinkedList<FileAttachment> getUnsentFileAttachments() {
-        final LinkedList<FileAttachment> result = new LinkedList<FileAttachment>();
-        final AttachmentList<Attachment> fileAttachments =  getAttachmentsOfType(Attachment.FILE);
+    public AttachmentList<FileAttachment> getUnsentFileAttachments() {
+        final AttachmentList<FileAttachment> result = new AttachmentList<FileAttachment>();
+        final AttachmentList<FileAttachment> fileAttachments =  getAttachmentsOfTypeFile();
         if( fileAttachments == null || fileAttachments.size() == 0 ) {
             return result;
         }
-        for( final Attachment attachment : fileAttachments ) {
-        	if( !(attachment instanceof FileAttachment)) {
-        		continue;
-        	}
-        	FileAttachment fa = (FileAttachment) attachment;
+        for( final FileAttachment fa : fileAttachments ) {
             if( fa.getKey() == null || fa.getKey().length() == 0 ) {
                 result.add(fa);
             }

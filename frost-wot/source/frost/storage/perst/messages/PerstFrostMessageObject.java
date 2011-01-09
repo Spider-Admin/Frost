@@ -113,18 +113,18 @@ public class PerstFrostMessageObject extends Persistent {
             idLinePos = mo.getIdLinePos();
             idLineLen = mo.getIdLineLen();
 
-            final AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
-            final AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
+            final AttachmentList<FileAttachment> fileAttachmentList = mo.getAttachmentsOfTypeFile();
+            final AttachmentList<BoardAttachment> boardAttachmentList = mo.getAttachmentsOfTypeBoard();
 
-            MessageContentStorage.inst().addAttachmentsForOid(getOid(), boards, files);
+            MessageContentStorage.inst().addAttachmentsForOid(getOid(), boardAttachmentList, fileAttachmentList);
 
-            if( boards != null && boards.size() > 0 ) {
+            if( boardAttachmentList != null && boardAttachmentList.size() > 0 ) {
                 hasBoardAttachments = true;
             } else {
                 hasBoardAttachments = false;
             }
 
-            if( files != null && files.size() > 0 ) {
+            if( fileAttachmentList != null && fileAttachmentList.size() > 0 ) {
                 hasFileAttachments = true;
             } else {
                 hasFileAttachments = false;

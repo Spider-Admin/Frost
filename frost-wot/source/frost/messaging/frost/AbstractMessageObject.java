@@ -115,10 +115,31 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
         }
         return attachments.getAllOfType(type);
     }
+    
+    public AttachmentList<FileAttachment> getAttachmentsOfTypeFile() {
+        if (attachments == null) {
+            attachments = new AttachmentList<Attachment>();
+        }
+        return attachments.getAllOfTypeFile();
+    }
+    
+    public AttachmentList<BoardAttachment> getAttachmentsOfTypeBoard() {
+        if (attachments == null) {
+            attachments = new AttachmentList<Attachment>();
+        }
+        return attachments.getAllOfTypeBoard();
+    }
+    
+    public AttachmentList<PersonAttachment> getAttachmentsOfTypePerson() {
+        if (attachments == null) {
+            attachments = new AttachmentList<Attachment>();
+        }
+        return attachments.getAllOfTypePerson();
+    }
 
     public boolean containsAttachments() {
-        if ((getAttachmentsOfType(Attachment.BOARD).size() > 0) ||
-            (getAttachmentsOfType(Attachment.FILE).size() > 0)) {
+        if ((getAttachmentsOfTypeBoard().size() > 0) ||
+            (getAttachmentsOfTypeFile().size() > 0)) {
             return true;
         }
         return false;

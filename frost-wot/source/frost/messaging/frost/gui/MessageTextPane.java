@@ -20,33 +20,77 @@
 */
 package frost.messaging.frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
-import java.beans.*;
-import java.util.*;
-import java.util.List;
-import java.util.logging.*;
-import java.io.*;
+import java.awt.Font;
+import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
+import javax.swing.BorderFactory;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.Utilities;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.gui.*;
-import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.search.*;
-import frost.util.gui.textpane.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.fileTransfer.download.DownloadManager;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.gui.AddNewDownloadsDialog;
+import frost.gui.KnownBoardsManager;
+import frost.gui.SearchMessagesConfig;
+import frost.gui.TargetFolderChooser;
+import frost.messaging.frost.AttachmentList;
+import frost.messaging.frost.BoardAttachment;
+import frost.messaging.frost.FileAttachment;
+import frost.messaging.frost.FrostMessageObject;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.boards.Folder;
+import frost.util.CopyToClipboard;
+import frost.util.FileAccess;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.SmileyCache;
+import frost.util.gui.TextHighlighter;
+import frost.util.gui.search.FindAction;
+import frost.util.gui.search.TextComponentFindAction;
+import frost.util.gui.textpane.AntialiasedTextPane;
+import frost.util.gui.textpane.MessageDecoder;
+import frost.util.gui.textpane.MouseHyperlinkEvent;
+import frost.util.gui.textpane.TextPane;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class MessageTextPane extends JPanel {
@@ -172,8 +216,9 @@ public class MessageTextPane extends JPanel {
             textHighlighter.removeHighlights(messageTextArea);
         }
 
-        final AttachmentList fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-        final AttachmentList boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
+        final AttachmentList<FileAttachment> fileAttachments = selectedMessage.getAttachmentsOfTypeFile();
+        final AttachmentList<BoardAttachment> boardAttachments = selectedMessage.getAttachmentsOfTypeBoard();
+        
         attachedFilesModel.setData(fileAttachments);
         attachedBoardsModel.setData(boardAttachments);
 
@@ -507,11 +552,10 @@ public class MessageTextPane extends JPanel {
                 return;
             }
         }
-        final LinkedList boards = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
+        final AttachmentList<BoardAttachment> boards = selectedMessage.getAttachmentsOfTypeBoard();
         final LinkedList<Board> addBoards = new LinkedList<Board>();
         for( final int element : selectedRows ) {
-            final BoardAttachment ba = (BoardAttachment) boards.get(element);
-            addBoards.add(ba.getBoardObj());
+            addBoards.add(boards.get(element).getBoardObj());
         }
 
         KnownBoardsManager.addNewKnownBoards(addBoards);
@@ -533,20 +577,19 @@ public class MessageTextPane extends JPanel {
                 return;
             }
         }
-        final LinkedList boards = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
+        final AttachmentList<BoardAttachment> boardAttachmentList = selectedMessage.getAttachmentsOfTypeBoard();
         for( final int element : selectedRows ) {
-            final BoardAttachment ba = (BoardAttachment) boards.get(element);
-            final Board fbo = ba.getBoardObj();
-            final String name = fbo.getName();
+            final Board fbo = boardAttachmentList.get(element).getBoardObj();
+            final String boardName = fbo.getName();
 
             // search board in exising boards list
-            final Board board = mainFrame.getFrostMessageTab().getTofTreeModel().getBoardByName(name);
+            final Board board = mainFrame.getFrostMessageTab().getTofTreeModel().getBoardByName(boardName);
 
             //ask if we already have the board
             if (board != null) {
                 if (JOptionPane.showConfirmDialog(
                         this,
-                        "You already have a board named " + name + ".\n" +
+                        "You already have a board named " + boardName + ".\n" +
                             "Are you sure you want to add this one over it?",
                         "Board already exists",
                         JOptionPane.YES_NO_OPTION) != 0)
@@ -831,21 +874,22 @@ public class MessageTextPane extends JPanel {
         /**
          * Returns a list of all items to process, either selected ones or all.
          */
-        private List<FileAttachment> getItems() {
-            List items = null;
+        private AttachmentList<FileAttachment> getItems() {
             final int[] selectedRows = filesTable.getSelectedRows();
+            
             if (selectedRows.length == 0) {
                 // If no rows are selected, add all attachments to download table
-                items = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+                return selectedMessage.getAttachmentsOfTypeFile();
+            
             } else {
-                final LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-                items = new LinkedList<FileAttachment>();
-                for( final int element : selectedRows ) {
-                    final FileAttachment fo = (FileAttachment) attachments.get(element);
-                    items.add(fo);
+                final AttachmentList<FileAttachment> attachments = selectedMessage.getAttachmentsOfTypeFile();
+                AttachmentList<FileAttachment> items = new AttachmentList<FileAttachment>();
+                for( final int rowPos : selectedRows ) {
+                    items.add(attachments.get(rowPos));
                 }
+                
+                return items;
             }
-            return items;
         }
         
         private void openFileInBrowser_actionWrapper(final List<FileAttachment> fileAttachementList) {
@@ -1186,10 +1230,6 @@ public class MessageTextPane extends JPanel {
                 super.show(invoker, x, y);
             }
         }
-    }
-
-    private DownloadModel getDownloadModel() {
-        return FileTransferManager.inst().getDownloadManager().getModel();
     }
 
     protected void close() {
