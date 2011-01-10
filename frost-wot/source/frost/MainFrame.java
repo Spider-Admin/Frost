@@ -921,25 +921,14 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private class WindowStateListener extends WindowAdapter {
         @Override
         public void windowStateChanged(final WindowEvent e) {
-//            // maybe minimize to tray
-//            if( (e.getNewState() & Frame.ICONIFIED) != 0 ) {
-//                // Hide the Frost window
-//                // because this WindowEvent arrives when we are already minimized, JSYstray can't know
-//                // if we were maimized before or not. Therefore tell JSystrayIcon if we were maximized.
-//                if ( Core.frostSettings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY)
-//                        && JSysTrayIcon.getInstance() != null)
-//                {
-//                    final boolean wasMaximized = ((e.getOldState() & Frame.MAXIMIZED_BOTH) != 0);
-//                    try {
-//                        if( wasMaximized ) {
-//                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE_WAS_MAXIMIZED);
-//                        } else {
-//                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
-//                        }
-//                    } catch (final IOException _IoExc) {
-//                    }
-//                }
-//            }
+            if( (e.getNewState() & Frame.ICONIFIED) != 0 ) {
+                // Frost window was minimized by user, minimize to tray if configured
+                if ( Core.frostSettings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY)
+                        && SystraySupport.isInitialized())
+                {
+                    SystraySupport.minimizeToTray();
+                }
+            }
         }
     }
 
