@@ -926,6 +926,15 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 if ( Core.frostSettings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY)
                         && SystraySupport.isInitialized())
                 {
+                    final boolean wasMaximized = ((e.getOldState() & Frame.MAXIMIZED_BOTH) != 0);
+                    
+                    // frame is minimized right now, de-minimize so it shows up next time
+                    if (!wasMaximized) {
+                        setExtendedState(Frame.NORMAL);
+                    } else {
+                        setExtendedState(Frame.MAXIMIZED_BOTH);
+                    }
+                    
                     SystraySupport.minimizeToTray();
                 }
             }
