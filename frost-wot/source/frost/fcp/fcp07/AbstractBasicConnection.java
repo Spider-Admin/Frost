@@ -33,12 +33,19 @@ public abstract class AbstractBasicConnection {
 
     protected FcpSocket fcpSocket;
     protected final NodeAddress nodeAddress;
-    protected final ReentrantLock writeSocketLock;
+    private final ReentrantLock writeSocketLock;
 
     protected AbstractBasicConnection(final NodeAddress na) throws UnknownHostException, IOException {
         nodeAddress = na;
         fcpSocket = new FcpSocket(nodeAddress, true);
         writeSocketLock = new ReentrantLock(true);
+    }
+    
+    public void aquireFcpWriteLock() {
+        writeSocketLock.lock();
+    }
+    public void releaseFcpWriteLock() {
+        writeSocketLock.unlock();
     }
 
     public void closeConnection() {

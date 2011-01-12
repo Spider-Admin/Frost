@@ -45,6 +45,18 @@ public class NodeMessage {
     /////////////////////////////////////////////////////////////////////////////////////////
     // BEGIN OF STATIC FACTORY ///////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Sends the given message and appends 'EndMessage' at the end.
+     */
+    public static boolean sendMessage(List<String> msg, final PrintStream fcpOut) {
+        for( final String msgLine : msg ) {
+            fcpOut.println(msgLine);
+        }
+        fcpOut.println("EndMessage");
+        final boolean isError = fcpOut.checkError();
+        return isError;
+    }
 
     /**
      * Returns null if socket was closed, or a nodemessage.
@@ -53,7 +65,7 @@ public class NodeMessage {
 
         NodeMessage result = null;
         boolean isfirstline = true;
-        final ByteArrayOutputStream bytes = new ByteArrayOutputStream(128);
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream(4096);
 
         while(true) {
             final String tmp = readLine(fcpInp, bytes);

@@ -25,7 +25,6 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.util.Logging;
 
 public class FcpSocket {
 
@@ -41,9 +40,8 @@ public class FcpSocket {
     private PrintStream fcpOut;
     private final BufferedOutputStream fcpRawOut;
 
-    private boolean assumeUploadDDAIsAllowed;
-    private boolean assumeDownloadDDAIsAllowed;
-
+    private final Set<String> checkedDirectories = Collections.synchronizedSet(new HashSet<String>());
+    
     private static long fcpidentifierPart1 = Core.getCrypto().getSecureRandom().nextLong();
     private static long fcpidentifierPart2 = 0L;
 
@@ -91,7 +89,6 @@ public class FcpSocket {
         fcpOut = new PrintStream(fcpSock.getOutputStream(), false, "UTF-8");
 
         doHandshake();
-        readDDAConfig();
     }
 
     /**
@@ -105,6 +102,10 @@ public class FcpSocket {
             logger.log(Level.SEVERE, "Exception catched", t);
             return null;
         }
+    }
+
+    public Set<String> getCheckedDirectories() {
+        return checkedDirectories;
     }
 
     public NodeAddress getNodeAddress() {
@@ -155,6 +156,7 @@ public class FcpSocket {
      * Performs a handshake using this FcpConnection
      */
     public void doHandshake() throws IOException, ConnectException {
+        
         fcpOut.println("ClientHello");
         fcpOut.println("Name=hello-" + getNextFcpId());
         fcpOut.println("ExpectedVersion=2.0");
@@ -180,94 +182,5 @@ public class FcpSocket {
         if( !isSuccess ) {
             throw new ConnectException();
         }
-    }
-
-    protected void readDDAConfig() {
-
-        // initialize
-        assumeUploadDDAIsAllowed = false;
-        assumeDownloadDDAIsAllowed = false;
-
-        if (!Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA)) {
-            return;
-        }
-
-        /* Config keys:
-         * current.fcp.assumeUploadDDAIsAllowed=true
-         * current.fcp.assumeDownloadDDAIsAllowed=true
-         */
-        fcpOut.println("GetConfig");
-        fcpOut.println("WithCurrent=true");
-        fcpOut.println("EndMessage");
-        fcpOut.flush();
-
-        // receive and process node message
-        final NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
-        if (nodeMsg != null && nodeMsg.isMessageName("ConfigData")) {
-            assumeUploadDDAIsAllowed = nodeMsg.getBoolValue("current.fcp.assumeUploadDDAIsAllowed");
-            assumeDownloadDDAIsAllowed = nodeMsg.getBoolValue("current.fcp.assumeDownloadDDAIsAllowed");
-        } else {
-            logger.severe("GetConfig FAILED! assumeDDA is false.");
-        }
-    }
-
-    // FIXME: use TestDDA, remember allowed dirs
-    public boolean isDDAPossible(final FcpSocket.DDAModes mode, final String dir) {
-
-        if( mode == null || dir == null) {
-            return false;
-        }
-
-        final boolean returnValue;
-        if (mode == DDAModes.WANT_DOWNLOAD || mode == DDAModes.WANT_DOWNLOAD_AND_UPLOAD) {
-            returnValue = isAssumeDownloadDDAIsAllowed();
-
-        } else if (mode == DDAModes.WANT_UPLOAD || mode == DDAModes.WANT_DOWNLOAD_AND_UPLOAD) {
-            returnValue = isAssumeUploadDDAIsAllowed();
-
-        } else {
-            logger.severe("Unknown DDA mode: "+mode+"; "+dir);
-            returnValue = false;
-        }
-        if(Logging.inst().doLogFcp2Messages()) {
-            System.out.println("isDDAPossible("+mode+", "+dir+"): "+returnValue);
-        }
-        return returnValue;
-    }
-
-    protected boolean isAssumeUploadDDAIsAllowed() {
-        return assumeUploadDDAIsAllowed;
-    }
-
-    protected boolean isAssumeDownloadDDAIsAllowed() {
-        return assumeDownloadDDAIsAllowed;
-    }
-
-    public List<String> getNodeInfo() throws IOException {
-
-        fcpOut.println("ClientHello");
-        fcpOut.println("Name=hello-"+FcpSocket.getNextFcpId());
-        fcpOut.println("ExpectedVersion=2.0");
-        fcpOut.println("EndMessage");
-        fcpOut.flush();
-
-        final List<String> result = new ArrayList<String>();
-        final BufferedReader in = new BufferedReader(new InputStreamReader(getFcpSock().getInputStream()));
-        while(true) {
-            final String tmp = in.readLine();
-            if (tmp == null || tmp.trim().equals("EndMessage")) {
-                break;
-            }
-            result.add(tmp);
-        }
-        in.close();
-        close();
-
-        if( result.isEmpty() ) {
-            logger.warning("No ClientInfo response!");
-            return null;
-        }
-
-        return result;
     }
 }

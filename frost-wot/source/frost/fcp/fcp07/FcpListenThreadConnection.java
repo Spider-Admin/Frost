@@ -20,6 +20,7 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.event.*;
@@ -35,6 +36,8 @@ public class FcpListenThreadConnection extends AbstractBasicConnection {
 
     private final EventListenerList listenerList = new EventListenerList();
 
+    private final Set<String> checkedDirectories = Collections.synchronizedSet(new HashSet<String>());
+    
     /**
      * Create a connection to a host using FCP.
      *
@@ -59,9 +62,9 @@ public class FcpListenThreadConnection extends AbstractBasicConnection {
     public BufferedInputStream getFcpSocketIn() {
         return fcpSocket.getFcpIn();
     }
-
-    public boolean isDDAPossible(final FcpSocket.DDAModes mode, final String dir) {
-        return fcpSocket.isDDAPossible(mode, dir);
+    
+    public Set<String> getCheckedDirectories() {
+        return checkedDirectories;
     }
 
     protected void reconnect() {

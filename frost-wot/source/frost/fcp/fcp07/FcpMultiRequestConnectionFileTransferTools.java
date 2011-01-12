@@ -75,29 +75,45 @@ public class FcpMultiRequestConnectionFileTransferTools {
 
     /**
      * Starts a persistent put.
+     * First tests DDA and does NOT start a request if DDA is not possible!
+     * 
+     * @return true when DDA is possible and a request was started. 
+     *         false when DDA is not possible and nothing was started 
      */
-    public void startPersistentPut(
+    public boolean startPersistentPutUsingDda(
             final String id,
             final File sourceFile,
             final boolean doMime,
             final boolean setTargetFileName,
             final boolean compress)
     {
-        // else start a new request with DDA
+        final File uploadDir = sourceFile.getParentFile();
+        final boolean isDda = TestDDAHelper.isDDAPossiblePersistent(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir, fcpPersistentConnection);
+        if (!isDda) {
+            return false;
+        }
+        
         final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
 
         fcpPersistentConnection.sendMessage(msg);
+        return true;
     }
 
     /**
      * Starts a new persistent get.
+     * Uses TestDDA to figure out if DDA can be used or not.
      * If DDA=false then the request is enqueued as DIRECT and must be retrieved manually
      * after the get completed successfully. Use startDirectPersistentGet to fetch the data.
+     * 
+     * @return true when the download was started using DDA, false if it is using DIRECT
      */
-    public void startPersistentGet(final String key, final String id, final File targetFile) {
+    public boolean startPersistentGet(final String key, final String id, final File targetFile) {
         // start the persistent get. if DDA=false, then we have to fetch the file after the successful get from node
+        final File downloadDir = targetFile.getParentFile();
+        final boolean isDda = TestDDAHelper.isDDAPossiblePersistent(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir, fcpPersistentConnection);
+
         final List<String> msg = new LinkedList<String>();
         msg.add("ClientGet");
         msg.add("IgnoreDS=false");
@@ -111,8 +127,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
         msg.add("PriorityClass="+Integer.toString(prio));
 
-        final String downloadDir = targetFile.getParent();
-        if (getFcpPersistentConnection().isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir)) {
+        if (isDda) {
             msg.add("ReturnType=disk");
             msg.add("Filename=" + targetFile.getAbsolutePath());
             final File ddaTempFile = new File( targetFile.getAbsolutePath() + "-f");
@@ -126,6 +141,8 @@ public class FcpMultiRequestConnectionFileTransferTools {
         }
 
         fcpPersistentConnection.sendMessage(msg);
+        
+        return isDda;
     }
 
     public void listPersistentRequests() {

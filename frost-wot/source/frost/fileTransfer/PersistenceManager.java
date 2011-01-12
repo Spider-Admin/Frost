@@ -79,10 +79,6 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public boolean isDDAPossible(final FcpSocket.DDAModes mode, final String dir) {
-        return fcpConn.isDDAPossible(mode, dir);
-    }
-
     /**
      * Must be called after the upload and download model is initialized!
      */
@@ -511,24 +507,26 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
 
         // start the upload
-        final String uploadDir = ulItem.getFile().getParent();
-        if( isDDAPossible(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir) ) {
-            final boolean doMime;
-            final boolean setTargetFileName;
-            if( ulItem.isSharedFile() ) {
-                doMime = false;
-                setTargetFileName = false;
-            } else {
-                doMime = true;
-                setTargetFileName = true;
-            }
-            fcpTools.startPersistentPut(
-                    ulItem.getGqIdentifier(),
-                    ulItem.getFile(),
-                    doMime,
-                    setTargetFileName,
-                    ulItem.getCompress());
+        final boolean doMime;
+        final boolean setTargetFileName;
+        if( ulItem.isSharedFile() ) {
+            doMime = false;
+            setTargetFileName = false;
         } else {
+            doMime = true;
+            setTargetFileName = true;
+        }
+        
+        // try to start using DDA
+        boolean isDda = fcpTools.startPersistentPutUsingDda(
+                ulItem.getGqIdentifier(),
+                ulItem.getFile(),
+                doMime,
+                setTargetFileName,
+                ulItem.getCompress());
+
+        if( !isDda ) {
+            // upload was not startet because DDA is not allowed...
             // if UploadManager selected this file then it is not already in progress!
             directTransferQueue.appendItemToQueue(ulItem);
         }
@@ -581,11 +579,11 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
         final String gqid = dlItem.getGqIdentifier();
         final File targetFile = new File(dlItem.getDownloadFilename());
-        dlItem.setDirect( !isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, dlItem.getDownloadDir()) );
-        fcpTools.startPersistentGet(
+        boolean isDda = fcpTools.startPersistentGet(
                 dlItem.getKey(),
                 gqid,
                 targetFile);
+        dlItem.setDirect( !isDda );
 
         return true;
     }

@@ -102,8 +102,8 @@ public class FcpConnection {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             useDDA = false;
         } else {
-            final String downloadDir = targetFile.getParent();
-            useDDA = fcpSocket.isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir);
+            final File downloadDir = targetFile.getParentFile();
+            useDDA = TestDDAHelper.isDDAPossibleDirect(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir, fcpSocket);
         }
 
         if (useDDA) {
@@ -311,8 +311,8 @@ public class FcpConnection {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             useDDA = false;
         } else {
-            final String uploadDir = sourceFile.getParent();
-            useDDA = fcpSocket.isDDAPossible(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir);
+            final File uploadDir = sourceFile.getParentFile();
+            useDDA = TestDDAHelper.isDDAPossibleDirect(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir, fcpSocket);
         }
 
         BufferedOutputStream dataOutput = null;
