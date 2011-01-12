@@ -71,6 +71,7 @@ public class SettingsClass implements ExitSavable {
     public static final String LANGUAGE_LOCALE = "locale";
 
     public static final String CONFIRM_MARK_ALL_MSGS_READ = "confirm.markAllMessagesRead";
+    public static final String CONFIRM_FILESHARING_IS_ENABLED = "confirm.fileSharingIsEnabled";
 
     public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
@@ -1053,6 +1054,7 @@ public class SettingsClass implements ExitSavable {
 
 
         defaults.put(CONFIRM_MARK_ALL_MSGS_READ, "true");
+        defaults.put(CONFIRM_FILESHARING_IS_ENABLED, "true");
 
         defaults.put(PERST_PAGEPOOLSIZE_FILES,              "512");
         defaults.put(PERST_PAGEPOOLSIZE_INDEXSLOTS,         "512");

@@ -306,7 +306,12 @@ public class MiscToolkit {
             return JOptionPane.YES_OPTION;
         }
 
-        final JOptionPane op = new JOptionPane(message, messageType, optionType);
+        final JOptionPane op;
+        if (optionType == JOptionPane.OK_OPTION) {
+            op = new JOptionPane(message, messageType);
+        } else {
+            op = new JOptionPane(message, messageType, optionType);
+        }
 
         final JDialog dlg = op.createDialog(parentComponent, title);
 

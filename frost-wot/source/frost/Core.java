@@ -204,10 +204,14 @@ public class Core {
         }
 
         if (!frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
-            MiscToolkit.showMessage(
-                language.getString("Core.init.FileSharingEnabledBody"),
-                JOptionPane.WARNING_MESSAGE,
-                language.getString("Core.init.FileSharingEnabledTitle"));
+            MiscToolkit.showSuppressableConfirmDialog(
+                    MainFrame.getInstance(),
+                    language.getString("Core.init.FileSharingEnabledBody"),
+                    language.getString("Core.init.FileSharingEnabledTitle"),
+                    JOptionPane.OK_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    SettingsClass.CONFIRM_FILESHARING_IS_ENABLED,
+                    language.getString("Common.suppressConfirmationCheckbox") );
         }
 
         return true;
