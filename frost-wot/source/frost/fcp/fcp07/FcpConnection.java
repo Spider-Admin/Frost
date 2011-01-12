@@ -326,7 +326,7 @@ public class FcpConnection {
         msg.add("Identifier=put-" + FcpSocket.getNextFcpId() );
         msg.add("Verbosity=-1"); // receive SimpleProgress
         msg.add("MaxRetries=3");
-        if( ! ulItem.getCompress() ) {
+        if ((ulItem != null) && !ulItem.getCompress()) {
         	msg.add("DontCompress=true");
         }
 
