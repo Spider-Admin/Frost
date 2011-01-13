@@ -27,6 +27,7 @@ import frost.*;
 import frost.messaging.frost.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class UnsentMessagesPanel extends JPanel implements LanguageListener {
 
     Language language = Language.getInstance();

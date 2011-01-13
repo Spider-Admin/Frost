@@ -27,6 +27,7 @@ import javax.swing.table.*;
 
 import frost.util.gui.*;
 
+@SuppressWarnings("serial")
 public class MessageTreeTableHeader extends JTableHeader {
 
     private final MessageTreeTable messageTreeTable;

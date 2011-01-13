@@ -22,6 +22,7 @@ package frost.storage;
  * @author $author$
  * @version $revision$
  */
+@SuppressWarnings("serial")
 public class StorageException extends Exception {
 
 	/**

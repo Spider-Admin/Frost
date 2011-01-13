@@ -25,6 +25,7 @@ import javax.swing.*;
 import frost.messaging.frost.*;
 import frost.util.gui.translation.*;
 
+@SuppressWarnings("serial")
 public class SentMessagesPanel extends JPanel implements LanguageListener {
 
     Language language = Language.getInstance();

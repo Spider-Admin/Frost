@@ -166,7 +166,7 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     }
 
     public void resortChildren() {
-        if( children == null || children.size() <= 1 ) {
+        if( getChildren() == null || getChildren().size() <= 1 ) {
             return;
         }
         // choose a comparator based on settings in SortStateBean
@@ -174,7 +174,7 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
             FreetalkMessageTreeTableSortStateBean.getComparator(
                     FreetalkMessageTreeTableSortStateBean.getSortedColumn(), FreetalkMessageTreeTableSortStateBean.isAscending());
         if( comparator != null ) {
-            Collections.sort(children, comparator);
+            Collections.sort(getChildren(), comparator);
         }
     }
 
@@ -191,7 +191,7 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
         final FreetalkMessage n = (FreetalkMessage)nn;
         int[] ixs;
 
-        if( children == null ) {
+        if( getChildren() == null ) {
             super.add(n);
             ixs = new int[] { 0 };
         } else {
@@ -205,19 +205,19 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
                 if( isRoot() ) {
                     // child of root, sort descending
                     if( sortThreadRootMsgsAscending ) {
-                        insertPoint = Collections.binarySearch(children, n, FreetalkMessageTreeTableSortStateBean.dateComparatorAscending);
+                        insertPoint = Collections.binarySearch(getChildren(), n, FreetalkMessageTreeTableSortStateBean.dateComparatorAscending);
                     } else {
-                        insertPoint = Collections.binarySearch(children, n, FreetalkMessageTreeTableSortStateBean.dateComparatorDescending);
+                        insertPoint = Collections.binarySearch(getChildren(), n, FreetalkMessageTreeTableSortStateBean.dateComparatorDescending);
                     }
                 } else {
                     // inside a thread, sort ascending
-                    insertPoint = Collections.binarySearch(children, n, FreetalkMessageTreeTableSortStateBean.dateComparatorAscending);
+                    insertPoint = Collections.binarySearch(getChildren(), n, FreetalkMessageTreeTableSortStateBean.dateComparatorAscending);
                 }
             } else {
-                final Comparator comparator = FreetalkMessageTreeTableSortStateBean.getComparator(
+                final Comparator<FreetalkMessage> comparator = FreetalkMessageTreeTableSortStateBean.getComparator(
                         FreetalkMessageTreeTableSortStateBean.getSortedColumn(), FreetalkMessageTreeTableSortStateBean.isAscending());
                 if( comparator != null ) {
-                    insertPoint = Collections.binarySearch(children, n, comparator);
+                    insertPoint = Collections.binarySearch(getChildren(), n, comparator);
                 } else {
                     insertPoint = 0;
                 }
@@ -227,9 +227,9 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
                 insertPoint++;
                 insertPoint *= -1;
             }
-            if( insertPoint >= children.size() ) {
+            if( insertPoint >= getChildren().size() ) {
                 super.add(n);
-                ixs = new int[] { children.size() - 1 };
+                ixs = new int[] { getChildren().size() - 1 };
             } else {
                 super.insert(n, insertPoint);
                 ixs = new int[] { insertPoint };
@@ -248,5 +248,10 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
                 MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().expandNode(this);
             }
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+	protected List<FreetalkMessage> getChildren() {
+    	return (List<FreetalkMessage>) children;
     }
 }

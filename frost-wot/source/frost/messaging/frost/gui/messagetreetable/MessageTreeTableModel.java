@@ -59,6 +59,7 @@ import frost.util.gui.translation.*;
  *
  * @author Scott Violet
  */
+@SuppressWarnings("serial")
 public class MessageTreeTableModel extends DefaultTreeModel implements TreeTableModel, LanguageListener {
 
     private Language language = null;

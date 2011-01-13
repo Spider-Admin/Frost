@@ -158,17 +158,14 @@ public class IdentitiesXmlDAO {
         }
     }
 
-    private static class BuddyList implements XMLizable {
+    @SuppressWarnings("serial")
+	private static class BuddyList implements XMLizable {
 
         private HashMap<String,Identity> hashMap = null;
 
         /**constructor*/
         public BuddyList() {
             hashMap = new HashMap<String,Identity>(100); //that sounds like a reasonable number
-        }
-
-        void clearAll() {
-            hashMap.clear();
         }
 
         /**
@@ -211,12 +208,7 @@ public class IdentitiesXmlDAO {
                 }
             }
         }
-        protected Object remove(final String key) {
-            return hashMap.remove(Mixed.makeFilename(key));
-        }
-        public int size() {
-            return hashMap.size();
-        }
+
         public Collection<Identity> getAllValues() {
             return hashMap.values();
         }

@@ -54,6 +54,7 @@ import javax.swing.tree.*;
  * @author Philip Milne
  * @author Scott Violet
  */
+@SuppressWarnings("serial")
 public class TreeTableModelAdapter extends AbstractTableModel {
 
     final JTree tree;

@@ -39,14 +39,14 @@ public class ModelItem {
 	/**
 	 * @return
 	 */
-	public SortedModel getModel() {
+	public SortedModel<?> getModel() {
 		return model;
 	}
 
 	/**
 	 * @param model
 	 */
-	public void setModel(SortedModel newModel) {
+	public void setModel(SortedModel<?> newModel) {
 		model = newModel;
 	}
 }

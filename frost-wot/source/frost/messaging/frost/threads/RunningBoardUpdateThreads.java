@@ -18,13 +18,17 @@
 */
 package frost.messaging.frost.threads;
 
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
-import frost.*;
-import frost.messaging.freetalk.gui.FreetalkMessagePanel;
-import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
+import frost.SettingsClass;
+import frost.messaging.frost.UnsentMessagesManager;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.boards.BoardUpdateInformation;
+import frost.messaging.frost.boards.BoardUpdateThread;
+import frost.messaging.frost.boards.BoardUpdateThreadListener;
 
 /**
  * This class maintains the message download and upload threads.
@@ -33,17 +37,17 @@ import frost.messaging.frost.boards.*;
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
 
     // listeners are notified of each finished thread
-    Hashtable<String,Vector> threadListenersForBoard = null; // contains all listeners registered for 1 board
+    Hashtable<String,Vector<BoardUpdateThreadListener>> threadListenersForBoard = null; // contains all listeners registered for 1 board
     Vector<BoardUpdateThreadListener> threadListenersForAllBoards = null; // contains all listeners for all boards
 
     // contains key=board, data=vector of BoardUpdateThread's, (max. 1 of a kind (MSG_DOWNLOAD_TODAY,...)
-    Hashtable<String,Vector> runningDownloadThreads = null;
+    Hashtable<String,Vector<BoardUpdateThread>> runningDownloadThreads = null;
 
     public RunningBoardUpdateThreads() {
-        threadListenersForBoard = new Hashtable<String,Vector>();
+        threadListenersForBoard = new Hashtable<String,Vector<BoardUpdateThreadListener>>();
         threadListenersForAllBoards = new Vector<BoardUpdateThreadListener>();
 
-        runningDownloadThreads = new Hashtable<String,Vector>();
+        runningDownloadThreads = new Hashtable<String,Vector<BoardUpdateThread>>();
     }
 
     /**
@@ -114,12 +118,12 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * Gets an Vector from a Hashtable with given key. If key is not contained
      * in Hashtable, an empty Vector will be created and put in the Hashtable.
      */
-    private Vector getVectorFromHashtable(final Hashtable<String,Vector> t, final Board key) {
-        Vector retval = null;
+    private <T> Vector<T> getVectorFromHashtable(final Hashtable<String,Vector<T>> t, final Board key) {
+        Vector<T> retval = null;
         synchronized( t ) {
             retval = t.get(key.getName());
             if( retval == null ) {
-                retval = new Vector();
+                retval = new Vector<T>();
                 t.put(key.getName(), retval);
             }
         }
@@ -175,8 +179,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      */
     public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
         // remove from thread list
-        Vector threads;
-        threads = getVectorFromHashtable(runningDownloadThreads, thread.getTargetBoard());
+        Vector<BoardUpdateThread> threads = getVectorFromHashtable(runningDownloadThreads, thread.getTargetBoard());
 
         if( threads != null ) {
             threads.remove(thread);
@@ -232,14 +235,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         int downloadingThreads = 0;
 
         synchronized( runningDownloadThreads ) {
-            final Iterator<Vector> i = runningDownloadThreads.values().iterator();
+            final Iterator<Vector<BoardUpdateThread>> i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                final Object o = i.next();
-                if( o instanceof Vector ) {
-                    final Vector v = (Vector) o;
-                    if( v.size() > 0 ) {
-                        downloadingThreads += v.size();
-                    }
+                final Vector<BoardUpdateThread> v = i.next();
+                if( v.size() > 0 ) {
+                    downloadingThreads += v.size();
                 }
             }
         }
@@ -253,16 +253,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         int downloadingBoards = 0;
 
         synchronized( runningDownloadThreads ) {
-            final Iterator<Vector> i = runningDownloadThreads.values().iterator();
+            final Iterator<Vector<BoardUpdateThread>> i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                final Vector o = i.next();
-                if( o instanceof Vector ) {
-                    final Vector v = (Vector) o;
-                    if( v.size() > 0 ) {
-                        downloadingBoards++;
-                    }
-                } else {
-                	Logger.getLogger(this.getClass().getName()).severe("Element not of expected type Vector");
+                final Vector<BoardUpdateThread> v = i.next();
+                if( v.size() > 0 ) {
+                    downloadingBoards++;
                 }
             }
         }
@@ -288,18 +283,13 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         info.addToAttachmentsToUploadRemainingCount(FileAttachmentUploadThread.getInstance().getQueueSize());
 
         synchronized( runningDownloadThreads ) {
-            final Iterator<Vector> i = runningDownloadThreads.values().iterator();
+            final Iterator<Vector<BoardUpdateThread>> i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                final Vector o = i.next();
-                if( o instanceof Vector ) {
-                    final Vector v = (Vector) o;
-                    final int vsize = v.size();
-                    if( vsize > 0 ) {
-                        info.addToDownloadingBoardCount(1);
-                        info.addToRunningDownloadThreadCount(vsize);
-                    }
-                } else {
-                	Logger.getLogger(this.getClass().getName()).severe("Element not of expected type Vector");
+                final Vector<BoardUpdateThread> v = i.next();
+                final int vsize = v.size();
+                if( vsize > 0 ) {
+                    info.addToDownloadingBoardCount(1);
+                    info.addToRunningDownloadThreadCount(vsize);
                 }
             }
         }

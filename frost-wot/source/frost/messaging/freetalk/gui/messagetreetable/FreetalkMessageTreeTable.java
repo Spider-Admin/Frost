@@ -91,8 +91,8 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
     private final ImageIcon starredIcon = MiscToolkit.loadImageIcon("/data/starred.gif");
     private final ImageIcon junkIcon    = MiscToolkit.loadImageIcon("/data/junk.gif");
 
-    private final ImageIcon messageDummyIcon = MiscToolkit.loadImageIcon("/data/messagedummyicon.gif");
     private final ImageIcon messageNewIcon = MiscToolkit.loadImageIcon("/data/messagenewicon.gif");
+    private final ImageIcon messageDummyIcon = MiscToolkit.loadImageIcon("/data/messagedummyicon.gif");
     private final ImageIcon messageReadIcon = MiscToolkit.loadImageIcon("/data/messagereadicon.gif");
     private final ImageIcon messageNewRepliedIcon = MiscToolkit.loadImageIcon("/data/messagenewrepliedicon.gif");
     private final ImageIcon messageReadRepliedIcon = MiscToolkit.loadImageIcon("/data/messagereadrepliedicon.gif");

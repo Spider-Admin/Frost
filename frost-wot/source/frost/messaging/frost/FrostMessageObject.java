@@ -168,6 +168,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setHasBoardAttachments(mof.getAttachmentsOfTypeFile().size() > 0);
         setHasFileAttachments(mof.getAttachmentsOfTypeBoard().size() > 0);
     }
+    
+    
 
     /**
      * This is called from within a cell renderer and should finish as fast as
@@ -183,7 +185,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         if( getChildCount() == 0 ) {
             return result;
         }
-
+        breadthFirstEnumeration();
         final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = breadthFirstEnumeration();
         while(frostMessageObjectEnumeration.hasMoreElements()) {
             final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
@@ -491,13 +493,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     }
 
     public void resortChildren() {
-        if( children == null || children.size() <= 1 ) {
+        if( getChildren() == null || getChildren().size() <= 1 ) {
             return;
         }
         // choose a comparator based on settings in SortStateBean
         final Comparator<FrostMessageObject> comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
         if( comparator != null ) {
-            Collections.sort(children, comparator);
+            Collections.sort(getChildren(), comparator);
         }
     }
 
@@ -514,7 +516,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         final FrostMessageObject frostMessageObject = (FrostMessageObject)mutableTreeNode;
         int[] ixs;
 
-        if( children == null ) {
+        if( getChildren() == null ) {
             super.add(frostMessageObject);
             ixs = new int[] { 0 };
         } else {
@@ -528,18 +530,18 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                 if( isRoot() ) {
                     // child of root, sort descending
                     if( sortThreadRootMsgsAscending ) {
-                        insertPoint = Collections.binarySearch(children, frostMessageObject, MessageTreeTableSortStateBean.dateComparatorAscending);
+                        insertPoint = Collections.binarySearch(getChildren(), frostMessageObject, MessageTreeTableSortStateBean.dateComparatorAscending);
                     } else {
-                        insertPoint = Collections.binarySearch(children, frostMessageObject, MessageTreeTableSortStateBean.dateComparatorDescending);
+                        insertPoint = Collections.binarySearch(getChildren(), frostMessageObject, MessageTreeTableSortStateBean.dateComparatorDescending);
                     }
                 } else {
                     // inside a thread, sort ascending
-                    insertPoint = Collections.binarySearch(children, frostMessageObject, MessageTreeTableSortStateBean.dateComparatorAscending);
+                    insertPoint = Collections.binarySearch(getChildren(), frostMessageObject, MessageTreeTableSortStateBean.dateComparatorAscending);
                 }
             } else {
-                final Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+                final Comparator<FrostMessageObject> comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
                 if( comparator != null ) {
-                    insertPoint = Collections.binarySearch(children, frostMessageObject, comparator);
+                    insertPoint = Collections.binarySearch(getChildren(), frostMessageObject, comparator);
                 } else {
                     insertPoint = 0;
                 }
@@ -549,9 +551,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                 insertPoint++;
                 insertPoint *= -1;
             }
-            if( insertPoint >= children.size() ) {
+            if( insertPoint >= getChildren().size() ) {
                 super.add(frostMessageObject);
-                ixs = new int[] { children.size() - 1 };
+                ixs = new int[] { getChildren().size() - 1 };
             } else {
                 super.insert(frostMessageObject, insertPoint);
                 ixs = new int[] { insertPoint };
@@ -570,8 +572,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                 MainFrame.getInstance().getMessageTreeTable().expandNode(this);
             }
         }
-//        FrostMessageObject mo = (FrostMessageObject)n;
-//        System.out.println("ADDED: "+dbg1(mo)+", TO: "+dbg1(this)+", IX="+ixs[0]+", silent="+silent);
+    }
+    
+    @SuppressWarnings("unchecked")
+	protected List<FrostMessageObject> getChildren() {
+    	return (List<FrostMessageObject>) children;
     }
 
     @Override
