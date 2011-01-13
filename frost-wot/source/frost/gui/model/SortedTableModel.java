@@ -146,14 +146,28 @@ public class SortedTableModel<T extends TableMember> extends DefaultTableModel
      */
     public void deleteRow(TableMember obj)
     {
-        if (obj!=null)
+        if (obj != null)
         {
             int i = rows.indexOf(obj);
             rows.remove(obj);
             if (i!=-1) fireTableRowsDeleted(i,i);
         }
     }
-
+    
+    /**
+     * Deletes the the object at position rowNumber
+     *
+     * @param row row number
+     */
+    public void deleteRow(int row) {
+    	if( row < 0 || row >= rows.size()) {
+    		return;
+    	}
+    	
+    	rows.remove(row);
+    	fireTableRowsDeleted(row,row);
+    }
+    
     /**
      * Updates the passed object obj.
      *

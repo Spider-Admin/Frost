@@ -18,13 +18,19 @@
 */
 package frost.gui;
 
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.JTable;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
-import frost.gui.model.*;
+import frost.gui.model.SortedTableModel;
+import frost.gui.model.TableMember;
 
 @SuppressWarnings("serial")
 public class SortedTable<T extends TableMember> extends JTable
@@ -193,5 +199,41 @@ public class SortedTable<T extends TableMember> extends JTable
         public void mouseEntered(MouseEvent event) {}
         public void mouseExited(MouseEvent event) {}
     }
+    
+    public void removeSelected() {
+		final int[] selectedRows = getSelectedRows();
+
+		if( selectedRows.length > 0 ) {
+			SortedTableModel<T> sortedTableModel = getModel();
+			final int rowCount = sortedTableModel.getRowCount();
+			for( int z = selectedRows.length - 1; z > -1; z-- ) {
+				final int rowIx = selectedRows[z];
+
+				if( rowIx >= rowCount ) {
+					continue; // paranoia
+				}
+
+				sortedTableModel.deleteRow( rowIx );
+			}
+			clearSelection();
+		}
+	}
+    
+    public void removeButSelected() {
+		final int[] selectedRows = getSelectedRows();
+
+		if( selectedRows.length > 0 ) {
+			// Sort - needed for binary search!
+			java.util.Arrays.sort( selectedRows );
+			SortedTableModel<T> sortedTableModel = getModel();
+			
+			// Traverse all entries and look if they are not in the list of selected items
+			for( int z = sortedTableModel.getRowCount() - 1 ; z > -1 ; z--) {
+				if( java.util.Arrays.binarySearch(selectedRows, z) < 0) {
+					sortedTableModel.deleteRow(z);
+				}
+			}
+		}
+	}
 }
 

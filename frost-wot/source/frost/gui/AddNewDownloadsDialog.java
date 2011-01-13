@@ -260,7 +260,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		final JMenuItem removeDownload = new JMenuItem(language.getString("AddNewDownloadsDialog.button.removeDownload"));
 		removeDownload.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
-				removeDownload_actionPerformed(actionEvent);
+				addNewDownloadsTable.removeSelected();
 			}
 		});
 
@@ -268,7 +268,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		final JMenuItem removeButSelectedDownload = new JMenuItem(language.getString("AddNewDownloadsDialog.button.removeButSelectedDownload"));
 		removeButSelectedDownload.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
-				removeButSelectedDownload_actionPerformed(actionEvent);
+				addNewDownloadsTable.removeButSelected();
 			}
 		});
 
@@ -293,7 +293,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		JMenuItem item = new JMenuItem(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
 		item.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
-				setDownload_actionPerformed(actionEvent, Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
+				setDownloadDir(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
 			}
 		});
 		downloadDirRecentMenu.add(item);
@@ -307,7 +307,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				item = new JMenuItem(dir);
 				item.addActionListener( new java.awt.event.ActionListener() {
 					public void actionPerformed(final ActionEvent actionEvent) {
-						setDownload_actionPerformed(actionEvent, dir);
+						setDownloadDir(dir);
 					}
 				});
 				downloadDirRecentMenu.add(item);
@@ -333,6 +333,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 
 	private void removeAlreadyDownloadedButton_actionPerformed(final ActionEvent actionEvent) {
 		final int numberOfRows = addNewDownloadsTableModel.getRowCount();
+		addNewDownloadsTable.clearSelection();
 		for( int indexPos = numberOfRows -1; indexPos >= 0; indexPos--) {
 			final AddNewDownloadsTableMember addNewDownloadsTableMember =
 				(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
@@ -340,11 +341,11 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				addNewDownloadsTableModel.deleteRow(addNewDownloadsTableMember);
 			}
 		}
-		addNewDownloadsTable.clearSelection();
 	}
 
 	private void removeAlreadyExistsButton_actionPerformed(final ActionEvent actionEvent) {
 		final int numberOfRows = addNewDownloadsTableModel.getRowCount();
+		addNewDownloadsTable.clearSelection();
 		for( int indexPos = numberOfRows -1; indexPos >= 0; indexPos--) {
 			final AddNewDownloadsTableMember addNewDownloadsTableMember =
 				(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
@@ -353,7 +354,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				addNewDownloadsTableModel.deleteRow(addNewDownloadsTableMember);
 			}
 		}
-		addNewDownloadsTable.clearSelection();
 	}
 	
 	private void renameFile_actionPerformed(final ActionEvent actionEvent) {
@@ -374,7 +374,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				}
 				row.updateExistsCheck();
 			}
-			addNewDownloadsTable.clearSelection();
+			addNewDownloadsTable.repaint();
 		}
 	}
 	
@@ -407,85 +407,39 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				row.getDownloadItem().setFilenamePrefix(prefix);
 				row.updateExistsCheck();
 			}
-			addNewDownloadsTable.clearSelection();
+			addNewDownloadsTable.repaint();
 		}
 	}
 	
 	
-	private final String askForPrefix() {
+	private String askForPrefix() {
 		return (String) JOptionPane.showInputDialog(
-				this,
-				language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogBody"),
-				language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogTitle"),
-				JOptionPane.QUESTION_MESSAGE
+			this,
+			language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogBody"),
+			language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogTitle"),
+			JOptionPane.QUESTION_MESSAGE
 		);
 	}
 
 	private void changeDownloadDir_actionPerformed(final ActionEvent actionEvent) {
-		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-
-		if( selectedRows.length > 0 ) {
-			// Open choose Directory dialog
-			final JFileChooser chooser = new JFileChooser();
-			chooser.setCurrentDirectory(
-					new java.io.File(
-							Core.frostSettings.getDefaultValue(SettingsClass.DIR_DOWNLOAD)
-					)
-			);
-			chooser.setDialogTitle(language.getString("AddNewDownloadsDialog.changeDirDialog.title"));
-			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			chooser.setAcceptAllFileFilterUsed(false);
-			if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-				return;
-			}
-
-			// Set new dir for selected items
-			for( final int rowIndex : selectedRows ) {
-				if( rowIndex >= addNewDownloadsTable.getRowCount() ) {
-					continue; // paranoia
-				}
-
-				// add the board(s) to board tree and remove it from table
-				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex);
-				row.getDownloadItem().setDownloadDir(chooser.getSelectedFile().toString());
-				row.updateExistsCheck();
-			}
-			addNewDownloadsTable.clearSelection();
+		// Open dialog to request dir
+		final JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(
+				new java.io.File(
+						Core.frostSettings.getDefaultValue(SettingsClass.DIR_DOWNLOAD)
+				)
+		);
+		chooser.setDialogTitle(language.getString("AddNewDownloadsDialog.changeDirDialog.title"));
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+			return;
 		}
+		
+		// Set dir for selected items
+		setDownloadDir(chooser.getSelectedFile().toString());
 	}
 	
-	private void removeDownload_actionPerformed(final ActionEvent e) {
-		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-
-		if( selectedRows.length > 0 ) {
-			for( int z = selectedRows.length - 1; z > -1; z-- ) {
-				final int rowIx = selectedRows[z];
-
-				if( rowIx >= addNewDownloadsTableModel.getRowCount() ) {
-					continue; // paranoia
-				}
-
-				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIx);
-				addNewDownloadsTableModel.deleteRow(row);
-			}
-			addNewDownloadsTable.clearSelection();
-		}
-	}
-	
-	private void removeButSelectedDownload_actionPerformed(final ActionEvent e) {
-		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-		java.util.Arrays.sort( selectedRows );
-
-		for( int z = addNewDownloadsTableModel.getRowCount() - 1 ; z > -1 ; z--) {
-			if( java.util.Arrays.binarySearch(selectedRows, z) < 0) {
-				addNewDownloadsTableModel.deleteRow(
-						(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(z)
-				);
-			}
-		}
-	}
-	
-
 	private void changePriority_actionPerformed(final ActionEvent e, final int priority) {
 		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
 
@@ -500,35 +454,30 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIx);
 				row.getDownloadItem().setPriority(priority);
 			}
-			addNewDownloadsTable.clearSelection();
+			addNewDownloadsTable.repaint();
 		}
 	}
 	
 	
-	private void setDownload_actionPerformed(final ActionEvent e, final String downloadDir) {{
-			final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
+	private void setDownloadDir(final String downloadDir) {
+		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
+		if( selectedRows.length > 0 ) {
+			for( int z = selectedRows.length - 1; z > -1; z-- ) {
+				final int rowIx = selectedRows[z];
 
-			if( selectedRows.length > 0 ) {
-				for( int z = selectedRows.length - 1; z > -1; z-- ) {
-					final int rowIx = selectedRows[z];
-
-					if( rowIx >= addNewDownloadsTableModel.getRowCount() ) {
-						continue; // paranoia
-					}
-
-					final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIx);
-					row.getDownloadItem().setDownloadDir(downloadDir);
+				if( rowIx >= addNewDownloadsTableModel.getRowCount() ) {
+					continue; // paranoia
 				}
-				addNewDownloadsTable.clearSelection();
+
+				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIx);
+				row.getDownloadItem().setDownloadDir(downloadDir);
 			}
+			addNewDownloadsTable.repaint();
 		}
 	}
 
-	
 	
 	private static class AddNewDownloadsTableModel extends SortedTableModel<AddNewDownloadsTableMember>{
-		private static final long serialVersionUID = 1L;
-
 		private Language language = null;
 
 		protected final static String columnNames[] = new String[6];
@@ -693,7 +642,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	
 	private class AddNewDownloadsTable extends SortedTable<AddNewDownloadsTableMember> {
 
-		private static final long serialVersionUID = 1L;
 		private CenterCellRenderer centerCellRenderer;
 		
 		private final String[] columnTooltips = {
@@ -750,7 +698,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		}
 
 		private class CenterCellRenderer extends JLabel implements TableCellRenderer {
-			private static final long serialVersionUID = 1L;
 
 			public Component getTableCellRendererComponent(final JTable table,
 					final Object value, final boolean isSelected, final boolean hasFocus,
@@ -763,7 +710,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		
 		protected JTableHeader createDefaultTableHeader() {
 			return new JTableHeader(columnModel) {
-				private static final long serialVersionUID = 1L;
 				public String getToolTipText(final MouseEvent e) {
 					final java.awt.Point p = e.getPoint();
 					final int index = columnModel.getColumnIndexAtX(p.x);

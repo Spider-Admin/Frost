@@ -5,7 +5,9 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,16 +15,20 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 
+import frost.Core;
+import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.model.SortedTableModel;
 import frost.gui.model.TableMember;
+import frost.util.FileAccess;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 
@@ -84,7 +90,33 @@ public class AddNewUploadsDialog extends JFrame {
 			setIconImage(MiscToolkit.loadImageIcon("/data/toolbar/go-up.png").getImage());
 			
 			
+			// Add Button
+			final JButton addButton = new JButton(language.getString("Common.add"));
+			addButton.addActionListener( new java.awt.event.ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					List<FrostUploadItem> frostUploadItmeList = addFileChooser();
+					for( final FrostUploadItem frotUploadItem : frostUploadItmeList) {
+						addNewUploadsTableModel.addRow(new AddNewUploadsTableMember(frotUploadItem));
+					}
+				}
+			});
+			
+			// Remove selected button
+			final JButton removeSelectedButton = new JButton(language.getString("AddNewUploadsDialog.button.removeSelected"));
+			removeSelectedButton.addActionListener( new java.awt.event.ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					addNewUploadsTable.removeSelected();
+				}
+			});
 
+			// Remove but selected button
+			final JButton removeButSeelctedButton = new JButton(language.getString("AddNewUploadsDialog.button.removeButSelected"));
+			removeButSeelctedButton.addActionListener( new java.awt.event.ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					addNewUploadsTable.removeButSelected();
+				}
+			});
+			
 			// OK Button
 			final JButton okButton = new JButton(language.getString("Common.ok"));
 			okButton.addActionListener( new java.awt.event.ActionListener() {
@@ -108,13 +140,18 @@ public class AddNewUploadsDialog extends JFrame {
 			final JPanel buttonsPanel = new JPanel(new BorderLayout());
 			buttonsPanel.setLayout( new BoxLayout( buttonsPanel, BoxLayout.X_AXIS ));
 
+			buttonsPanel.add( addButton );
+			buttonsPanel.add(Box.createRigidArea(new Dimension(10,3)));
+			buttonsPanel.add( removeSelectedButton );
+			buttonsPanel.add(Box.createRigidArea(new Dimension(10,3)));
+			buttonsPanel.add( removeButSeelctedButton );
+
 			buttonsPanel.add( Box.createHorizontalGlue() );
 
 			buttonsPanel.add( cancelButton );
 			buttonsPanel.add(Box.createRigidArea(new Dimension(10,3)));
 			buttonsPanel.add( okButton );
 			buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
-			
 			
 			
 			// Upload Table
@@ -126,7 +163,7 @@ public class AddNewUploadsDialog extends JFrame {
 			final JScrollPane scrollPane = new JScrollPane(addNewUploadsTable);
 			scrollPane.setWheelScrollingEnabled(true);
 
-			// main panel
+			// Main panel
 			final JPanel mainPanel = new JPanel(new BorderLayout());
 			mainPanel.add( scrollPane, BorderLayout.CENTER );
 			mainPanel.add( buttonsPanel, BorderLayout.SOUTH );
@@ -142,7 +179,10 @@ public class AddNewUploadsDialog extends JFrame {
 	
 	
 	
-	public void startDialog(List<FrostUploadItem> frostUploadItmeList) {
+	public void startDialog() {
+		// Open file picker
+		List<FrostUploadItem> frostUploadItmeList = addFileChooser();
+		
 		// load data into table
 		this.loadNewUploadsIntoTable(frostUploadItmeList);
 		setLocationRelativeTo(parentFrame);
@@ -207,7 +247,46 @@ public class AddNewUploadsDialog extends JFrame {
 	}
 	
 	
+	private List<FrostUploadItem> addFileChooser() {
+		
+		List<FrostUploadItem> frostUploadItemList = new ArrayList<FrostUploadItem>();
+		
+		final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
+		fc.setDialogTitle(language.getString("AddNewUploadsDialog.filechooser.title"));
+		fc.setFileHidingEnabled(true);
+		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		fc.setMultiSelectionEnabled(true);
+		fc.setPreferredSize(new Dimension(600, 400));
+
+		if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+			return frostUploadItemList;
+		}
+		final File[] selectedFiles = fc.getSelectedFiles();
+		if( selectedFiles == null ) {
+			return frostUploadItemList;
+		}
+
+		final List<File> uploadFileItems = new LinkedList<File>();
+		for( final File element : selectedFiles ) {
+			// collect all choosed files + files in all choosed directories
+			uploadFileItems.addAll( FileAccess.getAllEntries(element) );
+		}
+
+		// remember last upload dir
+		if (uploadFileItems.size() > 0) {
+			final File file = uploadFileItems.get(0);
+			Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
+		}
+
+		for(final File file : uploadFileItems ) {
+			frostUploadItemList.add( new FrostUploadItem(file));
+		}
+
+		return frostUploadItemList;
+	}
 	
+	
+
 	private static class AddNewUploadsTableModel extends SortedTableModel<AddNewUploadsTableMember>{ 
 		private Language language = null;
 
@@ -254,8 +333,6 @@ public class AddNewUploadsDialog extends JFrame {
 	}
 	
 	private class AddNewUploadsTable extends SortedTable<AddNewUploadsTableMember> {
-
-		private static final long serialVersionUID = 1L;
 		
 		public AddNewUploadsTable(SortedTableModel<AddNewUploadsTableMember> model) {
 			super(model);
@@ -280,42 +357,6 @@ public class AddNewUploadsDialog extends JFrame {
 			return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 		}
 		
-//		public TableCellRenderer getCellRenderer(final int rowIndex, final int columnIndex) {
-//			switch(columnIndex){
-//				case 0:
-//				case 1:
-//				case 2:
-//					return super.getCellRenderer(rowIndex, columnIndex);
-//				case 4:
-//				default:
-//					assert false;
-//			}
-//			return super.getCellRenderer(rowIndex, columnIndex);
-//		}
-//
-//		private class CenterCellRenderer extends JLabel implements TableCellRenderer {
-//			private static final long serialVersionUID = 1L;
-//
-//			public Component getTableCellRendererComponent(final JTable table,
-//					final Object value, final boolean isSelected, final boolean hasFocus,
-//					final int row, final int column) {
-//				this.setText(value.toString());
-//				this.setHorizontalAlignment(SwingConstants.CENTER);
-//				return this;
-//			}
-//		}
-//		
-//		protected JTableHeader createDefaultTableHeader() {
-//			return new JTableHeader(columnModel) {
-//				private static final long serialVersionUID = 1L;
-//				public String getToolTipText(final MouseEvent e) {
-//					final java.awt.Point p = e.getPoint();
-//					final int index = columnModel.getColumnIndexAtX(p.x);
-//					final int realIndex = columnModel.getColumn(index).getModelIndex();
-//					return columnTooltips[realIndex];
-//				}
-//			};
-//		}
 	}
 	
 	

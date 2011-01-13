@@ -34,7 +34,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +45,6 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -62,7 +60,6 @@ import frost.fileTransfer.PersistenceManager;
 import frost.fileTransfer.sharing.FrostSharedFileItem;
 import frost.gui.AddNewUploadsDialog;
 import frost.util.CopyToClipboard;
-import frost.util.FileAccess;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.search.TableFindAction;
@@ -226,49 +223,6 @@ public class UploadPanel extends JPanel {
         }
     }
 
-    public void uploadAddFilesButton_actionPerformed(final ActionEvent e) {
-
-        final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
-        fc.setDialogTitle(language.getString("UploadPane.filechooser.title"));
-        fc.setFileHidingEnabled(true);
-        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fc.setMultiSelectionEnabled(true);
-        fc.setPreferredSize(new Dimension(600, 400));
-
-        if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        final File[] selectedFiles = fc.getSelectedFiles();
-        if( selectedFiles == null ) {
-            return;
-        }
-
-        final List<File> uploadFileItems = new LinkedList<File>();
-        for( final File element : selectedFiles ) {
-            // collect all choosed files + files in all choosed directories
-            uploadFileItems.addAll( FileAccess.getAllEntries(element) );
-        }
-
-        // remember last upload dir
-        if (uploadFileItems.size() > 0) {
-            final File file = uploadFileItems.get(0);
-            Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
-        }
-        
-        List<FrostUploadItem> frostUploadItemList = new ArrayList<FrostUploadItem>();
-        for(final File file : uploadFileItems ) {
-        	frostUploadItemList.add( new FrostUploadItem(file));
-        }
-        
-        final AddNewUploadsDialog addNewUploadsDialog = new AddNewUploadsDialog(MainFrame.getInstance());
-    	addNewUploadsDialog.startDialog(frostUploadItemList);
-    	
-//        for(final File file : uploadFileItems ) {
-//            model.addNewUploadItem(
-//            	new FrostUploadItem(file, compressUploadsCheckBox.isSelected())
-//            );
-//        }
-    }
 
     private void showUploadTablePopupMenu(final MouseEvent e) {
         // select row where rightclick occurred if row under mouse is NOT selected
@@ -687,7 +641,7 @@ public class UploadPanel extends JPanel {
         }
         public void actionPerformed(final ActionEvent e) {
         	if (e.getSource() == uploadAddFilesButton) {
-        		uploadAddFilesButton_actionPerformed(e);
+        		new AddNewUploadsDialog(MainFrame.getInstance()).startDialog();
         	}
         }
         @Override
