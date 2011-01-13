@@ -235,5 +235,30 @@ public class SortedTable<T extends TableMember> extends JTable
 			}
 		}
 	}
+
+	abstract protected class SelectedItemsAction {
+		abstract protected void action(T t);
+
+		public SelectedItemsAction() {
+			iterateSelectedItems();
+		}
+		
+		private void iterateSelectedItems() {
+		
+			final int[] selectedRows = getSelectedRows();
+			if( selectedRows.length > 0 ) {
+				int numberOfRows = getRowCount();
+				SortedTableModel<T> sortedTableModel = getModel();
+				for( int rowIx : selectedRows) {
+					if( rowIx >= numberOfRows ) {
+						continue; // paranoia
+					}
+					
+					action( sortedTableModel.getRow(rowIx));
+				}
+				repaint();
+			}
+		}
+	}
 }
 

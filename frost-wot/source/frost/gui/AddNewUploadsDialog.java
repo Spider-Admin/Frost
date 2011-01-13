@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -25,10 +28,12 @@ import javax.swing.WindowConstants;
 import frost.Core;
 import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.upload.FreenetInsertModes;
 import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.model.SortedTableModel;
 import frost.gui.model.TableMember;
 import frost.util.FileAccess;
+import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 
@@ -39,8 +44,12 @@ public class AddNewUploadsDialog extends JFrame {
 
 	private AddNewUploadsTableModel addNewUploadsTableModel;
 	private AddNewUploadsTable addNewUploadsTable;
-
+	
+	private JSkinnablePopupMenu tablePopupMenu;
+	
 	private final Frame parentFrame;
+	
+	
 
 	/**
 	 * If true, uploads in model will be added to upload list when closing the window
@@ -172,9 +181,59 @@ public class AddNewUploadsDialog extends JFrame {
 			this.getContentPane().setLayout(new BorderLayout());
 			this.getContentPane().add(mainPanel, null);
 			
+			initTablePopupMenu();
+			
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void initTablePopupMenu() {
+		final JMenuItem enableCompressionMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.enableCompression"));
+		enableCompressionMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewUploadsTable.new SelectedItemsAction() {
+					protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+						addNewUploadsTableMember.getUploadItem().setCompress(true);
+					}
+				};
+			}
+		});
+		
+		final JMenuItem disableCompressionMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.disableCompression"));
+		disableCompressionMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewUploadsTable.new SelectedItemsAction() {
+					protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+						addNewUploadsTableMember.getUploadItem().setCompress(false);
+					}
+				};
+			}
+		});
+		
+		// Freenet insert mode
+		final JMenu changeFreenetInsertModeMenu = new JMenu(language.getString("AddNewUploadsDialog.popupMenu.changeFreenetInsertMode"));
+		for(final FreenetInsertModes freenetInsertMode : FreenetInsertModes.values()) {
+			JMenuItem changeFreenetInsertModeMenutItem = new JMenuItem(freenetInsertMode.toString());
+			changeFreenetInsertModeMenutItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(final ActionEvent actionEvent) {
+					addNewUploadsTable.new SelectedItemsAction() {
+						protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+							addNewUploadsTableMember.getUploadItem().setFreenetInsertMode(freenetInsertMode);
+						}
+					};
+				}
+			});
+			changeFreenetInsertModeMenu.add(changeFreenetInsertModeMenutItem);
+		}
+		
+		tablePopupMenu = new JSkinnablePopupMenu();
+		tablePopupMenu.add(enableCompressionMenuItem);
+		tablePopupMenu.add(disableCompressionMenuItem);
+		tablePopupMenu.addSeparator();
+		tablePopupMenu.add(changeFreenetInsertModeMenu);
+		
+		addNewUploadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
 	
 	
@@ -199,6 +258,27 @@ public class AddNewUploadsDialog extends JFrame {
 		}
 	}
 	
+	
+	private class TablePopupMenuMouseListener implements MouseListener {
+		public void mouseReleased(final MouseEvent event) {
+			maybeShowPopup(event);
+		}
+		public void mousePressed(final MouseEvent event) {
+			maybeShowPopup(event);
+		}
+		public void mouseClicked(final MouseEvent event) {}
+		public void mouseEntered(final MouseEvent event) {}
+		public void mouseExited(final MouseEvent event) {}
+
+		protected void maybeShowPopup(final MouseEvent e) {
+			if( e.isPopupTrigger() ) {
+				if( addNewUploadsTable.getSelectedRowCount() > 0 ) {
+					tablePopupMenu.show(addNewUploadsTable, e.getX(), e.getY());
+				}
+			}
+		}
+	}
+	
 	private class AddNewUploadsTableMember implements TableMember {
 		
 		FrostUploadItem frostUploadItem;
@@ -217,6 +297,10 @@ public class AddNewUploadsDialog extends JFrame {
 						return frostUploadItem.getFile().getCanonicalPath();
 					case 2:
 						return new Long(frostUploadItem.getFileSize());
+					case 3:
+						return frostUploadItem.getCompress() ? language.getString("Common.yes") : language.getString("Common.no");
+					case 4:
+						return frostUploadItem.getFreenetInsertMode();
 					default :
 						throw new RuntimeException("Unknown Column pos");
 				}
@@ -284,18 +368,19 @@ public class AddNewUploadsDialog extends JFrame {
 
 		return frostUploadItemList;
 	}
-	
-	
+
 
 	private static class AddNewUploadsTableModel extends SortedTableModel<AddNewUploadsTableMember>{ 
 		private Language language = null;
 
-		protected final static String columnNames[] = new String[3];
+		protected static String columnNames[];
 
-		protected final static Class<?> columnClasses[] =  {
+		protected final static Class<?> columnClasses[] = {
 			String.class,
 			String.class,
-			Long.class
+			Long.class,
+			String.class,
+			FreenetInsertModes.class
 		};
 
 		public AddNewUploadsTableModel() {
@@ -303,12 +388,18 @@ public class AddNewUploadsDialog extends JFrame {
 			assert columnClasses.length == columnNames.length;
 			language = Language.getInstance();
 			refreshLanguage();
+			
+			assert(columnClasses.length == columnNames.length);
 		}
 
 		private void refreshLanguage() {
-			columnNames[0] = language.getString("AddNewUploadsDialog.table.name");
-			columnNames[1] = language.getString("AddNewUploadsDialog.table.path");
-			columnNames[2] = language.getString("AddNewUploadsDialog.table.size");
+			columnNames = new String[]{
+				language.getString("AddNewUploadsDialog.table.name"),
+				language.getString("AddNewUploadsDialog.table.path"),
+				language.getString("AddNewUploadsDialog.table.size"),
+				language.getString("AddNewUploadsDialog.table.compress"),
+				language.getString("AddNewUploadsDialog.table.freenetInsertMode")
+			};
 		}
 
 		public boolean isCellEditable(int row, int col) {
@@ -356,7 +447,6 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 			return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 		}
-		
 	}
 	
 	

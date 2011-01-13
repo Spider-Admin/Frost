@@ -52,6 +52,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private String gqIdentifier = null;
     
     private boolean compress = true;
+    private FreenetInsertModes freenetInsertMode = FreenetInsertModes.getDefault();
 
     private boolean isLoggedToFile = false;
     private boolean isCompletionProgRun = false;
@@ -207,6 +208,14 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
 	public void setCompress(final boolean compress) {
 		this.compress = compress;
+	}
+	
+	public FreenetInsertModes getFreenetInsertMode() {
+		return freenetInsertMode;
+	}
+
+	public void setFreenetInsertMode(final FreenetInsertModes freenetInsertMode) {
+		this.freenetInsertMode = freenetInsertMode;
 	}
 
 	public int getDoneBlocks() {

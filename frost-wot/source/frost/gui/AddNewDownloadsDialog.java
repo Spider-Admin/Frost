@@ -231,11 +231,21 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	}
 
 	private void initPopupMenu() {
+		final AddNewDownloadsDialog addNewDownloadsDialog = this;
+
 		// Rename file
 		final JMenuItem renameFile = new JMenuItem(language.getString("AddNewDownloadsDialog.button.renameFile"));
 		renameFile.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
-				renameFile_actionPerformed(actionEvent);
+				addNewDownloadsTable.new SelectedItemsAction() {
+					protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+						String newName = askForNewname(addNewDownloadsTableMember.getDownloadItem().getUnprefixedFilename());
+						if( newName != null ) {
+							addNewDownloadsTableMember.getDownloadItem().setFileName(newName);
+						}
+						addNewDownloadsTableMember.updateExistsCheck();
+					}
+				};
 			}
 		});
 		
@@ -243,7 +253,18 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		final JMenuItem prefixFilename = new JMenuItem(language.getString("AddNewDownloadsDialog.button.prefixFilename"));
 		prefixFilename.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
-				prefixFilename_actionPerformed(actionEvent);
+				final String prefix = JOptionPane.showInputDialog(
+					addNewDownloadsDialog,
+					language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogBody"),
+					language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogTitle"),
+					JOptionPane.QUESTION_MESSAGE
+				);
+
+				addNewDownloadsTable.new SelectedItemsAction() {
+					protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+						addNewDownloadsTableMember.getDownloadItem().setFilenamePrefix(prefix);
+					}
+				};
 			}
 		});
 
@@ -283,7 +304,11 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			changePriorityMenu.add(prioItemList[priority]);
 			prioItemList[priority].addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent actionEvent) {
-					changePriority_actionPerformed(actionEvent, priority);
+					addNewDownloadsTable.new SelectedItemsAction() {
+						protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+							addNewDownloadsTableMember.getDownloadItem().setPriority(priority);
+						}
+					};
 				}
 			});
 		}
@@ -336,7 +361,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		addNewDownloadsTable.clearSelection();
 		for( int indexPos = numberOfRows -1; indexPos >= 0; indexPos--) {
 			final AddNewDownloadsTableMember addNewDownloadsTableMember =
-				(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
+				addNewDownloadsTableModel.getRow(indexPos);
 			if( trackDownloadKeysStorage.searchItemKey( addNewDownloadsTableMember.getDownloadItem().getKey() ) ) {
 				addNewDownloadsTableModel.deleteRow(addNewDownloadsTableMember);
 			}
@@ -348,33 +373,11 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		addNewDownloadsTable.clearSelection();
 		for( int indexPos = numberOfRows -1; indexPos >= 0; indexPos--) {
 			final AddNewDownloadsTableMember addNewDownloadsTableMember =
-				(AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
+				addNewDownloadsTableModel.getRow(indexPos);
 			final FrostDownloadItem frostDownloadItem = addNewDownloadsTableMember.getDownloadItem();
 			if(new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename()).exists() ) {
 				addNewDownloadsTableModel.deleteRow(addNewDownloadsTableMember);
 			}
-		}
-	}
-	
-	private void renameFile_actionPerformed(final ActionEvent actionEvent) {
-		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-
-		if( selectedRows.length > 0 ) {
-			
-			for( final int rowIndex : selectedRows ) {
-				if( rowIndex >= addNewDownloadsTable.getRowCount() ) {
-					continue; // paranoia
-				}
-				
-				// add the board(s) to board tree and remove it from table
-				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex);
-				String newName = askForNewname(row.getDownloadItem().getUnprefixedFilename());
-				if( newName != null ) {
-					row.getDownloadItem().setFileName(newName);
-				}
-				row.updateExistsCheck();
-			}
-			addNewDownloadsTable.repaint();
 		}
 	}
 	
@@ -389,38 +392,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				oldName
 		);
 	}
-	
-	private void prefixFilename_actionPerformed(final ActionEvent actionEvent) {
-		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-
-		if( selectedRows.length > 0 ) {
-			
-			final String prefix = askForPrefix();
-			
-			for( final int rowIndex : selectedRows ) {
-				if( rowIndex >= addNewDownloadsTable.getRowCount() ) {
-					continue; // paranoia
-				}
-				
-				// add the board(s) to board tree and remove it from table
-				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex);
-				row.getDownloadItem().setFilenamePrefix(prefix);
-				row.updateExistsCheck();
-			}
-			addNewDownloadsTable.repaint();
-		}
-	}
-	
-	
-	private String askForPrefix() {
-		return (String) JOptionPane.showInputDialog(
-			this,
-			language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogBody"),
-			language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogTitle"),
-			JOptionPane.QUESTION_MESSAGE
-		);
-	}
-
 	private void changeDownloadDir_actionPerformed(final ActionEvent actionEvent) {
 		// Open dialog to request dir
 		final JFileChooser chooser = new JFileChooser();
@@ -440,40 +411,13 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		setDownloadDir(chooser.getSelectedFile().toString());
 	}
 	
-	private void changePriority_actionPerformed(final ActionEvent e, final int priority) {
-		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-
-		if( selectedRows.length > 0 ) {
-			for( int z = selectedRows.length - 1; z > -1; z-- ) {
-				final int rowIx = selectedRows[z];
-
-				if( rowIx >= addNewDownloadsTableModel.getRowCount() ) {
-					continue; // paranoia
-				}
-
-				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIx);
-				row.getDownloadItem().setPriority(priority);
-			}
-			addNewDownloadsTable.repaint();
-		}
-	}
-	
 	
 	private void setDownloadDir(final String downloadDir) {
-		final int[] selectedRows = addNewDownloadsTable.getSelectedRows();
-		if( selectedRows.length > 0 ) {
-			for( int z = selectedRows.length - 1; z > -1; z-- ) {
-				final int rowIx = selectedRows[z];
-
-				if( rowIx >= addNewDownloadsTableModel.getRowCount() ) {
-					continue; // paranoia
-				}
-
-				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIx);
-				row.getDownloadItem().setDownloadDir(downloadDir);
+		addNewDownloadsTable.new SelectedItemsAction() {
+			protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+				addNewDownloadsTableMember.getDownloadItem().setDownloadDir(downloadDir);
 			}
-			addNewDownloadsTable.repaint();
-		}
+		};
 	}
 
 	
@@ -672,9 +616,9 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				case 3:
 					return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 				case 4:
-					return ((AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex)).downloadedTooltip;
+					return addNewDownloadsTableModel.getRow(rowIndex).downloadedTooltip;
 				case 5:
-					return ((AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(rowIndex)).existsTooltip;
+					return addNewDownloadsTableModel.getRow(rowIndex).existsTooltip;
 				default:
 					assert false;
 			}
