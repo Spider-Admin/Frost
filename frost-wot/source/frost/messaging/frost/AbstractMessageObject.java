@@ -27,9 +27,10 @@ package frost.messaging.frost;
 @SuppressWarnings("serial")
 public abstract class AbstractMessageObject extends AbstractMessageStatusProvider {
 
-	// FIXME: Remove attachment list, this list never gets filled with all attachments,
-	// only with attachments o the type last requests.
     protected AttachmentList<Attachment> attachments = null;
+    protected AttachmentList<FileAttachment> fileAttachments = null;
+    protected AttachmentList<BoardAttachment> boardAttachments = null;
+    
     protected String content = null;
     private String subject = "";
     private String recipientName = ""; // set if msg was encrypted

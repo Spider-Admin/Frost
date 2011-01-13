@@ -63,6 +63,7 @@ import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 
+@SuppressWarnings("serial")
 public class AddNewDownloadsDialog extends javax.swing.JFrame {
 
 	private final Language language;
@@ -77,17 +78,13 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	private JButton cancelButton;
 	private JSkinnablePopupMenu tablePopupMenu;
 
-	private boolean addDownloads;
-
 	private final Frame parentFrame;
 
-	private static final long serialVersionUID = 1L;
 
 	public AddNewDownloadsDialog(final JFrame frame, final List<FrostDownloadItem> frostDownloadItemList) { 
 		//super(frame);
 		parentFrame = frame;
-		//setModalityType(java.awt.Dialog.DEFAULT_MODALITY_TYPE);
-		addDownloads = false;
+		
 		language = Language.getInstance();
 		trackDownloadKeysStorage = TrackDownloadKeysStorage.inst();
 
@@ -152,8 +149,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			okButton = new JButton(language.getString("Common.ok"));
 			okButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
-					addDownloads = true;
-					
 					FileTransferManager.inst().getDownloadManager().getModel().addDownloadItemList(getDownloads());
 					
 					dispose();
@@ -212,12 +207,9 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	
 	private List<FrostDownloadItem> getDownloads() {
 		List<FrostDownloadItem> frostDownloadItmeList = new LinkedList<FrostDownloadItem>();
-		if( addDownloads ) {
-			final int numberOfRows = addNewDownloadsTableModel.getRowCount();
-			for( int indexPos = 0; indexPos < numberOfRows; indexPos++) {
-				final AddNewDownloadsTableMember row = (AddNewDownloadsTableMember) addNewDownloadsTableModel.getRow(indexPos);
-				frostDownloadItmeList.add( row.getDownloadItem() );
-			}
+		final int numberOfRows = addNewDownloadsTableModel.getRowCount();
+		for( int indexPos = 0; indexPos < numberOfRows; indexPos++) {
+			frostDownloadItmeList.add( addNewDownloadsTableModel.getRow(indexPos).getDownloadItem() );
 		}
 		return frostDownloadItmeList;
 	}
@@ -234,8 +226,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	private void loadNewDownloadsIntoTable(final List<FrostDownloadItem> frostDownloadItmeList) {
 		this.addNewDownloadsTableModel.clearDataModel();
 		for( final FrostDownloadItem froDownloadItem : frostDownloadItmeList) {
-			final AddNewDownloadsTableMember addNewDownloadsTableMember = new AddNewDownloadsTableMember(froDownloadItem);
-			this.addNewDownloadsTableModel.addRow(addNewDownloadsTableMember);
+			this.addNewDownloadsTableModel.addRow(new AddNewDownloadsTableMember(froDownloadItem));
 		}
 	}
 

@@ -55,10 +55,12 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
 import frost.Core;
+import frost.MainFrame;
 import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.PersistenceManager;
 import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.gui.AddNewUploadsDialog;
 import frost.util.CopyToClipboard;
 import frost.util.FileAccess;
 import frost.util.gui.JSkinnablePopupMenu;
@@ -252,12 +254,20 @@ public class UploadPanel extends JPanel {
             final File file = uploadFileItems.get(0);
             Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
         }
-
+        
+        List<FrostUploadItem> frostUploadItemList = new ArrayList<FrostUploadItem>();
         for(final File file : uploadFileItems ) {
-            model.addNewUploadItem(
-            	new FrostUploadItem(file, compressUploadsCheckBox.isSelected())
-            );
+        	frostUploadItemList.add( new FrostUploadItem(file));
         }
+        
+        final AddNewUploadsDialog addNewUploadsDialog = new AddNewUploadsDialog(MainFrame.getInstance());
+    	addNewUploadsDialog.startDialog(frostUploadItemList);
+    	
+//        for(final File file : uploadFileItems ) {
+//            model.addNewUploadItem(
+//            	new FrostUploadItem(file, compressUploadsCheckBox.isSelected())
+//            );
+//        }
     }
 
     private void showUploadTablePopupMenu(final MouseEvent e) {
@@ -676,9 +686,9 @@ public class UploadPanel extends JPanel {
             // Nothing here
         }
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == uploadAddFilesButton) {
-                uploadAddFilesButton_actionPerformed(e);
-            }
+        	if (e.getSource() == uploadAddFilesButton) {
+        		uploadAddFilesButton_actionPerformed(e);
+        	}
         }
         @Override
         public void mousePressed(final MouseEvent e) {

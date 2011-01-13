@@ -80,6 +80,7 @@ public class AttachmentList<T extends Attachment> extends LinkedList<T> implemen
 		return (AttachmentList<PersonAttachment>) getAllOfType(Attachment.PERSON);
 	}
 
+	@Override
 	synchronized public Element getXMLElement(final Document d){
         if( size() == 0 ) {
             return null;

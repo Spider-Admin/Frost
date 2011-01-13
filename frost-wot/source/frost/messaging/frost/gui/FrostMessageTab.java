@@ -337,8 +337,7 @@ public class FrostMessageTab implements LanguageListener {
         return searchMessagesDialog;
     }
 
-    // FIXME: make private
-    public JToolBar getButtonToolBar() {
+    private JToolBar getButtonToolBar() {
         if (buttonToolBar == null) {
             buttonToolBar = new JToolBar();
 

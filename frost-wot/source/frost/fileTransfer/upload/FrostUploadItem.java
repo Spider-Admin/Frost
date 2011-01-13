@@ -79,6 +79,19 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      */
     public FrostUploadItem() {
     }
+    
+    public FrostUploadItem(final File file) {
+    	this.file = file;
+        fileSize = file.length();
+
+        this.compress = true;
+
+        gqIdentifier = buildGqIdentifier(file.getName());
+
+        uploadAddedMillis = System.currentTimeMillis();
+
+        state = STATE_WAITING;
+    }
 
     /**
      * Used to add a new file to upload.

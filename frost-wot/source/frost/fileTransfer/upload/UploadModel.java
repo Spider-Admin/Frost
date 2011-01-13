@@ -83,6 +83,13 @@ public class UploadModel extends SortedModel<FrostUploadItem> implements ExitSav
         addItem(itemToAdd);
         return true;
     }
+    
+    
+    public void addUploadItemList(List<FrostUploadItem> frostUploadItemList){
+    	for(FrostUploadItem frostUploadItem : frostUploadItemList) {
+    		addNewUploadItem(frostUploadItem);
+    	}
+    }
 
     /**
      * Will add this item to the model, no check for dups.
