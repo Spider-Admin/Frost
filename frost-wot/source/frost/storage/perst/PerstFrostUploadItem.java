@@ -47,6 +47,7 @@ public class PerstFrostUploadItem extends Persistent {
     public String gqIdentifier;
     public String sharedFilesSha;
     public boolean compress;
+    public FreenetCompatibilityMode freenetCompatibilityMode;
 
     public boolean isLoggedToFile;
     public boolean isCompletionProgRun;
@@ -68,6 +69,7 @@ public class PerstFrostUploadItem extends Persistent {
         isLoggedToFile = ulItem.isLoggedToFile();
         isCompletionProgRun = ulItem.isCompletionProgRun();
         compress = ulItem.getCompress();
+        freenetCompatibilityMode = ulItem.getFreenetCompatibilityMode();
         sharedFilesSha = (ulItem.getSharedFileItem()==null?null:ulItem.getSharedFileItem().getSha());
     }
 
@@ -133,7 +135,8 @@ public class PerstFrostUploadItem extends Persistent {
                 gqIdentifier,
                 isLoggedToFile,
                 isCompletionProgRun,
-                compress);
+                compress,
+                freenetCompatibilityMode);
 
         ulItem.setSharedFileItem(sharedFileItem);
 

@@ -523,7 +523,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 ulItem.getFile(),
                 doMime,
                 setTargetFileName,
-                ulItem.getCompress());
+                ulItem.getCompress(),
+                ulItem.getFreenetCompatibilityMode()
+        );
 
         if( !isDda ) {
             // upload was not startet because DDA is not allowed...
@@ -707,7 +709,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             doMime = true;
                             setTargetFileName = true;
                         }
-                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, sourceFile, doMime, setTargetFileName, ulItem.getCompress());
+                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, sourceFile, doMime, setTargetFileName, ulItem.getCompress(), ulItem.getFreenetCompatibilityMode());
                         if( answer == null ) {
                             final String desc = "Could not open a new FCP2 socket for direct put!";
                             final FcpResultPut result = new FcpResultPut(FcpResultPut.Error, -1, desc, false);

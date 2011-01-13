@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.ext.*;
+import frost.fileTransfer.upload.FreenetCompatibilityMode;
 
 public class FcpMultiRequestConnectionFileTransferTools {
 
@@ -85,7 +86,8 @@ public class FcpMultiRequestConnectionFileTransferTools {
             final File sourceFile,
             final boolean doMime,
             final boolean setTargetFileName,
-            final boolean compress)
+            final boolean compress,
+            final FreenetCompatibilityMode freenetCompatibilityMode)
     {
         final File uploadDir = sourceFile.getParentFile();
         final boolean isDda = TestDDAHelper.isDDAPossiblePersistent(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir, fcpPersistentConnection);
@@ -93,7 +95,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
             return false;
         }
         
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress, freenetCompatibilityMode);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
 
@@ -159,7 +161,8 @@ public class FcpMultiRequestConnectionFileTransferTools {
             final File sourceFile,
             final boolean doMime,
             final boolean setTargetFileName,
-            final boolean compress)
+            final boolean compress,
+            final FreenetCompatibilityMode freenetCompatibilityMode)
     {
         final LinkedList<String> lst = new LinkedList<String>();
         lst.add("ClientPut");
@@ -170,6 +173,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         if( ! compress ) {
          	lst.add("DontCompress=true");
         }
+        lst.add("CompatibilityMode=" + freenetCompatibilityMode);
         if( setTargetFileName ) {
             lst.add("TargetFilename="+sourceFile.getName()); // prevents problems downloading this file with other apps
         } else {
@@ -197,7 +201,8 @@ public class FcpMultiRequestConnectionFileTransferTools {
             final File sourceFile,
             final boolean doMime,
             final boolean setTargetFileName,
-            final boolean compress)
+            final boolean compress,
+            final FreenetCompatibilityMode freenetCompatibilityMode)
     throws IOException
     {
         final FcpSocket newSocket = FcpSocket.create(fcpPersistentConnection.getNodeAddress());
@@ -207,7 +212,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
 
         final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
 
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress, freenetCompatibilityMode);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
         msg.add("Data");

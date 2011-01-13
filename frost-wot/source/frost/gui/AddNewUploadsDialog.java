@@ -28,7 +28,7 @@ import javax.swing.WindowConstants;
 import frost.Core;
 import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
-import frost.fileTransfer.upload.FreenetInsertModes;
+import frost.fileTransfer.upload.FreenetCompatibilityMode;
 import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.model.SortedTableModel;
 import frost.gui.model.TableMember;
@@ -212,26 +212,26 @@ public class AddNewUploadsDialog extends JFrame {
 		});
 		
 		// Freenet insert mode
-		final JMenu changeFreenetInsertModeMenu = new JMenu(language.getString("AddNewUploadsDialog.popupMenu.changeFreenetInsertMode"));
-		for(final FreenetInsertModes freenetInsertMode : FreenetInsertModes.values()) {
-			JMenuItem changeFreenetInsertModeMenutItem = new JMenuItem(freenetInsertMode.toString());
-			changeFreenetInsertModeMenutItem.addActionListener(new java.awt.event.ActionListener() {
+		final JMenu changeFreenetCompatibilityModeMenu = new JMenu(language.getString("AddNewUploadsDialog.popupMenu.changeFreenetCompatibilityMode"));
+		for(final FreenetCompatibilityMode freenetCompatibilityMode : FreenetCompatibilityMode.values()) {
+			JMenuItem changeFreenetCompatibilityModeMenutItem = new JMenuItem(freenetCompatibilityMode.toString());
+			changeFreenetCompatibilityModeMenutItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent actionEvent) {
 					addNewUploadsTable.new SelectedItemsAction() {
 						protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
-							addNewUploadsTableMember.getUploadItem().setFreenetInsertMode(freenetInsertMode);
+							addNewUploadsTableMember.getUploadItem().setFreenetCompatibilityMode(freenetCompatibilityMode);
 						}
 					};
 				}
 			});
-			changeFreenetInsertModeMenu.add(changeFreenetInsertModeMenutItem);
+			changeFreenetCompatibilityModeMenu.add(changeFreenetCompatibilityModeMenutItem);
 		}
 		
 		tablePopupMenu = new JSkinnablePopupMenu();
 		tablePopupMenu.add(enableCompressionMenuItem);
 		tablePopupMenu.add(disableCompressionMenuItem);
 		tablePopupMenu.addSeparator();
-		tablePopupMenu.add(changeFreenetInsertModeMenu);
+		tablePopupMenu.add(changeFreenetCompatibilityModeMenu);
 		
 		addNewUploadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
@@ -300,7 +300,7 @@ public class AddNewUploadsDialog extends JFrame {
 					case 3:
 						return frostUploadItem.getCompress() ? language.getString("Common.yes") : language.getString("Common.no");
 					case 4:
-						return frostUploadItem.getFreenetInsertMode();
+						return frostUploadItem.getFreenetCompatibilityMode();
 					default :
 						throw new RuntimeException("Unknown Column pos");
 				}
@@ -380,7 +380,7 @@ public class AddNewUploadsDialog extends JFrame {
 			String.class,
 			Long.class,
 			String.class,
-			FreenetInsertModes.class
+			FreenetCompatibilityMode.class
 		};
 
 		public AddNewUploadsTableModel() {
@@ -398,7 +398,7 @@ public class AddNewUploadsDialog extends JFrame {
 				language.getString("AddNewUploadsDialog.table.path"),
 				language.getString("AddNewUploadsDialog.table.size"),
 				language.getString("AddNewUploadsDialog.table.compress"),
-				language.getString("AddNewUploadsDialog.table.freenetInsertMode")
+				language.getString("AddNewUploadsDialog.table.freenetCompatibilityMode")
 			};
 		}
 

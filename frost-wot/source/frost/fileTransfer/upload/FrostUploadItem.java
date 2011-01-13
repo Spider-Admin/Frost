@@ -52,7 +52,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private String gqIdentifier = null;
     
     private boolean compress = true;
-    private FreenetInsertModes freenetInsertMode = FreenetInsertModes.getDefault();
+    private FreenetCompatibilityMode freenetCompatibilityMode = FreenetCompatibilityMode.getDefault();
 
     private boolean isLoggedToFile = false;
     private boolean isCompletionProgRun = false;
@@ -129,9 +129,9 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
             final String newGqIdentifier,
             final boolean newIsLoggedToFile,
             final boolean newIsCompletionProgRun,
-            final boolean newCompress
-            )
-    {
+            final boolean newCompress,
+            final FreenetCompatibilityMode newFreenetCompatibilityMode
+    ) {
         file = newFile;
         fileSize = newFilesize;
         chkKey = newKey;
@@ -146,6 +146,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         isLoggedToFile = newIsLoggedToFile;
         isCompletionProgRun = newIsCompletionProgRun;
         compress = newCompress;
+        freenetCompatibilityMode = newFreenetCompatibilityMode;
 
         // set correct state
         if( state == FrostUploadItem.STATE_PROGRESS ) {
@@ -210,12 +211,12 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 		this.compress = compress;
 	}
 	
-	public FreenetInsertModes getFreenetInsertMode() {
-		return freenetInsertMode;
+	public FreenetCompatibilityMode getFreenetCompatibilityMode() {
+		return freenetCompatibilityMode;
 	}
 
-	public void setFreenetInsertMode(final FreenetInsertModes freenetInsertMode) {
-		this.freenetInsertMode = freenetInsertMode;
+	public void setFreenetCompatibilityMode(final FreenetCompatibilityMode freenetCompatibilityMode) {
+		this.freenetCompatibilityMode = freenetCompatibilityMode;
 	}
 
 	public int getDoneBlocks() {

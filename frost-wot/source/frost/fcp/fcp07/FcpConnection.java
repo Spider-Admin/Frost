@@ -329,6 +329,9 @@ public class FcpConnection {
         if ((ulItem != null) && !ulItem.getCompress()) {
         	msg.add("DontCompress=true");
         }
+        if(ulItem != null) {
+        	msg.add("CompatibilityMode=" + ulItem.getFreenetCompatibilityMode());
+        }
 
         if( keyString.equals("CHK@") ) {
             if( ulItem != null && ulItem.getSharedFileItem() != null ) {
