@@ -139,11 +139,21 @@ public class FcpConnection {
 
         final int prio;
         if( type == FcpHandler.TYPE_FILE ) {
-            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
+        	if( dlItem != null) {
+        		prio = dlItem.getPriority();
+        	} else {
+        		prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
+        	}
+        
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
             prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD);
+
         } else {
-            prio = 3; // fallback
+        	if( dlItem != null) {
+        		prio = dlItem.getPriority();
+        	} else {
+        		prio = 3; // fallback
+        	}
         }
         msg.add("PriorityClass="+Integer.toString(prio));
 
@@ -353,11 +363,19 @@ public class FcpConnection {
             	} else {
             	    msg.add("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
             	}
-                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
+            	if( ulItem != null) {
+            		prio = ulItem.getPriority(); 
+            	} else {
+            		prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
+            	}
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
                 prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD);
             } else {
-                prio = 3; // fallback
+            	if( ulItem != null) {
+            		prio = ulItem.getPriority();
+            	} else {
+            		prio = 3;
+            	}
             }
             msg.add("PriorityClass="+Integer.toString(prio));
         }

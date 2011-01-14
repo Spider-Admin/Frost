@@ -103,11 +103,11 @@ public class DownloadModel extends SortedModel<FrostDownloadItem> implements Exi
 			}
 
 			// FIXME: also check downloaddir for same filename and build new name
-			if (item.getFilename().equals(itemToAdd.getFilename())) {
+			if (item.getFileName().equals(itemToAdd.getFileName())) {
 				// same name, but different key. - rename quitely
 				int cnt = 2;
 				while (true) {
-					final String nextNewName = itemToAdd.getFilename() + "_" + cnt;
+					final String nextNewName = itemToAdd.getFileName() + "_" + cnt;
 					itemToAdd.setFileName(nextNewName);
 					if (addDownloadItem(itemToAdd) == true) {
 						// added to model

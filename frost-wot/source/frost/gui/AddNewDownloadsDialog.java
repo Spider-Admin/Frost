@@ -375,7 +375,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			final AddNewDownloadsTableMember addNewDownloadsTableMember =
 				addNewDownloadsTableModel.getRow(indexPos);
 			final FrostDownloadItem frostDownloadItem = addNewDownloadsTableMember.getDownloadItem();
-			if(new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename()).exists() ) {
+			if(new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFileName()).exists() ) {
 				addNewDownloadsTableModel.deleteRow(addNewDownloadsTableMember);
 			}
 		}
@@ -511,7 +511,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		public Comparable<?> getValueAt(final int column) {
 			switch( column ) {
 				case 0:
-					return frostDownloadItem.getFilename();
+					return frostDownloadItem.getFileName();
 				case 1:
 					return frostDownloadItem.getKey();
 				case 2:
@@ -532,7 +532,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		}
 
 		public void updateExistsCheck() {
-			File existingFile = new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFilename());
+			File existingFile = new java.io.File(frostDownloadItem.getDownloadDir() + frostDownloadItem.getFileName());
 			exists = existingFile.exists();
 			if( exists) {
 				final long date = existingFile.lastModified();

@@ -40,6 +40,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public final static int STATE_FAILED     = 8;
 
     private File file = null;
+    private String fileName = null;
     private long fileSize = 0;
     private String chkKey = null;
     private Boolean enabled = Boolean.TRUE;
@@ -83,6 +84,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     
     public FrostUploadItem(final File file) {
     	this.file = file;
+    	this.fileName = file.getName();
         fileSize = file.length();
 
         this.compress = true;
@@ -101,6 +103,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public FrostUploadItem(final File file, final boolean compress) {
 
         this.file = file;
+        this.fileName = file.getName();
         fileSize = file.length();
 
         this.compress = compress;
@@ -117,6 +120,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      */
     public FrostUploadItem(
             final File newFile,
+            final String newFileName,
             final long newFilesize,
             final String newKey,
             final boolean newIsEnabled,
@@ -133,6 +137,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
             final FreenetCompatibilityMode newFreenetCompatibilityMode
     ) {
         file = newFile;
+        fileName = newFileName;
         fileSize = newFilesize;
         chkKey = newKey;
         enabled = Boolean.valueOf(newIsEnabled);
@@ -284,11 +289,15 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         this.sharedFileItem = sharedFileItem;
     }
 
-    public String getFilename() {
-        return file.getName();
+    public String getFileName() {
+        return fileName;
     }
+    
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
-    public File getFile() {
+	public File getFile() {
         return file;
     }
     public void setFile(final File f) {
@@ -365,7 +374,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
     @Override
     public String toString() {
-        return getFilename();
+        return getFileName();
     }
 
     public boolean isLoggedToFile() {

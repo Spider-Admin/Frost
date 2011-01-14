@@ -50,7 +50,7 @@ class UploadThread extends Thread {
 
     private void upload() { // real upload
 
-        logger.info("Upload of " + uploadItem.getFile().getName() + " started.");
+        logger.info("Upload of " + uploadItem.getFile().getName() + " ("+ uploadItem.getFileName() + ") started.");
 
         FcpResultPut result = null;
         try {

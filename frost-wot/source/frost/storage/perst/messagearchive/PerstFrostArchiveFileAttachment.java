@@ -31,7 +31,7 @@ public class PerstFrostArchiveFileAttachment extends Persistent {
     public PerstFrostArchiveFileAttachment() {}
 
     public PerstFrostArchiveFileAttachment(final FileAttachment fa) {
-        name = fa.getFilename();
+        name = fa.getFileName();
         size = fa.getFileSize();
         chkKey = fa.getKey();
     }

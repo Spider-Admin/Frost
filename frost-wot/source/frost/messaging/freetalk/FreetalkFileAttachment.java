@@ -52,8 +52,8 @@ public class FreetalkFileAttachment implements CopyToClipboardItem {
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(final Object o) {
-		final String myName = getFilename();
-		final String otherName = ((FreetalkFileAttachment) o).getFilename();
+		final String myName = getFileName();
+		final String otherName = ((FreetalkFileAttachment) o).getFileName();
 		return myName.compareTo(otherName);
 	}
 
@@ -70,7 +70,7 @@ public class FreetalkFileAttachment implements CopyToClipboardItem {
         return file;
     }
 
-    public String getFilename() {
+    public String getFileName() {
         return uri;
     }
 

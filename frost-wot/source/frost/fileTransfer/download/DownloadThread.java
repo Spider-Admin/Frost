@@ -37,7 +37,7 @@ public class DownloadThread extends Thread {
     private final FrostDownloadItem downloadItem;
 
     public DownloadThread(final DownloadTicker newTicker, final FrostDownloadItem item, final File target) {
-        filename = item.getFilename();
+        filename = item.getFileName();
         size = item.getFileSize();
         key = item.getKey();
         ticker = newTicker;

@@ -54,7 +54,7 @@ public class SearchTableComparators {
 
     private static class FileNameComparator implements Comparator<FrostSearchItem> {
         public int compare(final FrostSearchItem o1, final FrostSearchItem o2) {
-            return o1.getFilename().compareToIgnoreCase(o2.getFilename());
+            return o1.getFileName().compareToIgnoreCase(o2.getFileName());
         }
     }
 

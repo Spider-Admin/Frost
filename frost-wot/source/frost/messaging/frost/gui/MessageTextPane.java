@@ -836,7 +836,7 @@ public class MessageTextPane extends JPanel {
             		continue;
             	}
                 
-                String filename = fa.getFilename();
+                String filename = fa.getFileName();
                 // maybe convert html codes (e.g. %2c -> , )
                 if( filename.indexOf("%") > 0 ) {
                     try {

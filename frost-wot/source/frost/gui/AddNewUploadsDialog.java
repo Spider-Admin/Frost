@@ -20,6 +20,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -189,6 +190,23 @@ public class AddNewUploadsDialog extends JFrame {
 	}
 	
 	private void initTablePopupMenu() {
+		// Rename
+		final JMenuItem renameMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.rename"));
+		renameMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewUploadsTable.new SelectedItemsAction() {
+					protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+						String newName = askForNewname(addNewUploadsTableMember.getUploadItem().getFileName());
+						if( newName != null ) {
+							addNewUploadsTableMember.getUploadItem().setFileName(newName);
+						}
+					}
+				};
+			}
+		});
+		
+		
+		// Enable compression
 		final JMenuItem enableCompressionMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.enableCompression"));
 		enableCompressionMenuItem.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
@@ -200,6 +218,8 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 		});
 		
+		
+		// Disable compression
 		final JMenuItem disableCompressionMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.disableCompression"));
 		disableCompressionMenuItem.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
@@ -211,7 +231,8 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 		});
 		
-		// Freenet insert mode
+		
+		// Freenet compatibility mode
 		final JMenu changeFreenetCompatibilityModeMenu = new JMenu(language.getString("AddNewUploadsDialog.popupMenu.changeFreenetCompatibilityMode"));
 		for(final FreenetCompatibilityMode freenetCompatibilityMode : FreenetCompatibilityMode.values()) {
 			JMenuItem changeFreenetCompatibilityModeMenutItem = new JMenuItem(freenetCompatibilityMode.toString());
@@ -227,11 +248,36 @@ public class AddNewUploadsDialog extends JFrame {
 			changeFreenetCompatibilityModeMenu.add(changeFreenetCompatibilityModeMenutItem);
 		}
 		
+		
+		// Change Priority
+		final JMenu changePriorityMenu = new JMenu(language.getString("Common.priority.changePriority"));
+		final int numberOfPriorities = 7;
+		final JMenuItem[] prioItemList = new JMenuItem[numberOfPriorities];
+
+		for(int i = 0; i < numberOfPriorities; i++) {
+			final int priority = i;
+			prioItemList[priority] = new JMenuItem(language.getString("Common.priority.priority" + priority));
+			changePriorityMenu.add(prioItemList[priority]);
+			prioItemList[priority].addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(final ActionEvent actionEvent) {
+					addNewUploadsTable.new SelectedItemsAction() {
+						protected void action(AddNewUploadsTableMember addNewDownloadsTableMember) {
+							addNewDownloadsTableMember.getUploadItem().setPriority(priority);
+						}
+					};
+				}
+			});
+		}
+		
 		tablePopupMenu = new JSkinnablePopupMenu();
+		tablePopupMenu.add(renameMenuItem);
+		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(enableCompressionMenuItem);
 		tablePopupMenu.add(disableCompressionMenuItem);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(changeFreenetCompatibilityModeMenu);
+		tablePopupMenu.addSeparator();
+		tablePopupMenu.add(changePriorityMenu);
 		
 		addNewUploadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
@@ -256,6 +302,18 @@ public class AddNewUploadsDialog extends JFrame {
 		for( final FrostUploadItem frotUploadItem : frostUploadItmeList) {
 			this.addNewUploadsTableModel.addRow(new AddNewUploadsTableMember(frotUploadItem));
 		}
+	}
+	
+	private String askForNewname(final String oldName) {
+		return (String) JOptionPane.showInputDialog(
+			this,
+			language.getString("AddNewUploadDialog.renameFileDialog.dialogBody"),
+			language.getString("AddNewUploadDialog.renameFileDialog.dialogTitle"),
+			JOptionPane.QUESTION_MESSAGE,
+			null,
+			null,
+			oldName
+		);
 	}
 	
 	
@@ -292,7 +350,7 @@ public class AddNewUploadsDialog extends JFrame {
 			try {
 				switch( column ) {
 					case 0:
-						return frostUploadItem.getFilename();
+						return frostUploadItem.getFileName();
 					case 1:
 						return frostUploadItem.getFile().getCanonicalPath();
 					case 2:

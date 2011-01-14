@@ -110,7 +110,7 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
         final FrostSearchItem searchItem = (FrostSearchItem) item;
         switch (columnIndex) {
             case 0 :    //Filename
-                return searchItem.getFilename();
+                return searchItem.getFileName();
 
             case 1 :    //Size
                 return FormatterUtils.formatSize(searchItem.getSize().longValue());

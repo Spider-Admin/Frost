@@ -178,7 +178,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
             if (item != null) {
                 final FrostUploadItem uploadItem = (FrostUploadItem) item;
                 final StringBuilder sb = new StringBuilder();
-                sb.append("<html>").append(uploadItem.getFilename());
+                sb.append("<html>").append(uploadItem.getFileName());
                 if( uploadItem.getUploadAddedMillis() > 0 ) {
                     sb.append("<br>Added: ");
                     sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadAddedMillis()));
@@ -328,7 +328,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
      */
     private class NameComparator implements Comparator<FrostUploadItem> {
         public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
-            return item1.getFile().getName().compareToIgnoreCase(item2.getFile().getName());
+            return item1.getFileName().compareToIgnoreCase(item2.getFileName());
         }
     }
 
@@ -452,13 +452,6 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
     private class FileSizeComparator implements Comparator<FrostUploadItem> {
         public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
             return Mixed.compareLong(item1.getFileSize(), item2.getFileSize());
-//            if( item1.getFileSize() > item2.getFileSize() ) {
-//                return 1;
-//            } else if( item1.getFileSize() < item2.getFileSize() ) {
-//                return -1;
-//            } else {
-//                return 0;
-//            }
         }
     }
 
@@ -559,7 +552,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 return Boolean.valueOf(uploadItem.isSharedFile());
 
             case 2 :    //Filename
-                return uploadItem.getFile().getName();
+                return uploadItem.getFileName();
 
             case 3 :    //Size
                 return FormatterUtils.formatSize(uploadItem.getFileSize());

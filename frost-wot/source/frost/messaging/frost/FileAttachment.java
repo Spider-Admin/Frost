@@ -50,7 +50,7 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
         final Element fileelement = doc.createElement("File");
 
         Element element = doc.createElement("name");
-        final CDATASection cdata = doc.createCDATASection(getFilename());
+        final CDATASection cdata = doc.createCDATASection(getFileName());
         element.appendChild(cdata);
         fileelement.appendChild(element);
 
@@ -119,7 +119,7 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
 		return toString().compareTo(attachment.toString());
 	}
 
-    public String getFilename() {
+    public String getFileName() {
         return filename;
     }
     public String getKey() {

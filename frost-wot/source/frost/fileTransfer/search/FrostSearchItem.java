@@ -75,7 +75,7 @@ public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
         state = searchItemState;
     }
 
-    public String getFilename() {
+    public String getFileName() {
         return fo.getDisplayName();
     }
 
@@ -163,6 +163,6 @@ public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
 
     @Override
     public String toString() {
-        return getFilename();
+        return getFileName();
     }
 }

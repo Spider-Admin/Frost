@@ -521,10 +521,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         boolean isDda = fcpTools.startPersistentPutUsingDda(
                 ulItem.getGqIdentifier(),
                 ulItem.getFile(),
+                ulItem.getFileName(),
                 doMime,
                 setTargetFileName,
                 ulItem.getCompress(),
-                ulItem.getFreenetCompatibilityMode()
+                ulItem.getFreenetCompatibilityMode(),
+                ulItem.getPriority()
         );
 
         if( !isDda ) {
@@ -699,7 +701,6 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         final FrostUploadItem ulItem = (FrostUploadItem) item;
                         // FIXME: provide item, state=Transfer to node, % shows progress
                         final String gqid = ulItem.getGqIdentifier();
-                        final File sourceFile = ulItem.getFile();
                         final boolean doMime;
                         final boolean setTargetFileName;
                         if( ulItem.isSharedFile() ) {
@@ -709,7 +710,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             doMime = true;
                             setTargetFileName = true;
                         }
-                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, sourceFile, doMime, setTargetFileName, ulItem.getCompress(), ulItem.getFreenetCompatibilityMode());
+                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, ulItem.getFile(), ulItem.getFileName(), doMime, setTargetFileName, ulItem.getCompress(), ulItem.getFreenetCompatibilityMode(), ulItem.getPriority());
                         if( answer == null ) {
                             final String desc = "Could not open a new FCP2 socket for direct put!";
                             final FcpResultPut result = new FcpResultPut(FcpResultPut.Error, -1, desc, false);

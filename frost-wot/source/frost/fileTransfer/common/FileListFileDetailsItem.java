@@ -95,7 +95,7 @@ public class FileListFileDetailsItem extends ModelItem implements CopyToClipboar
         return fileOwner.getKey();
     }
     
-    public String getFilename() {
+    public String getFileName() {
         return getFileOwner().getName();
     }
 

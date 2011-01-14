@@ -204,7 +204,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
             if (item != null) {
                 final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
                 final StringBuilder sb = new StringBuilder();
-                sb.append("<html>").append(downloadItem.getFilename());
+                sb.append("<html>").append(downloadItem.getFileName());
                 if( downloadItem.getDownloadAddedMillis() > 0 ) {
                     sb.append("<br>Added: ");
                     sb.append(DateFun.FORMAT_DATE_VISIBLE.print(downloadItem.getDownloadAddedMillis()));
@@ -508,7 +508,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
 	private class FileNameComparator implements Comparator<FrostDownloadItem> {
 		public int compare(final FrostDownloadItem item1, final FrostDownloadItem item2) {
-			return item1.getFilename().compareToIgnoreCase(item2.getFilename());
+			return item1.getFileName().compareToIgnoreCase(item2.getFileName());
 		}
 	}
 
@@ -663,7 +663,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 return getIsRequested( downloadItem.getFileListFileObject() );
 
 			case 3 : // Filename
-				return downloadItem.getFilename();
+				return downloadItem.getFileName();
 
 			case 4 : // Size
                 if( downloadItem.getFileSize() >= 0 ) {

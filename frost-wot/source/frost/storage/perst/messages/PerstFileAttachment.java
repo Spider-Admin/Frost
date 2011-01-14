@@ -30,7 +30,7 @@ public class PerstFileAttachment extends Persistent {
     public PerstFileAttachment() {}
 
     public PerstFileAttachment(FileAttachment fa) {
-        name = fa.getFilename();
+        name = fa.getFileName();
         size = fa.getFileSize();
         chkKey = fa.getKey();
     }

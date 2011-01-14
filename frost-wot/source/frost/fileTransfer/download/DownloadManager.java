@@ -131,7 +131,7 @@ public class DownloadManager implements ExitSavable {
 			for (int x = 0; x < getModel().getItemCount(); x++) {
 				final FrostDownloadItem dlItem = (FrostDownloadItem) getModel()
 						.getItemAt(x);
-				if (dlItem.getFilename().equalsIgnoreCase(newFilename)) {
+				if (dlItem.getFileName().equalsIgnoreCase(newFilename)) {
 					loopAgain = true;
 					// we have a duplicate filename
 					// build new filename like "filename_2.ext"
@@ -352,7 +352,7 @@ public class DownloadManager implements ExitSavable {
 	public boolean notifyDownloadFinished(final FrostDownloadItem downloadItem,
 			final FcpResultGet result, final File targetFile) {
 
-		final String filename = downloadItem.getFilename();
+		final String filename = downloadItem.getFileName();
 		final String key = downloadItem.getKey();
 
 		boolean retryImmediately = false;
@@ -451,7 +451,7 @@ public class DownloadManager implements ExitSavable {
 				TrackDownloadKeysStorage trackDownloadKeysStorage = TrackDownloadKeysStorage
 						.inst();
 				trackDownloadKeysStorage.storeItem(new TrackDownloadKeys(
-						downloadItem.getKey(), downloadItem.getFilename(),
+						downloadItem.getKey(), downloadItem.getFileName(),
 						downloadItem.getAssociatedBoardName(), downloadItem
 								.getFileSize(), downloadItem
 								.getDownloadFinishedMillis()));
@@ -463,7 +463,7 @@ public class DownloadManager implements ExitSavable {
 					.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED)
 					&& !downloadItem.isLoggedToFile()) {
 				final String line = downloadItem.getKey() + "/"
-						+ downloadItem.getFilename();
+						+ downloadItem.getFileName();
 				final String fileName = Core.frostSettings
 						.getValue(SettingsClass.DIR_LOCALDATA)
 						+ "Frost-Downloads.log";
@@ -484,7 +484,7 @@ public class DownloadManager implements ExitSavable {
 				int i;
 
 				args[0] = execProg;
-				args[1] = downloadItem.getFilename();
+				args[1] = downloadItem.getFileName();
 				args[2] = downloadItem.getFilenamePrefix();
 				args[3] = downloadItem.getKey();
 				args[4] = downloadItem.getAssociatedBoardName();
@@ -500,7 +500,7 @@ public class DownloadManager implements ExitSavable {
 				for (final Map.Entry<String, String> entry : oldEnv.entrySet()) {
 					newEnv[i++] = entry.getKey() + "=" + entry.getValue();
 				}
-				newEnv[i++] = "FROST_FILENAME=" + downloadItem.getFilename();
+				newEnv[i++] = "FROST_FILENAME=" + downloadItem.getFileName();
 				newEnv[i++] = "FROST_FILENAME_PREFIX="
 						+ downloadItem.getFilenamePrefix();
 				newEnv[i++] = "FROST_KEY=" + downloadItem.getKey();

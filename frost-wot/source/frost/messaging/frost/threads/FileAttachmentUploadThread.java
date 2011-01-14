@@ -89,14 +89,14 @@ public class FileAttachmentUploadThread extends Thread {
                 {
                     final Language language = Language.getInstance();
                     final String title = language.getString("FileAttachmentUploadThread.fileNotFoundError.title");
-                    final String txt = language.formatMessage("FileAttachmentUploadThread.fileNotFoundError.text", fa.getFilename());
+                    final String txt = language.formatMessage("FileAttachmentUploadThread.fileNotFoundError.text", fa.getFileName());
                     JOptionPane.showMessageDialog(
                             MainFrame.getInstance(),
                             txt,
                             title,
                             JOptionPane.ERROR_MESSAGE);
 
-                    logger.warning("FileAttachmentUploadThread: unsent file attachment disappeared: "+fa.getInternalFile()+"; "+fa.getFilename());
+                    logger.warning("FileAttachmentUploadThread: unsent file attachment disappeared: "+fa.getInternalFile()+"; "+fa.getFileName());
 
                     UnsentMessagesManager.deleteMessage(msgFileAttachment.getMessageObject());
 

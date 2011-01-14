@@ -86,9 +86,9 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
                 key = "?";
             }
             
-            if (attachment.getFilename() != null && attachment.getFilename().length() > 0 ) {
+            if (attachment.getFileName() != null && attachment.getFileName().length() > 0 ) {
                 Object[] row = {
-                        attachment.getFilename(), 
+                        attachment.getFileName(), 
                         numberFormat.format( attachment.getFileSize() ), 
                         key};
                 addRow(row);

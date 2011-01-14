@@ -35,6 +35,7 @@ import frost.util.gui.translation.*;
 public class PerstFrostUploadItem extends Persistent {
 
     public String filePath;
+    public String fileName;
     public long fileSize;
     public String chkKey;
     public boolean enabled;
@@ -56,6 +57,7 @@ public class PerstFrostUploadItem extends Persistent {
 
     public PerstFrostUploadItem(final FrostUploadItem ulItem) {
         filePath = ulItem.getFile().getPath();
+        fileName = ulItem.getFileName();
         fileSize = ulItem.getFileSize();
         chkKey = ulItem.getKey();
         enabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
@@ -123,6 +125,7 @@ public class PerstFrostUploadItem extends Persistent {
 
         final FrostUploadItem ulItem = new FrostUploadItem(
                 file,
+                fileName,
                 fileSize,
                 chkKey,
                 enabled,

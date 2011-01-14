@@ -200,7 +200,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public void setFileName(final String s) {
         fileName = s;
     }
-	public String getFilename() {
+	public String getFileName() {
 		if (prefix == null || prefix.length() == 0) {
 			return fileName;
 		}
@@ -331,7 +331,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     }
 
     public String getDownloadFilename() {
-        return getDownloadDir() + getFilename();
+        return getDownloadDir() + getFileName();
     }
 
     public String getDownloadDir() {
@@ -500,7 +500,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     @Override
     public String toString() {
-        return getFilename();
+        return getFileName();
     }
 
     public boolean isLoggedToFile() {

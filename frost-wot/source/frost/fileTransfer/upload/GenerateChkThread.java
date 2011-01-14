@@ -47,7 +47,7 @@ public class GenerateChkThread extends Thread {
     }
 
     private void generateCHK() {
-        logger.info("CHK generation started for file: " + uploadItem.getFile().getName());
+        logger.info("CHK generation started for file: " + uploadItem.getFileName());
         String chkkey = null;
         
         // yes, this destroys any upload progress, but we come only here if

@@ -213,7 +213,7 @@ public class FileRequestsManager {
                         // add to upload files
                         FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfo);
 
-                        logger.log(Level.SEVERE, "INFO: Shared file upload started, file='"+sfo.getFilename()+
+                        logger.log(Level.SEVERE, "INFO: Shared file upload started, file='"+sfo.getFileName()+
                                 "', timeNow="+now+
                                 ", minLastUploaded="+minLastUploaded+
                                 ", requestTimestamp="+content.getTimestamp()+

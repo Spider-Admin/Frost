@@ -178,7 +178,7 @@ public class DownloadTicker extends Thread {
 
         dlItem.setState(FrostDownloadItem.STATE_TRYING);
 
-        final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+        final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFileName());
         final DownloadThread newRequest = new DownloadThread(this, dlItem, targetFile);
         newRequest.start();
         return true;

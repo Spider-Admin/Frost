@@ -61,7 +61,7 @@ public class CopyToClipboard {
                 continue;
             }
             item = (CopyToClipboardItem) ditem;
-            appendKeyAndFilename(textToCopy, item.getKey(), item.getFilename(), keyNotAvailableMessage);
+            appendKeyAndFilename(textToCopy, item.getKey(), item.getFileName(), keyNotAvailableMessage);
             // for a single item don't append newline
             if( items.length > 1 ) {
                 textToCopy.append("\n");
@@ -98,7 +98,7 @@ public class CopyToClipboard {
                 // 0.7: append filename if key doesn't contain a / ; otherwise keep key as is
                 if( key.indexOf("/") < 0 ) {
                     // append filename
-                    key = new StringBuffer().append(key).append("/").append(item.getFilename()).toString();
+                    key = new StringBuffer().append(key).append("/").append(item.getFileName()).toString();
                 }
             }
             String fs;
@@ -108,7 +108,7 @@ public class CopyToClipboard {
                 fs = Long.toString(item.getFileSize());
             }
             textToCopy.append(fileMessage);
-            textToCopy.append(item.getFilename()).append("\n");
+            textToCopy.append(item.getFileName()).append("\n");
             textToCopy.append(keyMessage);
             textToCopy.append(key).append("\n");
             textToCopy.append(bytesMessage);

@@ -88,9 +88,9 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
                 key = "?";
             }
 
-            if (attachment.getFilename() != null && attachment.getFilename().length() > 0 ) {
+            if (attachment.getFileName() != null && attachment.getFileName().length() > 0 ) {
                 final Object[] row = {
-                        attachment.getFilename(),
+                        attachment.getFileName(),
                         numberFormat.format( attachment.getFileSize() ),
                         key};
                 addRow(row);

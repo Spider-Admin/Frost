@@ -84,18 +84,20 @@ public class FcpMultiRequestConnectionFileTransferTools {
     public boolean startPersistentPutUsingDda(
             final String id,
             final File sourceFile,
+            final String fileName,
             final boolean doMime,
             final boolean setTargetFileName,
             final boolean compress,
-            final FreenetCompatibilityMode freenetCompatibilityMode)
-    {
+            final FreenetCompatibilityMode freenetCompatibilityMode,
+            final int prio
+    ) {
         final File uploadDir = sourceFile.getParentFile();
         final boolean isDda = TestDDAHelper.isDDAPossiblePersistent(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir, fcpPersistentConnection);
         if (!isDda) {
             return false;
         }
         
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress, freenetCompatibilityMode);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, fileName, doMime, setTargetFileName, compress, freenetCompatibilityMode, prio);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
 
@@ -159,11 +161,13 @@ public class FcpMultiRequestConnectionFileTransferTools {
     private List<String> getDefaultPutMessage(
             final String id,
             final File sourceFile,
+            final String fileName,
             final boolean doMime,
             final boolean setTargetFileName,
             final boolean compress,
-            final FreenetCompatibilityMode freenetCompatibilityMode)
-    {
+            final FreenetCompatibilityMode freenetCompatibilityMode,
+            final int prio
+    ) {
         final LinkedList<String> lst = new LinkedList<String>();
         lst.add("ClientPut");
         lst.add("URI=CHK@");
@@ -175,7 +179,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         }
         lst.add("CompatibilityMode=" + freenetCompatibilityMode);
         if( setTargetFileName ) {
-            lst.add("TargetFilename="+sourceFile.getName()); // prevents problems downloading this file with other apps
+            lst.add("TargetFilename="+fileName); // prevents problems downloading this file with other apps
         } else {
             lst.add("TargetFilename="); // default for shared files: we always want the same key for the same content!
         }
@@ -184,8 +188,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         } else {
             lst.add("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
         }
-        final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
-        lst.add("PriorityClass="+Integer.toString(prio));
+        lst.add("PriorityClass=" + prio);
         lst.add("Persistence=forever");
         lst.add("Global=true");
         return lst;
@@ -199,10 +202,12 @@ public class FcpMultiRequestConnectionFileTransferTools {
     public NodeMessage startDirectPersistentPut(
             final String id,
             final File sourceFile,
+            final String fileName,
             final boolean doMime,
             final boolean setTargetFileName,
             final boolean compress,
-            final FreenetCompatibilityMode freenetCompatibilityMode)
+            final FreenetCompatibilityMode freenetCompatibilityMode,
+            final int prio)
     throws IOException
     {
         final FcpSocket newSocket = FcpSocket.create(fcpPersistentConnection.getNodeAddress());
@@ -212,7 +217,8 @@ public class FcpMultiRequestConnectionFileTransferTools {
 
         final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
 
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName, compress, freenetCompatibilityMode);
+        
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, fileName, doMime, setTargetFileName, compress, freenetCompatibilityMode, prio);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
         msg.add("Data");
@@ -325,7 +331,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
 // Methods to get/put messages ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void startDirectGet(final String id, final String key, final int priority, final int maxSize, int maxRetries) {
+    public void startDirectGet(final String id, final String key, final int prio, final int maxSize, int maxRetries) {
         final List<String> msg = new LinkedList<String>();
         msg.add("ClientGet");
         msg.add("IgnoreDS=false");
@@ -339,14 +345,14 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("Verbosity=0");
         msg.add("ReturnType=direct");
         msg.add("Persistence=connection");
-        msg.add("PriorityClass="+Integer.toString(priority));
+        msg.add("PriorityClass="+Integer.toString(prio));
         if( maxSize > 0 ) {
             msg.add("MaxSize="+maxSize);
         }
         fcpPersistentConnection.sendMessage(msg);
     }
 
-    public void startDirectPut(final String id, final String key, final int priority, final File sourceFile) {
+    public void startDirectPut(final String id, final String key, final int prio, final File sourceFile) {
         final List<String> msg = new LinkedList<String>();
         msg.add("ClientPut");
         msg.add("URI=" + key);
@@ -354,7 +360,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("Verbosity=0");
         msg.add("MaxRetries=1");
         //msg.add("DontCompress=true");
-        msg.add("PriorityClass="+Integer.toString(priority));
+        msg.add("PriorityClass="+Integer.toString(prio));
         msg.add("Persistence=connection");
         msg.add("UploadFrom=direct");
 

@@ -121,7 +121,7 @@ public class UploadManager implements ExitSavable {
 
         if (result != null && (result.isSuccess() || result.isKeyCollision()) ) {
 
-            logger.info("Upload of " + uploadItem.getFile().getName() + " was successful.");
+            logger.info("Upload of " + uploadItem.getFile().getName() + " ("+ uploadItem.getFileName() + ") was successful.");
 
             // upload successful
             uploadItem.setKey(result.getChkKey());
@@ -140,7 +140,7 @@ public class UploadManager implements ExitSavable {
             } else {
                 // maybe log successful manual upload to file localdata/uploads.txt
                 if( Core.frostSettings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED) && !uploadItem.isLoggedToFile() ) {
-                    final String line = uploadItem.getKey() + "/" + uploadItem.getFile().getName();
+                    final String line = uploadItem.getKey() + "/" + uploadItem.getFileName();
                     final String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Uploads.log";
                     final File targetFile = new File(fileName);
                     FileAccess.appendLineToTextfile(targetFile, line);
@@ -156,7 +156,7 @@ public class UploadManager implements ExitSavable {
                     int i;
 
                     args[0] = execProg;
-                    args[1] = uploadItem.getFilename();
+                    args[1] = uploadItem.getFileName();
                     args[2] = result.getChkKey();
 
                     for( i = 0; i < args.length; i++ ) {
@@ -170,7 +170,7 @@ public class UploadManager implements ExitSavable {
                         newEnv[i++] = entry.getKey() + "=" + entry.getValue();
                     }
 
-                    newEnv[i++] = "FROST_FILENAME=" + uploadItem.getFilename();
+                    newEnv[i++] = "FROST_FILENAME=" + uploadItem.getFileName();
                     newEnv[i++] = "FROST_KEY=" + result.getChkKey();
 
                     try {

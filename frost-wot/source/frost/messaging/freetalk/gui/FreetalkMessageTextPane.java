@@ -486,7 +486,7 @@ public class FreetalkMessageTextPane extends JPanel {
             final Iterator<FreetalkFileAttachment> it = getItems().iterator();
             while (it.hasNext()) {
                 final FreetalkFileAttachment fa = it.next();
-                String filename = fa.getFilename();
+                String filename = fa.getFileName();
                 // maybe convert html codes (e.g. %2c -> , )
                 if( filename.indexOf("%") > 0 ) {
                     try {

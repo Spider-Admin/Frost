@@ -171,7 +171,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
                 
             } else if( attachment.getType() == Attachment.FILE ) {
                 final FileAttachment fileAttachment = (FileAttachment)attachment;
-                allContent.append( fileAttachment.getFilename() ).append(escapeChar);
+                allContent.append( fileAttachment.getFileName() ).append(escapeChar);
                 allContent.append( fileAttachment.getKey() ).append(escapeChar);
             }
         }

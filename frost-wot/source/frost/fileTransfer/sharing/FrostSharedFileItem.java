@@ -239,7 +239,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
         file = f;
     }
 
-    public String getFilename() {
+    public String getFileName() {
         return file.getName();
     }
 
@@ -294,6 +294,6 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
 
     @Override
     public String toString() {
-        return getFilename();
+        return getFileName();
     }
 }

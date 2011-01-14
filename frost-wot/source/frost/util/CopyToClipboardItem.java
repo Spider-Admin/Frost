@@ -21,6 +21,6 @@ package frost.util;
 public interface CopyToClipboardItem {
 
     public String getKey();
-    public String getFilename();
+    public String getFileName();
     public long getFileSize();
 }
