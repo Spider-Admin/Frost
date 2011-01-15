@@ -8,7 +8,7 @@ public enum FreenetCompatibilityMode {
 	COMPAT_1255("COMPAT_1255"),
 	COMPAT_CURRENT("COMPAT_CURRENT"); 
 
-	String mode;
+	final String mode;
 	
 	FreenetCompatibilityMode(String mode){
 		this.mode = mode;

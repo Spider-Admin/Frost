@@ -35,6 +35,7 @@ import frost.fcp.FcpResultGet;
 import frost.fcp.FreenetKeys;
 import frost.fileTransfer.FileTransferInformation;
 import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FreenetPriority;
 import frost.storage.ExitSavable;
 import frost.storage.StorageException;
 import frost.storage.perst.TrackDownloadKeys;
@@ -605,9 +606,9 @@ public class DownloadManager implements ExitSavable {
 		
 		final boolean itemIsEnabled = (dlItem.isEnabled() == null ? true
 				: dlItem.isEnabled().booleanValue());
-		int prio = 6;
+		FreenetPriority prio = FreenetPriority.PAUSE;
 		if (itemIsEnabled) {
-			prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
+			prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
 		}
 		
 		List<FrostDownloadItem> frostDownloadItems = new ArrayList<FrostDownloadItem>();

@@ -21,6 +21,7 @@ package frost.fileTransfer.upload;
 import java.io.*;
 
 import frost.*;
+import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.model.*;
@@ -63,7 +64,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private int doneBlocks = -1;
     private Boolean isFinalized = null;
     private String errorCodeDescription = null;
-    private int priority = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
+    private FreenetPriority priority = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
 
     // is only set if this uploaditem is a shared file
     private FrostSharedFileItem sharedFileItem = null;
@@ -94,6 +95,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         uploadAddedMillis = System.currentTimeMillis();
 
         state = STATE_WAITING;
+        priority = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
     }
 
     /**
@@ -348,11 +350,11 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         isExternal = e;
     }
 
-    public int getPriority() {
+    public FreenetPriority getPriority() {
         return priority;
     }
 
-    public void setPriority(final int priority) {
+    public void setPriority(final FreenetPriority priority) {
         this.priority = priority;
         super.fireChange();
     }

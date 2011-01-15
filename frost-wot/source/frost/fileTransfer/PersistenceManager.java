@@ -283,9 +283,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private void applyPriority(final FrostDownloadItem dlItem, final FcpPersistentGet getReq) {
         // apply externally changed priority
         if( dlItem.getPriority() != getReq.getPriority() ) {
-            if (Core.frostSettings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD)
-                    && dlItem.getPriority() > 0)
-            {
+            if (Core.frostSettings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD)) {
                 // reset priority with our current value
                 fcpTools.changeRequestPriority(getReq.getIdentifier(), dlItem.getPriority());
             } else {

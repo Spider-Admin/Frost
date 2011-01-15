@@ -21,6 +21,7 @@ package frost.fcp.fcp07.messagetransfer;
 import java.io.*;
 
 import frost.fcp.*;
+import frost.fileTransfer.FreenetPriority;
 
 public class MessageTransferTask {
 
@@ -32,7 +33,7 @@ public class MessageTransferTask {
     private final String key;
     private final File file;
     private final int maxSize;
-    private final int priority;
+    private final FreenetPriority priority;
     private final int maxRetries;
 
     private boolean taskFinished = false;
@@ -43,7 +44,7 @@ public class MessageTransferTask {
     /**
      * Construct task for DOWNLOAD
      */
-    public MessageTransferTask(final String id, final String key, final File targetFile, final int prio, final int maxSize, final int maxRetries) {
+    public MessageTransferTask(final String id, final String key, final File targetFile, final FreenetPriority prio, final int maxSize, final int maxRetries) {
         transferMode = MODE_DOWNLOAD;
         identifier = id;
         this.key = key;
@@ -56,7 +57,7 @@ public class MessageTransferTask {
     /**
      * Construct task for UPLOAD
      */
-    public MessageTransferTask(final String id, final String key, final File sourceFile, final int prio) {
+    public MessageTransferTask(final String id, final String key, final File sourceFile, final FreenetPriority prio) {
         transferMode = MODE_UPLOAD;
         identifier = id;
         this.key = key;
@@ -145,7 +146,7 @@ public class MessageTransferTask {
         }
     }
 
-    public int getPriority() {
+    public FreenetPriority getPriority() {
         return priority;
     }
 }

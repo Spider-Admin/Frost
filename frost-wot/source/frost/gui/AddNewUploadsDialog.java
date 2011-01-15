@@ -31,6 +31,7 @@ import javax.swing.table.TableCellRenderer;
 import frost.Core;
 import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.upload.FreenetCompatibilityMode;
 import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.model.SortedTableModel;
@@ -49,17 +50,17 @@ public class AddNewUploadsDialog extends JFrame {
 
 	private AddNewUploadsTableModel addNewUploadsTableModel;
 	private AddNewUploadsTable addNewUploadsTable;
-
+	
 	private JSkinnablePopupMenu tablePopupMenu;
-
+	
 	private final Frame parentFrame;
-
-
+	
+	
 
 	/**
 	 * If true, uploads in model will be added to upload list when closing the window
 	 */
-
+	
 	public AddNewUploadsDialog(final JFrame frame) {
 		parentFrame = frame;
 		language = Language.getInstance();
@@ -68,12 +69,12 @@ public class AddNewUploadsDialog extends JFrame {
 
 		initGui();
 	}
-
-
+	
+	
 	private void initGui() {
 		try {
 			setTitle(language.getString("AddNewUploadsDialog.title"));
-
+			
 			int width = (int) (parentFrame.getWidth() * 0.75);
 			int height = (int) (parentFrame.getHeight() * 0.75);
 
@@ -97,13 +98,13 @@ public class AddNewUploadsDialog extends JFrame {
 					height = (int) (screenSize.width * 0.85);
 				}
 			}
-
+			
 			setSize(width, height);
 			this.setResizable(true);
-
+			
 			setIconImage(MiscToolkit.loadImageIcon("/data/toolbar/go-up.png").getImage());
-
-
+			
+			
 			// Add Button
 			final JButton addButton = new JButton(language.getString("Common.add"));
 			addButton.addActionListener( new java.awt.event.ActionListener() {
@@ -114,7 +115,7 @@ public class AddNewUploadsDialog extends JFrame {
 					}
 				}
 			});
-
+			
 			// Remove selected button
 			final JButton removeSelectedButton = new JButton(language.getString("AddNewUploadsDialog.button.removeSelected"));
 			removeSelectedButton.addActionListener( new java.awt.event.ActionListener() {
@@ -130,13 +131,13 @@ public class AddNewUploadsDialog extends JFrame {
 					addNewUploadsTable.removeButSelected();
 				}
 			});
-
+			
 			// OK Button
 			final JButton okButton = new JButton(language.getString("Common.ok"));
 			okButton.addActionListener( new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent e) {
 					FileTransferManager.inst().getUploadManager().getModel().addUploadItemList(getUploads());
-
+					
 					dispose();
 				}
 			});
@@ -166,8 +167,8 @@ public class AddNewUploadsDialog extends JFrame {
 			buttonsPanel.add(Box.createRigidArea(new Dimension(10,3)));
 			buttonsPanel.add( okButton );
 			buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
-
-
+			
+			
 			// Upload Table
 			addNewUploadsTableModel = new AddNewUploadsTableModel();
 			addNewUploadsTable = new AddNewUploadsTable( addNewUploadsTableModel );
@@ -185,14 +186,14 @@ public class AddNewUploadsDialog extends JFrame {
 
 			this.getContentPane().setLayout(new BorderLayout());
 			this.getContentPane().add(mainPanel, null);
-
+			
 			initTablePopupMenu();
-
+			
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	private void initTablePopupMenu() {
 		// Rename
 		final JMenuItem renameMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.rename"));
@@ -208,8 +209,8 @@ public class AddNewUploadsDialog extends JFrame {
 				};
 			}
 		});
-
-
+		
+		
 		// Enable compression
 		final JMenuItem enableCompressionMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.enableCompression"));
 		enableCompressionMenuItem.addActionListener( new java.awt.event.ActionListener() {
@@ -221,8 +222,8 @@ public class AddNewUploadsDialog extends JFrame {
 				};
 			}
 		});
-
-
+		
+		
 		// Disable compression
 		final JMenuItem disableCompressionMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.disableCompression"));
 		disableCompressionMenuItem.addActionListener( new java.awt.event.ActionListener() {
@@ -234,8 +235,8 @@ public class AddNewUploadsDialog extends JFrame {
 				};
 			}
 		});
-
-
+		
+		
 		// Freenet compatibility mode
 		final JMenu changeFreenetCompatibilityModeMenu = new JMenu(language.getString("AddNewUploadsDialog.popupMenu.changeFreenetCompatibilityMode"));
 		for(final FreenetCompatibilityMode freenetCompatibilityMode : FreenetCompatibilityMode.values()) {
@@ -251,28 +252,24 @@ public class AddNewUploadsDialog extends JFrame {
 			});
 			changeFreenetCompatibilityModeMenu.add(changeFreenetCompatibilityModeMenutItem);
 		}
-
-
+		
+		
 		// Change Priority
 		final JMenu changePriorityMenu = new JMenu(language.getString("Common.priority.changePriority"));
-		final int numberOfPriorities = 7;
-		final JMenuItem[] prioItemList = new JMenuItem[numberOfPriorities];
-
-		for(int i = 0; i < numberOfPriorities; i++) {
-			final int priority = i;
-			prioItemList[priority] = new JMenuItem(language.getString("Common.priority.priority" + priority));
-			changePriorityMenu.add(prioItemList[priority]);
-			prioItemList[priority].addActionListener(new java.awt.event.ActionListener() {
+		for(final FreenetPriority priority : FreenetPriority.values()) {
+			JMenuItem priorityMenuItem = new JMenuItem(priority.getName());
+			priorityMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent actionEvent) {
 					addNewUploadsTable.new SelectedItemsAction() {
-						protected void action(AddNewUploadsTableMember addNewDownloadsTableMember) {
-							addNewDownloadsTableMember.getUploadItem().setPriority(priority);
+						protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+							addNewUploadsTableMember.getUploadItem().setPriority(priority);
 						}
 					};
 				}
 			});
+			changePriorityMenu.add(priorityMenuItem);
 		}
-
+		
 		// Enable upload
 		final JMenuItem enableUploadMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.enableUpload"));
 		enableUploadMenuItem.addActionListener( new java.awt.event.ActionListener() {
@@ -284,8 +281,8 @@ public class AddNewUploadsDialog extends JFrame {
 				};
 			}
 		});
-
-
+		
+		
 		// Disable upload
 		final JMenuItem disableUploadMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.disableUpload"));
 		disableUploadMenuItem.addActionListener( new java.awt.event.ActionListener() {
@@ -297,7 +294,7 @@ public class AddNewUploadsDialog extends JFrame {
 				};
 			}
 		});
-
+		
 		// Remove Selected
 		final JMenuItem removeSelectedMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.button.removeSelected"));
 		removeSelectedMenuItem.addActionListener( new java.awt.event.ActionListener() {
@@ -305,7 +302,7 @@ public class AddNewUploadsDialog extends JFrame {
 				addNewUploadsTable.removeSelected();
 			}
 		});
-
+		
 		// Remove But Selected
 		final JMenuItem removeButSelectedMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.button.removeButSelected"));
 		removeButSelectedMenuItem.addActionListener( new java.awt.event.ActionListener() {
@@ -313,7 +310,7 @@ public class AddNewUploadsDialog extends JFrame {
 				addNewUploadsTable.removeButSelected();
 			}
 		});
-
+		
 		tablePopupMenu = new JSkinnablePopupMenu();
 		tablePopupMenu.add(renameMenuItem);
 		tablePopupMenu.addSeparator();
@@ -329,32 +326,32 @@ public class AddNewUploadsDialog extends JFrame {
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(removeSelectedMenuItem);
 		tablePopupMenu.add(removeButSelectedMenuItem);
-
+		
 		addNewUploadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
-
-
-
+	
+	
+	
 	public void startDialog() {
 		// Open file picker
 		List<FrostUploadItem> frostUploadItmeList = addFileChooser();
-
+		
 		// load data into table
 		this.loadNewUploadsIntoTable(frostUploadItmeList);
 		setLocationRelativeTo(parentFrame);
 
 		// display table
 		setVisible(true); // blocking!
-
+		
 	}
-
+	
 	private void loadNewUploadsIntoTable(final List<FrostUploadItem> frostUploadItmeList) {
 		this.addNewUploadsTableModel.clearDataModel();
 		for( final FrostUploadItem frotUploadItem : frostUploadItmeList) {
 			this.addNewUploadsTableModel.addRow(new AddNewUploadsTableMember(frotUploadItem));
 		}
 	}
-
+	
 	private String askForNewname(final String oldName) {
 		return (String) JOptionPane.showInputDialog(
 			this,
@@ -366,8 +363,8 @@ public class AddNewUploadsDialog extends JFrame {
 			oldName
 		);
 	}
-
-
+	
+	
 	private class TablePopupMenuMouseListener implements MouseListener {
 		public void mouseReleased(final MouseEvent event) {
 			maybeShowPopup(event);
@@ -387,15 +384,15 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 		}
 	}
-
+	
 	private class AddNewUploadsTableMember implements TableMember {
-
+		
 		FrostUploadItem frostUploadItem;
-
+		
 		public AddNewUploadsTableMember(final FrostUploadItem frostUploadItem){
 			this.frostUploadItem = frostUploadItem;
 		}
-
+		
 		@Override
 		public Comparable<?> getValueAt(final int column) {
 			try {
@@ -411,7 +408,7 @@ public class AddNewUploadsDialog extends JFrame {
 					case 4:
 						return frostUploadItem.getFreenetCompatibilityMode();
 					case 5:
-						return language.getString("Common.priority.priority" + frostUploadItem.getPriority());
+						return frostUploadItem.getPriority(); 
 					case 6:
 						return frostUploadItem.isEnabled();
 					default :
@@ -433,7 +430,7 @@ public class AddNewUploadsDialog extends JFrame {
 			return frostUploadItem;
 		}
 	}
-
+	
 	private List<FrostUploadItem> getUploads() {
 		List<FrostUploadItem> frostUploadItmeList = new LinkedList<FrostUploadItem>();
 		final int numberOfRows = addNewUploadsTableModel.getRowCount();
@@ -442,12 +439,12 @@ public class AddNewUploadsDialog extends JFrame {
 		}
 		return frostUploadItmeList;
 	}
-
-
+	
+	
 	private List<FrostUploadItem> addFileChooser() {
-
+		
 		List<FrostUploadItem> frostUploadItemList = new ArrayList<FrostUploadItem>();
-
+		
 		final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
 		fc.setDialogTitle(language.getString("AddNewUploadsDialog.filechooser.title"));
 		fc.setFileHidingEnabled(true);
@@ -483,7 +480,7 @@ public class AddNewUploadsDialog extends JFrame {
 	}
 
 
-	private static class AddNewUploadsTableModel extends SortedTableModel<AddNewUploadsTableMember>{
+	private static class AddNewUploadsTableModel extends SortedTableModel<AddNewUploadsTableMember>{ 
 		private Language language = null;
 
 		protected static String columnNames[];
@@ -500,7 +497,7 @@ public class AddNewUploadsDialog extends JFrame {
 
 		public AddNewUploadsTableModel() {
 			super();
-
+			
 			language = Language.getInstance();
 			refreshLanguage();
 			assert columnClasses.length == columnNames.length;
@@ -553,7 +550,7 @@ public class AddNewUploadsDialog extends JFrame {
 				return columnClasses[column];
 			return null;
 		}
-
+		
 		@Override
 		public void setValueAt(Object aValue, int row, int column) {
 			switch(column){
@@ -574,9 +571,9 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 		}
 	}
-
+	
 	private class AddNewUploadsTable extends SortedTable<AddNewUploadsTableMember> {
-
+		
 		public AddNewUploadsTable(SortedTableModel<AddNewUploadsTableMember> model) {
 			super(model);
 			this.setIntercellSpacing(new Dimension(5, 1));
@@ -589,7 +586,7 @@ public class AddNewUploadsDialog extends JFrame {
 			final int colIndex = columnAtPoint(point);
 			final int realColumnIndex = convertColumnIndexToModel(colIndex);
 			final AddNewUploadsTableModel tableModel = (AddNewUploadsTableModel) getModel();
-
+			
 			switch(realColumnIndex){
 				case 0:
 				case 1:
@@ -604,7 +601,7 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 			return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 		}
-
+		
 		@Override
 		public TableCellRenderer getCellRenderer(final int rowIndex, final int columnIndex) {
 			switch(columnIndex){
@@ -622,7 +619,7 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 			return super.getCellRenderer(rowIndex, columnIndex);
 		}
-
+		
 		@Override
 		public TableCellEditor getCellEditor(final int rowIndex, final int columnIndex ) {
 			switch(columnIndex){
@@ -640,7 +637,7 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 			return super.getCellEditor(rowIndex, columnIndex);
 		}
-
-
+		
+		
 	}
 }

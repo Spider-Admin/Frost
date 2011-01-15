@@ -334,10 +334,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
 
     private class PriorityComparator implements Comparator<FrostUploadItem> {
         public int compare(final FrostUploadItem o1, final FrostUploadItem o2) {
-            final int prio1 = o1.getPriority();
-            final int prio2 = o2.getPriority();
-            return Mixed.compareInt(prio1, prio2);
-//          return new Integer(retries1).compareTo(new Integer(retries2));
+        	return o1.getPriority().compareTo(o2.getPriority());
         }
     }
 
@@ -577,7 +574,8 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 }
 
             case 9: // Priority
-                final int value = uploadItem.getPriority();
+            	// FIXME: handle native type, not int
+                final int value = uploadItem.getPriority().getNumber();
                 if( value < 0 ) {
                     return "-";
                 } else {

@@ -69,7 +69,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	private transient int totalBlocks = 0;
     private transient Boolean isFinalized = null;
     private transient String errorCodeDescription = null;
-    private transient int priority = -1;
+    private transient FreenetPriority priority = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
 
     private transient boolean isDirect = false;
     private transient boolean isExternal = false;
@@ -472,10 +472,11 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         super.fireChange();
     }
 
-    public int getPriority() {
+    public FreenetPriority getPriority() {
         return priority;
     }
-    public void setPriority(final int priority) {
+    
+    public void setPriority(final FreenetPriority priority) {
         this.priority = priority;
         super.fireChange();
     }

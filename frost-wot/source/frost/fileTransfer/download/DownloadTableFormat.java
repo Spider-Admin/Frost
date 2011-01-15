@@ -413,9 +413,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     private class PriorityComparator implements Comparator<FrostDownloadItem> {
         public int compare(final FrostDownloadItem o1, final FrostDownloadItem o2) {
-            final int prio1 = o1.getPriority();
-            final int prio2 = o2.getPriority();
-            return Mixed.compareInt(prio1, prio2);
+        	return o1.getPriority().compareTo(o2.getPriority());
         }
     }
 
@@ -718,7 +716,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 return Boolean.valueOf(!downloadItem.isDirect());
 
             case 13: // Priority
-                final int value = downloadItem.getPriority();
+                final int value = downloadItem.getPriority().getNumber();
                 if( value < 0 ) {
                     return "-";
                 } else {

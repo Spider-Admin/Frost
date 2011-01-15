@@ -32,6 +32,7 @@ import frost.SettingsClass;
 import frost.fcp.FcpResultPut;
 import frost.fileTransfer.FileTransferInformation;
 import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.sharing.FrostSharedFileItem;
 import frost.storage.ExitSavable;
 import frost.storage.StorageException;
@@ -291,9 +292,9 @@ public class UploadManager implements ExitSavable {
         final boolean itemIsEnabled = (ulItem.isEnabled() == null ? true : ulItem.isEnabled().booleanValue());
         List<FrostUploadItem> frostUploadItems = new ArrayList<FrostUploadItem>();
         frostUploadItems.add(ulItem);
-        int prio = 6;
+        FreenetPriority prio = FreenetPriority.PAUSE;
         if( itemIsEnabled ) {
-            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
+            prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
         }
         panel.changeItemPriorites(frostUploadItems, prio);
     }

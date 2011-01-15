@@ -21,13 +21,14 @@ package frost.fcp.fcp07.filepersistence;
 import java.util.*;
 
 import frost.fcp.fcp07.*;
+import frost.fileTransfer.FreenetPriority;
 
 
 public abstract class FcpPersistentRequest extends Observable {
 
     private String identifier = null;
     
-    private int priority = -1;
+    private FreenetPriority priority = FreenetPriority.PAUSE;
     
     // failed
     private boolean isFailed = false;
@@ -45,7 +46,7 @@ public abstract class FcpPersistentRequest extends Observable {
 
     protected FcpPersistentRequest(NodeMessage msg, String id) {
         identifier = id;
-        priority = msg.getIntValue("PriorityClass");
+        priority = FreenetPriority.getPriority(msg.getIntValue("PriorityClass"));
     }
     
     public String getIdentifier() {
@@ -54,7 +55,7 @@ public abstract class FcpPersistentRequest extends Observable {
     
     public void setRequest(NodeMessage msg) {
         // maybe prio was changed
-        priority = msg.getIntValue("PriorityClass");
+        priority = FreenetPriority.getPriority(msg.getIntValue("PriorityClass"));
     }
 
     public void setFailed(NodeMessage msg) {
@@ -109,10 +110,10 @@ public abstract class FcpPersistentRequest extends Observable {
         return message;
     }
 
-    public int getPriority() {
+    public FreenetPriority getPriority() {
         return priority;
     }
-    public void setPriority(int newp) {
+    public void setPriority(final FreenetPriority newp) {
         priority = newp;
     }
 }

@@ -20,13 +20,27 @@
 
 package frost;
 
-import java.awt.*;
-import java.beans.*;
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.storage.*;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
 import frost.util.Logging;
 
 /**
@@ -778,7 +792,8 @@ public class SettingsClass implements ExitSavable {
         }
         return val;
     }
-
+    
+    
     public long getLongValue(final String key) {
         final String str = (String) settingsHash.get(key);
         if (str == null) {

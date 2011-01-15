@@ -81,6 +81,7 @@ import frost.SettingsClass;
 import frost.SettingsUpdater;
 import frost.ext.ExecuteDocument;
 import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.PersistenceManager;
 import frost.fileTransfer.common.FileListFileDetailsDialog;
 import frost.gui.AddNewDownloadsDialog;
@@ -665,7 +666,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		Core.frostSettings.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
 	
-	public void changeItemPriorites(final List<FrostDownloadItem> items, final int newPrio) {
+	public void changeItemPriorites(final List<FrostDownloadItem> items, final FreenetPriority newPrio) {
         if (items == null || items.size() == 0 || FileTransferManager.inst().getPersistenceManager() == null) {
             return;
         }
@@ -686,7 +687,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		// assign keys 1-6 - set priority of selected items
 		final Action setPriorityAction = new AbstractAction() {
 			public void actionPerformed(final ActionEvent event) {
-				final int prio = new Integer(event.getActionCommand()).intValue();
+				final FreenetPriority prio = FreenetPriority.getPriority(new Integer(event.getActionCommand()).intValue());
 				final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 				changeItemPriorites(selectedItems, prio);
 				
@@ -758,13 +759,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		private final JMenuItem jumpToAssociatedMessage = new JMenuItem();
 
 		private JMenu changePriorityMenu = null;
-		private JMenuItem prio0Item = null;
-		private JMenuItem prio1Item = null;
-		private JMenuItem prio2Item = null;
-		private JMenuItem prio3Item = null;
-		private JMenuItem prio4Item = null;
-		private JMenuItem prio5Item = null;
-		private JMenuItem prio6Item = null;
 		private JMenuItem removeFromGqItem = null;
 
 		private JMenuItem retrieveDirectExternalDownloads = null;
@@ -778,30 +772,18 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			if (PersistenceManager.isPersistenceEnabled()) {
 				changePriorityMenu = new JMenu();
-				prio0Item = new JMenuItem();
-				prio1Item = new JMenuItem();
-				prio2Item = new JMenuItem();
-				prio3Item = new JMenuItem();
-				prio4Item = new JMenuItem();
-				prio5Item = new JMenuItem();
-				prio6Item = new JMenuItem();
+        		for(final FreenetPriority priority : FreenetPriority.values()) {
+        			JMenuItem priorityMenuItem = new JMenuItem();
+        			priorityMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        				public void actionPerformed(final ActionEvent actionEvent) {
+        					changeItemPriorites(modelTable.getSelectedItems(), priority);
+        				}
+        			});
+        			changePriorityMenu.add(priorityMenuItem);
+        		}
+				
 				removeFromGqItem = new JMenuItem();
 
-				changePriorityMenu.add(prio0Item);
-				changePriorityMenu.add(prio1Item);
-				changePriorityMenu.add(prio2Item);
-				changePriorityMenu.add(prio3Item);
-				changePriorityMenu.add(prio4Item);
-				changePriorityMenu.add(prio5Item);
-				changePriorityMenu.add(prio6Item);
-
-				prio0Item.addActionListener(this);
-				prio1Item.addActionListener(this);
-				prio2Item.addActionListener(this);
-				prio3Item.addActionListener(this);
-				prio4Item.addActionListener(this);
-				prio5Item.addActionListener(this);
-				prio6Item.addActionListener(this);
 				removeFromGqItem.addActionListener(this);
 
 				retrieveDirectExternalDownloads = new JMenuItem();
@@ -857,13 +839,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			if (PersistenceManager.isPersistenceEnabled()) {
 				changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
-				prio0Item.setText(language.getString("Common.priority.priority0"));
-				prio1Item.setText(language.getString("Common.priority.priority1"));
-				prio2Item.setText(language.getString("Common.priority.priority2"));
-				prio3Item.setText(language.getString("Common.priority.priority3"));
-				prio4Item.setText(language.getString("Common.priority.priority4"));
-				prio5Item.setText(language.getString("Common.priority.priority5"));
-				prio6Item.setText(language.getString("Common.priority.priority6"));
+				
+				for(int itemNum = 0; itemNum < changePriorityMenu.getItemCount() ; itemNum++) {
+                	changePriorityMenu.getItem(itemNum).setText(FreenetPriority.getName(itemNum));
+                }
+				
 				removeFromGqItem.setText(language.getString("DownloadPane.fileTable.popupmenu.removeFromGlobalQueue"));
 
 				retrieveDirectExternalDownloads.setText(language
@@ -898,20 +878,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				invertEnabledSelected();
 			} else if (e.getSource() == detailsItem) {
 				showDetails();
-			} else if (e.getSource() == prio0Item) {
-				changePriority(0);
-			} else if (e.getSource() == prio1Item) {
-				changePriority(1);
-			} else if (e.getSource() == prio2Item) {
-				changePriority(2);
-			} else if (e.getSource() == prio3Item) {
-				changePriority(3);
-			} else if (e.getSource() == prio4Item) {
-				changePriority(4);
-			} else if (e.getSource() == prio5Item) {
-				changePriority(5);
-			} else if (e.getSource() == prio6Item) {
-				changePriority(6);
 			} else if (e.getSource() == removeFromGqItem) {
 				removeSelectedUploadsFromGlobalQueue();
 			} else if (e.getSource() == retrieveDirectExternalDownloads) {
@@ -940,7 +906,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			for (final FrostDownloadItem item : itemsToUpdate) {
 				item.setState(FrostDownloadItem.STATE_WAITING);
 				item.setEnabled(Boolean.FALSE);
-				item.setPriority(-1);
+				item.setPriority(FreenetPriority.PAUSE);
 				item.fireValueChanged();
 			}
 		}
@@ -982,13 +948,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				dlItem.setEnabled(true);
 				FileTransferManager.inst().getDownloadManager().startDownload(dlItem);
 			}
-		}
-
-		private void changePriority(final int prio) {
-			if (FileTransferManager.inst().getPersistenceManager() == null) {
-				return;
-			}
-			changeItemPriorites(modelTable.getSelectedItems(), prio);
 		}
 
 		private void showDetails() {

@@ -26,6 +26,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.ext.*;
 import frost.fcp.*;
+import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.util.Logging;
@@ -137,25 +138,25 @@ public class FcpConnection {
              msg.add("ReturnType=direct");
         }
 
-        final int prio;
+        final FreenetPriority prio;
         if( type == FcpHandler.TYPE_FILE ) {
         	if( dlItem != null) {
         		prio = dlItem.getPriority();
         	} else {
-        		prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
+        		prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
         	}
         
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
-            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD);
+            prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD));
 
         } else {
         	if( dlItem != null) {
         		prio = dlItem.getPriority();
         	} else {
-        		prio = 3; // fallback
+        		prio = FreenetPriority.MEDIUM; // fallback
         	}
         }
-        msg.add("PriorityClass="+Integer.toString(prio));
+        msg.add("PriorityClass=" + prio.getNumber());
 
         if( maxSize > 0 ) {
             msg.add("MaxSize=" + Integer.toString(maxSize));
@@ -356,7 +357,7 @@ public class FcpConnection {
 		    msg.add("GetCHKOnly=true");
 		    msg.add("PriorityClass=3");
 		} else {
-            final int prio;
+            final FreenetPriority prio;
             if( type == FcpHandler.TYPE_FILE ) {
             	if (doMime) {
             	    msg.add("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
@@ -366,18 +367,18 @@ public class FcpConnection {
             	if( ulItem != null) {
             		prio = ulItem.getPriority(); 
             	} else {
-            		prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
+            		prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
             	}
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
-                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD);
+                prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD));
             } else {
             	if( ulItem != null) {
             		prio = ulItem.getPriority();
             	} else {
-            		prio = 3;
+            		prio = FreenetPriority.MEDIUM;
             	}
             }
-            msg.add("PriorityClass="+Integer.toString(prio));
+            msg.add("PriorityClass=" + prio.getNumber());
         }
 
 		msg.add("Persistence=connection");

@@ -21,6 +21,7 @@ package frost.fcp.fcp07.filepersistence;
 import java.util.*;
 
 import frost.fcp.fcp07.*;
+import frost.fileTransfer.FreenetPriority;
 import frost.util.*;
 
 public class FcpPersistentQueue implements NodeMessageListener {
@@ -226,7 +227,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
     protected void onPersistentRequestModified(final String id, final NodeMessage nm) {
         // check if the priorityClass changed, ignore other changes
         if( nm.isValueSet("PriorityClass") ) {
-            final int newPriorityClass = nm.getIntValue("PriorityClass");
+            final FreenetPriority newPriorityClass = FreenetPriority.getPriority(nm.getIntValue("PriorityClass"));
             if( downloadRequests.containsKey(id) ) {
                 final FcpPersistentGet pg = downloadRequests.get(id);
                 pg.setPriority(newPriorityClass);

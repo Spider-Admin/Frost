@@ -53,6 +53,7 @@ import javax.swing.table.TableCellRenderer;
 import frost.Core;
 import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.download.FrostDownloadItem;
 import frost.gui.model.SortedTableModel;
 import frost.gui.model.TableMember;
@@ -297,14 +298,9 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 
 		// Change Priority
 		final JMenu changePriorityMenu = new JMenu(language.getString("Common.priority.changePriority"));
-		final int numberOfPriorities = 7;
-		final JMenuItem[] prioItemList = new JMenuItem[numberOfPriorities];
-
-		for(int i = 0; i < numberOfPriorities; i++) {
-			final int priority = i;
-			prioItemList[priority] = new JMenuItem(language.getString("Common.priority.priority" + priority));
-			changePriorityMenu.add(prioItemList[priority]);
-			prioItemList[priority].addActionListener(new java.awt.event.ActionListener() {
+		for(final FreenetPriority priority : FreenetPriority.values()) {
+			JMenuItem priorityMenuItem = new JMenuItem(priority.getName());
+			priorityMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(final ActionEvent actionEvent) {
 					addNewDownloadsTable.new SelectedItemsAction() {
 						protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
@@ -313,6 +309,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 					};
 				}
 			});
+			changePriorityMenu.add(priorityMenuItem);
 		}
 		
 		// Enable download
@@ -584,11 +581,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				case 1:
 					return frostDownloadItem.getKey();
 				case 2:
-					if( frostDownloadItem.getPriority() == -1 ) {
-						frostDownloadItem.setPriority( Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD ));
-					}
-					final String prio = "Common.priority.priority" + frostDownloadItem.getPriority();
-					return language.getString(prio);
+					return frostDownloadItem.getPriority().getName();
 				case 3:
 					return frostDownloadItem.getDownloadDir();
 				case 4:
