@@ -817,12 +817,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     public void persistentRequestError(final String id, final NodeMessage nm) {
         if( uploadModelItems.containsKey(id) ) {
             final FrostUploadItem item = uploadModelItems.get(id);
-            item.setEnabled(Boolean.FALSE);
+            item.setEnabled(false);
             item.setState(FrostUploadItem.STATE_FAILED);
             item.setErrorCodeDescription(nm.getStringValue("CodeDescription"));
         } else if( downloadModelItems.containsKey(id) ) {
             final FrostDownloadItem item = downloadModelItems.get(id);
-            item.setEnabled(Boolean.FALSE);
+            item.setEnabled(false);
             item.setState(FrostDownloadItem.STATE_FAILED);
             item.setErrorCodeDescription(nm.getStringValue("CodeDescription"));
         } else {

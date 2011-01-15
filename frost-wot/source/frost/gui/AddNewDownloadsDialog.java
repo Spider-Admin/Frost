@@ -445,7 +445,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		private void refreshLanguage() {
 			columnNames[0] = language.getString("AddNewDownloadsDialog.table.name");
 			columnNames[1] = language.getString("AddNewDownloadsDialog.table.key");
-			columnNames[2] = language.getString("AddNewDownloadsDialog.table.priority");
+			columnNames[2] = language.getString("Common.priority");
 			columnNames[3] = language.getString("AddNewDownloadsDialog.table.downloadDir");
 			columnNames[4] = language.getString("AddNewDownloadsDialog.table.downloaded");
 			columnNames[5] = language.getString("AddNewDownloadsDialog.table.exists");

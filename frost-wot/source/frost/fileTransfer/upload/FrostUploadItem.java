@@ -43,7 +43,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private String fileName = null;
     private long fileSize = 0;
     private String chkKey = null;
-    private Boolean enabled = Boolean.TRUE;
+    private boolean enabled = true;
     private int state;
     private long uploadAddedMillis = 0;
     private long uploadStartedMillis = 0;
@@ -63,7 +63,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private int doneBlocks = -1;
     private Boolean isFinalized = null;
     private String errorCodeDescription = null;
-    private int priority = -1;
+    private int priority = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
 
     // is only set if this uploaditem is a shared file
     private FrostSharedFileItem sharedFileItem = null;
@@ -235,12 +235,11 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      * @param enabled new enable status of the item. If null, the current status is inverted
      */
     public void setEnabled(Boolean newEnabled) {
-        if (newEnabled == null && enabled != null) {
-            //Invert the enable status
-            final boolean temp = enabled.booleanValue();
-            newEnabled = Boolean.valueOf(!temp);
+        if (newEnabled == null) {
+        	enabled = ! enabled;
+        } else {
+        	enabled = newEnabled;
         }
-        enabled = newEnabled;
         fireChange();
     }
 

@@ -25,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -34,6 +36,8 @@ import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.model.SortedTableModel;
 import frost.gui.model.TableMember;
 import frost.util.FileAccess;
+import frost.util.FormatterUtils;
+import frost.util.gui.BooleanCell;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
@@ -269,6 +273,31 @@ public class AddNewUploadsDialog extends JFrame {
 			});
 		}
 		
+		// Enable upload
+		final JMenuItem enableUploadMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.enableUpload"));
+		enableUploadMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewUploadsTable.new SelectedItemsAction() {
+					protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+						addNewUploadsTableMember.getUploadItem().setEnabled(true);
+					}
+				};
+			}
+		});
+		
+		
+		// Disable upload
+		final JMenuItem disableUploadMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.disableUpload"));
+		disableUploadMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewUploadsTable.new SelectedItemsAction() {
+					protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+						addNewUploadsTableMember.getUploadItem().setEnabled(false);
+					}
+				};
+			}
+		});
+		
 		tablePopupMenu = new JSkinnablePopupMenu();
 		tablePopupMenu.add(renameMenuItem);
 		tablePopupMenu.addSeparator();
@@ -278,6 +307,9 @@ public class AddNewUploadsDialog extends JFrame {
 		tablePopupMenu.add(changeFreenetCompatibilityModeMenu);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(changePriorityMenu);
+		tablePopupMenu.addSeparator();
+		tablePopupMenu.add(enableUploadMenuItem);
+		tablePopupMenu.add(disableUploadMenuItem);
 		
 		addNewUploadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
@@ -354,11 +386,15 @@ public class AddNewUploadsDialog extends JFrame {
 					case 1:
 						return frostUploadItem.getFile().getCanonicalPath();
 					case 2:
-						return new Long(frostUploadItem.getFileSize());
+						return FormatterUtils.formatSize(frostUploadItem.getFileSize());
 					case 3:
-						return frostUploadItem.getCompress() ? language.getString("Common.yes") : language.getString("Common.no");
+						return frostUploadItem.getCompress();
 					case 4:
 						return frostUploadItem.getFreenetCompatibilityMode();
+					case 5:
+						return language.getString("Common.priority.priority" + frostUploadItem.getPriority()); 
+					case 6:
+						return frostUploadItem.isEnabled();
 					default :
 						throw new RuntimeException("Unknown Column pos");
 				}
@@ -437,17 +473,18 @@ public class AddNewUploadsDialog extends JFrame {
 			String.class,
 			String.class,
 			Long.class,
+			Boolean.class,
+			FreenetCompatibilityMode.class,
 			String.class,
-			FreenetCompatibilityMode.class
+			Boolean.class,
 		};
 
 		public AddNewUploadsTableModel() {
 			super();
 			assert columnClasses.length == columnNames.length;
+			
 			language = Language.getInstance();
 			refreshLanguage();
-			
-			assert(columnClasses.length == columnNames.length);
 		}
 
 		private void refreshLanguage() {
@@ -456,12 +493,26 @@ public class AddNewUploadsDialog extends JFrame {
 				language.getString("AddNewUploadsDialog.table.path"),
 				language.getString("AddNewUploadsDialog.table.size"),
 				language.getString("AddNewUploadsDialog.table.compress"),
-				language.getString("AddNewUploadsDialog.table.freenetCompatibilityMode")
+				language.getString("AddNewUploadsDialog.table.freenetCompatibilityMode"),
+				language.getString("Common.priority"),
+				language.getString("AddNewUploadsDialog.table.enabled"),
 			};
 		}
 
 		public boolean isCellEditable(int row, int col) {
-			return false;
+			switch(col){
+				case 0:
+				case 1:
+				case 2:
+				case 4:
+				case 5:
+					return false;
+				case 3:
+				case 6:
+					return true;
+				default:
+					return false;
+			}
 		}
 
 		public String getColumnName(int column) {
@@ -478,6 +529,26 @@ public class AddNewUploadsDialog extends JFrame {
 			if( column >= 0 && column < columnClasses.length )
 				return columnClasses[column];
 			return null;
+		}
+		
+		@Override
+		public void setValueAt(Object aValue, int row, int column) {
+			switch(column){
+				case 0:
+				case 1:
+				case 2:
+				case 4:
+				case 5:
+					return;
+				case 3:
+					getRow(row).getUploadItem().setCompress((Boolean) aValue);
+					return;
+				case 6:
+					getRow(row).getUploadItem().setEnabled((Boolean) aValue);
+					return;
+				default:
+					return;
+			}
 		}
 	}
 	
@@ -499,13 +570,53 @@ public class AddNewUploadsDialog extends JFrame {
 				case 0:
 				case 1:
 				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
 					return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 				default:
 					assert false;
 			}
 			return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 		}
+		
+		@Override
+		public TableCellRenderer getCellRenderer(final int rowIndex, final int columnIndex) {
+			switch(columnIndex){
+				case 0:
+				case 1:
+				case 2:
+				case 4:
+				case 5:
+					return super.getCellRenderer(rowIndex, columnIndex);
+				case 3:
+				case 6:
+					return BooleanCell.RENDERER;
+				default:
+					assert false;
+			}
+			return super.getCellRenderer(rowIndex, columnIndex);
+		}
+		
+		@Override
+		public TableCellEditor getCellEditor(final int rowIndex, final int columnIndex ) {
+			switch(columnIndex){
+				case 0:
+				case 1:
+				case 2:
+				case 4:
+				case 5:
+					return super.getCellEditor(rowIndex, columnIndex);
+				case 3:
+				case 6:
+					return BooleanCell.EDITOR;
+				default:
+					assert false;
+			}
+			return super.getCellEditor(rowIndex, columnIndex);
+		}
+		
+		
 	}
-	
-	
 }

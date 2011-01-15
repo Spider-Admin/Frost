@@ -129,7 +129,7 @@ public class UploadManager implements ExitSavable {
                 uploadItem.getSharedFileItem().notifySuccessfulUpload(result.getChkKey());
             }
 
-            uploadItem.setEnabled(Boolean.FALSE);
+            uploadItem.setEnabled(false);
             uploadItem.setState(FrostUploadItem.STATE_DONE);
 
             uploadItem.setUploadFinishedMillis(System.currentTimeMillis());
@@ -288,7 +288,7 @@ public class UploadManager implements ExitSavable {
             // not running, not in queue
             return;
         }
-        final boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
+        final boolean itemIsEnabled = (ulItem.isEnabled() == null ? true : ulItem.isEnabled().booleanValue());
         List<FrostUploadItem> frostUploadItems = new ArrayList<FrostUploadItem>();
         frostUploadItems.add(ulItem);
         int prio = 6;
