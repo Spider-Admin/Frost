@@ -465,9 +465,9 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 
 		public AddNewDownloadsTableModel() {
 			super();
-			assert columnClasses.length == columnNames.length;
 			language = Language.getInstance();
 			refreshLanguage(); 
+			assert columnClasses.length == columnNames.length;
 		}
 
 		private void refreshLanguage() {
