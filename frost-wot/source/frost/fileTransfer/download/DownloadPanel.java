@@ -390,7 +390,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		if (file.isDirectory()) {
 			downloadDirTextField.setBackground(downloadDirDefaultBackground);
 		} else {
-			downloadDirTextField.setBackground(Color.RED);
+			downloadDirTextField.setBackground(Color.YELLOW);
 		}
 	}
 
