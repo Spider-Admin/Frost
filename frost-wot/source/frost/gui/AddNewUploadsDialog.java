@@ -298,6 +298,22 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 		});
 		
+		// Remove Selected
+		final JMenuItem removeSelectedMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.button.removeSelected"));
+		removeSelectedMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewUploadsTable.removeSelected();
+			}
+		});
+		
+		// Remove But Selected
+		final JMenuItem removeButSelectedMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.button.removeButSelected"));
+		removeButSelectedMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewUploadsTable.removeButSelected();
+			}
+		});
+		
 		tablePopupMenu = new JSkinnablePopupMenu();
 		tablePopupMenu.add(renameMenuItem);
 		tablePopupMenu.addSeparator();
@@ -310,6 +326,9 @@ public class AddNewUploadsDialog extends JFrame {
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(enableUploadMenuItem);
 		tablePopupMenu.add(disableUploadMenuItem);
+		tablePopupMenu.addSeparator();
+		tablePopupMenu.add(removeSelectedMenuItem);
+		tablePopupMenu.add(removeButSelectedMenuItem);
 		
 		addNewUploadsTable.addMouseListener(new TablePopupMenuMouseListener());
 	}
@@ -495,10 +514,11 @@ public class AddNewUploadsDialog extends JFrame {
 				language.getString("AddNewUploadsDialog.table.compress"),
 				language.getString("AddNewUploadsDialog.table.freenetCompatibilityMode"),
 				language.getString("Common.priority"),
-				language.getString("AddNewUploadsDialog.table.enabled"),
+				language.getString("Common.enabled"),
 			};
 		}
 
+		@Override
 		public boolean isCellEditable(int row, int col) {
 			switch(col){
 				case 0:
@@ -515,16 +535,19 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 		}
 
+		@Override
 		public String getColumnName(int column) {
 			if( column >= 0 && column < columnNames.length )
 				return columnNames[column];
 			return null;
 		}
 
+		@Override
 		public int getColumnCount() {
 			return columnNames.length;
 		}
 
+		@Override
 		public Class<?> getColumnClass(int column) {
 			if( column >= 0 && column < columnClasses.length )
 				return columnClasses[column];
@@ -559,6 +582,7 @@ public class AddNewUploadsDialog extends JFrame {
 			this.setIntercellSpacing(new Dimension(5, 1));
 		}
 
+		@Override
 		public String getToolTipText(final MouseEvent mouseEvent) {
 			final java.awt.Point point = mouseEvent.getPoint();
 			final int rowIndex = rowAtPoint(point);

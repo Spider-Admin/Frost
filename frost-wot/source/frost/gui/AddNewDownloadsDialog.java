@@ -47,6 +47,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import frost.Core;
@@ -59,6 +60,7 @@ import frost.storage.perst.TrackDownloadKeys;
 import frost.storage.perst.TrackDownloadKeysStorage;
 import frost.util.DateFun;
 import frost.util.FormatterUtils;
+import frost.util.gui.BooleanCell;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
@@ -313,6 +315,31 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			});
 		}
 		
+		// Enable download
+		final JMenuItem enableDownloadMenuItem = new JMenuItem(language.getString("AddNewDownloadsDialog.popupMenu.enableUpload"));
+		enableDownloadMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewDownloadsTable.new SelectedItemsAction() {
+					protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+						addNewDownloadsTableMember.getDownloadItem().setEnabled(true);
+					}
+				};
+			}
+		});
+		
+		
+		// Disable download
+		final JMenuItem disableDownloadMenuItem = new JMenuItem(language.getString("AddNewDownloadsDialog.popupMenu.disableUpload"));
+		disableDownloadMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				addNewDownloadsTable.new SelectedItemsAction() {
+					protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+						addNewDownloadsTableMember.getDownloadItem().setEnabled(false);
+					}
+				};
+			}
+		});
+		
 		// recent download directory
 		final JMenu downloadDirRecentMenu = new JMenu(language.getString("DownloadPane.toolbar.downloadDirMenu.setDownloadDirTo"));
 		JMenuItem item = new JMenuItem(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD));
@@ -350,6 +377,9 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		tablePopupMenu.add(removeButSelectedDownload);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(changePriorityMenu);
+		tablePopupMenu.addSeparator();
+		tablePopupMenu.add(enableDownloadMenuItem);
+		tablePopupMenu.add(disableDownloadMenuItem);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(downloadDirRecentMenu);
 		
@@ -424,51 +454,89 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	private static class AddNewDownloadsTableModel extends SortedTableModel<AddNewDownloadsTableMember>{
 		private Language language = null;
 
-		protected final static String columnNames[] = new String[6];
+		protected  static String columnNames[];
 
-		protected final static Class<?> columnClasses[] =  {
+		protected final static Class<?> columnClasses[] = {
 			String.class,
 			String.class,
 			String.class,
 			String.class,
+			Boolean.class,
 			String.class,
-			String.class
+			String.class,
 		};
 
 		public AddNewDownloadsTableModel() {
 			super();
 			assert columnClasses.length == columnNames.length;
 			language = Language.getInstance();
-			refreshLanguage();
+			refreshLanguage(); 
 		}
 
 		private void refreshLanguage() {
-			columnNames[0] = language.getString("AddNewDownloadsDialog.table.name");
-			columnNames[1] = language.getString("AddNewDownloadsDialog.table.key");
-			columnNames[2] = language.getString("Common.priority");
-			columnNames[3] = language.getString("AddNewDownloadsDialog.table.downloadDir");
-			columnNames[4] = language.getString("AddNewDownloadsDialog.table.downloaded");
-			columnNames[5] = language.getString("AddNewDownloadsDialog.table.exists");
+			columnNames = new String[] {
+				language.getString("AddNewDownloadsDialog.table.name"),
+				language.getString("AddNewDownloadsDialog.table.key"),
+				language.getString("Common.priority"),
+				language.getString("AddNewDownloadsDialog.table.downloadDir"),
+				language.getString("Common.enabled"),
+				language.getString("AddNewDownloadsDialog.table.downloaded"),
+				language.getString("AddNewDownloadsDialog.table.exists"),
+			};
 		}
 
+		@Override
 		public boolean isCellEditable(int row, int col) {
-			return false;
+			switch(col){
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 5:
+				case 6:
+					return false;
+				case 4:
+					return true;
+				default:
+					return false;
+			}
 		}
 
+		@Override
 		public String getColumnName(int column) {
 			if( column >= 0 && column < columnNames.length )
 				return columnNames[column];
 			return null;
 		}
 
+		@Override
 		public int getColumnCount() {
 			return columnNames.length;
 		}
 
+		@Override
 		public Class<?> getColumnClass(int column) {
 			if( column >= 0 && column < columnClasses.length )
 				return columnClasses[column];
 			return null;
+		}
+		
+		@Override
+		public void setValueAt(Object aValue, int row, int column) {
+			switch(column){
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 5:
+				case 6:
+					return;
+				case 4:
+					getRow(row).getDownloadItem().setEnabled((Boolean) aValue);
+					return;
+				default:
+					return;
+			}
 		}
 	}
 
@@ -508,6 +576,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			updateExistsCheck();
 		}
 
+		@Override
 		public Comparable<?> getValueAt(final int column) {
 			switch( column ) {
 				case 0:
@@ -523,8 +592,10 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				case 3:
 					return frostDownloadItem.getDownloadDir();
 				case 4:
-					return downloaded ? "X" : "";
+					return frostDownloadItem.isEnabled();
 				case 5:
+					return downloaded ? "X" : "";
+				case 6:
 					return exists ? "X" : "";
 				default :
 					throw new RuntimeException("Unknown Column pos");
@@ -553,6 +624,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			}
 		}
 
+		@Override
 		public int compareTo(final TableMember anOther, final int tableColumIndex) {
 			final String c1 = (String) getValueAt(tableColumIndex);
 			final String c2 = (String) anOther.getValueAt(tableColumIndex);
@@ -565,14 +637,19 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	}
 
 	private class TablePopupMenuMouseListener implements MouseListener {
+		@Override
 		public void mouseReleased(final MouseEvent event) {
 			maybeShowPopup(event);
 		}
+		@Override
 		public void mousePressed(final MouseEvent event) {
 			maybeShowPopup(event);
 		}
+		@Override
 		public void mouseClicked(final MouseEvent event) {}
+		@Override
 		public void mouseEntered(final MouseEvent event) {}
+		@Override
 		public void mouseExited(final MouseEvent event) {}
 
 		protected void maybeShowPopup(final MouseEvent e) {
@@ -593,6 +670,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			null,
 			null,
 			null,
+			null,
 			language.getString("AddNewDownloadsDialog.tableToolltip.downloaded"),
 			language.getString("AddNewDownloadsDialog.tableToolltip.exists")
 		};
@@ -603,6 +681,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			centerCellRenderer = new CenterCellRenderer();
 		}
 
+		@Override
 		public String getToolTipText(final MouseEvent mouseEvent) {
 			final java.awt.Point point = mouseEvent.getPoint();
 			final int rowIndex = rowAtPoint(point);
@@ -614,10 +693,11 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				case 1:
 				case 2:
 				case 3:
-					return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 				case 4:
-					return addNewDownloadsTableModel.getRow(rowIndex).downloadedTooltip;
+					return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 				case 5:
+					return addNewDownloadsTableModel.getRow(rowIndex).downloadedTooltip;
+				case 6:
 					return addNewDownloadsTableModel.getRow(rowIndex).existsTooltip;
 				default:
 					assert false;
@@ -625,6 +705,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			return tableModel.getValueAt(rowIndex, realColumnIndex).toString();
 		}
 		
+		@Override
 		public TableCellRenderer getCellRenderer(final int rowIndex, final int columnIndex) {
 			switch(columnIndex){
 				case 0:
@@ -633,16 +714,35 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				case 3:
 					return super.getCellRenderer(rowIndex, columnIndex);
 				case 4:
+					return BooleanCell.RENDERER;
 				case 5:
+				case 6:
 					return centerCellRenderer;
 				default:
 					assert false;
 			}
 			return super.getCellRenderer(rowIndex, columnIndex);
 		}
+		
+		@Override
+		public TableCellEditor getCellEditor(final int rowIndex, final int columnIndex ) {
+			switch(columnIndex){
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 5:
+				case 6:
+					return super.getCellEditor(rowIndex, columnIndex);
+				case 4:
+					return BooleanCell.EDITOR;
+				default:
+					assert false;
+			}
+			return super.getCellEditor(rowIndex, columnIndex);
+		}
 
 		private class CenterCellRenderer extends JLabel implements TableCellRenderer {
-
 			public Component getTableCellRendererComponent(final JTable table,
 					final Object value, final boolean isSelected, final boolean hasFocus,
 					final int row, final int column) {
@@ -652,6 +752,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			}
 		}
 		
+		@Override
 		protected JTableHeader createDefaultTableHeader() {
 			return new JTableHeader(columnModel) {
 				public String getToolTipText(final MouseEvent e) {
