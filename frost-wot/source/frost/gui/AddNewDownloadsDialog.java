@@ -49,6 +49,7 @@ import javax.swing.WindowConstants;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -124,12 +125,13 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				}
 			}
 
-
 			setSize(width, height);
+
 			this.setResizable(true);
 			
 			setIconImage(MiscToolkit.loadImageIcon("/data/toolbar/document-save-as.png").getImage());
-
+			
+			
 			// Remove already Downloaded Button
 			removeAlreadyDownloadedButton = new JButton(language.getString("AddNewDownloadsDialog.button.removeAlreadyDownloadedButton"));
 			removeAlreadyDownloadedButton.setToolTipText(language.getString("AddNewDownloadsDialog.buttonTooltip.removeAlreadyDownloadedButton"));
@@ -200,8 +202,19 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 
 			this.getContentPane().setLayout(new BorderLayout());
 			this.getContentPane().add(mainPanel, null);
-
+			
 			this.initPopupMenu();
+			
+			addNewDownloadsTable.setAutoResizeMode( JTable.AUTO_RESIZE_NEXT_COLUMN);
+			int tableWidth = getWidth();
+			
+			TableColumnModel headerColumnModel = addNewDownloadsTable.getTableHeader().getColumnModel();
+			int defaultColumnWidthRatio[] = addNewDownloadsTableModel.getDefaultColumnWidthRatio();
+			for(int i = 0 ; i < defaultColumnWidthRatio.length ; i++) {
+				headerColumnModel.getColumn(i).setMinWidth(5);
+				int ratio = tableWidth * defaultColumnWidthRatio[i] /100;
+				headerColumnModel.getColumn(i).setPreferredWidth(ratio);
+			}
 
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -462,6 +475,16 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			String.class,
 			String.class,
 		};
+		
+		private final int[] defaultColumnWidthRatio = {
+				35,
+				10,
+				10,
+				35,
+				5,
+				5,
+			};
+
 
 		public AddNewDownloadsTableModel() {
 			super();
@@ -534,6 +557,10 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				default:
 					return;
 			}
+		}
+		
+		public int[] getDefaultColumnWidthRatio() {
+			return defaultColumnWidthRatio;
 		}
 	}
 
@@ -665,9 +692,10 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			null,
 			null,
 			language.getString("AddNewDownloadsDialog.tableToolltip.downloaded"),
-			language.getString("AddNewDownloadsDialog.tableToolltip.exists")
+			language.getString("AddNewDownloadsDialog.tableToolltip.exists"),
 		};
-
+		
+		
 		public AddNewDownloadsTable(final AddNewDownloadsTableModel addNewDownloadsTableModel) {
 			super(addNewDownloadsTableModel);
 			this.setIntercellSpacing(new Dimension(5, 1));
@@ -734,7 +762,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			}
 			return super.getCellEditor(rowIndex, columnIndex);
 		}
-
+		
 		private class CenterCellRenderer extends JLabel implements TableCellRenderer {
 			public Component getTableCellRendererComponent(final JTable table,
 					final Object value, final boolean isSelected, final boolean hasFocus,
@@ -756,5 +784,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				}
 			};
 		}
+
 	}
 }

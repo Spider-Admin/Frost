@@ -23,10 +23,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -188,6 +190,17 @@ public class AddNewUploadsDialog extends JFrame {
 			this.getContentPane().add(mainPanel, null);
 			
 			initTablePopupMenu();
+			
+			addNewUploadsTable.setAutoResizeMode( JTable.AUTO_RESIZE_NEXT_COLUMN);
+			int tableWidth = getWidth();
+			
+			TableColumnModel headerColumnModel = addNewUploadsTable.getTableHeader().getColumnModel();
+			int defaultColumnWidthRatio[] = addNewUploadsTableModel.getDefaultColumnWidthRatio();
+			for(int i = 0 ; i < defaultColumnWidthRatio.length ; i++) {
+				headerColumnModel.getColumn(i).setMinWidth(5);
+				int ratio = tableWidth * defaultColumnWidthRatio[i] /100;
+				headerColumnModel.getColumn(i).setPreferredWidth(ratio);
+			}
 			
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -494,12 +507,23 @@ public class AddNewUploadsDialog extends JFrame {
 			String.class,
 			Boolean.class,
 		};
+		
+		private final int[] defaultColumnWidthRatio = {
+			25,
+			40,
+			10,
+			5,
+			10,
+			5,
+			5,
+		};
 
 		public AddNewUploadsTableModel() {
 			super();
 			
 			language = Language.getInstance();
 			refreshLanguage();
+			
 			assert columnClasses.length == columnNames.length;
 		}
 
@@ -569,6 +593,10 @@ public class AddNewUploadsDialog extends JFrame {
 				default:
 					return;
 			}
+		}
+		
+		public int[] getDefaultColumnWidthRatio() {
+			return defaultColumnWidthRatio;
 		}
 	}
 	
