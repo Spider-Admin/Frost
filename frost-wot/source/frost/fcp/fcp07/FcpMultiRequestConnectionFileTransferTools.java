@@ -114,7 +114,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
      * 
      * @return true when the download was started using DDA, false if it is using DIRECT
      */
-    public boolean startPersistentGet(final String key, final String id, final File targetFile) {
+    public boolean startPersistentGet(final String key, final String id, final File targetFile, final FreenetPriority priority) {
         // start the persistent get. if DDA=false, then we have to fetch the file after the successful get from node
         final File downloadDir = targetFile.getParentFile();
         final boolean isDda = TestDDAHelper.isDDAPossiblePersistent(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir, fcpPersistentConnection);
@@ -129,8 +129,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("Verbosity=-1");
         msg.add("Persistence=forever");
         msg.add("Global=true");
-        final FreenetPriority prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
-        msg.add("PriorityClass=" + prio.getNumber());
+        msg.add("PriorityClass=" + priority.getNumber());
 
         if (isDda) {
             msg.add("ReturnType=disk");

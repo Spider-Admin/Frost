@@ -584,7 +584,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         boolean isDda = fcpTools.startPersistentGet(
                 dlItem.getKey(),
                 gqid,
-                targetFile);
+                targetFile,
+                dlItem.getPriority()
+        );
         dlItem.setDirect( !isDda );
 
         return true;
