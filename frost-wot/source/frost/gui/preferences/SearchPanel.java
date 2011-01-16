@@ -219,7 +219,7 @@ class SearchPanel extends JPanel {
         executableExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_EXECUTABLE));
         archiveExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_ARCHIVE));
         maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS)));
-        disableFilesharingCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_FILESHARING));
+        disableFilesharingCheckBox.setSelected(settings.getBoolValue(SettingsClass.FILESHARING_DISABLE));
         ignoreCheckAndBelowCheckBox.setSelected(settings.getBoolValue(SettingsClass.FILESHARING_IGNORE_CHECK_AND_BELOW));
         rememberSharedFileDownloadedCheckBox.setSelected(settings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED));
     }
@@ -256,7 +256,7 @@ class SearchPanel extends JPanel {
         settings.setValue(SettingsClass.FILEEXTENSION_ARCHIVE, archiveExtensionTextField.getText().toLowerCase());
         settings.setValue(SettingsClass.SEARCH_MAX_RESULTS, maxSearchResultsTextField.getText());
 
-        settings.setValue(SettingsClass.DISABLE_FILESHARING, disableFilesharingCheckBox.isSelected());
+        settings.setValue(SettingsClass.FILESHARING_DISABLE, disableFilesharingCheckBox.isSelected());
         settings.setValue(SettingsClass.FILESHARING_IGNORE_CHECK_AND_BELOW, ignoreCheckAndBelowCheckBox.isSelected());
         settings.setValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, rememberSharedFileDownloadedCheckBox.isSelected());
     }

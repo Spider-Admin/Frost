@@ -203,7 +203,7 @@ public class Core {
             FcpHandler.inst().goneOnline();
         }
 
-        if (!frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
+        if (!frostSettings.getBoolValue(SettingsClass.FILESHARING_DISABLE)) {
             MiscToolkit.showSuppressableConfirmDialog(
                     MainFrame.getInstance(),
                     language.getString("Core.init.FileSharingEnabledBody"),
@@ -567,7 +567,7 @@ public class Core {
         getFileTransferManager().startTickers();
 
         // after X seconds, start filesharing threads if enabled
-        if( isFreenetOnline() && !frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
+        if( isFreenetOnline() && !frostSettings.getBoolValue(SettingsClass.FILESHARING_DISABLE)) {
             final Thread t = new Thread() {
                 @Override
                 public void run() {

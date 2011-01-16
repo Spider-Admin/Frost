@@ -36,7 +36,7 @@ public class SearchManager implements PropertyChangeListener {
     
     public void addPanelToMainFrame(MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.search", getPanel());
-        Core.frostSettings.addPropertyChangeListener(SettingsClass.DISABLE_FILESHARING, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.FILESHARING_DISABLE, this);
         updateDownloadStatus();
     }
 
@@ -49,13 +49,13 @@ public class SearchManager implements PropertyChangeListener {
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(SettingsClass.DISABLE_FILESHARING)) {
+        if (evt.getPropertyName().equals(SettingsClass.FILESHARING_DISABLE)) {
             updateDownloadStatus();
         }
     }
 
     private void updateDownloadStatus() {
-        boolean disableFileSharing = Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING);
+        boolean disableFileSharing = Core.frostSettings.getBoolValue(SettingsClass.FILESHARING_DISABLE);
         MainFrame.getInstance().setPanelEnabled("MainFrame.tabbedPane.search", !disableFileSharing);
     }
 }

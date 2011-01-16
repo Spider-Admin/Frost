@@ -112,7 +112,7 @@ public class MainFrameStatusBar extends JPanel {
 
         JPanel p3 = null;
         // shown only if filesharing is enabled
-        if( Core.isFreenetOnline() && !Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
+        if( Core.isFreenetOnline() && !Core.frostSettings.getBoolValue(SettingsClass.FILESHARING_DISABLE)) {
             fileListDownloadQueueSizeLabel = new JLabel() {
                 @Override
                 public String getToolTipText(final MouseEvent me) {

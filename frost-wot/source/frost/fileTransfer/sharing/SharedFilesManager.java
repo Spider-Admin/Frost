@@ -45,7 +45,7 @@ public class SharedFilesManager implements PropertyChangeListener, ExitSavable {
 
     public void addPanelToMainFrame(final MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.sharing", getPanel());
-        Core.frostSettings.addPropertyChangeListener(SettingsClass.DISABLE_FILESHARING, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.FILESHARING_DISABLE, this);
         updateFileSharingStatus();
     }
 
@@ -71,13 +71,13 @@ public class SharedFilesManager implements PropertyChangeListener, ExitSavable {
     }
 
     public void propertyChange(final PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(SettingsClass.DISABLE_FILESHARING)) {
+        if (evt.getPropertyName().equals(SettingsClass.FILESHARING_DISABLE)) {
             updateFileSharingStatus();
         }
     }
 
     private void updateFileSharingStatus() {
-        boolean disableFileSharing = Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING);
+        boolean disableFileSharing = Core.frostSettings.getBoolValue(SettingsClass.FILESHARING_DISABLE);
         MainFrame.getInstance().setPanelEnabled("MainFrame.tabbedPane.sharing", !disableFileSharing);
     }
 

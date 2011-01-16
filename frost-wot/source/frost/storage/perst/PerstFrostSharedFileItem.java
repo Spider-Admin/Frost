@@ -77,7 +77,7 @@ public class PerstFrostSharedFileItem extends Persistent {
         final File file = new File(filePath);
 
         // report modified/missing shared files only if filesharing is enabled
-        if( !Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING) ) {
+        if( !Core.frostSettings.getBoolValue(SettingsClass.FILESHARING_DISABLE) ) {
             if( !file.isFile() ) {
                 final String title = language.getString("StartupMessage.sharedFile.sharedFileNotFound.title");
                 final String text = language.formatMessage("StartupMessage.sharedFile.sharedFileNotFound.text", filePath);
