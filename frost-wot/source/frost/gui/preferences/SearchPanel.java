@@ -52,6 +52,7 @@ class SearchPanel extends JPanel {
     private final JTextField videoExtensionTextField = new JTextField();
 
     private final JCheckBox disableFilesharingCheckBox = new JCheckBox();
+    private final JCheckBox ignoreCheckAndBelowCheckBox = new JCheckBox();
     private final JCheckBox rememberSharedFileDownloadedCheckBox = new JCheckBox();
     private final JButton resetHiddenFilesButton = new JButton();
 
@@ -155,6 +156,11 @@ class SearchPanel extends JPanel {
         constraints.gridy++;
         constraints.gridwidth = 2;
         constraints.gridx = 0;
+        add(ignoreCheckAndBelowCheckBox, constraints);
+
+        constraints.gridy++;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
         add(rememberSharedFileDownloadedCheckBox, constraints);
 
         constraints.gridy++;
@@ -214,6 +220,7 @@ class SearchPanel extends JPanel {
         archiveExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_ARCHIVE));
         maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS)));
         disableFilesharingCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_FILESHARING));
+        ignoreCheckAndBelowCheckBox.setSelected(settings.getBoolValue(SettingsClass.FILESHARING_IGNORE_CHECK_AND_BELOW));
         rememberSharedFileDownloadedCheckBox.setSelected(settings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED));
     }
 
@@ -231,6 +238,7 @@ class SearchPanel extends JPanel {
         maxSearchResultsLabel.setText(language.getString("Options.search.maximumSearchResults"));
 
         disableFilesharingCheckBox.setText(language.getString("Options.search.disableFilesharing"));
+        ignoreCheckAndBelowCheckBox.setText(language.getString("Options.search.ignoreCheckAndBelow"));
         rememberSharedFileDownloadedCheckBox.setText(language.getString("Options.search.rememberSharedFileDownloaded"));
 
         resetHiddenFilesButton.setText(language.getString("Options.search.resetHiddenFiles") + " (" + FileListStorage.inst().getHiddenFilesCount()+")");
@@ -249,6 +257,7 @@ class SearchPanel extends JPanel {
         settings.setValue(SettingsClass.SEARCH_MAX_RESULTS, maxSearchResultsTextField.getText());
 
         settings.setValue(SettingsClass.DISABLE_FILESHARING, disableFilesharingCheckBox.isSelected());
+        settings.setValue(SettingsClass.FILESHARING_IGNORE_CHECK_AND_BELOW, ignoreCheckAndBelowCheckBox.isSelected());
         settings.setValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, rememberSharedFileDownloadedCheckBox.isSelected());
     }
 }

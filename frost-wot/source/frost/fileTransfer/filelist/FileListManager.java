@@ -196,21 +196,43 @@ public class FileListManager {
         {
             return false;
         }
+        
+        final boolean fileListAntiSpamMode = Core.frostSettings.getBoolValue(SettingsClass.FILESHARING_IGNORE_CHECK_AND_BELOW);
 
         Identity localOwner;
         synchronized( Core.getIdentities().getLockObject() ) {
             localOwner = Core.getIdentities().getIdentity(content.getReceivedOwner().getUniqueName());
-            if( localOwner == null ) {
-                // new identity, add. Validated inside FileListFile.readFileListFile()
-                localOwner = content.getReceivedOwner();
-                localOwner.setLastSeenTimestampWithoutUpdate(content.getTimestamp());
-                if( !Core.getIdentities().addIdentity(content.getReceivedOwner()) ) {
-                    logger.severe("Core.getIdentities().addIdentity() returned false for identity: "+content.getReceivedOwner());
+            
+            if (fileListAntiSpamMode) {
+                // anti-spam mode. Ignore file lists from CHECK, BAD and just newly received identities
+                if (localOwner == null
+                        || localOwner.isCHECK()
+                        || localOwner.isBAD())
+                {
+                    // only GOOD and OBSERVE allowed
+                    // we intentionally don't update timestamp of CHECK or BAD identities to avoid DOS of our database
                     return false;
+                    
+                } else {
+                    if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
+                        localOwner.setLastSeenTimestamp(content.getTimestamp());
+                    }
                 }
+                
             } else {
-                if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
-                    localOwner.setLastSeenTimestamp(content.getTimestamp());
+                // normal mode: add all newly received identities with CHECK and add their file lists
+                if( localOwner == null ) {
+                    // new identity, add. Validated inside FileListFile.readFileListFile()
+                    localOwner = content.getReceivedOwner();
+                    localOwner.setLastSeenTimestampWithoutUpdate(content.getTimestamp());
+                    if( !Core.getIdentities().addIdentity(content.getReceivedOwner()) ) {
+                        logger.severe("Core.getIdentities().addIdentity() returned false for identity: "+content.getReceivedOwner());
+                        return false;
+                    }
+                } else {
+                    if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
+                        localOwner.setLastSeenTimestamp(content.getTimestamp());
+                    }
                 }
             }
         }

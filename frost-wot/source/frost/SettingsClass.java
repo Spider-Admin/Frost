@@ -126,6 +126,7 @@ public class SettingsClass implements ExitSavable {
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String AUTO_SAVE_LOCAL_IDENTITIES = "autoSaveLocalIdentities";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
+    public static final String FILESHARING_IGNORE_CHECK_AND_BELOW = "filesharing.ignoreCheckAndBelow";
     public static final String REMEMBER_SHAREDFILE_DOWNLOADED = "rememberSharedFileDownloaded";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
 
@@ -895,6 +896,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(DIR_LAST_USED, "." + fs);
 
         defaults.put(DISABLE_FILESHARING, "true");
+        defaults.put(FILESHARING_IGNORE_CHECK_AND_BELOW, "true");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
 
         defaults.put(STORAGE_STORE_INVALID_MESSAGES, "false");
