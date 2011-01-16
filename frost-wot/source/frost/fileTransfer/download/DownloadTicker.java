@@ -35,8 +35,6 @@ public class DownloadTicker extends Thread {
 	private int allocatedThreads = 0;
 	private int runningThreads = 0;
 
-	private int seconds = 0;
-
 	private final Object threadCountLock = new Object();
 
 	public DownloadTicker(final DownloadPanel newPanel) {
@@ -90,18 +88,27 @@ public class DownloadTicker extends Thread {
 	@Override
     public void run() {
 		super.run();
+		long loopTempMillSeconds = 0; 
+		int seconds = 0;
+		long loopStartMillSeconds = (new java.util.Date()).getTime();
 		while (true) {
 			Mixed.wait(1000);
-			// called each second
-            if( PersistenceManager.isPersistenceEnabled() == false ) {
-                startDownloadThread();
-            }
+			
+			if( PersistenceManager.isPersistenceEnabled() == false ) {
+				startDownloadThread();
+			} else {
 
-            seconds++;
-            if( seconds > 60 ) {
-                seconds = 0;
-                increaseDownloadItemRuntime(60);
-            }
+				// No need to check every second if persistance was enabled
+				Mixed.wait(29000);
+			}
+
+			loopTempMillSeconds = (new java.util.Date()).getTime();
+			seconds = (int) (loopTempMillSeconds - loopStartMillSeconds) / 1000;
+			if( seconds >= 60 ) {
+				increaseDownloadItemRuntime(seconds);
+				
+				loopStartMillSeconds = loopTempMillSeconds;
+			}
 		}
 	}
 
