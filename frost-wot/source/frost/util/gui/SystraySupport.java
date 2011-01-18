@@ -20,15 +20,18 @@ package frost.util.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.logging.*;
 
 import frost.*;
 import frost.util.gui.translation.*;
 
 public class SystraySupport {
     
+    private static final Logger logger = Logger.getLogger(SystraySupport.class.getName());
+
     final private static Language language = Language.getInstance();
 
-    final private static SystemTray tray = SystemTray.getSystemTray();
+    private static SystemTray tray = null;
     private static TrayIcon trayIcon = null;;
     
     private static Image image_normal = null;
@@ -41,10 +44,17 @@ public class SystraySupport {
     }
     
     public static boolean isSupported() {
-        return SystemTray.isSupported();
+        try {
+            return SystemTray.isSupported();
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Could not check for systray support.", t);            
+        }
+        return false;
     }
     
     public static boolean initialize(String title) {
+        
+        tray = SystemTray.getSystemTray();
 
         image_normal = MiscToolkit.loadImageIcon("/data/2_frost_logo_f_32x32.png").getImage();
         image_newMessage = MiscToolkit.loadImageIcon("/data/3_frost_mail_32x32.png").getImage();
