@@ -2,7 +2,7 @@
 _---------------------------_
 
 NOTE: You should always have a backup of your own identities. Export your own
-      identities and store the file on a save place.
+      identities and store the file in a safe location.
 
 
 Update from a Frost 23-Dec-2006 or higher to latest version:
@@ -27,10 +27,10 @@ Upgrade to version 23-Dec-2006 (or later, until 21-Apr-2007) first, then to a
 later version.
 
 
-You have Frost 0.5 running and want to start to use Frost 0.7 (or vice versa):
+You have legacy Frost 0.5 running and want to start to use Frost 0.7:
 -------------------------------------------------------------------------------
 Copy the contents of the downloaded ZIP file into a NEW directory and start
-Frost. In the first startup dialog, choose the Freenet version you want to use
+Frost. In the first startup dialog, choose the Freenet version 0.7 for use
 with this Frost installation. Create an identity (you can delete it later).
 Export your own identities from the existing Frost installation, and import
 them into the new Frost installation if you want to use your existing
@@ -41,7 +41,7 @@ Troubleshooting:
 -----------------
 Frost assumes that your Freenet node runs on the same machine with the default
 FCP port settings.
-For Freenet 0.7 its "127.0.0.1:9481". If your Freenet node runs on another machine,
+For Freenet 0.7 it's "127.0.0.1:9481". If your Freenet node runs on another machine,
 or if you configured another FCP client port the connection to the node will
 fail and Frost can't start during the first startup. In this case you need to
 edit the 'frost.ini' file that can be found in the 'config' directory.
