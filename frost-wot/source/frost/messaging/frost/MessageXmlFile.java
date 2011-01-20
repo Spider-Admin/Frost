@@ -575,10 +575,10 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * Compares the given message in otherMsgFile with this message.
      * Compares content (body), subject, from and attachments.
      */
-    public boolean compareTo(final File otherMsgFile) {
+    public boolean equals(final File otherMsgFile) {
         try {
             final MessageXmlFile otherMessage = new MessageXmlFile(otherMsgFile);
-            return compareTo(otherMessage);
+            return equals(otherMessage);
         } catch(final Throwable t) {
             logger.log(Level.WARNING, "Handled Exception in compareTo(File otherMsgFile)", t);
             return false; // We assume that the other message is different (it may be corrupted)
@@ -589,7 +589,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * Compares the given otherMsg with this message.
      * Compares content (body), subject, from and attachments.
      */
-    public boolean compareTo(final MessageXmlFile otherMsg) {
+    public boolean equals(final MessageXmlFile otherMsg) {
         try {
             // We compare the messages by content (body), subject, from and attachments
             if (!getContent().equals(otherMsg.getContent())) {
@@ -636,15 +636,6 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
     public void setBoardName(final String board) {
         this.boardName = board;
-    }
-
-    public boolean isMessageNew() {
-        final File newMessage = new File(getFile().getPath() + ".lck");
-        if( newMessage.isFile() ) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public DateTime getDateAndTime() throws Throwable {
