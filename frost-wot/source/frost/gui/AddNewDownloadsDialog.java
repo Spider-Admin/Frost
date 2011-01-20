@@ -325,7 +325,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		}
 		
 		// Enable download
-		final JMenuItem enableDownloadMenuItem = new JMenuItem(language.getString("AddNewDownloadsDialog.popupMenu.enableUpload"));
+		final JMenuItem enableDownloadMenuItem = new JMenuItem(language.getString("AddNewDownloadsDialog.popupMenu.enableDownload"));
 		enableDownloadMenuItem.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				addNewDownloadsTable.new SelectedItemsAction() {
@@ -338,7 +338,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		
 		
 		// Disable download
-		final JMenuItem disableDownloadMenuItem = new JMenuItem(language.getString("AddNewDownloadsDialog.popupMenu.disableUpload"));
+		final JMenuItem disableDownloadMenuItem = new JMenuItem(language.getString("AddNewDownloadsDialog.popupMenu.disableDownload"));
 		disableDownloadMenuItem.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				addNewDownloadsTable.new SelectedItemsAction() {
