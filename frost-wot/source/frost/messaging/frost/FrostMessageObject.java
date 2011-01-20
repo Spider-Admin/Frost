@@ -18,19 +18,29 @@
 */
 package frost.messaging.frost;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.StringTokenizer;
 
-import javax.swing.tree.*;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 
-import org.joda.time.*;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.TimeOfDay;
 
-import frost.*;
-import frost.gui.model.*;
-import frost.identities.*;
-import frost.messaging.frost.boards.*;
-import frost.messaging.frost.gui.messagetreetable.*;
-import frost.storage.perst.messages.*;
-import frost.util.*;
+import frost.MainFrame;
+import frost.gui.model.TableMember;
+import frost.identities.Identity;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.gui.messagetreetable.MessageTreeTableSortStateBean;
+import frost.storage.perst.messages.MessageStorage;
+import frost.storage.perst.messages.PerstFrostMessageObject;
+import frost.util.DateFun;
 
 /**
  * This class holds all informations that are shown in the GUI and stored to the database.
@@ -255,6 +265,39 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         return content;
     }
+    
+    
+	/**
+	 * Loads content together with attached boards and files, but represented as text
+	 */
+	public String getCompleteContent() {
+		StringBuilder result = new StringBuilder(this.getContent());
+		
+		if (hasFileAttachments()) {
+			result.append("\n\nAttached files:\n");
+			
+			for(FileAttachment fileAttachment : getAttachmentsOfTypeFile()) {
+				result.append(fileAttachment.getKey()).append('\n');
+			}
+		}
+		
+		if (hasBoardAttachments()) {
+			result.append("\n\nAttached boards:");
+			
+			for(BoardAttachment boardAttachment : getAttachmentsOfTypeBoard()) {
+				final Board board = boardAttachment.getBoardObj();
+				result.append("\nName: ").append(board.getName()).append('\n');
+				if( board.getPublicKey() != null ) {
+					result.append("\nPubKey: ").append(board.getPublicKey()).append('\n');
+					if( board.getPrivateKey() != null ) {
+						result.append("\nPrivKey: ").append(board.getPrivateKey()).append('\n');
+					}
+				}
+			}
+		}
+
+		return result.toString();
+	}
     
     private AttachmentList<Attachment> getAttachmentListInstance() {
     	if( !containsAttachments() ) {

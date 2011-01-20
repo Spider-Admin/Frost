@@ -1236,7 +1236,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     targetBoard,
                     subject,
                     inReplyTo,
-                    origMessage.getContent(),
+                    origMessage.getCompleteContent(),
                     origMessage.getFromIdentity(),
                     senderId,
                     origMessage);
@@ -1246,7 +1246,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     targetBoard,
                     subject,
                     inReplyTo,
-                    origMessage.getContent(),
+                    origMessage.getCompleteContent(),
                     origMessage);
         }
     }
