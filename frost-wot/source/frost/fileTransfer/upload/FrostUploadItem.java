@@ -42,6 +42,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
     private File file = null;
     private String fileName = null;
+    private String fileNamePrefix = null;
     private long fileSize = 0;
     private String chkKey = null;
     private boolean enabled = true;
@@ -123,6 +124,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public FrostUploadItem(
             final File newFile,
             final String newFileName,
+            final String newFileNamePrefix,
             final long newFilesize,
             final String newKey,
             final boolean newIsEnabled,
@@ -140,6 +142,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     ) {
         file = newFile;
         fileName = newFileName;
+        fileNamePrefix = newFileNamePrefix;
         fileSize = newFilesize;
         chkKey = newKey;
         enabled = Boolean.valueOf(newIsEnabled);
@@ -291,11 +294,26 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     }
 
     public String getFileName() {
-        return fileName;
+    	if( fileNamePrefix == null || fileNamePrefix.length() == 0 ) {
+    		return fileName;
+    	}
+        return fileNamePrefix + "_" + fileName;
+    }
+    
+    public String getUnprefixedName() {
+    	return fileName;
+    }
+    
+    public String getFileNamePrefix() {
+    	return fileNamePrefix;
     }
     
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	
+	public void setFileNamePrefix(String fileNamePrefix) {
+		this.fileNamePrefix = fileNamePrefix;
 	}
 
 	public File getFile() {

@@ -36,6 +36,7 @@ public class PerstFrostUploadItem extends Persistent {
 
     public String filePath;
     public String fileName;
+    public String fileNamePrefix;
     public long fileSize;
     public String chkKey;
     public boolean enabled;
@@ -57,7 +58,8 @@ public class PerstFrostUploadItem extends Persistent {
 
     public PerstFrostUploadItem(final FrostUploadItem ulItem) {
         filePath = ulItem.getFile().getPath();
-        fileName = ulItem.getFileName();
+        fileName = ulItem.getUnprefixedName();
+        fileNamePrefix = ulItem.getFileNamePrefix();
         fileSize = ulItem.getFileSize();
         chkKey = ulItem.getKey();
         enabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
@@ -126,6 +128,7 @@ public class PerstFrostUploadItem extends Persistent {
         final FrostUploadItem ulItem = new FrostUploadItem(
                 file,
                 fileName,
+                fileNamePrefix,
                 fileSize,
                 chkKey,
                 enabled,

@@ -247,7 +247,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	}
 
 	private void initPopupMenu() {
-		final AddNewDownloadsDialog addNewDownloadsDialog = this;
 
 		// Rename file
 		final JMenuItem renameFile = new JMenuItem(language.getString("AddNewDownloadsDialog.button.renameFile"));
@@ -270,7 +269,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		prefixFilename.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				final String prefix = JOptionPane.showInputDialog(
-					addNewDownloadsDialog,
+					AddNewDownloadsDialog.this,
 					language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogBody"),
 					language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogTitle"),
 					JOptionPane.QUESTION_MESSAGE

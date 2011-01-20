@@ -214,12 +214,32 @@ public class AddNewUploadsDialog extends JFrame {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				addNewUploadsTable.new SelectedItemsAction() {
 					protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
-						String newName = askForNewname(addNewUploadsTableMember.getUploadItem().getFileName());
+						String newName = askForNewName(addNewUploadsTableMember.getUploadItem().getUnprefixedName());
 						if( newName != null ) {
 							addNewUploadsTableMember.getUploadItem().setFileName(newName);
 						}
 					}
 				};
+			}
+		});
+		
+		// Add Prefix
+		final JMenuItem addPrefixMenuItem = new JMenuItem(language.getString("AddNewUploadsDialog.popupMenu.addPrefix"));
+		addPrefixMenuItem.addActionListener( new java.awt.event.ActionListener() {
+			public void actionPerformed(final ActionEvent actionEvent) {
+				final String fileNamePrefix = JOptionPane.showInputDialog(
+						AddNewUploadsDialog.this,
+						language.getString("AddNewUploadDialog.addPrefix.dialogBody"),
+						language.getString("AddNewUploadDialog.addPrefix.dialogTitle"),
+						JOptionPane.QUESTION_MESSAGE
+					);
+				if( fileNamePrefix != null ) {
+					addNewUploadsTable.new SelectedItemsAction() {
+						protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+							addNewUploadsTableMember.getUploadItem().setFileNamePrefix(fileNamePrefix);
+						}
+					};
+				}
 			}
 		});
 		
@@ -326,6 +346,7 @@ public class AddNewUploadsDialog extends JFrame {
 		
 		tablePopupMenu = new JSkinnablePopupMenu();
 		tablePopupMenu.add(renameMenuItem);
+		tablePopupMenu.add(addPrefixMenuItem);
 		tablePopupMenu.addSeparator();
 		tablePopupMenu.add(enableCompressionMenuItem);
 		tablePopupMenu.add(disableCompressionMenuItem);
@@ -365,7 +386,7 @@ public class AddNewUploadsDialog extends JFrame {
 		}
 	}
 	
-	private String askForNewname(final String oldName) {
+	private String askForNewName(final String oldName) {
 		return (String) JOptionPane.showInputDialog(
 			this,
 			language.getString("AddNewUploadDialog.renameFileDialog.dialogBody"),
@@ -376,7 +397,6 @@ public class AddNewUploadsDialog extends JFrame {
 			oldName
 		);
 	}
-	
 	
 	private class TablePopupMenuMouseListener implements MouseListener {
 		public void mouseReleased(final MouseEvent event) {
