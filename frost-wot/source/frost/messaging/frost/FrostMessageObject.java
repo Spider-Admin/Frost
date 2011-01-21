@@ -288,9 +288,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 				final Board board = boardAttachment.getBoardObj();
 				result.append("\nName: ").append(board.getName()).append('\n');
 				if( board.getPublicKey() != null ) {
-					result.append("\nPubKey: ").append(board.getPublicKey()).append('\n');
+					result.append("PubKey: ").append(board.getPublicKey()).append('\n');
 					if( board.getPrivateKey() != null ) {
-						result.append("\nPrivKey: ").append(board.getPrivateKey()).append('\n');
+						result.append("PrivKey: ").append(board.getPrivateKey()).append('\n');
 					}
 				}
 			}
