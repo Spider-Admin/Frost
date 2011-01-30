@@ -23,6 +23,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -85,8 +87,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 	private final Frame parentFrame;
 
 
-	public AddNewDownloadsDialog(final JFrame frame, final List<FrostDownloadItem> frostDownloadItemList) { 
-		//super(frame);
+	public AddNewDownloadsDialog(final JFrame frame) { 
 		parentFrame = frame;
 		
 		language = Language.getInstance();
@@ -193,7 +194,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			addNewDownloadsTable.setRowHeight(18);
 			final JScrollPane scrollPane = new JScrollPane(addNewDownloadsTable);
 			scrollPane.setWheelScrollingEnabled(true);
-
+			
 			// main panel
 			final JPanel mainPanel = new JPanel(new BorderLayout());
 			mainPanel.add( scrollPane, BorderLayout.CENTER );
@@ -203,7 +204,11 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			this.getContentPane().setLayout(new BorderLayout());
 			this.getContentPane().add(mainPanel, null);
 			
+			// Init popup menu
 			this.initPopupMenu();
+			
+			// Init HotKeys
+			this.initHotKeyListener();
 			
 			addNewDownloadsTable.setAutoResizeMode( JTable.AUTO_RESIZE_NEXT_COLUMN);
 			int tableWidth = getWidth();
@@ -244,6 +249,88 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		for( final FrostDownloadItem froDownloadItem : frostDownloadItmeList) {
 			this.addNewDownloadsTableModel.addRow(new AddNewDownloadsTableMember(froDownloadItem));
 		}
+	}
+	
+	
+	private void initHotKeyListener() {
+		addNewDownloadsTable.addKeyListener( new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// Nothing to do
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if( ! e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_DELETE) {
+					// remove selected
+					addNewDownloadsTable.removeSelected();
+
+				} else if( e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_DELETE) {
+					// remove but selected
+					addNewDownloadsTable.removeButSelected();
+
+				} else if( e.getKeyCode() == KeyEvent.VK_D) {
+					// change directory
+					changeDownloadDir_actionPerformed();
+
+				} else if( e.getKeyCode() == KeyEvent.VK_R) {
+					// rename
+					addNewDownloadsTable.new SelectedItemsAction() {
+						protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+							String newName = askForNewname(addNewDownloadsTableMember.getDownloadItem().getUnprefixedFilename());
+							if( newName != null ) {
+								addNewDownloadsTableMember.getDownloadItem().setFileName(newName);
+							}
+							addNewDownloadsTableMember.updateExistsCheck();
+						}
+					};
+
+				} else if( e.getKeyCode() == KeyEvent.VK_P) {
+					// prefix
+					final String prefix = JOptionPane.showInputDialog(
+							AddNewDownloadsDialog.this,
+							language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogBody"),
+							language.getString("AddNewDownloadsDialog.prefixFilenameDialog.dialogTitle"),
+							JOptionPane.QUESTION_MESSAGE
+					);
+
+					addNewDownloadsTable.new SelectedItemsAction() {
+						protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+							addNewDownloadsTableMember.getDownloadItem().setFilenamePrefix(prefix);
+						}
+					};
+
+				} else if( e.getKeyCode() == KeyEvent.VK_ENTER) {
+					// Ok
+					FileTransferManager.inst().getDownloadManager().getModel().addDownloadItemList(getDownloads());
+					dispose();
+
+				} else if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					// Cancel
+					addNewDownloadsTableModel.clearDataModel();
+					dispose();
+				
+				} else {
+					// priority
+					for(final FreenetPriority priority : FreenetPriority.values()) {
+						if(e.getKeyChar() == String.valueOf(priority.getNumber()).charAt(0) ) {
+							addNewDownloadsTable.new SelectedItemsAction() {
+								protected void action(AddNewDownloadsTableMember addNewDownloadsTableMember) {
+									addNewDownloadsTableMember.getDownloadItem().setPriority(priority);
+								}
+							};
+							break;
+						}
+					}
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// Nothing to do
+			}
+		});
 	}
 
 	private void initPopupMenu() {
@@ -287,7 +374,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		final JMenuItem changeDownloadDir = new JMenuItem(language.getString("AddNewDownloadsDialog.button.changeDownloadDir"));
 		changeDownloadDir.addActionListener( new java.awt.event.ActionListener() {
 			public void actionPerformed(final ActionEvent actionEvent) {
-				changeDownloadDir_actionPerformed(actionEvent);
+				changeDownloadDir_actionPerformed();
 			}
 		});
 		
@@ -431,7 +518,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				oldName
 		);
 	}
-	private void changeDownloadDir_actionPerformed(final ActionEvent actionEvent) {
+	private void changeDownloadDir_actionPerformed() {
 		// Open dialog to request dir
 		final JFileChooser chooser = new JFileChooser();
 		chooser.setCurrentDirectory(

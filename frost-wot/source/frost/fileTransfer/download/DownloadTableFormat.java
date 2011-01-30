@@ -17,20 +17,40 @@
 */
 package frost.fileTransfer.download;
 
-import java.awt.*;
-import java.beans.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Comparator;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JProgressBar;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.common.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.PersistenceManager;
+import frost.fileTransfer.common.TableBackgroundColors;
+import frost.util.DateFun;
+import frost.util.FormatterUtils;
+import frost.util.Mixed;
+import frost.util.gui.BooleanCell;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
+import frost.util.model.ModelItem;
+import frost.util.model.ModelTable;
+import frost.util.model.SortedModelTable;
+import frost.util.model.SortedTableFormat;
 
 class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implements LanguageListener, PropertyChangeListener {
 
@@ -607,7 +627,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 	}
 
 	private void refreshLanguage() {
-		setColumnName(0, language.getString("DownloadPane.fileTable.enabled"));
+		setColumnName(0, language.getString("Common.enabled"));
         setColumnName(1, language.getString("DownloadPane.fileTable.shared"));
         setColumnName(2, language.getString("DownloadPane.fileTable.requested"));
 		setColumnName(3, language.getString("DownloadPane.fileTable.filename"));
@@ -644,11 +664,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 		refreshLanguage();
 	}
 
-	public Object getCellValue(final ModelItem item, final int columnIndex) {
-        if( item == null ) {
+	public Object getCellValue(final FrostDownloadItem downloadItem, final int columnIndex) {
+        if( downloadItem == null ) {
             return "*null*";
         }
-		final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+        DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
 		switch (columnIndex) {
 
 			case 0 : // Enabled
@@ -661,7 +681,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 return getIsRequested( downloadItem.getFileListFileObject() );
 
 			case 3 : // Filename
-				return downloadItem.getFileName();
+				return downloadModel.indexOf(downloadItem) + downloadItem.getFileName();
 
 			case 4 : // Size
                 if( downloadItem.getFileSize() >= 0 ) {
@@ -957,8 +977,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
     }
 
 	@Override
-    public void setCellValue(final Object value, final ModelItem item, final int columnIndex) {
-		final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+    public void setCellValue(final Object value, final FrostDownloadItem downloadItem, final int columnIndex) {
 		switch (columnIndex) {
 
 			case 0 : //Enabled
@@ -968,7 +987,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 				break;
 
 			default :
-				super.setCellValue(value, item, columnIndex);
+				super.setCellValue(value, downloadItem, columnIndex);
 		}
 	}
 

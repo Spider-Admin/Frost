@@ -84,11 +84,10 @@ public class UnsentMessagesTableFormat extends SortedTableFormat<UnsentMessagesT
         refreshColumnNames();
     }
 
-    public Object getCellValue(ModelItem item, int columnIndex) {
-        if( item == null ) {
+    public Object getCellValue(UnsentMessagesTableItem searchItem, int columnIndex) {
+        if( searchItem == null ) {
             return "*null*";
         }
-        UnsentMessagesTableItem searchItem = (UnsentMessagesTableItem) item;
         switch (columnIndex) {
             case 0 :
                 return searchItem.getBoardName();

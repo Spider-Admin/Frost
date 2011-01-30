@@ -76,11 +76,10 @@ public class SentMessagesTableFormat extends SortedTableFormat<SentMessagesTable
         refreshColumnNames();
     }
 
-    public Object getCellValue(ModelItem item, int columnIndex) {
-        if( item == null ) {
+    public Object getCellValue(SentMessagesTableItem searchItem, int columnIndex) {
+        if( searchItem == null ) {
             return "*null*";
         }
-        SentMessagesTableItem searchItem = (SentMessagesTableItem) item;
         switch (columnIndex) {
             case 0 :
                 return searchItem.getBoardName();

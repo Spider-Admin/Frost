@@ -97,13 +97,12 @@ class SharedFilesTableFormat extends SortedTableFormat<FrostSharedFileItem> impl
     }
 
     @Override
-    public void setCellValue(Object value, ModelItem item, int columnIndex) { }
+    public void setCellValue(Object value, FrostSharedFileItem sfItem, int columnIndex) { }
 
-    public Object getCellValue(ModelItem item, int columnIndex) {
-        if( item == null ) {
+    public Object getCellValue(FrostSharedFileItem sfItem, int columnIndex) {
+        if( sfItem == null ) {
             return "*null*";
         }
-        FrostSharedFileItem sfItem = (FrostSharedFileItem) item;
         switch (columnIndex) {
             case 0 : // name
                 return sfItem.getFile().getName();

@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -189,7 +191,11 @@ public class AddNewUploadsDialog extends JFrame {
 			this.getContentPane().setLayout(new BorderLayout());
 			this.getContentPane().add(mainPanel, null);
 			
-			initTablePopupMenu();
+			// Init popup menu
+			this.initTablePopupMenu();
+			
+			// Init hot key listener
+			this.initHotKeyListener();
 			
 			addNewUploadsTable.setAutoResizeMode( JTable.AUTO_RESIZE_NEXT_COLUMN);
 			int tableWidth = getWidth();
@@ -214,7 +220,7 @@ public class AddNewUploadsDialog extends JFrame {
 			public void actionPerformed(final ActionEvent actionEvent) {
 				addNewUploadsTable.new SelectedItemsAction() {
 					protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
-						String newName = askForNewName(addNewUploadsTableMember.getUploadItem().getUnprefixedName());
+						String newName = askForNewName(addNewUploadsTableMember.getUploadItem().getUnprefixedFileName());
 						if( newName != null ) {
 							addNewUploadsTableMember.getUploadItem().setFileName(newName);
 						}
@@ -362,6 +368,106 @@ public class AddNewUploadsDialog extends JFrame {
 		tablePopupMenu.add(removeButSelectedMenuItem);
 		
 		addNewUploadsTable.addMouseListener(new TablePopupMenuMouseListener());
+	}
+	
+	private void initHotKeyListener() {
+		addNewUploadsTable.addKeyListener( new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// Nothing to do
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if( ! e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_DELETE) {
+					// remove selected
+					addNewUploadsTable.removeSelected();
+
+				} else if( e.isShiftDown() && e.getKeyCode() == KeyEvent.VK_DELETE) {
+					// remove but selected
+					addNewUploadsTable.removeButSelected();
+
+				} else if( e.getKeyCode() == KeyEvent.VK_R) {
+					// rename
+					addNewUploadsTable.new SelectedItemsAction() {
+						protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+							String newName = askForNewName(addNewUploadsTableMember.getUploadItem().getUnprefixedFileName());
+							if( newName != null ) {
+								addNewUploadsTableMember.getUploadItem().setFileName(newName);
+							}
+						}
+					};
+
+				} else if( e.getKeyCode() == KeyEvent.VK_P) {
+					// prefix
+					final String fileNamePrefix = JOptionPane.showInputDialog(
+							AddNewUploadsDialog.this,
+							language.getString("AddNewUploadDialog.addPrefix.dialogBody"),
+							language.getString("AddNewUploadDialog.addPrefix.dialogTitle"),
+							JOptionPane.QUESTION_MESSAGE
+					);
+					if( fileNamePrefix != null ) {
+						addNewUploadsTable.new SelectedItemsAction() {
+							protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+								addNewUploadsTableMember.getUploadItem().setFileNamePrefix(fileNamePrefix);
+							}
+						};
+					}
+
+				} else if( e.getKeyCode() == KeyEvent.VK_E) {
+					// enable compression
+					addNewUploadsTable.new SelectedItemsAction() {
+						protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+							addNewUploadsTableMember.getUploadItem().setCompress(true);
+						}
+					};
+
+				} else if( e.getKeyCode() == KeyEvent.VK_D) {
+					// disable compression
+					addNewUploadsTable.new SelectedItemsAction() {
+						protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+							addNewUploadsTableMember.getUploadItem().setCompress(false);
+						}
+					};
+
+				} else if( e.getKeyCode() == KeyEvent.VK_A) {
+					// Add files
+					List<FrostUploadItem> frostUploadItmeList = addFileChooser();
+					for( final FrostUploadItem frotUploadItem : frostUploadItmeList) {
+						addNewUploadsTableModel.addRow(new AddNewUploadsTableMember(frotUploadItem));
+					}
+
+				} else if( e.getKeyCode() == KeyEvent.VK_ENTER) {
+					// Ok
+					FileTransferManager.inst().getUploadManager().getModel().addUploadItemList(getUploads());
+					dispose();
+
+				} else if( e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					// Cancel
+					addNewUploadsTableModel.clearDataModel();
+					dispose();
+				
+				} else {
+					// priority
+					for(final FreenetPriority priority : FreenetPriority.values()) {
+						if(e.getKeyChar() == String.valueOf(priority.getNumber()).charAt(0) ) {
+							addNewUploadsTable.new SelectedItemsAction() {
+								protected void action(AddNewUploadsTableMember addNewUploadsTableMember) {
+									addNewUploadsTableMember.getUploadItem().setPriority(priority);
+								}
+							};
+							break;
+						}
+					}
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// Nothing to do
+			}
+		});
 	}
 	
 	

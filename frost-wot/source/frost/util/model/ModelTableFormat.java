@@ -21,7 +21,7 @@ package frost.util.model;
 import javax.swing.*;
 
 
-public interface ModelTableFormat<T extends ModelItem> {
+public interface ModelTableFormat<ModelItemType extends ModelItem> {
 	
 	/**
 	 * @return
@@ -39,19 +39,19 @@ public interface ModelTableFormat<T extends ModelItem> {
 	 * @param columnIndex
 	 * @return
 	 */
-	public Object getCellValue(ModelItem item, int columnIndex);
+	public Object getCellValue(ModelItemType item, int columnIndex);
 	
 	/**
 	 * @param value
 	 * @param item
 	 * @param columnIndex
 	 */
-	public void setCellValue(Object value, ModelItem item, int columnIndex);
+	public void setCellValue(Object value, ModelItemType item, int columnIndex);
 	
 	/**
 	 * @param modelTable
 	 */
-	public void customizeTable(ModelTable<T> modelTable);
+	public void customizeTable(ModelTable<ModelItemType> modelTable);
 
 	/**
 	 * This method returns the numbers of the columns that reflect

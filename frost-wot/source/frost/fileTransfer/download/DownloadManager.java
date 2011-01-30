@@ -265,8 +265,8 @@ public class DownloadManager implements ExitSavable {
 		return addNewDownload(key, fileName, null, null);
 	}
 	
-	public static List<FrostDownloadItem> parseKeys(final String text) {
-		List<FrostDownloadItem> frostDownloadItemList = new LinkedList<FrostDownloadItem>();
+	public static ArrayList<FrostDownloadItem> parseKeys(final String text) {
+		ArrayList<FrostDownloadItem> frostDownloadItemList = new ArrayList<FrostDownloadItem>();
 		
 		final String[] keyList = text.trim().split("[;\n]");
 		if (keyList == null || keyList.length == 0) {
@@ -552,8 +552,8 @@ public class DownloadManager implements ExitSavable {
 		// get the item with state "Waiting"
 		final ArrayList<FrostDownloadItem> waitingItems = new ArrayList<FrostDownloadItem>();
 		for (int i = 0; i < model.getItemCount(); i++) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) model
-					.getItemAt(i);
+			final FrostDownloadItem dlItem = model.getItemAt(i);
+			
 			final boolean itemIsEnabled = (dlItem.isEnabled() == null ? true
 					: dlItem.isEnabled().booleanValue());
 			if (!itemIsEnabled) {

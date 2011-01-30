@@ -103,11 +103,10 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
         refreshColumnNames();
     }
 
-    public Object getCellValue(final ModelItem item, final int columnIndex) {
-        if( item == null ) {
+    public Object getCellValue(final FrostSearchItem searchItem, final int columnIndex) {
+        if( searchItem == null ) {
             return "*null*";
         }
-        final FrostSearchItem searchItem = (FrostSearchItem) item;
         switch (columnIndex) {
             case 0 :    //Filename
                 return searchItem.getFileName();

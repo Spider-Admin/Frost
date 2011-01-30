@@ -19,9 +19,9 @@
 package frost.util.model;
 
 
-public class ModelItem {
+abstract public class ModelItem {
 
-	private SortedModel model;
+	private SortedModel<? extends ModelItem> model;
 
 	public ModelItem() {
 		super();
@@ -46,7 +46,7 @@ public class ModelItem {
 	/**
 	 * @param model
 	 */
-	public void setModel(SortedModel<?> newModel) {
+	public void setModel(SortedModel<? extends ModelItem> newModel) {
 		model = newModel;
 	}
 }

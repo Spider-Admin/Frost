@@ -38,6 +38,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -649,12 +650,34 @@ public class MessageTextPane extends JPanel {
     
     
     private void addKeysInText(final String text) {
-    	List<FrostDownloadItem> frostDownloadItemList = DownloadManager.parseKeys(text);
+    	// parse text for keys
+    	List<FrostDownloadItem> parsedKeysfrostDownloadItemList = DownloadManager.parseKeys(text);
 
-    	final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(
-    			MainFrame.getInstance(), frostDownloadItemList);
-    	
-    	addNewDownloadsDialog.startDialog(frostDownloadItemList);
+    	List<FrostDownloadItem> frostDownloadItemList = new ArrayList<FrostDownloadItem>();
+    	HashMap<String, FrostDownloadItem> frostDownloadItemNameMap = new HashMap<String, FrostDownloadItem>();
+    	for(FrostDownloadItem frostDownloadItem : parsedKeysfrostDownloadItemList) {
+    		
+    		// duplicate check
+    		if( frostDownloadItemNameMap.containsKey(frostDownloadItem.getFileName())) {
+    			continue;
+    		}
+    		
+    		// add to download list
+    		frostDownloadItemList.add(frostDownloadItem);
+    		
+    		// configure download items
+    		frostDownloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
+    		frostDownloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
+    		if( Core.frostSettings.getBoolValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED) ){
+    			frostDownloadItem.setDownloadDir(frostDownloadItem.getDownloadDir().concat(frostDownloadItem.getAssociatedBoardName()));
+    		}
+    		
+    		// remember filename for duplicate check
+    		frostDownloadItemNameMap.put(frostDownloadItem.getFileName(), frostDownloadItem);
+    	}
+
+    	// Start add download dialog
+    	new AddNewDownloadsDialog(MainFrame.getInstance()).startDialog(frostDownloadItemList);
     }
     
     private void addKeysOfCurrentMessage() {
@@ -867,8 +890,7 @@ public class MessageTextPane extends JPanel {
             frostDownloadItemKeyMap.clear();
             frostDownloadItemNameMap.clear();
             
-            final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
-            addNewDownloadsDialog.startDialog(frostDownloadItemList);
+            new AddNewDownloadsDialog(mainFrame).startDialog(frostDownloadItemList);
         }
 
         /**
@@ -1071,21 +1093,20 @@ public class MessageTextPane extends JPanel {
                 	continue;
                 }
                 
-                FrostDownloadItem frostDwonloadItem = new FrostDownloadItem(name, key);
-                frostDwonloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
-                frostDwonloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
+                FrostDownloadItem frostDownloadItem = new FrostDownloadItem(name, key);
+                frostDownloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
+                frostDownloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
                 if( Core.frostSettings.getBoolValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED) ){
-                	frostDwonloadItem.setDownloadDir(frostDwonloadItem.getDownloadDir().concat(frostDwonloadItem.getAssociatedBoardName()));
+                	frostDownloadItem.setDownloadDir(frostDownloadItem.getDownloadDir().concat(frostDownloadItem.getAssociatedBoardName()));
                 }
-                frostDownloadItemList.add( frostDwonloadItem );
-                frostDownloadItemKeyMap.put(key, frostDwonloadItem);
-                frostDownloadItemNameMap.put(name, frostDwonloadItem);
+                frostDownloadItemList.add( frostDownloadItem );
+                frostDownloadItemKeyMap.put(key, frostDownloadItem);
+                frostDownloadItemNameMap.put(name, frostDownloadItem);
             }
             frostDownloadItemKeyMap.clear();
             frostDownloadItemNameMap.clear();
             
-            final AddNewDownloadsDialog addNewDownloadsDialog = new AddNewDownloadsDialog(mainFrame, frostDownloadItemList);
-            addNewDownloadsDialog.startDialog(frostDownloadItemList);
+            new AddNewDownloadsDialog(mainFrame).startDialog(frostDownloadItemList);
         }
         
         

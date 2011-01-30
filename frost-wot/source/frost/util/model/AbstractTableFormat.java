@@ -25,7 +25,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 
-public abstract class AbstractTableFormat<T extends ModelItem> implements ModelTableFormat<T> {
+public abstract class AbstractTableFormat<ModelItemType extends ModelItem> implements ModelTableFormat<ModelItemType> {
 
 	private static final Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
 
@@ -49,11 +49,11 @@ public abstract class AbstractTableFormat<T extends ModelItem> implements ModelT
 	/* (non-Javadoc)
 	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(frost.util.model.gui.ModelTable)
 	 */
-	public void customizeTable(ModelTable<T> modelTable){
+	public void customizeTable(ModelTable<ModelItemType> modelTable){
 		// Nothing here. Override in subclasses if necessary.
 	}
 
-    public void customizeTableAfterInitialize(ModelTable<T> modelTable) {
+    public void customizeTableAfterInitialize(ModelTable<ModelItemType> modelTable) {
         // Nothing here. Override in subclasses if necessary.
     }
 
@@ -123,7 +123,7 @@ public abstract class AbstractTableFormat<T extends ModelItem> implements ModelT
 	/* (non-Javadoc)
 	 * @see frost.util.model.gui.ModelTableFormat#setCellValue(java.lang.Object, frost.util.model.ModelItem, int)
 	 */
-	public void setCellValue(Object value, ModelItem item, int columnIndex) {
+	public void setCellValue(Object value, ModelItemType item, int columnIndex) {
 		//By default all columns are not editable. Override in subclasses when needed.
 		logger.warning("The column number " + columnIndex + "is not editable.");
 	}

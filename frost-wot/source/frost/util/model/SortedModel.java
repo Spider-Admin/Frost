@@ -26,7 +26,7 @@ import java.util.*;
  *
  * Its implementation is thread-safe
  */
-public class SortedModel<T extends ModelItem> {
+abstract public class SortedModel<T extends ModelItem> {
 
 	protected List<T> data;
 

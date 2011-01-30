@@ -22,18 +22,18 @@ import java.util.*;
 
 import frost.util.*;
 
-public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTableFormat<T> {
+public abstract class SortedTableFormat<ModelItemType extends ModelItem> extends AbstractTableFormat<ModelItemType> {
 
-	private List<Comparator<T>> comparators;
-	private List<ReverseComparator<T>> reverseComparators;
+	private List<Comparator<ModelItemType>> comparators;
+	private List<ReverseComparator<ModelItemType>> reverseComparators;
 
 	protected SortedTableFormat(int newColumnCount) {
 		super(newColumnCount);
-		comparators = new ArrayList<Comparator<T>>(newColumnCount);
+		comparators = new ArrayList<Comparator<ModelItemType>>(newColumnCount);
 		for(int i = 0; i < newColumnCount; i++) {
 			comparators.add(null);
 		}
-		reverseComparators = new ArrayList<ReverseComparator<T>>(newColumnCount);
+		reverseComparators = new ArrayList<ReverseComparator<ModelItemType>>(newColumnCount);
 		for(int i = 0; i < newColumnCount; i++) {
 			reverseComparators.add(null);
 		}
@@ -43,16 +43,16 @@ public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTab
 	 * @param comparator
 	 * @param columnNumber
 	 */
-	public void setComparator(Comparator<T> comparator, int columnNumber) {
+	public void setComparator(Comparator<ModelItemType> comparator, int columnNumber) {
 		comparators.set(columnNumber, comparator);
-		reverseComparators.set(columnNumber, new ReverseComparator<T>(comparator));
+		reverseComparators.set(columnNumber, new ReverseComparator<ModelItemType>(comparator));
 	}
 	
 	/**
 	 * @param columnNumber
 	 * @return
 	 */
-	public Comparator<T> getComparator(int columnNumber) {
+	public Comparator<ModelItemType> getComparator(int columnNumber) {
 		return comparators.get(columnNumber);
 	}
 	
@@ -60,7 +60,7 @@ public abstract class SortedTableFormat<T extends ModelItem> extends AbstractTab
 	 * @param columnNumber
 	 * @return
 	 */
-	public ReverseComparator<T> getReverseComparator(int columnNumber) {
+	public ReverseComparator<ModelItemType> getReverseComparator(int columnNumber) {
 		return reverseComparators.get(columnNumber);
 	}
 

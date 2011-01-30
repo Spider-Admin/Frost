@@ -103,11 +103,10 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
         refreshColumnNames();
     }
 
-    public Object getCellValue(final ModelItem item, final int columnIndex) {
-        if( item == null ) {
+    public Object getCellValue(final FileListFileDetailsItem detailsItem, final int columnIndex) {
+        if( detailsItem == null ) {
             return "*null*";
         }
-        final FileListFileDetailsItem detailsItem = (FileListFileDetailsItem) item;
         switch (columnIndex) {
             case 0 :    // filename
                 return detailsItem.getFileOwner().getName();

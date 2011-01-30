@@ -493,7 +493,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
     }
 
     private void refreshLanguage() {
-        setColumnName(0, language.getString("UploadPane.fileTable.enabled"));
+        setColumnName(0, language.getString("Common.enabled"));
         setColumnName(1, language.getString("UploadPane.fileTable.shared"));
         setColumnName(2, language.getString("UploadPane.fileTable.filename"));
         setColumnName(3, language.getString("UploadPane.fileTable.size"));
@@ -520,8 +520,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
     }
 
     @Override
-    public void setCellValue(final Object value, final ModelItem item, final int columnIndex) {
-        final FrostUploadItem uploadItem = (FrostUploadItem) item;
+    public void setCellValue(final Object value, final FrostUploadItem uploadItem, final int columnIndex) {
         switch (columnIndex) {
 
             case 0 : //Enabled
@@ -531,15 +530,14 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 break;
 
             default :
-                super.setCellValue(value, item, columnIndex);
+                super.setCellValue(value, uploadItem, columnIndex);
         }
     }
 
-    public Object getCellValue(final ModelItem item, final int columnIndex) {
-        if( item == null ) {
+    public Object getCellValue(final FrostUploadItem uploadItem, final int columnIndex) {
+        if( uploadItem == null ) {
             return "*null*";
         }
-        final FrostUploadItem uploadItem = (FrostUploadItem) item;
         switch (columnIndex) {
 
             case 0 : //Enabled

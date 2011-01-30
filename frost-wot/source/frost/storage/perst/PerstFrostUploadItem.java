@@ -58,7 +58,7 @@ public class PerstFrostUploadItem extends Persistent {
 
     public PerstFrostUploadItem(final FrostUploadItem ulItem) {
         filePath = ulItem.getFile().getPath();
-        fileName = ulItem.getUnprefixedName();
+        fileName = ulItem.getUnprefixedFileName();
         fileNamePrefix = ulItem.getFileNamePrefix();
         fileSize = ulItem.getFileSize();
         chkKey = ulItem.getKey();

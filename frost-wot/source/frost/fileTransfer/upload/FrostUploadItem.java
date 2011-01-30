@@ -300,7 +300,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         return fileNamePrefix + "_" + fileName;
     }
     
-    public String getUnprefixedName() {
+    public String getUnprefixedFileName() {
     	return fileName;
     }
     
