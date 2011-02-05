@@ -524,7 +524,7 @@ public class AddNewUploadsDialog extends JFrame {
 		}
 	}
 	
-	private class AddNewUploadsTableMember implements TableMember {
+	private class AddNewUploadsTableMember extends TableMember.BaseTableMember<AddNewUploadsTableMember> {
 		
 		FrostUploadItem frostUploadItem;
 		
@@ -556,13 +556,6 @@ public class AddNewUploadsDialog extends JFrame {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-		}
-
-		@Override
-		public int compareTo(final TableMember anOther, final int tableColumIndex) {
-			final String c1 = (String) getValueAt(tableColumIndex);
-			final String c2 = (String) anOther.getValueAt(tableColumIndex);
-			return c1.compareToIgnoreCase(c2);
 		}
 
 		public FrostUploadItem getUploadItem(){

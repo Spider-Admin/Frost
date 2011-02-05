@@ -47,7 +47,7 @@ import frost.util.DateFun;
  * It adds more fields than a MessageObjectFile uses.
  */
 @SuppressWarnings("serial")
-public class FrostMessageObject extends AbstractMessageObject implements TableMember {
+public class FrostMessageObject extends AbstractMessageObject implements TableMember<FrostMessageObject> {
 
     transient private PerstFrostMessageObject perstFrostMessageObject = null;
 
@@ -332,7 +332,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /*
      * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
      */
-    public int compareTo(final TableMember another, final int tableColumnIndex) {
+    public int compareTo(final FrostMessageObject another, final int tableColumnIndex) {
         String c1 = (String) getValueAt(tableColumnIndex);
         String c2 = (String) another.getValueAt(tableColumnIndex);
         if (tableColumnIndex == 4) {
@@ -362,8 +362,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /*
      * @see frost.gui.model.TableMember#getValueAt(int)
      */
-    @SuppressWarnings("unchecked")
-	public Comparable getValueAt(final int column) {
+	public Comparable<?> getValueAt(final int column) {
         switch(column) {
             case 0: return Integer.toString(getIndex());
             case 1: return getFromName();

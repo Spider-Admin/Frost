@@ -26,7 +26,7 @@ import javax.swing.table.*;
 import frost.gui.*;
 
 @SuppressWarnings("serial")
-public class SortedTableModel<T extends TableMember> extends DefaultTableModel
+public class SortedTableModel<T extends TableMember<T>> extends DefaultTableModel
 {
     private static final Logger logger = Logger.getLogger(SortedTableModel.class.getName());
 
@@ -144,7 +144,7 @@ public class SortedTableModel<T extends TableMember> extends DefaultTableModel
      *
      * @param obj instance of ITableMember
      */
-    public void deleteRow(TableMember obj)
+    public void deleteRow(T obj)
     {
         if (obj != null)
         {
@@ -173,7 +173,7 @@ public class SortedTableModel<T extends TableMember> extends DefaultTableModel
      *
      * @param obj instance of ITableMember
      */
-    public void updateRow(TableMember obj)
+    public void updateRow(T obj)
     {
         if (obj!=null)
         {
@@ -223,9 +223,9 @@ public class SortedTableModel<T extends TableMember> extends DefaultTableModel
     {
         if (row<getRowCount())
         {
-            Object obj = rows.get(row);
+            T obj = rows.get(row);
             if (obj instanceof TableMember)
-                deleteRow((TableMember)obj);
+                deleteRow((T)obj);
         }
     }
 
@@ -237,11 +237,11 @@ public class SortedTableModel<T extends TableMember> extends DefaultTableModel
      * @return Value at <I>column</I> and <I>row</I>
      */
     @Override
-    public Object getValueAt(int row, int column)
+    public Comparable<?> getValueAt(int row, int column)
     {
         if (row>=getRowCount() || row<0) return null;
 
-        TableMember obj = (TableMember)rows.get(row);
+        T obj = (T)rows.get(row);
         if (obj == null)
             return null;
         else

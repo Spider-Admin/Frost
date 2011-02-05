@@ -18,15 +18,14 @@
 */
 package frost.storage.perst;
 
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
-import frost.Core;
-import frost.SettingsClass;
-import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.storage.perst.filelist.*;
+import frost.fileTransfer.FreenetPriority;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.storage.perst.filelist.FileListStorage;
 
 /**
  * Class to make FrostDownloadItem persistent.

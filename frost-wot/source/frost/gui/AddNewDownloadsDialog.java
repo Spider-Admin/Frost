@@ -650,7 +650,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 		}
 	}
 
-	private class AddNewDownloadsTableMember implements TableMember {
+	private class AddNewDownloadsTableMember extends TableMember.BaseTableMember<AddNewDownloadsTableMember> {
 
 		private FrostDownloadItem frostDownloadItem;
 		private boolean downloaded;
@@ -728,13 +728,6 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			} else {
 				existsTooltip = "";
 			}
-		}
-
-		@Override
-		public int compareTo(final TableMember anOther, final int tableColumIndex) {
-			final String c1 = (String) getValueAt(tableColumIndex);
-			final String c2 = (String) anOther.getValueAt(tableColumIndex);
-			return c1.compareToIgnoreCase(c2);
 		}
 
 		public FrostDownloadItem getDownloadItem(){

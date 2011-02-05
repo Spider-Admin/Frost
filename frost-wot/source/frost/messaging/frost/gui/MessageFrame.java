@@ -891,7 +891,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     }
 
     protected void removeSelectedItemsFromTable( final JTable tbl ) {
-        final SortedTableModel<? extends TableMember> m = (SortedTableModel<? extends TableMember>)tbl.getModel();
+    	final SortedTableModel<? extends TableMember<?>> m = (SortedTableModel<? extends TableMember<?>>)tbl.getModel();
         final int[] sel = tbl.getSelectedRows();
         for(int x=sel.length-1; x>=0; x--)
         {
@@ -1458,18 +1458,11 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedBoard implements TableMember {
+    private class MFAttachedBoard extends TableMember.BaseTableMember<MFAttachedBoard> {
         Board aBoard;
 
         public MFAttachedBoard(final Board ab) {
             aBoard = ab;
-        }
-
-        @SuppressWarnings("unchecked")
-		public int compareTo( final TableMember anOther, final int tableColumIndex ) {
-            final Comparable c1 = getValueAt(tableColumIndex);
-            final Comparable c2 = anOther.getValueAt(tableColumIndex);
-            return c1.compareTo( c2 );
         }
 
         public Board getBoardObject() {
@@ -1545,27 +1538,23 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         public void setValueAt(final Object aValue, final int row, final int column) {}
     }
 
-    private class MFAttachedFile implements TableMember {
+    private class MFAttachedFile extends TableMember.BaseTableMember<MFAttachedFile>  {
         File aFile;
+        
         public MFAttachedFile(final File af) {
             aFile = af;
         }
-        @SuppressWarnings("unchecked")
-		public int compareTo( final TableMember anOther, final int tableColumIndex ) {
-            final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
-            return c1.compareTo( c2 );
-        }
+        
         public File getFile() {
             return aFile;
         }
-        @SuppressWarnings("unchecked")
-		public Comparable getValueAt(final int column)  {
+        
+		public Comparable<?> getValueAt(final int column)  {
             switch(column) {
                 case 0: return aFile.getName();
                 case 1: return Long.toString(aFile.length());
             }
-            return "*ERR*";
+            throw new IndexOutOfBoundsException("Nu such column: " + Integer.toString(column));
         }
     }
 

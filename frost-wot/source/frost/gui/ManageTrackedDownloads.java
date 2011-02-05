@@ -323,7 +323,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 	}
 	
 
-	private class TrackedDownloadTableMember implements TableMember {
+	private class TrackedDownloadTableMember extends TableMember.BaseTableMember<TrackedDownloadTableMember> {
 
 		TrackDownloadKeys trackDownloadKey;
 
@@ -355,12 +355,6 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 
 		public TrackDownloadKeys getTrackDownloadKeys() {
 			return this.trackDownloadKey;
-		}
-
-		public int compareTo(final TableMember anOther, final int tableColumIndex) {
-			final String c1 = (String) getValueAt(tableColumIndex);
-			final String c2 = (String) anOther.getValueAt(tableColumIndex);
-			return c1.compareToIgnoreCase(c2);
 		}
 	}
 

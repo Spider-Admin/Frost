@@ -20,7 +20,7 @@ package frost.messaging.frost;
 
 import frost.gui.model.*;
 
-public class FrostSearchResultMessageObject implements TableMember {
+public class FrostSearchResultMessageObject implements TableMember<FrostSearchResultMessageObject> {
 
     private FrostMessageObject messageObject;
 
@@ -35,7 +35,7 @@ public class FrostSearchResultMessageObject implements TableMember {
     /*
      * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
      */
-    public int compareTo(TableMember another, int tableColumnIndex) {
+    public int compareTo(final FrostSearchResultMessageObject another, int tableColumnIndex) {
 
         // booleans
         if (tableColumnIndex == 0 || tableColumnIndex == 1) {

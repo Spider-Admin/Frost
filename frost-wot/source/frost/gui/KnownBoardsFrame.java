@@ -599,7 +599,7 @@ public class KnownBoardsFrame extends JDialog {
     /**
      * The class is a table row, holding the board and its file/message counts.
      */
-    class KnownBoardsTableMember implements TableMember {
+    class KnownBoardsTableMember extends TableMember.BaseTableMember<KnownBoardsTableMember> {
 
         KnownBoard frostboard;
 
@@ -624,13 +624,7 @@ public class KnownBoardsFrame extends JDialog {
             }
             return "*ERR*";
         }
-
-        public int compareTo(final TableMember anOther, final int tableColumIndex) {
-            final String c1 = (String) getValueAt(tableColumIndex);
-            final String c2 = (String) anOther.getValueAt(tableColumIndex);
-            return c1.compareToIgnoreCase(c2);
-        }
-
+		
         public KnownBoard getBoard() {
             return frostboard;
         }
