@@ -22,6 +22,8 @@ import java.util.logging.*;
 
 import org.garret.perst.*;
 
+import frost.Core;
+import frost.SettingsClass;
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.storage.perst.filelist.*;
@@ -55,10 +57,11 @@ public class PerstFrostDownloadItem extends Persistent {
 
     public int runtimeSecondsWithoutProgress;
     public int oldDoneBlocks;
+    private FreenetPriority priority;
 
     public String associatedBoardName;
     public String associatedMessageId;
-
+    
     public PerstFrostDownloadItem() {}
 
     public PerstFrostDownloadItem(final FrostDownloadItem dlItem) {
@@ -83,6 +86,7 @@ public class PerstFrostDownloadItem extends Persistent {
         oldDoneBlocks = dlItem.getOldDoneBlocks();
         associatedBoardName = dlItem.getAssociatedBoardName();
         associatedMessageId = dlItem.getAssociatedMessageId();
+        priority = dlItem.getPriority();
     }
 
     public FrostDownloadItem toFrostDownloadItem(final Logger logger) {
@@ -118,7 +122,9 @@ public class PerstFrostDownloadItem extends Persistent {
                 runtimeSecondsWithoutProgress,
                 oldDoneBlocks,
                 associatedBoardName,
-                associatedMessageId);
+                associatedMessageId,
+                priority
+        );
 
         dlItem.setFileListFileObject(sharedFileObject);
 

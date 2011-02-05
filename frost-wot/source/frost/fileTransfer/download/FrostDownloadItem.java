@@ -63,13 +63,14 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     // if this downloadfile is a shared file then this object is set
     private transient FrostFileListFileObject fileListFileObject = null;
 
+    private FreenetPriority priority = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
+
     // non persistent fields
 	private transient int doneBlocks = 0;
 	private transient int requiredBlocks = 0;
 	private transient int totalBlocks = 0;
     private transient Boolean isFinalized = null;
     private transient String errorCodeDescription = null;
-    private transient FreenetPriority priority = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
 
     private transient boolean isDirect = false;
     private transient boolean isExternal = false;
@@ -156,8 +157,10 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
             final int newRuntimeSecondsWithoutProgress,
             final int newOldDoneBlocks,
             final String newAssociatedBoardName,
-            final String newAssociatedMessageId)
-    {
+            final String newAssociatedMessageId,
+            final FreenetPriority newPriority
+            
+    ) {
         fileName = newFilename;
         prefix = newFilenamePrefix;
         downloadDir = FileAccess.appendSeparator(newDownloadDir);
@@ -178,6 +181,11 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         oldDoneBlocks = newOldDoneBlocks;
         associatedBoardName = newAssociatedBoardName;
         associatedMessageId = newAssociatedMessageId;
+        if( newPriority == null ) {
+    		priority = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
+    	} else {
+    		priority = newPriority;
+    	}
         
 
         if( this.state == FrostDownloadItem.STATE_PROGRESS ) {

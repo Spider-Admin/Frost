@@ -182,8 +182,8 @@ abstract public class SortedModel<T extends ModelItem> {
 		listenerSupport.fireItemChanged(item, position);
 	}
 
-    void itemChanged(final T item) {
-        fireItemChanged(item);
+    void itemChanged(final ModelItem item) {
+        fireItemChanged((T) item);
     }
 
 	private void fireItemsRemoved(final int[] positions, final ArrayList<T> items) {

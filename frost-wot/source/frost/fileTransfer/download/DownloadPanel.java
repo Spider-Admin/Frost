@@ -663,22 +663,22 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	public void updateSettings() {
 		Core.frostSettings.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
-	
+
 	public void changeItemPriorites(final List<FrostDownloadItem> items, final FreenetPriority newPrio) {
-        if (items == null || items.size() == 0 || FileTransferManager.inst().getPersistenceManager() == null) {
-            return;
-        }
-        for (final FrostDownloadItem di : items) {
-            String gqid = null;
-            if (di.getState() == FrostDownloadItem.STATE_PROGRESS) {
-                gqid = di.getGqIdentifier();
-                di.setPriority(newPrio);
-            }
-            if (gqid != null) {
-            	FileTransferManager.inst().getPersistenceManager().getFcpTools().changeRequestPriority(gqid, newPrio);
-            }
-        }
-    }
+		if (items == null || items.size() == 0 || FileTransferManager.inst().getPersistenceManager() == null) {
+			return;
+		}
+		for (final FrostDownloadItem di : items) {
+			String gqid = null;
+			di.setPriority(newPrio);
+			if (di.getState() == FrostDownloadItem.STATE_PROGRESS) {
+				gqid = di.getGqIdentifier();
+			}
+			if (gqid != null) {
+				FileTransferManager.inst().getPersistenceManager().getFcpTools().changeRequestPriority(gqid, newPrio);
+			}
+		}
+	}
 
 	private void assignHotkeys() {
 
