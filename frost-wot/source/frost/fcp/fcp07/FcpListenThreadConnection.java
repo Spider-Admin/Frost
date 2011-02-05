@@ -70,6 +70,9 @@ public class FcpListenThreadConnection extends AbstractBasicConnection {
     protected void reconnect() {
         // we are disconnected
         notifyDisconnected();
+        
+        // clear TestDDA checked directories, they are all invalid now
+        checkedDirectories.clear();
 
         int count = 0;
         while(true) {
