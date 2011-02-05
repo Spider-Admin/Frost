@@ -630,26 +630,22 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		setDownloadingActivated(false);
 	}
 
-	private void downloadTableDoubleClick(final MouseEvent e) {
-		final int clickedCol = modelTable.getTable().columnAtPoint(e.getPoint());
-		final int modelIx = modelTable.getTable().getColumnModel().getColumn(clickedCol).getModelIndex();
-		if (modelIx == 0) {
+	private void openFile(FrostDownloadItem dlItem) {
+		if (dlItem == null) {
 			return;
 		}
-
-		final FrostDownloadItem dlItem = modelTable.getSelectedItem();
-		if (dlItem != null) {
-			final File targetFile = new File(dlItem.getDownloadFilename());
-			if (!targetFile.isFile()) {
-				return;
-			}
-			logger.info("Executing: " + targetFile.getAbsolutePath());
-			try {
-				ExecuteDocument.openDocument(targetFile);
-			} catch (final Throwable t) {
-				JOptionPane.showMessageDialog(this, "Could not open the file: " + targetFile.getAbsolutePath() + "\n"
-						+ t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-			}
+		
+		final File targetFile = new File(dlItem.getDownloadFilename());
+		if (!targetFile.isFile()) {
+			logger.info("Executing: File not found: " + targetFile.getAbsolutePath());
+			return;
+		}
+		logger.info("Executing: " + targetFile.getAbsolutePath());
+		try {
+			ExecuteDocument.openDocument(targetFile);
+		} catch (final Throwable t) {
+			JOptionPane.showMessageDialog(this, "Could not open the file: " + targetFile.getAbsolutePath() + "\n"
+					+ t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -702,6 +698,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0),
 				"SETPRIO");
 		getActionMap().put("SETPRIO", setPriorityAction);
+		
+		// Enter
+		final Action setOpenFileAction = new AbstractAction() {
+			public void actionPerformed(final ActionEvent event) {
+				openFile(modelTable.getSelectedItem());
+			}
+		};
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),"OpenFile");
+		getActionMap().put("OpenFile", setOpenFileAction);
 	}
 
 	/**
@@ -1157,7 +1162,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			if (e.getClickCount() == 2) {
 				if (e.getSource() == modelTable.getTable()) {
 					// Start file from download table. Is this a good idea?
-					downloadTableDoubleClick(e);
+					openFile(modelTable.getSelectedItem());
 				}
 			} else if (e.isPopupTrigger()) {
 				if ((e.getSource() == modelTable.getTable()) || (e.getSource() == modelTable.getScrollPane())) {

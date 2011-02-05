@@ -34,6 +34,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,6 +49,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -55,10 +57,10 @@ import javax.swing.KeyStroke;
 import frost.Core;
 import frost.MainFrame;
 import frost.SettingsClass;
+import frost.ext.ExecuteDocument;
 import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.PersistenceManager;
-import frost.fileTransfer.sharing.FrostSharedFileItem;
 import frost.gui.AddNewUploadsDialog;
 import frost.util.CopyToClipboard;
 import frost.util.gui.JSkinnablePopupMenu;
@@ -238,20 +240,25 @@ public class UploadPanel extends JPanel {
         getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
     }
 
-    private void uploadTableDoubleClick(final MouseEvent e) {
-        final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
-        if (selectedItems.size() == 0) {
-        	return;
-        }
-        final FrostUploadItem ulItem = selectedItems.get(0);
-        if( ! ulItem.isSharedFile() ) {
-            return;
-        }
-        // jump to associated shared file in shared files table
-        final FrostSharedFileItem sfi = ulItem.getSharedFileItem();
-        FileTransferManager.inst().getSharedFilesManager().selectTab();
-        FileTransferManager.inst().getSharedFilesManager().selectModelItem(sfi);
-    }
+    
+    private void openFile(FrostUploadItem ulItem) {
+    	if (ulItem == null) {
+			return;
+		}
+		
+		final File targetFile = ulItem.getFile();
+		if (targetFile == null || !targetFile.isFile()) {
+			logger.info("Executing: File not found: " + targetFile.getAbsolutePath());
+			return;
+		}
+		logger.info("Executing: " + targetFile.getAbsolutePath());
+		try {
+			ExecuteDocument.openDocument(targetFile);
+		} catch (final Throwable t) {
+			JOptionPane.showMessageDialog(this, "Could not open the file: " + targetFile.getAbsolutePath() + "\n"
+				+ t.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
 
     private void fontChanged() {
         final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
@@ -301,22 +308,31 @@ public class UploadPanel extends JPanel {
 
     private void assignHotkeys() {
 
-        // assign keys 1-6 - set priority of selected items
-            final Action setPriorityAction = new AbstractAction() {
-                public void actionPerformed(final ActionEvent event) {
-                    final FreenetPriority prio = FreenetPriority.getPriority( new Integer(event.getActionCommand()));
-                    final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
-                    changeItemPriorites(selectedItems, prio);
-                }
-            };
-            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "SETPRIO");
-            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "SETPRIO");
-            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "SETPRIO");
-            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0), "SETPRIO");
-            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0), "SETPRIO");
-            getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0), "SETPRIO");
-            getActionMap().put("SETPRIO", setPriorityAction);
-        }
+    	// assign keys 1-6 - set priority of selected items
+    	final Action setPriorityAction = new AbstractAction() {
+    		public void actionPerformed(final ActionEvent event) {
+    			final FreenetPriority prio = FreenetPriority.getPriority( new Integer(event.getActionCommand()));
+    			final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
+    			changeItemPriorites(selectedItems, prio);
+    		}
+    	};
+    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "SETPRIO");
+    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "SETPRIO");
+    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "SETPRIO");
+    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0), "SETPRIO");
+    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0), "SETPRIO");
+    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0), "SETPRIO");
+    	getActionMap().put("SETPRIO", setPriorityAction);
+
+    	// Enter
+    	final Action setOpenFileAction = new AbstractAction() {
+    		public void actionPerformed(final ActionEvent event) {
+    			openFile(modelTable.getSelectedItem());
+    		}
+    	};
+    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),"OpenFile");
+    	getActionMap().put("OpenFile", setOpenFileAction);
+    }
 
     private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
@@ -418,7 +434,7 @@ public class UploadPanel extends JPanel {
             } else if (e.getSource() == generateChkForSelectedFilesItem) {
                 generateChkForSelectedFiles();
             } else if (e.getSource() == showSharedFileItem) {
-                uploadTableDoubleClick(null);
+            	openFile(modelTable.getSelectedItem());
             } else if (e.getSource() == removeFromGqItem) {
                 removeSelectedUploadsFromGlobalQueue();
             } else if (e.getSource() == enableAllDownloadsItem) {
@@ -609,7 +625,7 @@ public class UploadPanel extends JPanel {
             if (e.getClickCount() == 2) {
                 if (e.getSource() == modelTable.getTable()) {
                     // Start file from download table. Is this a good idea?
-                    uploadTableDoubleClick(e);
+                	openFile(modelTable.getSelectedItem());
                 }
             } else if (e.isPopupTrigger()) {
                 if ((e.getSource() == modelTable.getTable())
