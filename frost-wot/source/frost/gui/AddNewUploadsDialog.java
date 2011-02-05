@@ -431,7 +431,7 @@ public class AddNewUploadsDialog extends JFrame {
 						}
 					};
 
-				} else if( e.getKeyCode() == KeyEvent.VK_A) {
+				} else if( ! e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
 					// Add files
 					List<FrostUploadItem> frostUploadItmeList = addFileChooser();
 					for( final FrostUploadItem frotUploadItem : frostUploadItmeList) {
