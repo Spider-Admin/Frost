@@ -25,6 +25,7 @@ import javax.swing.tree.*;
 /**
  * The base for board, folder, ...
  */
+@SuppressWarnings("serial")
 public abstract class AbstractFreetalkNode extends DefaultMutableTreeNode implements Comparable<AbstractFreetalkNode> {
 
     protected String name = null;

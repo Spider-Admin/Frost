@@ -22,7 +22,7 @@ import java.util.*;
 
 import frost.util.*;
 
-public abstract class SortedTableFormat<ModelItemType extends ModelItem> extends AbstractTableFormat<ModelItemType> {
+public abstract class SortedTableFormat<ModelItemType extends ModelItem<ModelItemType>> extends AbstractTableFormat<ModelItemType> {
 
 	private List<Comparator<ModelItemType>> comparators;
 	private List<ReverseComparator<ModelItemType>> reverseComparators;

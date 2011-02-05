@@ -24,7 +24,7 @@ import frost.identities.*;
 import frost.util.*;
 import frost.util.model.*;
 
-public class FileListFileDetailsItem extends ModelItem implements CopyToClipboardItem {
+public class FileListFileDetailsItem extends ModelItem<FileListFileDetailsItem> implements CopyToClipboardItem {
 
     private FrostFileListFileObjectOwner fileOwner;
     

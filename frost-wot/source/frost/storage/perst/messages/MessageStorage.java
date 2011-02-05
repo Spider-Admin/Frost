@@ -329,7 +329,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             // unread messages in range
             final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
             // join all results
-            final Iterator<PerstFrostMessageObject> i = getStorage().join(new Iterator[] {i1, i2} );
+            final Iterator<PerstFrostMessageObject> i = getStorage().join( new Iterator[] {i1, i2} );
 
             int count = 0;
 

@@ -21,7 +21,7 @@ package frost.util.model;
 import javax.swing.*;
 
 
-public interface ModelTableFormat<ModelItemType extends ModelItem> {
+public interface ModelTableFormat<ModelItemType extends ModelItem<ModelItemType>> {
 	
 	/**
 	 * @return

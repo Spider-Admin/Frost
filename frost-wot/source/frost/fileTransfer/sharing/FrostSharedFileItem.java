@@ -31,7 +31,7 @@ import frost.util.model.*;
  * This item is shown in the shared files panel, and it can be shown in the
  * table of current uploads.
  */
-public class FrostSharedFileItem extends ModelItem implements CopyToClipboardItem {
+public class FrostSharedFileItem extends ModelItem<FrostSharedFileItem> implements CopyToClipboardItem {
 
     String sha = null;
 

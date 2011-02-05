@@ -117,7 +117,7 @@ abstract public class ModelTableHeader extends JTableHeader {
 
 	private Listener listener = new Listener();
 
-	private ModelTable<? extends ModelItem> modelTable;
+	private ModelTable<? extends ModelItem<?>> modelTable;
 
 	private ColumnsPopupMenu popup;
 
@@ -126,7 +126,7 @@ abstract public class ModelTableHeader extends JTableHeader {
 	 * to the ModelTable that is passed as a parameter.
 	 * @param cm the ModelTable that is going to have this header
 	 */
-	public ModelTableHeader(ModelTable<? extends ModelItem> newModelTable) {
+	public ModelTableHeader(ModelTable<? extends ModelItem<?>> newModelTable) {
 		super(newModelTable.getTable().getColumnModel());
 
 		modelTable = newModelTable;

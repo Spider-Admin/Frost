@@ -79,8 +79,7 @@ public class FrostSearchResultMessageObject implements TableMember {
     /*
      * @see frost.gui.model.TableMember#getValueAt(int)
      */
-    @SuppressWarnings("unchecked")
-	public Comparable getValueAt(int column) {
+	public Comparable<?> getValueAt(int column) {
         switch(column) {
             case 0: return Boolean.valueOf(messageObject.isFlagged());
             case 1: return Boolean.valueOf(messageObject.isStarred());

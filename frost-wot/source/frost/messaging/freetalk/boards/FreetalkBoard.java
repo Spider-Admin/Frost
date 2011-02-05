@@ -18,6 +18,7 @@
 */
 package frost.messaging.freetalk.boards;
 
+@SuppressWarnings("serial")
 public class FreetalkBoard extends AbstractFreetalkNode {
     private int messageCount;
     private long firstSeenDate;

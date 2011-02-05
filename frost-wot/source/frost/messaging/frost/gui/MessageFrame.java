@@ -1467,8 +1467,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 
         @SuppressWarnings("unchecked")
 		public int compareTo( final TableMember anOther, final int tableColumIndex ) {
-            final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+            final Comparable c1 = getValueAt(tableColumIndex);
+            final Comparable c2 = anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
 
@@ -1476,8 +1476,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             return aBoard;
         }
 
-        @SuppressWarnings("unchecked")
-		public Comparable getValueAt(final int column) {
+		public Comparable<?> getValueAt(final int column) {
             switch (column) {
                 case 0 : return aBoard.getName();
                 case 1 : return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();

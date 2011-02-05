@@ -486,9 +486,8 @@ class SharedFilesTableFormat extends SortedTableFormat<FrostSharedFileItem> impl
             if( !isSelected ) {
                 Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 
-                ModelItem item = modelTable.getItemAt(row); //It may be null
-                if (item != null) {
-                    FrostSharedFileItem sfItem = (FrostSharedFileItem) item;
+                FrostSharedFileItem sfItem = modelTable.getItemAt(row); //It may be null
+                if (sfItem != null) {
                     if( !sfItem.isValid() ) {
                         newBackground = TableBackgroundColors.getBackgroundColorFailed(table, row, showColoredLines);
                     }

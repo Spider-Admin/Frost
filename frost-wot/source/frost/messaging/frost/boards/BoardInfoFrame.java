@@ -535,8 +535,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             this.dateOfLastMsg = null;
         }
 
-        @SuppressWarnings("unchecked")
-		public Comparable getValueAt(final int column) {
+		public Comparable<?> getValueAt(final int column) {
             switch( column ) {
             case 0:
                 return board.getName();

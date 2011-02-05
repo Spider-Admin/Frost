@@ -96,7 +96,6 @@ import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
-import frost.util.model.ModelItem;
 import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")
@@ -638,9 +637,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			return;
 		}
 
-		final ModelItem selectedItem = modelTable.getSelectedItem();
-		if (selectedItem != null) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
+		final FrostDownloadItem dlItem = modelTable.getSelectedItem();
+		if (dlItem != null) {
 			final File targetFile = new File(dlItem.getDownloadFilename());
 			if (!targetFile.isFile()) {
 				return;

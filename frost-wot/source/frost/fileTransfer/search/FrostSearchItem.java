@@ -24,7 +24,7 @@ import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.model.*;
 
-public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
+public class FrostSearchItem extends ModelItem<FrostSearchItem> implements CopyToClipboardItem {
 
     private final FrostFileListFileObject fo;
     private int state;

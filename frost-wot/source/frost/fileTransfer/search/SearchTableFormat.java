@@ -352,9 +352,8 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if (!isSelected) {
-                final ModelItem item = modelTable.getItemAt(row); //It may be null
-                if (item != null) {
-                    final FrostSearchItem searchItem = (FrostSearchItem) item;
+                final FrostSearchItem searchItem = modelTable.getItemAt(row); //It may be null
+                if (searchItem != null) {
 
                     if (searchItem.getState() == FrostSearchItem.STATE_DOWNLOADED) {
                         setForeground(Color.LIGHT_GRAY);
@@ -399,9 +398,8 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
             // col is right aligned, give some space to next column
             setBorder(border);
 
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostSearchItem searchItem = (FrostSearchItem) item;
+            final FrostSearchItem searchItem = modelTable.getItemAt(row); //It may be null
+            if (searchItem != null) {
                 if( searchItem.hasInfosFromMultipleSources().booleanValue() ) {
                     setIcon(hasMoreInfoIcon);
                 } else {

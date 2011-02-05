@@ -26,8 +26,7 @@ public interface TableMember
      * @param   column  Column to be displayed
      * @return  Object representing table entry.
      */
-    @SuppressWarnings("unchecked")
-	public Comparable getValueAt(int column);
+	public Comparable<?> getValueAt(int column);
 
     public int compareTo( TableMember anOther, int tableColumnIndex );
 

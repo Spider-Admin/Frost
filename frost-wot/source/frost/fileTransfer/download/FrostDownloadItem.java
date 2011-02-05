@@ -24,7 +24,7 @@ import frost.util.*;
 import frost.util.model.*;
 import frost.messaging.frost.*;
 
-public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem {
+public class FrostDownloadItem extends ModelItem<FrostDownloadItem> implements CopyToClipboardItem {
 
 //    private transient static final Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
 

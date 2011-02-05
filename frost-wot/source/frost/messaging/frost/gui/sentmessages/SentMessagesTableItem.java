@@ -21,7 +21,7 @@ package frost.messaging.frost.gui.sentmessages;
 import frost.messaging.frost.*;
 import frost.util.model.*;
 
-public class SentMessagesTableItem extends ModelItem {
+public class SentMessagesTableItem extends ModelItem<SentMessagesTableItem> {
 
     private final FrostMessageObject messageObject;
 

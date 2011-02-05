@@ -29,7 +29,7 @@ import frost.util.model.*;
 /**
  * Represents a file to upload.
  */
-public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
+public class FrostUploadItem extends ModelItem<FrostUploadItem> implements CopyToClipboardItem {
 
     // the constants representing upload states
     public final static int STATE_DONE       = 1;   // a start of uploading is requested

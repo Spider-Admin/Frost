@@ -47,7 +47,6 @@ import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
-import frost.util.model.ModelItem;
 import frost.util.model.ModelTable;
 import frost.util.model.SortedModelTable;
 import frost.util.model.SortedTableFormat;
@@ -89,9 +88,8 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
                 Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
 
-                final ModelItem item = modelTable.getItemAt(row);
-                if (item != null) {
-                    final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+                final FrostDownloadItem downloadItem = modelTable.getItemAt(row);
+                if (downloadItem != null) {
                     final int itemState = downloadItem.getState();
                     if( itemState == FrostDownloadItem.STATE_DONE) {
                         newBackground = TableBackgroundColors.getBackgroundColorDone(table, row, showColoredLines);
@@ -128,10 +126,8 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
             setValue(0);
 
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
-
+            final FrostDownloadItem downloadItem = modelTable.getItemAt(row); //It may be null
+            if (downloadItem != null) {
                 final int totalBlocks = downloadItem.getTotalBlocks();
                 final int doneBlocks = downloadItem.getDoneBlocks();
                 final int requiredBlocks = downloadItem.getRequiredBlocks();
@@ -220,9 +216,8 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             String tooltip = null;
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+            final FrostDownloadItem downloadItem = modelTable.getItemAt(row); //It may be null
+            if (downloadItem != null) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append("<html>").append(downloadItem.getFileName());
                 if( downloadItem.getDownloadAddedMillis() > 0 ) {
@@ -266,9 +261,8 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
             final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             String tooltip = null;
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+            final FrostDownloadItem downloadItem = modelTable.getItemAt(row); //It may be null
+            if (downloadItem != null) {
                 final String errorCodeDescription = downloadItem.getErrorCodeDescription();
                 if( errorCodeDescription != null && errorCodeDescription.length() > 0 ) {
                     tooltip = "Last error: "+errorCodeDescription;
@@ -301,9 +295,8 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 setBackground(table.getBackground());
             }
 
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+            final FrostDownloadItem downloadItem = modelTable.getItemAt(row); //It may be null
+            if (downloadItem != null) {
                 if( downloadItem.isExternal() ) {
                     setEnabled(false);
                     setSelected(true); // external items are always enabled

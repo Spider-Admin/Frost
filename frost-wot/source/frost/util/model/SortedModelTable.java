@@ -21,7 +21,7 @@ package frost.util.model;
 import frost.util.gui.*;
 
 @SuppressWarnings("serial")
-public class SortedModelTable<T extends ModelItem> extends ModelTable<T> {
+public class SortedModelTable<T extends ModelItem<T>> extends ModelTable<T> {
 	
 	/**
 	 * Index in the ModelTable of the column the model is 
@@ -112,7 +112,7 @@ public class SortedModelTable<T extends ModelItem> extends ModelTable<T> {
 	 * @param rowIndex the index of the row the model is represented on
 	 * @return the model item (may be null)
 	 */
-	public ModelItem getItemAt(int rowIndex) {
+	public T getItemAt(int rowIndex) {
 		return model.getItemAt(rowIndex);
 	}
 

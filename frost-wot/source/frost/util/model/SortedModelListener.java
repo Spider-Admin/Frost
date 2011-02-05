@@ -20,7 +20,7 @@ package frost.util.model;
 
 import java.util.*;
 
-public interface SortedModelListener<T extends ModelItem> extends EventListener {
+public interface SortedModelListener<T extends ModelItem<T>> extends EventListener {
 
 	/**
 	 * @param position

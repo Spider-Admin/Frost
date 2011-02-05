@@ -26,7 +26,7 @@ import java.util.*;
  *
  * Its implementation is thread-safe
  */
-abstract public class SortedModel<T extends ModelItem> {
+abstract public class SortedModel<T extends ModelItem<T>> {
 
 	protected List<T> data;
 
@@ -182,8 +182,8 @@ abstract public class SortedModel<T extends ModelItem> {
 		listenerSupport.fireItemChanged(item, position);
 	}
 
-    void itemChanged(final ModelItem item) {
-        fireItemChanged((T) item);
+    void itemChanged(final T item) {
+        fireItemChanged(item);
     }
 
 	private void fireItemsRemoved(final int[] positions, final ArrayList<T> items) {

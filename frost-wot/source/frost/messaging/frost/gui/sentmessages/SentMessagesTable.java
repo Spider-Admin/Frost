@@ -101,9 +101,9 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
 
         final int row = getTable().rowAtPoint(e.getPoint());
         if( row > -1 ) {
-            final ModelItem item = getItemAt(row); //It may be null
+            final SentMessagesTableItem item = getItemAt(row); //It may be null
             if (item != null) {
-                final FrostMessageObject sm = ((SentMessagesTableItem) item).getFrostMessageObject();
+                final FrostMessageObject sm = item.getFrostMessageObject();
                 final MessageWindow messageWindow = new MessageWindow(
                         MainFrame.getInstance(),
                         sm,

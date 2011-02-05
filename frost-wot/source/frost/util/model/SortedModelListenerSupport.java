@@ -24,7 +24,7 @@ import java.util.*;
  * This class provides support for sending change events of models 
  * that are ordered. 
  */
-public class SortedModelListenerSupport<T extends ModelItem> {
+public class SortedModelListenerSupport<T extends ModelItem<T>> {
 
 	private Vector<SortedModelListener<T>> listeners;
 

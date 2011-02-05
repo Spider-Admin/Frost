@@ -107,9 +107,9 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
 
         final int row = getTable().rowAtPoint(e.getPoint());
         if( row > -1 ) {
-            final ModelItem item = getItemAt(row); //It may be null
+            final UnsentMessagesTableItem item = getItemAt(row); //It may be null
             if (item != null) {
-                final FrostMessageObject sm = ((UnsentMessagesTableItem) item).getFrostUnsentMessageObject();
+                final FrostMessageObject sm = item.getFrostUnsentMessageObject();
                 final MessageWindow messageWindow = new MessageWindow(
                         MainFrame.getInstance(),
                         sm,

@@ -18,12 +18,17 @@
 */
 package frost.fcp.fcp07;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.ext.*;
+import frost.ext.DefaultMIMETypes;
 import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.upload.FreenetCompatibilityMode;
 

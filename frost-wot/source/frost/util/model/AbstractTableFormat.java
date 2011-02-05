@@ -25,7 +25,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 
-public abstract class AbstractTableFormat<ModelItemType extends ModelItem> implements ModelTableFormat<ModelItemType> {
+public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelItemType>> implements ModelTableFormat<ModelItemType> {
 
 	private static final Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
 

@@ -68,9 +68,8 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
             if( !isSelected ) {
                 Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
 
-                final ModelItem item = modelTable.getItemAt(row);
-                if (item != null) {
-                    final FrostUploadItem uploadItem = (FrostUploadItem) item;
+                final FrostUploadItem uploadItem = modelTable.getItemAt(row);
+                if (uploadItem != null) {
                     final int itemState = uploadItem.getState();
                     if( itemState == FrostUploadItem.STATE_DONE) {
                         newBackground = TableBackgroundColors.getBackgroundColorDone(table, row, showColoredLines);
@@ -107,9 +106,8 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
 
             setValue(0);
 
-            final ModelItem item = modelTable.getItemAt(row);
-            if (item != null) {
-                final FrostUploadItem uploadItem = (FrostUploadItem) item;
+            final FrostUploadItem uploadItem = modelTable.getItemAt(row);
+            if (uploadItem != null) {
 
                 final int totalBlocks = uploadItem.getTotalBlocks();
                 final int doneBlocks = uploadItem.getDoneBlocks();
@@ -174,9 +172,8 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             String tooltip = null;
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostUploadItem uploadItem = (FrostUploadItem) item;
+            final FrostUploadItem uploadItem = modelTable.getItemAt(row); //It may be null
+            if (uploadItem != null) {
                 final StringBuilder sb = new StringBuilder();
                 sb.append("<html>").append(uploadItem.getFileName());
                 if( uploadItem.getUploadAddedMillis() > 0 ) {
@@ -220,9 +217,8 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
             final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             String tooltip = null;
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostUploadItem uploadItem = (FrostUploadItem) item;
+            final FrostUploadItem uploadItem = modelTable.getItemAt(row); //It may be null
+            if (uploadItem != null) {
                 final String errorCodeDescription = uploadItem.getErrorCodeDescription();
                 if( errorCodeDescription != null && errorCodeDescription.length() > 0 ) {
                     tooltip = "Last error: "+errorCodeDescription;
@@ -254,9 +250,8 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 setBackground(table.getBackground());
             }
 
-            final ModelItem item = modelTable.getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostUploadItem uploadItem = (FrostUploadItem) item;
+            final FrostUploadItem uploadItem = modelTable.getItemAt(row); //It may be null
+            if (uploadItem != null) {
                 if( uploadItem.isExternal() ) {
                     setEnabled(false);
                     setSelected(true); // external items are always enabled

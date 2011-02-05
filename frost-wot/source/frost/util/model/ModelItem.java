@@ -19,34 +19,31 @@
 package frost.util.model;
 
 
-public class ModelItem {
+abstract public class ModelItem<T extends ModelItem<T>> {
 
-	private SortedModel<?> model;
-
-	public ModelItem() {
-		super();
-	}
+	private SortedModel<T> model;
 
 	/**
 	 * Report an update to the model (if it has already been set).
 	 */
+	@SuppressWarnings("unchecked")
 	protected void fireChange() {
 		if (model != null) {
-			model.itemChanged(this);
+			model.itemChanged((T) this);
 		}
 	}
 
 	/**
 	 * @return
 	 */
-	public SortedModel<?> getModel() {
+	public SortedModel<T> getModel() {
 		return model;
 	}
 
 	/**
 	 * @param model
 	 */
-	public void setModel(SortedModel<?> newModel) {
+	public void setModel(SortedModel<T> newModel) {
 		model = newModel;
 	}
 }

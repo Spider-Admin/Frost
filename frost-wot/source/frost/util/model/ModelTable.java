@@ -40,7 +40,7 @@ import javax.swing.table.*;
  * that pops up when he right clicks on the header.
  */
 @SuppressWarnings("serial")
-abstract public class ModelTable<T extends ModelItem> extends AbstractTableModel {
+abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableModel {
 
 	/**
 	 * Helper class to be able to safely get the selection fron any thread

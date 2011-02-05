@@ -684,7 +684,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             while(true) {
                 try {
                     // if there is no work in queue this call waits for a new queue item
-                    final ModelItem item = directTransferQueue.getItemFromQueue();
+                    final ModelItem<?> item = directTransferQueue.getItemFromQueue();
 
                     if( item == null ) {
                         // paranoia, should never happen
@@ -773,9 +773,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      */
     private class DirectTransferQueue {
 
-        private final LinkedList<ModelItem> queue = new LinkedList<ModelItem>();
+        private final LinkedList<ModelItem<?>> queue = new LinkedList<ModelItem<?>>();
 
-        public synchronized ModelItem getItemFromQueue() {
+        public synchronized ModelItem<?> getItemFromQueue() {
             try {
                 // let dequeueing threads wait for work
                 while( queue.isEmpty() ) {
@@ -786,8 +786,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
 
             if( queue.isEmpty() == false ) {
-                final ModelItem item = queue.removeFirst();
-                return item;
+                return queue.removeFirst();
             }
             return null;
         }

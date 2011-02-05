@@ -86,14 +86,14 @@ class SortedTableHeader extends ModelTableHeader {
 
 	private final ArrowRenderer arrowRenderer = new ArrowRenderer();
 
-	private final SortedModelTable<? extends ModelItem> sortedTable;
+	private final SortedModelTable<? extends ModelItem<?>> sortedTable;
 
 	/**
 	 * This constructor creates a new instance of ModelTableHeader associated
 	 * to the SortedModelTable that is passed as a parameter.
 	 * @param cm the SortedModelTable that is going to have this header
 	 */
-	public SortedTableHeader(final SortedModelTable<? extends ModelItem> newSortedTable) {
+	public SortedTableHeader(final SortedModelTable<? extends ModelItem<?>> newSortedTable) {
 		super(newSortedTable);
 
 		sortedTable = newSortedTable;

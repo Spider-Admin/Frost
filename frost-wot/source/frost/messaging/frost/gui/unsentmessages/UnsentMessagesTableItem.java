@@ -21,7 +21,7 @@ package frost.messaging.frost.gui.unsentmessages;
 import frost.messaging.frost.*;
 import frost.util.model.*;
 
-public class UnsentMessagesTableItem extends ModelItem {
+public class UnsentMessagesTableItem extends ModelItem<UnsentMessagesTableItem> {
 
     public static final int STATE_WAITING = 1;
     public static final int STATE_UPLOADING = 2;
