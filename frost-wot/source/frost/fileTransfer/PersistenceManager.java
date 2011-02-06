@@ -622,6 +622,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
         ulItem.setFile(new File(fileName));
+        ulItem.setFileName(fileName);
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
