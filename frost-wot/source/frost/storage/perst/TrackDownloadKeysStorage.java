@@ -50,8 +50,9 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 			return;
 		}
 		if( trackDownloadKeys.getStorage() == null ) {
-			trackDownloadKeys.makePersistent(getStorage());
-			addToIndices(trackDownloadKeys);
+			if( addToIndices(trackDownloadKeys)) {
+				trackDownloadKeys.makePersistent(getStorage());
+			}
 		} else {
 			trackDownloadKeys.modify();
 		}
