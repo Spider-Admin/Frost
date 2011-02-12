@@ -1082,7 +1082,7 @@ public class MessageTextPane extends JPanel {
             	
                 String name = key.substring(key.lastIndexOf("/")+1);
                 // maybe convert html codes (e.g. %2c -> , )
-                if( name.indexOf("%") > 0 ) {
+                if( name.indexOf("%") >= 0 ) {
                     try {
                         name = java.net.URLDecoder.decode(name, "UTF-8");
                     } catch (final java.io.UnsupportedEncodingException ex) {
