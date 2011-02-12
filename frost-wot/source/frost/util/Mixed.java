@@ -28,7 +28,7 @@ public final class Mixed {
 
     private static final Logger logger = Logger.getLogger(Mixed.class.getName());
 
-    private static final char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
+    private static final char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|'};
 
     public static void main(final String[] args) {
         System.out.println(createUniqueId());
