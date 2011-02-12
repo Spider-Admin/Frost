@@ -661,7 +661,6 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         if( downloadItem == null ) {
             return "*null*";
         }
-        DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
 		switch (columnIndex) {
 
 			case 0 : // Enabled
@@ -674,7 +673,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 return getIsRequested( downloadItem.getFileListFileObject() );
 
 			case 3 : // Filename
-				return downloadModel.indexOf(downloadItem) + downloadItem.getFileName();
+				return downloadItem.getFileName();
 
 			case 4 : // Size
                 if( downloadItem.getFileSize() >= 0 ) {
