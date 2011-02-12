@@ -29,21 +29,16 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 
 	private static final Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
 
-	private int columnCount;
-	private String columnNames[];
-	private boolean columnEditable[];
+	private Map<Integer,String> columnNames;
+	private Map<Integer,Boolean> columnEditable;
 	
 	protected Vector<JTable> tables;
 
-	protected AbstractTableFormat(int newColumnCount) {
+	protected AbstractTableFormat() {
 		super();
-		columnCount = newColumnCount;
-		columnNames = new String[columnCount];
+		columnNames = new HashMap<Integer,String>();
 		
-		columnEditable = new boolean[columnCount];
-		for (int i = 0; i < columnEditable.length; i++) {
-			columnEditable[i] = false;			
-		}
+		columnEditable = new HashMap<Integer,Boolean>();
 	}
 
 	/* (non-Javadoc)
@@ -61,7 +56,7 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 	 * @return
 	 */
 	public int getColumnCount() {
-		return columnCount;
+		return columnNames.size();
 	}
 
 	/* (non-Javadoc)
@@ -78,7 +73,7 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 	 * @see frost.util.model.gui.ModelTableFormat#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return columnNames.get(column);
 	}
 	
 	/**
@@ -86,7 +81,7 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 	 * @param name
 	 */
 	protected void setColumnName(int index, String name) {
-		columnNames[index] = name; 
+		columnNames.put(index, name); 
 	}
 	
 	protected synchronized void refreshColumnNames() {
@@ -97,9 +92,9 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 				TableColumnModel columnModel = table.getColumnModel();
 				for (int i = 0; i < table.getColumnCount(); i++) {
 					TableColumn column = columnModel.getColumn(i);
-					column.setHeaderValue(columnNames[column.getModelIndex()]);					
+					column.setHeaderValue(columnNames.get(column.getModelIndex()));
 				};
-			}			
+			}
 		}	
 	}
 
@@ -107,7 +102,10 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 	 * @see frost.util.model.gui.ModelTableFormat#isColumnEditable(int)
 	 */
 	public boolean isColumnEditable(int column) {
-		return columnEditable[column];
+		if( columnEditable.containsKey(column)) {
+			return columnEditable.get(column);
+		}
+		return false;
 	}
 	
 	/** 
@@ -117,15 +115,16 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 	 * @param editable true if the column is editable. False if it is not.
 	 **/
 	public void setColumnEditable(int column, boolean editable) {
-		columnEditable[column] = editable;
+		columnEditable.put(column, editable);
 	}
 
-	/* (non-Javadoc)
+	/***
+	 * By default all columns are not editable. Override in subclasses when needed.
 	 * @see frost.util.model.gui.ModelTableFormat#setCellValue(java.lang.Object, frost.util.model.ModelItem, int)
 	 */
 	public void setCellValue(Object value, ModelItemType item, int columnIndex) {
-		//By default all columns are not editable. Override in subclasses when needed.
 		logger.warning("The column number " + columnIndex + "is not editable.");
+		throw new RuntimeException("Method setCellValue not implemented, needs to be deined by subclass if it has editable columns");
 	}
 
 }

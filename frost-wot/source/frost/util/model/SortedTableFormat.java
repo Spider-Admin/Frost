@@ -24,19 +24,25 @@ import frost.util.*;
 
 public abstract class SortedTableFormat<ModelItemType extends ModelItem<ModelItemType>> extends AbstractTableFormat<ModelItemType> {
 
-	private List<Comparator<ModelItemType>> comparators;
-	private List<ReverseComparator<ModelItemType>> reverseComparators;
+	private Map<Integer, Comparator<ModelItemType>> comparators;
+	private Map<Integer, ReverseComparator<ModelItemType>> reverseComparators;
 
 	protected SortedTableFormat(int newColumnCount) {
-		super(newColumnCount);
-		comparators = new ArrayList<Comparator<ModelItemType>>(newColumnCount);
+		super();
+		comparators = new HashMap<Integer, Comparator<ModelItemType>>(newColumnCount);
 		for(int i = 0; i < newColumnCount; i++) {
-			comparators.add(null);
+			comparators.put(i, null);
 		}
-		reverseComparators = new ArrayList<ReverseComparator<ModelItemType>>(newColumnCount);
+		reverseComparators = new HashMap<Integer, ReverseComparator<ModelItemType>>(newColumnCount);
 		for(int i = 0; i < newColumnCount; i++) {
-			reverseComparators.add(null);
+			reverseComparators.put(i, null);
 		}
+	}
+	
+	protected SortedTableFormat() {
+		super();
+		comparators = new HashMap<Integer, Comparator<ModelItemType>>();
+		reverseComparators = new HashMap<Integer, ReverseComparator<ModelItemType>>();
 	}
 	
 	/**
@@ -44,8 +50,8 @@ public abstract class SortedTableFormat<ModelItemType extends ModelItem<ModelIte
 	 * @param columnNumber
 	 */
 	public void setComparator(Comparator<ModelItemType> comparator, int columnNumber) {
-		comparators.set(columnNumber, comparator);
-		reverseComparators.set(columnNumber, new ReverseComparator<ModelItemType>(comparator));
+		comparators.put(columnNumber, comparator);
+		reverseComparators.put(columnNumber, new ReverseComparator<ModelItemType>(comparator));
 	}
 	
 	/**

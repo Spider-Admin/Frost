@@ -22,6 +22,9 @@ import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
@@ -67,6 +70,44 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
     private SortedModelTable<FrostDownloadItem> modelTable = null;
 
     private boolean showColoredLines;
+    
+    private boolean fileSharingDisabled;
+    
+    private Map<Integer, Integer> mapCurrentColumntToPossibleColumn;
+    
+    /***
+     * List of all possible columns in the download table
+     * @author jgerrits
+     *
+     */
+    private enum Columns {
+    	ENABLED,
+    	SHARED_FILE,
+    	FILE_REQUESTED,
+    	FILE_NAME,
+    	SIZE,
+    	STATE,
+    	LAST_SEEN,
+    	LAST_UPLOADED,
+    	BLOCKS,
+    	TRIES,
+    	KEY,
+    	DOWNLOAD_DIRECTORY,
+    	DDA,
+    	PRIORITY;
+    	
+    	private static TreeMap<Integer, Columns> numMap;
+    	static {
+    		numMap = new TreeMap<Integer, Columns>();
+    		for (final Columns column: Columns.values()) {
+    			numMap.put(new Integer(column.ordinal()), column);
+    		}
+    	}
+    	
+    	public static Columns lookup(int number) {
+    		return numMap.get(number);
+    	}
+    }
 
     @SuppressWarnings("serial")
 	private class BaseRenderer extends DefaultTableCellRenderer {
@@ -106,6 +147,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
+    	
         public BlocksProgressRenderer() {
             super();
             setMinimum(0);
@@ -113,6 +155,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
             setStringPainted(true);
             setBorderPainted(false);
         }
+        
         public Component getTableCellRendererComponent(
             final JTable table,
             final Object value,
@@ -154,10 +197,13 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
 	@SuppressWarnings("serial")
 	private class RightAlignRenderer extends BaseRenderer {
+		
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
+        
         public RightAlignRenderer() {
             super();
         }
+        
 		@Override
         public Component getTableCellRendererComponent(
 			final JTable table,
@@ -176,9 +222,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class ShowContentTooltipRenderer extends BaseRenderer {
+    	
         public ShowContentTooltipRenderer() {
             super();
         }
+        
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -202,9 +250,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class ShowNameTooltipRenderer extends BaseRenderer {
+    	
         public ShowNameTooltipRenderer() {
             super();
         }
+        
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -248,9 +298,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class ShowStateContentTooltipRenderer extends BaseRenderer {
+    	
         public ShowStateContentTooltipRenderer() {
             super();
         }
+        
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -275,10 +327,12 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
+    	
         public IsEnabledRenderer() {
             super();
             setHorizontalAlignment(SwingConstants.CENTER);
         }
+        
         public Component getTableCellRendererComponent(
             final JTable table,
             final Object value,
@@ -314,9 +368,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class IsSharedRenderer extends BaseRenderer {
+    	
         public IsSharedRenderer() {
             super();
         }
+        
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -344,9 +400,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class IsRequestedRenderer extends BaseRenderer {
+    	
         public IsRequestedRenderer() {
             super();
         }
+        
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -374,9 +432,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
     @SuppressWarnings("serial")
 	private class IsDDARenderer extends BaseRenderer {
+    	
         public IsDDARenderer() {
             super();
         }
+        
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -482,7 +542,9 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 	}
 
 	private class SizeComparator implements Comparator<FrostDownloadItem> {
+		
         private final Long unknownSize = new Long(-1);
+        
 		public int compare(final FrostDownloadItem dli1, final FrostDownloadItem dli2) {
 			Long size1 = dli1.getFileSize();
 			Long size2 = dli2.getFileSize();
@@ -592,63 +654,76 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
     private String isDDATooltip;
 
 	public DownloadTableFormat() {
-		super(COLUMN_COUNT);
+		super();
 
+		fileSharingDisabled = Core.frostSettings.getBoolValue(SettingsClass.FILESHARING_DISABLE);
+		
 		language = Language.getInstance();
 		language.addLanguageListener(this);
 		refreshLanguage();
 
-		setComparator(new EnabledComparator(), 0);
-        setComparator(new IsSharedComparator(), 1);
-        setComparator(new IsRequestedComparator(), 2);
-		setComparator(new FileNameComparator(), 3);
-		setComparator(new SizeComparator(), 4);
-		setComparator(new StateComparator(), 5);
-        setComparator(new LastReceivedComparator(), 6);
-        setComparator(new LastUploadedComparator(), 7);
-		setComparator(new BlocksComparator(), 8);
-		setComparator(new TriesComparator(), 9);
-		setComparator(new KeyComparator(), 10);
-		setComparator(new DownloadDirComparator(), 11);
-        if( PersistenceManager.isPersistenceEnabled() ) {
-            setComparator(new IsDDAComparator(), 12);
-            setComparator(new PriorityComparator(), 13);
-        }
+		int columnCounter = 0;
+		setComparator(new EnabledComparator(), columnCounter++);
+		if( fileSharingDisabled == false ) {
+			setComparator(new IsSharedComparator(), columnCounter++);
+			setComparator(new IsRequestedComparator(), columnCounter++);
+		}
+		setComparator(new FileNameComparator(), columnCounter++);
+		setComparator(new SizeComparator(), columnCounter++);
+		setComparator(new StateComparator(), columnCounter++);
+		if( fileSharingDisabled == false ) {
+			setComparator(new LastReceivedComparator(), columnCounter++);
+			setComparator(new LastUploadedComparator(), columnCounter++);
+		}
+		setComparator(new BlocksComparator(), columnCounter++);
+		setComparator(new TriesComparator(), columnCounter++);
+		setComparator(new KeyComparator(), columnCounter++);
+		setComparator(new DownloadDirComparator(), columnCounter++);
+		if( PersistenceManager.isPersistenceEnabled() ) {
+			setComparator(new IsDDAComparator(), columnCounter++);
+			setComparator(new PriorityComparator(), columnCounter++);
+		}
 
-        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
-        Core.frostSettings.addPropertyChangeListener(this);
+		showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+		Core.frostSettings.addPropertyChangeListener(this);
 	}
 
 	private void refreshLanguage() {
-		setColumnName(0, language.getString("Common.enabled"));
-        setColumnName(1, language.getString("DownloadPane.fileTable.shared"));
-        setColumnName(2, language.getString("DownloadPane.fileTable.requested"));
-		setColumnName(3, language.getString("DownloadPane.fileTable.filename"));
-		setColumnName(4, language.getString("DownloadPane.fileTable.size"));
-		setColumnName(5, language.getString("DownloadPane.fileTable.state"));
-        setColumnName(6, language.getString("DownloadPane.fileTable.lastReceived"));
-        setColumnName(7, language.getString("DownloadPane.fileTable.lastUploaded"));
-		setColumnName(8, language.getString("DownloadPane.fileTable.blocks"));
-		setColumnName(9, language.getString("DownloadPane.fileTable.tries"));
-		setColumnName(10, language.getString("DownloadPane.fileTable.key"));
-		setColumnName(11, language.getString("DownloadPane.fileTable.downloadDir"));
-        if( PersistenceManager.isPersistenceEnabled() ) {
-            setColumnName(12, language.getString("DownloadPane.fileTable.isDDA"));
-            setColumnName(13, language.getString("DownloadPane.fileTable.priority"));
-        }
+		int columnCounter = 0;
+
+		setColumnName(columnCounter++, language.getString("Common.enabled"));
+		if( fileSharingDisabled == false ) {
+			setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.shared"));
+			setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.requested"));
+		}
+		setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.filename"));
+		setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.size"));
+		setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.state"));
+		if( fileSharingDisabled == false ) {
+			setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.lastReceived"));
+			setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.lastUploaded"));
+		}
+		setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.blocks"));
+		setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.tries"));
+		setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.key"));
+		setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.downloadDir"));
+		if( PersistenceManager.isPersistenceEnabled() ) {
+			setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.isDDA"));
+			setColumnName(columnCounter++, language.getString("DownloadPane.fileTable.priority"));
+		}
 
 		stateWaiting =  language.getString("DownloadPane.fileTable.states.waiting");
 		stateTrying =   language.getString("DownloadPane.fileTable.states.trying");
 		stateFailed =   language.getString("DownloadPane.fileTable.states.failed");
 		stateDone =     language.getString("DownloadPane.fileTable.states.done");
 		stateDecoding = language.getString("DownloadPane.fileTable.states.decodingSegment") + "...";
-        stateDownloading = language.getString("DownloadPane.fileTable.states.downloading");
+		stateDownloading = language.getString("DownloadPane.fileTable.states.downloading");
 
 		unknown =   language.getString("DownloadPane.fileTable.states.unknown");
 
-        isSharedTooltip = language.getString("DownloadPane.fileTable.shared.tooltip");
-        isRequestedTooltip = language.getString("DownloadPane.fileTable.requested.tooltip");
-        isDDATooltip = language.getString("DownloadPane.fileTable.isDDA.tooltip");
+		isSharedTooltip = language.getString("DownloadPane.fileTable.shared.tooltip");
+		isRequestedTooltip = language.getString("DownloadPane.fileTable.requested.tooltip");
+		isDDATooltip = language.getString("DownloadPane.fileTable.isDDA.tooltip");
 
 		refreshColumnNames();
 	}
@@ -661,21 +736,21 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         if( downloadItem == null ) {
             return "*null*";
         }
-		switch (columnIndex) {
+		switch(Columns.lookup(mapCurrentColumntToPossibleColumn.get(columnIndex))) {
 
-			case 0 : // Enabled
+			case ENABLED :
 				return downloadItem.isEnabled();
 
-            case 1 : // isShared
+            case SHARED_FILE : // isShared
                 return Boolean.valueOf( downloadItem.isSharedFile() );
 
-            case 2 : // isRequested
+            case FILE_REQUESTED : // isRequested
                 return getIsRequested( downloadItem.getFileListFileObject() );
 
-			case 3 : // Filename
+			case FILE_NAME : // Filename
 				return downloadItem.getFileName();
 
-			case 4 : // Size
+			case SIZE : // Size
                 if( downloadItem.getFileSize() >= 0 ) {
                     // size is set
                     return FormatterUtils.formatSize(downloadItem.getFileSize());
@@ -691,49 +766,45 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 					return unknown;
 				}
 
-			case 5 : // State
+			case STATE : // State
 				return getStateAsString(downloadItem.getState());
 
-            case 6 : // lastReceived
+            case LAST_SEEN : // lastReceived
                 if( downloadItem.getLastReceived() > 0 ) {
                     return DateFun.getExtendedDateFromMillis(downloadItem.getLastReceived());
                 } else {
                     return "";
                 }
 
-            case 7 : // lastUploaded
+            case LAST_UPLOADED : // lastUploaded
                 if( downloadItem.getLastUploaded() > 0 ) {
                     return DateFun.getExtendedDateFromMillis(downloadItem.getLastUploaded());
                 } else {
                     return "";
                 }
 
-			case 8 : // Blocks
+			case BLOCKS : // Blocks
 				return getBlocksAsString(downloadItem);
 
-			case 9 : // Tries
+			case TRIES : // Tries
 				return new Integer(downloadItem.getRetries());
 
-			case 10 : // Key
+			case KEY : // Key
 				if (downloadItem.getKey() == null) {
 					return " ?";
 				} else {
 					return downloadItem.getKey();
 				}
 
-            case 11:    // Download dir
+            case DOWNLOAD_DIRECTORY :    // Download dir
                 return downloadItem.getDownloadDir();
 
-            case 12: // IsDDA
+            case DDA : // IsDDA
                 return Boolean.valueOf(!downloadItem.isDirect());
 
-            case 13: // Priority
+            case PRIORITY : // Priority
                 final int value = downloadItem.getPriority().getNumber();
-                if( value < 0 ) {
-                    return "-";
-                } else {
-                    return new Integer(value);
-                }
+                return new Integer(value);
 
 			default :
 				return "**ERROR**";
@@ -807,7 +878,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 				return stateDecoding;
 
 			case FrostDownloadItem.STATE_PROGRESS :
-                return stateDownloading;
+				return stateDownloading;
 
 			default :
 				return "**ERROR**";
@@ -818,7 +889,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 		super.customizeTable(lModelTable);
 
         modelTable = (SortedModelTable<FrostDownloadItem>) lModelTable;
-
+        
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDASCENDING) != null )
@@ -834,83 +905,117 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
         lModelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
-        final TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
-
-        // Column "Enabled"
-//        columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
-        columnModel.getColumn(0).setCellEditor(BooleanCell.EDITOR);
-        setColumnEditable(0, true);
-        // hard set sizes of checkbox column
-        columnModel.getColumn(0).setMinWidth(20);
-        columnModel.getColumn(0).setMaxWidth(20);
-        columnModel.getColumn(0).setPreferredWidth(20);
-        columnModel.getColumn(0).setCellRenderer(new IsEnabledRenderer());
-        // hard set sizes of icon column
-        columnModel.getColumn(1).setMinWidth(20);
-        columnModel.getColumn(1).setMaxWidth(20);
-        columnModel.getColumn(1).setPreferredWidth(20);
-        columnModel.getColumn(1).setCellRenderer(new IsSharedRenderer());
-        // hard set sizes of icon column
-        columnModel.getColumn(2).setMinWidth(20);
-        columnModel.getColumn(2).setMaxWidth(20);
-        columnModel.getColumn(2).setPreferredWidth(20);
-        columnModel.getColumn(2).setCellRenderer(new IsRequestedRenderer());
-        if( PersistenceManager.isPersistenceEnabled() ) {
-            // hard set sizes of IsDDA column
-            columnModel.getColumn(12).setMinWidth(20);
-            columnModel.getColumn(12).setMaxWidth(20);
-            columnModel.getColumn(12).setPreferredWidth(20);
-            // hard set sizes of priority column
-            columnModel.getColumn(13).setMinWidth(20);
-            columnModel.getColumn(13).setMaxWidth(20);
-            columnModel.getColumn(13).setPreferredWidth(20);
-        }
-
         final BaseRenderer baseRenderer = new BaseRenderer();
+        final TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
         final RightAlignRenderer rightAlignRenderer = new RightAlignRenderer();
-        final ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+        int columnCounter = 0;
+        mapCurrentColumntToPossibleColumn = new HashMap<Integer, Integer>();
+        
+        // Column "Enabled"
+        columnModel.getColumn(columnCounter).setCellEditor(BooleanCell.EDITOR);
+        setColumnEditable(columnCounter, true);
+        columnModel.getColumn(columnCounter).setMinWidth(20);
+        columnModel.getColumn(columnCounter).setMaxWidth(20);
+        columnModel.getColumn(columnCounter).setPreferredWidth(20);
+        columnModel.getColumn(columnCounter).setCellRenderer(new IsEnabledRenderer());
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.ENABLED.ordinal());
 
-        columnModel.getColumn(3).setCellRenderer(new ShowNameTooltipRenderer()); // filename
-        columnModel.getColumn(4).setCellRenderer(rightAlignRenderer); // size
-        columnModel.getColumn(5).setCellRenderer(new ShowStateContentTooltipRenderer()); // state
-        columnModel.getColumn(6).setCellRenderer(baseRenderer); // lastReceived
-        columnModel.getColumn(7).setCellRenderer(baseRenderer); // lastUploaded
-        columnModel.getColumn(8).setCellRenderer(new BlocksProgressRenderer()); // blocks
-        columnModel.getColumn(9).setCellRenderer(rightAlignRenderer); // tries
-        columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // key
-        columnModel.getColumn(11).setCellRenderer(baseRenderer); // download dir
+        if( fileSharingDisabled == false ) {
+	        // hard set sizes of icon column - Shared file
+	        columnModel.getColumn(columnCounter).setMinWidth(20);
+	        columnModel.getColumn(columnCounter).setMaxWidth(20);
+	        columnModel.getColumn(columnCounter).setPreferredWidth(20);
+	        columnModel.getColumn(columnCounter).setCellRenderer(new IsSharedRenderer());
+	        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.SHARED_FILE.ordinal());
+	        
+	        // hard set sizes of icon column - File requested
+	        columnModel.getColumn(columnCounter).setMinWidth(20);
+	        columnModel.getColumn(columnCounter).setMaxWidth(20);
+	        columnModel.getColumn(columnCounter).setPreferredWidth(20);
+	        columnModel.getColumn(columnCounter).setCellRenderer(new IsRequestedRenderer());
+	        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.FILE_REQUESTED.ordinal());
+        }
+
+        // fileName
+        columnModel.getColumn(columnCounter).setCellRenderer(new ShowNameTooltipRenderer());
+        columnModel.getColumn(columnCounter).setPreferredWidth(150);
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.FILE_NAME.ordinal());
+        
+        // size
+        columnModel.getColumn(columnCounter).setCellRenderer(rightAlignRenderer); 
+        columnModel.getColumn(columnCounter).setPreferredWidth(30);
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.SIZE.ordinal());
+        
+        // state
+        columnModel.getColumn(columnCounter).setCellRenderer(new ShowStateContentTooltipRenderer()); // state
+        columnModel.getColumn(columnCounter).setPreferredWidth(30);
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.STATE.ordinal());
+        
+        if( fileSharingDisabled == false ) {
+	        // lastSeen
+	        columnModel.getColumn(columnCounter).setCellRenderer(baseRenderer); // last 
+	        columnModel.getColumn(columnCounter).setPreferredWidth(20);
+	        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.LAST_SEEN.ordinal());
+	        
+	        // lastUloaded
+	        columnModel.getColumn(columnCounter).setCellRenderer(baseRenderer); // lastUploaded
+	        columnModel.getColumn(columnCounter).setPreferredWidth(20);
+	        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.LAST_UPLOADED.ordinal());
+        }
+        
+        // blocks
+        columnModel.getColumn(columnCounter).setCellRenderer(new BlocksProgressRenderer()); // blocks
+        columnModel.getColumn(columnCounter).setPreferredWidth(70);
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.BLOCKS.ordinal());
+        
+        // tries
+        columnModel.getColumn(columnCounter).setCellRenderer(rightAlignRenderer); // tries
+        columnModel.getColumn(columnCounter).setPreferredWidth(10);
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.TRIES.ordinal());
+        
+        // key
+        columnModel.getColumn(columnCounter).setCellRenderer(new ShowContentTooltipRenderer()); // key
+        columnModel.getColumn(columnCounter).setPreferredWidth(60);
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.KEY.ordinal());
+        
+        // download dir
+        columnModel.getColumn(columnCounter).setCellRenderer(baseRenderer); // download dir
+        columnModel.getColumn(columnCounter).setPreferredWidth(60);
+        mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.DOWNLOAD_DIRECTORY.ordinal());
+        
         if( PersistenceManager.isPersistenceEnabled() ) {
-            columnModel.getColumn(12).setCellRenderer(new IsDDARenderer()); // isDDA
-            columnModel.getColumn(13).setCellRenderer(rightAlignRenderer); // prio
+        	// IsDDA 
+        	columnModel.getColumn(columnCounter).setMinWidth(20);
+        	columnModel.getColumn(columnCounter).setMaxWidth(20);
+        	columnModel.getColumn(columnCounter).setPreferredWidth(20);
+            columnModel.getColumn(columnCounter).setCellRenderer(new IsDDARenderer());
+            mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.DDA.ordinal());
+            
+            // priority
+            columnModel.getColumn(columnCounter).setMinWidth(20);
+            columnModel.getColumn(columnCounter).setMaxWidth(20);
+            columnModel.getColumn(columnCounter).setPreferredWidth(20);
+            columnModel.getColumn(columnCounter).setCellRenderer(rightAlignRenderer); // prio
+            mapCurrentColumntToPossibleColumn.put(columnCounter++, Columns.PRIORITY.ordinal());
         }
 
-        if( !loadTableLayout(columnModel) ) {
-    		// Sets the relative widths of the columns
-    		int[] widths;
-            if( PersistenceManager.isPersistenceEnabled() ) {
-                final int[] newWidths = { 20,20,20, 150, 30, 30, 20, 20, 70, 10, 60, 20, 20 };
-                widths = newWidths;
-            } else {
-                final int[] newWidths = { 20,20,20, 150, 30, 30, 20, 20, 70, 10, 60 };
-                widths = newWidths;
-            }
-
-    		for (int i = 0; i < widths.length; i++) {
-    			columnModel.getColumn(i).setPreferredWidth(widths[i]);
-    		}
-        }
+        loadTableLayout(columnModel);
 	}
 
     public void saveTableLayout() {
         final TableColumnModel tcm = modelTable.getTable().getColumnModel();
+        
         for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
             final TableColumn tc = tcm.getColumn(columnIndexInTable);
             final int columnIndexInModel = tc.getModelIndex();
+            final int columnIndexAll = mapCurrentColumntToPossibleColumn.get(columnIndexInModel);
+            
             // save the current index in table for column with the fix index in model
-            Core.frostSettings.setValue(CFGKEY_COLUMN_TABLEINDEX + columnIndexInModel, columnIndexInTable);
+            Core.frostSettings.setValue(CFGKEY_COLUMN_TABLEINDEX + columnIndexAll, columnIndexInTable);
+
             // save the current width of the column
             final int columnWidth = tc.getWidth();
-            Core.frostSettings.setValue(CFGKEY_COLUMN_WIDTH + columnIndexInModel, columnWidth);
+            Core.frostSettings.setValue(CFGKEY_COLUMN_WIDTH + columnIndexAll, columnWidth);
         }
 
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES) && modelTable.getSortedColumn() > -1 ) {
@@ -926,45 +1031,68 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         // load the saved tableindex for each column in model, and its saved width
         final int[] tableToModelIndex = new int[tcm.getColumnCount()];
         final int[] columnWidths = new int[tcm.getColumnCount()];
-
-        for(int x=0; x < tableToModelIndex.length; x++) {
-            final String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
-            if( Core.frostSettings.getObjectValue(indexKey) == null ) {
-                return false; // column not found, abort
-            }
-            // build array of table to model associations
-            final int tableIndex = Core.frostSettings.getIntValue(indexKey);
-            if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
-                return false; // invalid table index value
-            }
-            tableToModelIndex[tableIndex] = x;
-
-            final String widthKey = CFGKEY_COLUMN_WIDTH + x;
-            if( Core.frostSettings.getObjectValue(widthKey) == null ) {
-                return false; // column not found, abort
-            }
-            // build array of table to model associations
-            final int columnWidth = Core.frostSettings.getIntValue(widthKey);
-            if( columnWidth <= 0 ) {
-                return false; // invalid column width
-            }
-            columnWidths[x] = columnWidth;
+        
+        // Reverse map
+        HashMap<Integer,Integer> mapPossibleColumnToCurrentColumnt = new HashMap<Integer,Integer>();
+        for( int num = 0; num < mapCurrentColumntToPossibleColumn.size(); num++) {
+        	mapPossibleColumnToCurrentColumnt.put(mapCurrentColumntToPossibleColumn.get(num), num);
         }
+
+        for(int columnIndexAll = 0; columnIndexAll < Columns.values().length; columnIndexAll++) {
+
+        	// check if column is currently displayed
+        	if( ! mapPossibleColumnToCurrentColumnt.containsKey(columnIndexAll) ) {
+        		continue;
+        	}
+
+        	// Map numbers
+        	final int columnIndexInModel = mapPossibleColumnToCurrentColumnt.get(columnIndexAll);
+
+        	// Check if position was saved for column
+        	final String indexKey = CFGKEY_COLUMN_TABLEINDEX + columnIndexAll;
+        	if( Core.frostSettings.getObjectValue(indexKey) == null ) {
+        		return false; // column not found, abort
+        	}
+
+        	// get saved position
+        	final int tableIndex = Core.frostSettings.getIntValue(indexKey);
+        	if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
+        		return false; // invalid table index value
+        	}
+        	tableToModelIndex[tableIndex] = columnIndexInModel;
+
+        	// Check if width was saved for column
+        	final String widthKey = CFGKEY_COLUMN_WIDTH + columnIndexAll;
+        	if( Core.frostSettings.getObjectValue(widthKey) == null ) {
+        		return false; 
+        	}
+
+        	// Get saved width
+        	final int columnWidth = Core.frostSettings.getIntValue(widthKey);
+        	if( columnWidth <= 0 || columnIndexInModel < 0 || columnIndexInModel >= tableToModelIndex.length) {
+        		return false; 
+        	}
+        	columnWidths[columnIndexInModel] = columnWidth;
+        }
+
         // columns are currently added in model order, remove them all and save in an array
         // while on it, set the loaded width of each column
         final TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
         for(int x=tcms.length-1; x >= 0; x--) {
-            tcms[x] = tcm.getColumn(x);
-            tcm.removeColumn(tcms[x]);
-            // keep icon columns 0,1,2 as is
-            if(x != 0 && x != 1 && x != 2) {
-                tcms[x].setPreferredWidth(columnWidths[x]);
-            }
+        	tcms[x] = tcm.getColumn(x);
+        	tcm.removeColumn(tcms[x]);
+        	// keep icon columns 0,1,2 as is
+
+        	if(x != 0 && x != 1 && x != 2) {
+        		tcms[x].setPreferredWidth(columnWidths[x]);
+        	}
         }
+
         // add the columns in order loaded from settings
         for( final int element : tableToModelIndex ) {
-            tcm.addColumn(tcms[element]);
+        	tcm.addColumn(tcms[element]);
         }
+
         return true;
     }
 
