@@ -904,7 +904,7 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
 
-        defaults.put(FCP2_USE_DDA, "true");
+        defaults.put(FCP2_USE_DDA, "false");
         defaults.put(FCP2_USE_PERSISTENCE, "true");
         defaults.put(FCP2_USE_ONE_CONNECTION_FOR_MESSAGES, "true");
 
