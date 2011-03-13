@@ -88,7 +88,7 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 	@Override
 	public boolean initStorage() {
 		final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-		final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS);
+		final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_TRACKDOWNLOADKEYS);
 
 		open(databaseFilePath, pagePoolSize, true, true, false);
 
