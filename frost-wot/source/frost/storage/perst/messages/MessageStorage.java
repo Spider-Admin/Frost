@@ -113,16 +113,18 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
         try {
             int highestBoardId = 0;
+            Index<PerstFrostBoardObject> boardsByName = storageRoot.getBoardsByName();
+            Index<PerstFrostBoardObject> boardsById = storageRoot.getBoardsById();
             for( final String boardName : boardPrimaryKeysByName.keySet() ) {
                 final Integer boardId = boardPrimaryKeysByName.get(boardName);
 
                 // prevent duplicate board names
-                if( storageRoot.getBoardsByName().contains(boardName) ) {
+                if( boardsByName.contains(boardName) ) {
                     continue; // dup!
                 }
                 final PerstFrostBoardObject pfbo = new PerstFrostBoardObject(getStorage(), boardName, boardId.intValue());
-                storageRoot.getBoardsByName().put(boardName, pfbo);
-                storageRoot.getBoardsById().put(boardId, pfbo);
+                boardsByName.put(boardName, pfbo);
+                boardsById.put(boardId, pfbo);
 
                 highestBoardId = Math.max(highestBoardId, boardId.intValue());
             }
@@ -928,12 +930,13 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             return 0;
         }
         try {
+        	final Index<PerstFrostBoardObject> boardsByName = storageRoot.getBoardsByName();
             for( final FrostMessageObject mo : msgObjects ) {
                 if (mo.getPerstFrostMessageObject() == null || mo.getBoard() == null) {
                     logger.severe("delete not possible");
                     continue;
                 }
-                final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
+                final PerstFrostBoardObject bo = boardsByName.get(mo.getBoard().getNameLowerCase());
                 if( bo == null ) {
                     logger.severe("board not found");
                     continue;

@@ -21,6 +21,8 @@ package frost.storage.perst.identities;
 import java.util.*;
 import java.util.logging.*;
 
+import org.garret.perst.IPersistentList;
+
 import frost.*;
 import frost.identities.*;
 import frost.storage.*;
@@ -241,30 +243,20 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
         final Hashtable<String,IdentityMsgAndFileCount> data = new Hashtable<String,IdentityMsgAndFileCount>();
 
-//        for(final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext(); ) {
-//            final Identity id = i.next();
-//            if( id == null ) {
-//                i.remove();
-//                continue;
-//            }
         for( final Identity id : Core.getIdentities().getIdentities() ) {
-            final int messageCount = MessageStorage.inst().getMessageCount(id.getUniqueName());
-            final int fileCount = FileListStorage.inst().getFileCount(id.getUniqueName());
-            final IdentityMsgAndFileCount s = new IdentityMsgAndFileCount(messageCount, fileCount);
-            data.put(id.getUniqueName(), s);
+        	final String uniqueName = id.getUniqueName();
+            final int messageCount = MessageStorage.inst().getMessageCount(uniqueName);
+            final int fileCount = FileListStorage.inst().getFileCount(uniqueName);
+            final IdentityMsgAndFileCount identityMsgAndFileCount = new IdentityMsgAndFileCount(messageCount, fileCount);
+            data.put(uniqueName, identityMsgAndFileCount);
         }
 
-//        for(final Iterator<LocalIdentity> i = storageRoot.getLocalIdentities().iterator(); i.hasNext(); ) {
-//            final LocalIdentity id = i.next();
-//            if( id == null ) {
-//                i.remove();
-//                continue;
-//            }
         for( final LocalIdentity id : Core.getIdentities().getLocalIdentities() ) {
-            final int messageCount = MessageStorage.inst().getMessageCount(id.getUniqueName());
-            final int fileCount = FileListStorage.inst().getFileCount(id.getUniqueName());
-            final IdentityMsgAndFileCount s = new IdentityMsgAndFileCount(messageCount, fileCount);
-            data.put(id.getUniqueName(), s);
+        	final String uniqueName = id.getUniqueName();
+            final int messageCount = MessageStorage.inst().getMessageCount(uniqueName);
+            final int fileCount = FileListStorage.inst().getFileCount(uniqueName);
+            final IdentityMsgAndFileCount identityMsgAndFilecount = new IdentityMsgAndFileCount(messageCount, fileCount);
+            data.put(uniqueName, identityMsgAndFilecount);
         }
         return data;
     }
@@ -289,18 +281,20 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         int validEntries = 0;
 
         final List<Identity> lst = new ArrayList<Identity>();
+        IPersistentList<Identity> identities = storageRoot.getIdentities();
+        int numIdentities = identities.size();
 
-        final int progressSteps = storageRoot.getIdentities().size() / 75; // all 'progressSteps' entries print one dot
+        final int progressSteps = numIdentities / 75; // all 'progressSteps' entries print one dot
         int progress = progressSteps;
 
-        for( int x=0; x < storageRoot.getIdentities().size(); x++ ) {
+        for( int x=0; x < numIdentities; x++ ) {
             if( x > progress ) {
                 System.out.print('.');
                 progress += progressSteps;
             }
             Identity sfk;
             try {
-                sfk = storageRoot.getIdentities().get(x);
+                sfk = identities.get(x);
             } catch(final Throwable t) {
                 brokenEntries++;
                 continue;
@@ -313,11 +307,11 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             lst.add(sfk);
         }
 
-        storageRoot.getIdentities().clear();
+        identities.clear();
         commit();
 
         for( final Identity sfk : lst ) {
-            storageRoot.getIdentities().add(sfk);
+        	identities.add(sfk);
         }
         commit();
 

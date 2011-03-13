@@ -224,9 +224,10 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     public void resetHiddenFiles() {
         if( beginExclusiveThreadTransaction() ) {
             try {
+            	final Storage storage = getStorage();
                 for (final Iterator<PerstHiddenFileOid> it = storageRoot.getHiddenFileOids().iterator(); it.hasNext(); ) {
                     final PerstHiddenFileOid hf = it.next();
-                    final FrostFileListFileObject fof = (FrostFileListFileObject) getStorage().getObjectByOID(hf.getHiddenFileOid());
+                    final FrostFileListFileObject fof = (FrostFileListFileObject) storage.getObjectByOID(hf.getHiddenFileOid());
                     if (fof != null && fof.isHidden()) {
                         fof.setHidden(false);
                         fof.modify();
@@ -274,15 +275,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return 0;
         }
 
-//        final boolean removeOld07ChkKeys;
-//        if( FcpHandler.isFreenet07()
-//                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
-//        {
-//            removeOld07ChkKeys = true;
-//        } else {
-//            removeOld07ChkKeys = false;
-//        }
-
         int count = 0;
         try {
             final long minVal = System.currentTimeMillis() - (offlineFilesMaxDaysOld * 24L * 60L * 60L * 1000L);
@@ -302,11 +294,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                             // has no key
                             remove = true;
                         }
-
-//                    } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
-//                        // we have a key (outdated or not)
-//                        // check if the key is an old 0.7 CHK key
-//                        remove = true;
                     }
 
                     if( remove ) {
@@ -352,15 +339,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return 0;
         }
 
-//        final boolean removeOld07ChkKeys;
-//        if( FcpHandler.isFreenet07()
-//                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
-//        {
-//            removeOld07ChkKeys = true;
-//        } else {
-//            removeOld07ChkKeys = false;
-//        }
-
         int count = 0;
         try {
             final HashSet<Integer> oidsToRemove = new HashSet<Integer>();
@@ -385,13 +363,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         } finally {
             endThreadTransaction();
         }
-
-//        if( removeOld07ChkKeys ) {
-//            // we removed the keys, update flag
-//            final int newStorageStatus = storageRoot.getStorageStatus() | FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED;
-//            storageRoot.setStorageStatus( newStorageStatus );
-//            storageRoot.modify();
-//        }
 
         return count;
     }
@@ -581,11 +552,13 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     {
         for(final Map.Entry<Object,PerstFileListIndexEntry> entry : ix.entryIterator() ) {
             final String key = (String)entry.getKey();
+            IPersistentList<FrostFileListFileObjectOwner> fileOwnersWithText = entry.getValue().getFileOwnersWithText();
+            
             if( searchStrings != null ) {
                 for(final String searchString : searchStrings) {
                     if( key.indexOf(searchString) > -1 ) {
                         // add all owner oids
-                        final Iterator<FrostFileListFileObjectOwner> i = entry.getValue().getFileOwnersWithText().iterator();
+                    	final Iterator<FrostFileListFileObjectOwner> i = fileOwnersWithText.iterator();
                         while(i.hasNext()) {
                             final int oid = ((PersistentIterator)i).nextOid();
                             oids.add(oid);
@@ -593,11 +566,12 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                     }
                 }
             }
+            
             if( extensions != null ) {
                 for( final String extension : extensions ) {
                     if( key.endsWith(extension) ) {
                         // add all owner oids
-                        final Iterator<FrostFileListFileObjectOwner> i = entry.getValue().getFileOwnersWithText().iterator();
+                        final Iterator<FrostFileListFileObjectOwner> i = fileOwnersWithText.iterator();
                         while(i.hasNext()) {
                             final int oid = ((PersistentIterator)i).nextOid();
                             oids.add(oid);
@@ -623,13 +597,6 @@ boolean alwaysUseLatestChkKey = true; // FIXME: must be true as long as the key 
                 && !oldFof.getKey().equals(newFof.getKey()) )
         {
             oldFof.setKey(newFof.getKey()); doUpdate = true;
-
-//        } else if( oldFof.getKey() != null && newFof.getKey() != null ) {
-//            // fix to replace 0.7 keys before 1010 on the fly
-//            if( FreenetKeys.isOld07ChkKey(oldFof.getKey()) ) {
-//                // replace old chk key with new one
-//                oldFof.setKey(newFof.getKey()); doUpdate = true;
-//            }
         }
         if( oldFof.getFirstReceived() > newFof.getFirstReceived() ) {
             oldFof.setFirstReceived(newFof.getFirstReceived()); doUpdate = true;
@@ -656,13 +623,13 @@ boolean alwaysUseLatestChkKey = true; // FIXME: must be true as long as the key 
             oldFof.setRequestsSentCount(newFof.getRequestsSentCount()); doUpdate = true;
         }
 
-        for(final Iterator<FrostFileListFileObjectOwner> i=newFof.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+        for(final Iterator<FrostFileListFileObjectOwner> i = newFof.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
 
             final FrostFileListFileObjectOwner obNew = i.next();
 
             // check if we have an owner object for this sharer
             FrostFileListFileObjectOwner obOld = null;
-            for(final Iterator<FrostFileListFileObjectOwner> j=oldFof.getFrostFileListFileObjectOwnerIterator(); j.hasNext(); ) {
+            for(final Iterator<FrostFileListFileObjectOwner> j = oldFof.getFrostFileListFileObjectOwnerIterator(); j.hasNext(); ) {
                 final FrostFileListFileObjectOwner o = j.next();
                 if( o.getOwner().equals(obNew.getOwner()) ) {
                     obOld = o;
