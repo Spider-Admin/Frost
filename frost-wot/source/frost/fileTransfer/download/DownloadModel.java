@@ -248,7 +248,7 @@ public class DownloadModel extends SortedModel<FrostDownloadItem> implements Exi
 			FrostFilesStorage.inst().saveDownloadFiles(itemList);
 		} catch (final Throwable e) {
 			logger.log(Level.SEVERE, "Error saving download items", e);
-			throw new StorageException("Error saving download items");
+			throw new StorageException("Error saving download items", e);
 		}
 	}
 
@@ -262,7 +262,7 @@ public class DownloadModel extends SortedModel<FrostDownloadItem> implements Exi
 			downloadItems = FrostFilesStorage.inst().loadDownloadFiles();
 		} catch (final Throwable e) {
 			logger.log(Level.SEVERE, "Error loading download items", e);
-			throw new StorageException("Error loading download items");
+			throw new StorageException("Error loading download items", e);
 		}
 		for (final FrostDownloadItem di : downloadItems) {
 			addDownloadItem(di);
