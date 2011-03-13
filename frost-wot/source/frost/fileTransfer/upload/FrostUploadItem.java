@@ -41,7 +41,7 @@ public class FrostUploadItem extends ModelItem<FrostUploadItem> implements CopyT
     public final static int STATE_FAILED     = 8;
 
     private File file = null;
-    private String fileName = null;
+    private String fileName = "";
     private String fileNamePrefix = null;
     private long fileSize = 0;
     private String chkKey = null;
