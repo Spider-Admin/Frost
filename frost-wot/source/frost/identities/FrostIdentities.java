@@ -42,11 +42,13 @@ public class FrostIdentities {
 
     private final Object lockObject = new Object();
 
-    Language language = Language.getInstance();
+    private Language language = Language.getInstance();
+    
+    private IdentitiesStorage identitiesStorage = IdentitiesStorage.inst(); 
 
     public void initialize() throws StorageException {
 
-        localIdentities = IdentitiesStorage.inst().loadLocalIdentities();
+        localIdentities = identitiesStorage.loadLocalIdentities();
 
         // check if there is at least one identity in database, otherwise create one
         if ( localIdentities.size() == 0 ) {
@@ -59,7 +61,7 @@ public class FrostIdentities {
         }
 
         // load all identities
-        identities = IdentitiesStorage.inst().loadIdentities();
+        identities = identitiesStorage.loadIdentities();
 
         // remove all own identities from identities
         for(final LocalIdentity li : localIdentities.values() ) {
@@ -186,18 +188,18 @@ public class FrostIdentities {
         }
 
         if( useLock ) {
-            if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+            if( !identitiesStorage.beginExclusiveThreadTransaction() ) {
                 return false;
             }
         }
         try {
-            if( !IdentitiesStorage.inst().insertIdentity(id) ) {
+            if( !identitiesStorage.insertIdentity(id) ) {
                 return false;
             }
             identities.put(key, id);
         } finally {
             if( useLock ) {
-                IdentitiesStorage.inst().endThreadTransaction();
+                identitiesStorage.endThreadTransaction();
             }
         }
         return true;
@@ -210,16 +212,16 @@ public class FrostIdentities {
         if (localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
-        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+        if( !identitiesStorage.beginExclusiveThreadTransaction() ) {
             return false;
         }
         try {
-            if( !IdentitiesStorage.inst().insertLocalIdentity(li) ) {
+            if( !identitiesStorage.insertLocalIdentity(li) ) {
                 return false;
             }
             localIdentities.put(li.getUniqueName(), li);
         } finally {
-            IdentitiesStorage.inst().endThreadTransaction();
+            identitiesStorage.endThreadTransaction();
         }
         return true;
     }
@@ -228,7 +230,7 @@ public class FrostIdentities {
         if( li == null ) {
             return false;
         }
-        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+        if( !identitiesStorage.beginExclusiveThreadTransaction() ) {
             return false;
         }
         final boolean removed;
@@ -237,9 +239,9 @@ public class FrostIdentities {
                 return false;
             }
             localIdentities.remove(li.getUniqueName());
-            removed = IdentitiesStorage.inst().removeLocalIdentity(li);
+            removed = identitiesStorage.removeLocalIdentity(li);
         } finally {
-            IdentitiesStorage.inst().endThreadTransaction();
+            identitiesStorage.endThreadTransaction();
         }
         return removed;
     }
@@ -251,15 +253,15 @@ public class FrostIdentities {
         if (!identities.containsKey(li.getUniqueName())) {
             return false;
         }
-        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+        if( !identitiesStorage.beginExclusiveThreadTransaction() ) {
             return false;
         }
         final boolean removed;
         try {
             identities.remove(li.getUniqueName());
-            removed = IdentitiesStorage.inst().removeIdentity(li);
+            removed = identitiesStorage.removeIdentity(li);
         } finally {
-            IdentitiesStorage.inst().endThreadTransaction();
+            identitiesStorage.endThreadTransaction();
         }
 
         return removed;
@@ -321,7 +323,7 @@ public class FrostIdentities {
     // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
     public int importIdentities(final List<Identity> importedIdentities) {
         // for now we import new identities, and take over the trust state if our identity state is CHECK
-        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+        if( !identitiesStorage.beginExclusiveThreadTransaction() ) {
             return 0;
         }
         int importedCount = 0;
@@ -345,7 +347,7 @@ public class FrostIdentities {
                 }
             }
         } finally {
-            IdentitiesStorage.inst().endThreadTransaction();
+            identitiesStorage.endThreadTransaction();
         }
         return importedCount;
     }

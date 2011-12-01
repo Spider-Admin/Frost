@@ -954,6 +954,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                             sb.append("  ");
                             sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
                             sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
+                            sb.append("<br>Comment: <br>").append(id.getComment().replace("\n", "<br/>"));
                             sb.append("</html>");
                             setToolTipText(sb.toString());
 

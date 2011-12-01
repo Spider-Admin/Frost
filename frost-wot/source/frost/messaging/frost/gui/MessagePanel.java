@@ -31,6 +31,7 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
+import frost.gui.SetIdentityCommentDialog;
 import frost.identities.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
@@ -230,6 +231,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         private final JMenuItem setCheckItem = new JMenuItem();
         private final JMenuItem setGoodItem = new JMenuItem();
         private final JMenuItem setObserveItem = new JMenuItem();
+        private final JMenuItem setCommentItem = new JMenuItem();
 
         private final JMenuItem deleteItem = new JMenuItem();
         private final JMenuItem undeleteItem = new JMenuItem();
@@ -281,6 +283,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setTrustState_actionPerformed(IdentityState.CHECK);
             } else if (e.getSource() == setObserveItem) {
                 setTrustState_actionPerformed(IdentityState.OBSERVE);
+            } else if (e.getSource() == setCommentItem) {
+            	setComment_actionPerformed();
             }
         }
 
@@ -296,6 +300,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setBadItem.addActionListener(this);
             setCheckItem.addActionListener(this);
             setObserveItem.addActionListener(this);
+            setCommentItem.addActionListener(this);
             deleteItem.addActionListener(this);
             undeleteItem.addActionListener(this);
             showItem.addActionListener(this);
@@ -319,6 +324,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setBadItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
             setCheckItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToCheck"));
             setObserveItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
+            setCommentItem.setText(language.getString("MessagePane.messageTable.popupmenu.setComment"));
             deleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.deleteMessage"));
             undeleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.undeleteMessage"));
             showItem.setText(language.getString("MessagePane.messageTable.popupmenu.showMessage"));
@@ -352,6 +358,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     add(setObserveItem);
                     add(setCheckItem);
                     add(setBadItem);
+                    addSeparator();
+                    add(setCommentItem);
 
                     deleteItem.setEnabled(true);
                     undeleteItem.setEnabled(true);
@@ -360,6 +368,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     setObserveItem.setEnabled(true);
                     setCheckItem.setEnabled(true);
                     setBadItem.setEnabled(true);
+
+                    setCommentItem.setEnabled(true);
 
                     super.show(invoker, x, y);
                     return;
@@ -397,6 +407,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setCheckItem.setEnabled(false);
                 setBadItem.setEnabled(false);
 
+                add(setCommentItem);
+                setCommentItem.setEnabled(false);
+
                 if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
                     if( identities.isMySelf(selectedMessage.getFromName()) ) {
                         // keep all off
@@ -404,18 +417,22 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         setObserveItem.setEnabled(true);
                         setCheckItem.setEnabled(true);
                         setBadItem.setEnabled(true);
+                        setCommentItem.setEnabled(true);
                     } else if (selectedMessage.isMessageStatusCHECK()) {
                         setObserveItem.setEnabled(true);
                         setGoodItem.setEnabled(true);
                         setBadItem.setEnabled(true);
+                        setCommentItem.setEnabled(true);
                     } else if (selectedMessage.isMessageStatusBAD()) {
                         setObserveItem.setEnabled(true);
                         setGoodItem.setEnabled(true);
                         setCheckItem.setEnabled(true);
+                        setCommentItem.setEnabled(true);
                     } else if (selectedMessage.isMessageStatusOBSERVE()) {
                         setGoodItem.setEnabled(true);
                         setCheckItem.setEnabled(true);
                         setBadItem.setEnabled(true);
+                        setCommentItem.setEnabled(true);
                     } else if (selectedMessage.isMessageStatusOLD()) {
                         // keep all buttons disabled
                     } else if (selectedMessage.isMessageStatusTAMPERED()) {
@@ -1071,8 +1088,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             return;
         }
 
-        // set all selected messages unread
-        final int[] rows = messageTable.getSelectedRows();
         boolean idChanged = false;
         for(final FrostMessageObject targetMessage  : selectedMessages ) {
             final Identity id = getSelectedMessageFromIdentity(targetMessage);
@@ -1096,13 +1111,30 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // any id changed, gui update needed?
         if( idChanged ) {
             updateTableAfterChangeOfIdentityState();
-            if( rows.length == 1 ) {
+            if( messageTable.getSelectedRows().length == 1 ) {
                 // keep msg selected, change toolbar buttons
                 setGoodButton.setEnabled( !(idState == IdentityState.GOOD) );
                 setCheckButton.setEnabled( !(idState == IdentityState.CHECK) );
                 setBadButton.setEnabled( !(idState == IdentityState.BAD) );
                 setObserveButton.setEnabled( !(idState == IdentityState.OBSERVE) );
             }
+        }
+    }
+    
+    
+    public void setComment_actionPerformed() {
+
+        final List<FrostMessageObject> selectedMessages = getSelectedMessages();
+        if( selectedMessages.size() == 0 ) {
+            return;
+        }
+
+        for(final FrostMessageObject targetMessage  : selectedMessages ) {
+            final Identity identity = getSelectedMessageFromIdentity(targetMessage);
+            if( identity == null ) {
+                continue;
+            }
+            ( new SetIdentityCommentDialog(identity) ).setVisible(true);
         }
     }
 

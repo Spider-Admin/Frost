@@ -49,6 +49,7 @@ public class Identity extends Persistent implements XMLizable {
     private String uniqueName;
     private long lastSeenTimestamp = -1;
     private int receivedMessageCount = 0;
+    private String comment = "";
 
     private int state = CHECK;
     private transient String stateString = CHECK_STRING;
@@ -81,11 +82,12 @@ public class Identity extends Persistent implements XMLizable {
     /**
      * Only used for migration.
      */
-    public Identity(final String uname, final String pubkey, final long lseen, final int s) {
+    public Identity(final String uname, final String pubkey, final long lseen, final int state, final String comment) {
         uniqueName = uname;
         publicKey = pubkey;
         lastSeenTimestamp = lseen;
-        state = s;
+        this.state = state;
+        this.comment = comment;
         updateStateString();
 
         uniqueName = Mixed.makeFilename(uniqueName);
@@ -99,6 +101,7 @@ public class Identity extends Persistent implements XMLizable {
         publicKey = li.getPublicKey();
         lastSeenTimestamp = li.getLastSeenTimestamp();
         receivedMessageCount = li.getReceivedMessageCount();
+        comment = li.getComment();
         updateStateString();
     }
 
@@ -212,6 +215,7 @@ public class Identity extends Persistent implements XMLizable {
         return el;
     }
 
+    @Deprecated
     public Element getXMLElement_old(final Document doc)  {
 
         final Element el = doc.createElement("MyIdentity");
@@ -314,6 +318,15 @@ public class Identity extends Persistent implements XMLizable {
 
     public int getState() {
         return state;
+    }
+    
+    public String getComment() {
+        return comment;
+    }
+    
+    public void setComment(String comment) {
+        this.comment = comment;
+        updateIdentitiesStorage();
     }
 
     @Override
