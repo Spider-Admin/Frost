@@ -55,7 +55,7 @@
         <name><![CDATA[fuqid]]></name>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
-        <name><![CDATA[fuqid]]></name>
+        <name><![CDATA[fuqid-announce]]></name>
         <publicKey><![CDATA[SSK@qoY-E5SKRu66pmKH64xa~R~w3hXmS5ZNtqnpEGoCVww,HTVcdWChaaebfRAublHSxBSRaRFG91qCwsa3mGF3-QE,AQACAAE]]></publicKey>
         <description><![CDATA[Announcement of new Fuqid versions]]></description>
       </FrostBoardTreeEntry>
