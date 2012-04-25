@@ -21,7 +21,7 @@ package frost.gui;
 import java.awt.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.EmptyBorder;
 
 import frost.util.gui.*;
 
@@ -37,7 +37,7 @@ public class AboutBox extends JDialogWithDetails {
     // because a growing amount of users use CVS version:
     private String version = null;
 
-    private final static String copyright = "Copyright 2011 Frost Project";
+    private final static String copyright = "Copyright 2012 Frost Project";
     private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
     private final JPanel imagePanel = new JPanel();
@@ -68,7 +68,7 @@ public class AboutBox extends JDialogWithDetails {
         // Image panel
         imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         imagePanel.add(imageLabel);
-        
+
 
         // Messages panel
         final GridLayout gridLayout = new GridLayout(5, 1);
@@ -84,7 +84,7 @@ public class AboutBox extends JDialogWithDetails {
         messagesPanel.add(copyrightLabel);
         messagesPanel.add(licenseLabel);
         messagesPanel.add(websiteLabel);
-        
+
         // Putting everything together
         getUserPanel().setLayout(new BorderLayout());
         getUserPanel().add(imagePanel, BorderLayout.WEST);
@@ -98,6 +98,7 @@ public class AboutBox extends JDialogWithDetails {
         details.append(language.getString("AboutBox.text.development") + "\n\n");
         details.append(language.getString("AboutBox.text.active") + "\n");
         details.append("   Jan Gerritsen \n   (artur@K7dLGJvoXF_QQeUhZq9bNp0lFx4)\n\n");
+        details.append("   José Manuel Arnesto \n   (kevloral@soF1qyGm2zHO+aN+Wu9sTeYSSFY)\n\n");
         details.append("   Karsten Graul \n   (bback@xgVRApPk+Yngy+jmtOeGzIbN_A0)\n\n");
         details.append(language.getString("AboutBox.text.left") + "\n");
         details.append("   S. Amoako (quit)\n");
@@ -107,7 +108,6 @@ public class AboutBox extends JDialogWithDetails {
         details.append("   Jim Hunziker (quit)\n");
         details.append("   Stefan Majewski (quit)\n");
         details.append("   Edward Louis Severson IV (quit)\n");
-        details.append("   José Manuel Arnesto (quit)\n");
         details.append("   Ingo Franzki (old systray icon code)\n");
         details.append("   Frédéric Scheer (splashscreen logo)\n");
         setDetailsText(details.toString());
