@@ -279,13 +279,13 @@ public class MiscToolkit {
     }
 
     /**
-     * Loads the graphical resource contained in a file whose path is received as a
-     * parameter, returning an icon.
+     * Loads the graphical resource whose path is received as a parameter, returning an
+     * icon.
      *
      * @param resourcePath
-     *            path of the file containing the graphical resource to be loaded
-     * @return an icon containing the graphical resource loaded from the file whose path
-     *         is received as a parameter
+     *            path of the graphical resource to be loaded
+     * @return an icon containing the graphical resource loaded from the path received as
+     *         a parameter
      */
     public static ImageIcon loadImageIcon(final String resourcePath) {
         return new ImageIcon(MiscToolkit.class.getResource(resourcePath));
