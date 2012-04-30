@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/joda-time.jar"/>
 	<classpathentry kind="lib" path="lib/perst15.jar" sourcepath="C:/Projects/perst15/source"/>
 	<classpathentry kind="lib" path="lib/jcalendar.jar"/>
+	<classpathentry kind="lib" path="res"/>
 	<classpathentry kind="output" path="_out_"/>
 </classpath>
