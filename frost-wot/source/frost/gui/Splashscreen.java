@@ -65,7 +65,7 @@ public class Splashscreen extends JDialog {
         try {
             frostLogo = MiscToolkit.loadImageIcon(SPLASH_LOGO_FILENAME);
         } catch (NullPointerException npe) {
-            logger.severe("Error while initializing splash screen. File " + SPLASH_LOGO_FILENAME
+            logger.severe("Error while initializing splash screen. Resource " + SPLASH_LOGO_FILENAME
                     + " could not be found.");
             throw npe;
         }
