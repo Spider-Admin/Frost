@@ -19,10 +19,11 @@
 package frost.gui;
 
 import java.awt.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
-import frost.util.gui.*;
+import frost.util.gui.MiscToolkit;
 
 /**
  * Problem with JProgressBar: a user reported having problems when starting Frost. He was getting this stack trace:
@@ -46,10 +47,12 @@ import frost.util.gui.*;
 @SuppressWarnings("serial")
 public class Splashscreen extends JDialog {
 
+    private static final Logger logger = Logger.getLogger(Splashscreen.class.getName());
+
     private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
 
     //Splashscreen size depends on this image.
-    private final ImageIcon frostLogo = MiscToolkit.loadImageIcon(SPLASH_LOGO_FILENAME);
+    private static final ImageIcon frostLogo;
 
     //GUI Objects
     JPanel mainPanel = new JPanel(new BorderLayout());
@@ -57,6 +60,16 @@ public class Splashscreen extends JDialog {
     JProgressBar progressBar = new JProgressBar(0, 100);
 
     private boolean noSplash;
+
+    static {
+        try {
+            frostLogo = MiscToolkit.loadImageIcon(SPLASH_LOGO_FILENAME);
+        } catch (NullPointerException npe) {
+            logger.severe("Error while initializing splash screen. File " + SPLASH_LOGO_FILENAME
+                    + " could not be found.");
+            throw npe;
+        }
+    }
 
     public Splashscreen(final boolean hideSplashScreen) {
         noSplash = hideSplashScreen;
