@@ -20,27 +20,13 @@
 
 package frost;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.awt.*;
+import java.beans.*;
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
 
-import frost.storage.ExitSavable;
-import frost.storage.StorageException;
+import frost.storage.*;
 import frost.util.Logging;
 
 /**
@@ -123,6 +109,9 @@ public class SettingsClass implements ExitSavable {
     // If true, we start the requests with a FCP2:MaxRetries of 2 and never try them again. (use during DoS attacks)
     // If false, we start the requests with a FCP2:MaxRetries of 1 and try them again during each board update. (default)
     public static final String FCP2_QUICKLY_FAIL_ON_ADNF = "fcp2.quicklyFailOnAdnf"; // not in gui dialog!
+
+    // If true, Frost will use early encode when uploading new messages
+    public static final String FCP2_USE_EARLY_ENCODE = "fcp2.useEarlyEncode";
 
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String AUTO_SAVE_LOCAL_IDENTITIES = "autoSaveLocalIdentities";
@@ -296,7 +285,7 @@ public class SettingsClass implements ExitSavable {
     public static final String TRACK_DOWNLOADS_ENABLED = "trackDownloads";
 
     public static final String USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED = "useBoardnameDownloadSubfolder";
-    
+
     public static final String BROWSER_ADDRESS = "browserAddress";
 
     public SettingsClass() {
@@ -359,11 +348,11 @@ public class SettingsClass implements ExitSavable {
         String line;
 
         // maybe restore a .bak of the .ini file
-        if (settingsFile.isFile() == false || settingsFile.length() == 0 ) {
+        if ((settingsFile.isFile() == false) || (settingsFile.length() == 0) ) {
             // try to restore .bak file
             final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
             final File bakFile = new File(configDirStr + "frost.ini.bak");
-            if( bakFile.isFile() && bakFile.length() > 0 ) {
+            if( bakFile.isFile() && (bakFile.length() > 0) ) {
                 bakFile.renameTo(settingsFile);
             } else {
                 return false;
@@ -379,7 +368,7 @@ public class SettingsClass implements ExitSavable {
         try {
             while ((line = settingsReader.readLine()) != null) {
                 line = line.trim();
-                if (line.length() != 0 && line.startsWith("#") == false) {
+                if ((line.length() != 0) && (line.startsWith("#") == false)) {
                     final StringTokenizer strtok = new StringTokenizer(line, "=");
                     String key = "";
                     String value = "";
@@ -465,7 +454,7 @@ public class SettingsClass implements ExitSavable {
 
         // dynamically add archiveExtension .7z
         final String tmp = this.getValue(SettingsClass.FILEEXTENSION_ARCHIVE);
-        if( tmp != null && tmp.indexOf(".7z") < 0 ) {
+        if( (tmp != null) && (tmp.indexOf(".7z") < 0) ) {
             // add .7z
             this.setValue(SettingsClass.FILEEXTENSION_ARCHIVE, tmp + ";.7z");
         }
@@ -543,7 +532,7 @@ public class SettingsClass implements ExitSavable {
             bakFile.renameTo(oldFile);
         }
 
-        if( settingsFile.isFile() && settingsFile.length() > 0 ) {
+        if( settingsFile.isFile() && (settingsFile.length() > 0) ) {
             settingsFile.renameTo(bakFile); // settingsFile keeps old name!
         }
 
@@ -633,7 +622,7 @@ public class SettingsClass implements ExitSavable {
      * @see #removePropertyChangeListener(java.lang.String,java.beans.PropertyChangeListener)
      */
     public synchronized void removePropertyChangeListener(final PropertyChangeListener listener) {
-        if (listener == null || changeSupport == null) {
+        if ((listener == null) || (changeSupport == null)) {
             return;
         }
         changeSupport.removePropertyChangeListener(listener);
@@ -656,7 +645,7 @@ public class SettingsClass implements ExitSavable {
         final String propertyName,
         final PropertyChangeListener listener) {
 
-        if (listener == null || changeSupport == null) {
+        if ((listener == null) || (changeSupport == null)) {
             return;
         }
         changeSupport.removePropertyChangeListener(propertyName, listener);
@@ -672,7 +661,7 @@ public class SettingsClass implements ExitSavable {
      * @see #addUpdater
      */
     public synchronized void removeUpdater(final SettingsUpdater updater) {
-        if (updater == null || updaters == null) {
+        if ((updater == null) || (updaters == null)) {
             return;
         }
         updaters.removeElement(updater);
@@ -794,8 +783,8 @@ public class SettingsClass implements ExitSavable {
         }
         return val;
     }
-    
-    
+
+
     public long getLongValue(final String key) {
         final String str = (String) settingsHash.get(key);
         if (str == null) {
@@ -919,6 +908,8 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT, "true");
         defaults.put(FCP2_QUICKLY_FAIL_ON_ADNF, "false");
+
+        defaults.put(FCP2_USE_EARLY_ENCODE, "true");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true");
