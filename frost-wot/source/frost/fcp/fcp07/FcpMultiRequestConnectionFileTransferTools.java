@@ -18,16 +18,11 @@
 */
 package frost.fcp.fcp07;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Logger;
 
+import frost.*;
 import frost.ext.DefaultMIMETypes;
 import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.upload.FreenetCompatibilityMode;
@@ -83,9 +78,9 @@ public class FcpMultiRequestConnectionFileTransferTools {
     /**
      * Starts a persistent put.
      * First tests DDA and does NOT start a request if DDA is not possible!
-     * 
-     * @return true when DDA is possible and a request was started. 
-     *         false when DDA is not possible and nothing was started 
+     *
+     * @return true when DDA is possible and a request was started.
+     *         false when DDA is not possible and nothing was started
      */
     public boolean startPersistentPutUsingDda(
             final String id,
@@ -102,7 +97,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         if (!isDda) {
             return false;
         }
-        
+
         final List<String> msg = getDefaultPutMessage(id, sourceFile, fileName, doMime, setTargetFileName, compress, freenetCompatibilityMode, prio);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
@@ -116,7 +111,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
      * Uses TestDDA to figure out if DDA can be used or not.
      * If DDA=false then the request is enqueued as DIRECT and must be retrieved manually
      * after the get completed successfully. Use startDirectPersistentGet to fetch the data.
-     * 
+     *
      * @return true when the download was started using DDA, false if it is using DIRECT
      */
     public boolean startPersistentGet(final String key, final String id, final File targetFile, final FreenetPriority priority) {
@@ -150,7 +145,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
         }
 
         fcpPersistentConnection.sendMessage(msg);
-        
+
         return isDda;
     }
 
@@ -222,7 +217,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
 
         final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
 
-        
+
         final List<String> msg = getDefaultPutMessage(id, sourceFile, fileName, doMime, setTargetFileName, compress, freenetCompatibilityMode, prio);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
@@ -365,6 +360,10 @@ public class FcpMultiRequestConnectionFileTransferTools {
         msg.add("Verbosity=0");
         msg.add("MaxRetries=1");
         //msg.add("DontCompress=true");
+        boolean useEarlyEncode = Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_EARLY_ENCODE);
+        if (useEarlyEncode) {
+            msg.add("EarlyEncode=true");
+        }
         msg.add("PriorityClass=" + prio.getNumber());
         msg.add("Persistence=connection");
         msg.add("UploadFrom=direct");
