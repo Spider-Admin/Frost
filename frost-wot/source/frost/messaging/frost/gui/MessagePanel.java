@@ -24,7 +24,7 @@ import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -33,13 +33,13 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.gui.SetIdentityCommentDialog;
 import frost.identities.*;
-import frost.messaging.frost.*;
+import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.boards.*;
 import frost.messaging.frost.gui.messagetreetable.*;
-import frost.storage.perst.messages.*;
-import frost.util.*;
+import frost.storage.perst.messages.MessageStorage;
+import frost.util.CopyToClipboard;
 import frost.util.gui.*;
-import frost.util.gui.search.*;
+import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.*;
 
 @SuppressWarnings("serial")
@@ -120,15 +120,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if(SwingUtilities.isLeftMouseButton(e)) {
                 // accepting only mouse pressed event as double click, otherwise it will be triggered twice
                 if(e.getID() == MouseEvent.MOUSE_PRESSED ) {
-                    if(e.getClickCount() == 2 && e.getComponent() == messageTable ) {
+                    if((e.getClickCount() == 2) && (e.getComponent() == messageTable) ) {
                         if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_DOUBLE_CLICK_SHOWS_MESSAGE) ) {
                         showCurrentMessagePopupWindow();
                         }
-                    } else if(e.getClickCount() == 1 && e.getComponent() == messageTable ) {
+                    } else if((e.getClickCount() == 1) && (e.getComponent() == messageTable) ) {
                         // 'edit' the icon columns, toggle state flagged/starred
                         final int row = messageTable.rowAtPoint(e.getPoint());
                         final int col = messageTable.columnAtPoint(e.getPoint());
-                        if( row > -1 && col > -1 ) {
+                        if( (row > -1) && (col > -1) ) {
                             final int modelCol = messageTable.getColumnModel().getColumn(col).getModelIndex();
                             editIconColumn(row, modelCol);
                         }
@@ -151,7 +151,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
 
             final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
-            if( message == null || message.isDummy() ) {
+            if( (message == null) || message.isDummy() ) {
                 return;
             }
 
@@ -390,7 +390,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     add(markMessageUnreadItem);
                     itemAdded = true;
                 }
-                if( selectedMessage != null && selectedMessage.getBoard().getUnreadMessageCount() > 0 ) {
+                if( (selectedMessage != null) && (selectedMessage.getBoard().getUnreadMessageCount() > 0) ) {
                     add(markAllMessagesReadItem);
                     add(markThreadReadItem);
                     itemAdded = true;
@@ -410,7 +410,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 add(setCommentItem);
                 setCommentItem.setEnabled(false);
 
-                if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
+                if ((messageTable.getSelectedRow() > -1) && (selectedMessage != null)) {
                     if( identities.isMySelf(selectedMessage.getFromName()) ) {
                         // keep all off
                     } else if (selectedMessage.isMessageStatusGOOD()) {
@@ -805,7 +805,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     // remove ENTER assignment from table
         messageTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).getParent().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0));
-  
+
     // assign ENTER key - open message viewer
         final Action openMessageAction = new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
@@ -917,7 +917,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 return null;
             }
             final int row = table.getSelectedRow();
-            if( row != -1 && row < getMessageTableModel().getRowCount() ) {
+            if( (row != -1) && (row < getMessageTableModel().getRowCount()) ) {
 
                 final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
 
@@ -937,7 +937,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     final FrostMessageObject threadRootMsg = message.getThreadRootMessage();
 
                     // update thread root to reset unread msg childs marker
-                    if( threadRootMsg != message && threadRootMsg != null ) {
+                    if( (threadRootMsg != message) && (threadRootMsg != null) ) {
                         getMessageTreeModel().nodeChanged(threadRootMsg);
                     }
 
@@ -1066,7 +1066,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void newMessageButton_actionPerformed() {
         final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
-        if( node == null || !node.isBoard() ) {
+        if( (node == null) || !node.isBoard() ) {
             return;
         }
         final Board board = (Board) node;
@@ -1074,7 +1074,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     public void composeNewMessage(final Board targetBoard) {
-        if( targetBoard == null || targetBoard.isReadAccessBoard() ) {
+        if( (targetBoard == null) || targetBoard.isReadAccessBoard() ) {
             return;
         }
         final MessageFrame newMessageFrame = new MessageFrame(settings, mainFrame);
@@ -1094,16 +1094,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if( id == null ) {
                 continue;
             }
-            if( idState == IdentityState.GOOD && !id.isGOOD() ) {
+            if( (idState == IdentityState.GOOD) && !id.isGOOD() ) {
                 id.setGOOD();
                 idChanged = true;
-            } else if( idState == IdentityState.OBSERVE && !id.isOBSERVE() ) {
+            } else if( (idState == IdentityState.OBSERVE) && !id.isOBSERVE() ) {
                 id.setOBSERVE();
                 idChanged = true;
-            } else if( idState == IdentityState.CHECK && !id.isCHECK() ) {
+            } else if( (idState == IdentityState.CHECK) && !id.isCHECK() ) {
                 id.setCHECK();
                 idChanged = true;
-            } else if( idState == IdentityState.BAD && !id.isBAD() ) {
+            } else if( (idState == IdentityState.BAD) && !id.isBAD() ) {
                 id.setBAD();
                 idChanged = true;
             }
@@ -1120,8 +1120,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
     }
-    
-    
+
+
     public void setComment_actionPerformed() {
 
         final List<FrostMessageObject> selectedMessages = getSelectedMessages();
@@ -1213,6 +1213,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         composeReply(origMessage, parentFrame);
     }
 
+    /**
+     * Creates a new frame for composing a reply to the message recieved as a parameter.
+     *
+     * @param origMessage
+     *            the message that is going to be replied to in the new frame
+     * @param parent
+     *            the parent Window of the new frame to be created
+     */
     public void composeReply(final FrostMessageObject origMessage, final Window parent) {
 
         final Board targetBoard = frostMessageTab.getTofTreeModel().getBoardByName(origMessage.getBoard().getName());
@@ -1239,23 +1247,27 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
 
-        if( origMessage.getRecipientName() != null ) {
-            // this message was for me, reply encrypted
 
-            if( origMessage.getFromIdentity() == null ) {
-                final String title = language.getString("MessagePane.unknownRecipientError.title");
-                final String txt = language.formatMessage("MessagePane.unknownRecipientError.text", origMessage.getFromName());
+        if (origMessage.getRecipientName() != null) {
+            // This message was encripted for me, so reply encrypted
+
+            Identity senderId = origMessage.getFromIdentity();
+            if (senderId == null) {
+                // The identity that sent the message is missing, so the message cannot be replied to
+                final String title = language.getString("MessagePane.missingSenderIdentityError.title");
+                final String txt = language.formatMessage("MessagePane.missingSenderIdentityError.text", origMessage.getFromName());
                 JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            LocalIdentity senderId = null;
-            if( origMessage.getFromIdentity() instanceof LocalIdentity ) {
-                // we want to reply to our own message
-                senderId = (LocalIdentity)origMessage.getFromIdentity();
+
+            LocalIdentity destination;
+            if (senderId instanceof LocalIdentity) {
+                // We want to reply to our own message
+                destination = (LocalIdentity) senderId;
             } else {
-                // we want to reply, find our identity that was the recipient of this message
-                senderId = identities.getLocalIdentity(origMessage.getRecipientName());
-                if( senderId == null ) {
+                // The message was not sent by me, so find the identity of mine that was the recipient of this message
+                destination = identities.getLocalIdentity(origMessage.getRecipientName());
+                if (destination == null ) {
                     final String title = language.getString("MessagePane.missingLocalIdentityError.title");
                     final String txt = language.formatMessage("MessagePane.missingLocalIdentityError.text", origMessage.getRecipientName());
                     JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
@@ -1270,7 +1282,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     inReplyTo,
                     origMessage.getCompleteContent(),
                     origMessage.getFromIdentity(),
-                    senderId,
+                    destination,
                     origMessage);
         } else {
             final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
@@ -1308,7 +1320,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private void updateButton_actionPerformed(final ActionEvent e) {
         // restarts all finished threads if there are some long running threads
         final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
-        if (node != null && node.isBoard() ) {
+        if ((node != null) && node.isBoard() ) {
             final Board b = (Board) node;
             if( b.isManualUpdateAllowed() ) {
                 frostMessageTab.getTofTree().updateBoard(b);
@@ -1357,9 +1369,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      */
     private boolean isCorrectlySelectedMessage() {
         final int row = messageTable.getSelectedRow();
-        if (row < 0
-            || selectedMessage == null
-            || frostMessageTab.getTofTreeModel().getSelectedNode() == null
+        if ((row < 0)
+            || (selectedMessage == null)
+            || (frostMessageTab.getTofTreeModel().getSelectedNode() == null)
             || !frostMessageTab.getTofTreeModel().getSelectedNode().isBoard()
             || selectedMessage.isDummy() )
         {
@@ -1370,7 +1382,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void markSelectedMessagesReadOrUnread(final boolean markRead) {
         final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
-        if( node == null || !node.isBoard() ) {
+        if( (node == null) || !node.isBoard() ) {
             return;
         }
         final Board board = (Board) node;
@@ -1436,7 +1448,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         final DefaultTreeModel model = MainFrame.getInstance().getMessagePanel().getMessageTreeModel();
         final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
-        if( node == null || !node.isBoard() ) {
+        if( (node == null) || !node.isBoard() ) {
             return;
         }
         final Board board = (Board) node;
@@ -1445,7 +1457,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = levelOneMsg.depthFirstEnumeration();
         while( frostMessageObjectEnumeration.hasMoreElements() ) {
             final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
-            
+
             if( frostMessageObject.isNew() ) {
                 msgList.add(frostMessageObject);
                 frostMessageObject.setNew(false);
@@ -1476,7 +1488,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     public void deleteSelectedMessage() {
 
         final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
-        if( node == null || !node.isBoard() ) {
+        if( (node == null) || !node.isBoard() ) {
             return;
         }
         final Board board = (Board) node;
@@ -1556,20 +1568,20 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * @return a list of all selected, non dummy messages; or an empty list
      */
     private java.util.List<FrostMessageObject> getSelectedMessages() {
-        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+        if( (messageTable.getSelectedRowCount() <= 1) && !isCorrectlySelectedMessage() ) {
             return Collections.emptyList();
         }
 
         final int[] rows = messageTable.getSelectedRows();
 
-        if( rows == null || rows.length == 0 ) {
+        if( (rows == null) || (rows.length == 0) ) {
             return Collections.emptyList();
         }
 
         final java.util.List<FrostMessageObject> msgs = new ArrayList<FrostMessageObject>(rows.length);
         for( final int ix : rows ) {
             final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(ix);
-            if( targetMessage != null && !targetMessage.isDummy() ) {
+            if( (targetMessage != null) && !targetMessage.isDummy() ) {
                 msgs.add(targetMessage);
             }
         }
@@ -1597,7 +1609,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         } else if (node.isBoard()) {
             int allMessages = 0;
             final FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
-            
+
             final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
             while( frostMessageObjectEnumeration.hasMoreElements() ) {
                 if( !frostMessageObjectEnumeration.nextElement().isDummy() ) {
@@ -1646,7 +1658,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // walk through shown messages and remove unneeded (e.g. if hideBad)
         // remember selected msg and select next
         final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
-        if( node == null || !node.isBoard() ) {
+        if( (node == null) || !node.isBoard() ) {
             return;
         }
         final Board board = (Board) node;
@@ -1687,10 +1699,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             	final TreeNode[] path = initial.getPath();
             	final java.util.List<TreeNode> path_list = java.util.Arrays.asList(path);
 
-            	for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
+            	for( int idx = initial.getLevel(); (idx > 0) && (nextMessage == null); idx-- ) {
             		final FrostMessageObject parent = (FrostMessageObject) path[idx];
             		final LinkedList<FrostMessageObject> queue = new LinkedList<FrostMessageObject>();
-            		for( queue.add(parent); !queue.isEmpty() && nextMessage == null; ) {
+            		for( queue.add(parent); !queue.isEmpty() && (nextMessage == null); ) {
             			final FrostMessageObject message = queue.removeFirst();
             			if( message.isNew() ) {
             				nextMessage = message;
@@ -1764,7 +1776,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         final List<Identity> identitiesToMarkBad;
-        if( state == BooleanState.JUNK
+        if( (state == BooleanState.JUNK)
                 && Core.frostSettings.getBoolValue(SettingsClass.JUNK_MARK_JUNK_IDENTITY_BAD)
                 && doEnable )
         {
@@ -1788,7 +1800,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             if( identitiesToMarkBad != null ) {
                 final Identity id = message.getFromIdentity();
-                if( id != null
+                if( (id != null)
                         && id.isCHECK() )
                 {
                     identitiesToMarkBad.add(id);
@@ -1801,7 +1813,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 final FrostMessageObject threadRootMsg = message.getThreadRootMessage();
 
                 // update thread root to update the marker border
-                if( threadRootMsg != message && threadRootMsg != null ) {
+                if( (threadRootMsg != message) && (threadRootMsg != null) ) {
                     getMessageTreeModel().nodeChanged(threadRootMsg);
                 }
             }
@@ -1812,11 +1824,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             // update flagged/starred indicators in board tree
             boolean hasStarredWork = false;
             boolean hasFlaggedWork = false;
-            
+
             final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)firstMessage.getRoot();
             final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
             while( frostMessageObjectEnumeration.hasMoreElements()) {
-            	
+
                 final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
                 if( !hasStarredWork && frostMessageObject.isStarred() ) {
                     hasStarredWork = true;
@@ -1835,7 +1847,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         // maybe set identities to bad
-        if( identitiesToMarkBad != null
+        if( (identitiesToMarkBad != null)
                 && !identitiesToMarkBad.isEmpty() )
         {
             for( final Identity id : identitiesToMarkBad ) {
