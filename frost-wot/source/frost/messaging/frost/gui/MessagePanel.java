@@ -1277,7 +1277,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 toId = senderId;
             } else {
                 // The message was not sent by me, so find the identity of mine that was the recipient of this message
-                if (!(recipientId instanceof LocalIdentity)) {
+                if (recipientId instanceof LocalIdentity) {
                     // The recipient is a local identity of us
                     fromId = (LocalIdentity) recipientId;
                     toId = senderId;
