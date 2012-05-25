@@ -1260,14 +1260,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 return;
             }
 
-            LocalIdentity destination;
+            LocalIdentity fromId;
             if (senderId instanceof LocalIdentity) {
                 // We want to reply to our own message
-                destination = (LocalIdentity) senderId;
+                fromId = (LocalIdentity) senderId;
             } else {
                 // The message was not sent by me, so find the identity of mine that was the recipient of this message
-                destination = identities.getLocalIdentity(origMessage.getRecipientName());
-                if (destination == null ) {
+                fromId = identities.getLocalIdentity(origMessage.getRecipientName());
+                if (fromId == null ) {
                     final String title = language.getString("MessagePane.missingLocalIdentityError.title");
                     final String txt = language.formatMessage("MessagePane.missingLocalIdentityError.text", origMessage.getRecipientName());
                     JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
@@ -1282,7 +1282,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     inReplyTo,
                     origMessage.getCompleteContent(),
                     origMessage.getFromIdentity(),
-                    destination,
+                    fromId,
                     origMessage);
         } else {
             final MessageFrame newMessageFrame = new MessageFrame(settings, parent);
