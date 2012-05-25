@@ -18,103 +18,32 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.messaging.frost.gui;
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
+import java.awt.*;
+import java.awt.datatransfer.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.ComboBoxEditor;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-import javax.swing.WindowConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Caret;
-import javax.swing.text.Document;
-import javax.swing.text.DocumentFilter;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.PlainDocument;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import org.joda.time.*;
 
-import frost.Core;
-import frost.MainFrame;
-import frost.SettingsClass;
-import frost.ext.AltEdit;
-import frost.ext.AltEditCallbackInterface;
-import frost.gui.BoardsChooser;
-import frost.gui.ScrollableBar;
-import frost.gui.SmileyChooserDialog;
-import frost.gui.SortedTable;
-import frost.gui.model.SortedTableModel;
-import frost.gui.model.TableMember;
-import frost.identities.Identity;
-import frost.identities.LocalIdentity;
-import frost.messaging.frost.BoardAttachment;
-import frost.messaging.frost.FileAttachment;
-import frost.messaging.frost.FrostMessageObject;
-import frost.messaging.frost.FrostUnsentMessageObject;
-import frost.messaging.frost.UnsentMessagesManager;
+import frost.*;
+import frost.ext.*;
+import frost.gui.*;
+import frost.gui.model.*;
+import frost.identities.*;
+import frost.messaging.frost.*;
 import frost.messaging.frost.boards.Board;
 import frost.storage.perst.messages.MessageStorage;
-import frost.util.DateFun;
-import frost.util.FileAccess;
-import frost.util.Mixed;
-import frost.util.gui.ImmutableArea;
-import frost.util.gui.ImmutableAreasDocument;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.textpane.AntialiasedTextArea;
-import frost.util.gui.translation.Language;
-import frost.util.gui.translation.LanguageEvent;
-import frost.util.gui.translation.LanguageListener;
+import frost.util.gui.translation.*;
 
 @SuppressWarnings("serial")
 public class MessageFrame extends JFrame implements AltEditCallbackInterface {
@@ -243,7 +172,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         final BoardsChooser chooser = new BoardsChooser(this, allBoards);
         chooser.setLocationRelativeTo(this);
         final List<Board> chosenBoards = chooser.runDialog();
-        if (chosenBoards == null || chosenBoards.size() == 0) { // nothing chosed or cancelled
+        if ((chosenBoards == null) || (chosenBoards.size() == 0)) { // nothing chosed or cancelled
             return;
         }
 
@@ -386,7 +315,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         } else {
             // use remembered sender name, maybe per board
             String userName = Core.frostSettings.getValue("userName."+board.getBoardFilename());
-            if( userName == null || userName.length() == 0 ) {
+            if( (userName == null) || (userName.length() == 0) ) {
                 userName = Core.frostSettings.getValue(SettingsClass.LAST_USED_FROMNAME);
             }
             if( Core.getIdentities().isMySelf(userName) ) {
@@ -472,7 +401,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
                 getOwnIdentitiesComboBox().setEditable(true);
             }
 
-            if( sign.isSelected() && buddies.getItemCount() > 0 ) {
+            if( sign.isSelected() && (buddies.getItemCount() > 0) ) {
                 encrypt.setEnabled(true);
             } else {
                 encrypt.setEnabled(false);
@@ -543,15 +472,24 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         composeMessage(newBoard, newSubject, inReplyTo, newText, true, null, null, msg);
     }
 
+    /**
+     * @param newBoard
+     * @param newSubject
+     * @param inReplyTo
+     * @param newText
+     * @param toId the identity the new message will be sent to
+     * @param fromId the identity the new message will be sent from
+     * @param msg
+     */
     public void composeEncryptedReply(
             final Board newBoard,
             final String newSubject,
             final String inReplyTo,
             final String newText,
-            final Identity recipient,
-            final LocalIdentity senderId,
+            final Identity toId,
+            final LocalIdentity fromId,
             final FrostMessageObject msg) {
-        composeMessage(newBoard, newSubject, inReplyTo, newText, true, recipient, senderId, msg);
+        composeMessage(newBoard, newSubject, inReplyTo, newText, true, toId, fromId, msg);
     }
 
     @Override
@@ -597,7 +535,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             if( repliedMessage != null ) {
                 id = repliedMessage.getFromIdentity();
             }
-            if( budList.size() > 0 || id != null ) {
+            if( (budList.size() > 0) || (id != null) ) {
                 Collections.sort( budList, new BuddyComparator() );
                 if( id != null ) {
                     if( id.isGOOD() == true ) {
@@ -838,7 +776,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     private void positionDividers() {
         final int attachedFiles = filesTableModel.getRowCount();
         final int attachedBoards = boardsTableModel.getRowCount();
-        if (attachedFiles == 0 && attachedBoards == 0) {
+        if ((attachedFiles == 0) && (attachedBoards == 0)) {
             // Neither files nor boards
             messageSplitPane.setBottomComponent(null);
             messageSplitPane.setDividerSize(0);
@@ -846,17 +784,17 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
         messageSplitPane.setDividerSize(3);
         messageSplitPane.setDividerLocation(0.75);
-        if (attachedFiles != 0 && attachedBoards == 0) {
+        if ((attachedFiles != 0) && (attachedBoards == 0)) {
             //Only files
             messageSplitPane.setBottomComponent(filesTableScrollPane);
             return;
         }
-        if (attachedFiles == 0 && attachedBoards != 0) {
+        if ((attachedFiles == 0) && (attachedBoards != 0)) {
             //Only boards
             messageSplitPane.setBottomComponent(boardsTableScrollPane);
             return;
         }
-        if (attachedFiles != 0 && attachedBoards != 0) {
+        if ((attachedFiles != 0) && (attachedBoards != 0)) {
             //Both files and boards
             messageSplitPane.setBottomComponent(attachmentsSplitPane);
             attachmentsSplitPane.setTopComponent(filesTableScrollPane);
@@ -905,7 +843,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         final int x = this.getX() + BchooseSmiley.getX();
         final int y = this.getY() + BchooseSmiley.getY();
         String chosedSmileyText = dlg.startDialog(x, y);
-        if( chosedSmileyText != null && chosedSmileyText.length() > 0 ) {
+        if( (chosedSmileyText != null) && (chosedSmileyText.length() > 0) ) {
             chosedSmileyText += " ";
             // paste into document
             try {
@@ -914,7 +852,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
                 final int p1 = Math.max(caret.getDot(), caret.getMark());
 
                 final Document document = messageTextArea.getDocument();
-                
+
                 // FIXME: maybe check for a blank before insert of smiley text???
                 if (document instanceof PlainDocument) {
                     ((PlainDocument) document).replace(p0, p1 - p0, chosedSmileyText, null);
@@ -1015,7 +953,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         // attach all files and boards the user chosed
         if( filesTableModel.getRowCount() > 0 ) {
             for(int x=0; x < filesTableModel.getRowCount(); x++) {
-                final MFAttachedFile af = (MFAttachedFile)filesTableModel.getRow(x);
+                final MFAttachedFile af = filesTableModel.getRow(x);
                 final File aChosedFile = af.getFile();
                 final FileAttachment fa = new FileAttachment(aChosedFile);
                 newMessage.addAttachment(fa);
@@ -1024,7 +962,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
         if( boardsTableModel.getRowCount() > 0 ) {
             for(int x=0; x < boardsTableModel.getRowCount(); x++) {
-                final MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
+                final MFAttachedBoard ab = boardsTableModel.getRow(x);
                 final Board aChosedBoard = ab.getBoardObject();
                 final BoardAttachment ba = new BoardAttachment(aChosedBoard);
                 newMessage.addAttachment(ba);
@@ -1170,7 +1108,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         if( !headerArea.isEnabled() ) {
             return; // ignore updates
         }
-        if( sender == null || oldSender == null || oldSender.equals(sender) ) {
+        if( (sender == null) || (oldSender == null) || oldSender.equals(sender) ) {
             return;
         }
         try {
@@ -1514,7 +1452,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
         @Override
         public Class<?> getColumnClass(final int column) {
-            if( column >= 0 && column < columnClasses.length ) {
+            if( (column >= 0) && (column < columnClasses.length) ) {
                 return columnClasses[column];
             }
             return null;
@@ -1525,7 +1463,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
         @Override
         public String getColumnName(final int column) {
-            if( column >= 0 && column < columnNames.length ) {
+            if( (column >= 0) && (column < columnNames.length) ) {
                 return columnNames[column];
             }
             return null;
@@ -1540,15 +1478,15 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 
     private class MFAttachedFile extends TableMember.BaseTableMember<MFAttachedFile>  {
         File aFile;
-        
+
         public MFAttachedFile(final File af) {
             aFile = af;
         }
-        
+
         public File getFile() {
             return aFile;
         }
-        
+
 		public Comparable<?> getValueAt(final int column)  {
             switch(column) {
                 case 0: return aFile.getName();
@@ -1561,13 +1499,13 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 	private class MFAttachedFilesTable extends SortedTable<MFAttachedFile> {
         public MFAttachedFilesTable(final MFAttachedFilesTableModel m) {
             super(m);
-            
+
             // set column sizes
             final int[] widths = {250, 80};
             for (int i = 0; i < widths.length; i++) {
                 getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
             }
-            
+
             // default for sort: sort by name ascending ?
             sortedColumnIndex = 0;
             sortedColumnAscending = true;
@@ -1576,42 +1514,42 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     }
 
     private class MFAttachedFilesTableModel extends SortedTableModel<MFAttachedFile> {
-    	
+
         protected final Class<?> columnClasses[] = {
             String.class,
             String.class
         };
-        
+
         protected final String columnNames[] = {
             language.getString("MessageFrame.fileAttachmentTable.filename"),
             language.getString("MessageFrame.fileAttachmentTable.size")
         };
-        
+
         public MFAttachedFilesTableModel() {
             super();
         }
-        
+
         @Override
         public Class<?> getColumnClass(final int column) {
-            if( column >= 0 && column < columnClasses.length ) {
+            if( (column >= 0) && (column < columnClasses.length) ) {
                 return columnClasses[column];
             }
             return null;
         }
-        
+
         @Override
         public int getColumnCount() {
             return columnNames.length;
         }
-        
+
         @Override
         public String getColumnName(final int column) {
-            if( column >= 0 && column < columnNames.length ) {
+            if( (column >= 0) && (column < columnNames.length) ) {
                 return columnNames[column];
             }
             return null;
         }
-        
+
         @Override
         public boolean isCellEditable(final int row, final int col) {
             return false;
