@@ -1269,18 +1269,22 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
 
             LocalIdentity fromId;
-            Identity toId;
+            List<Identity> toIds = new ArrayList<Identity>();
             if (senderId instanceof LocalIdentity) {
-                // We want to reply to our own message
-                // Pointless, but that is the way it has to be (until more than one recipient can be passed to the message frame, that is)
+                // We want to reply to our own message. Therefore, we (senderId) will be the destination of the new message by default, while
+                // also letting the user easily specify as destination the recipient (recipientId) of the original message.
                 fromId = (LocalIdentity) senderId;
-                toId = senderId;
+                toIds.add(senderId);
+                if (!senderId.equals(recipientId)) {
+                    // The recipient is actually different from the sender. Therefore, we add it.
+                    toIds.add(recipientId);
+                }
             } else {
                 // The message was not sent by me, so find the identity of mine that was the recipient of this message
                 if (recipientId instanceof LocalIdentity) {
                     // The recipient is a local identity of us
                     fromId = (LocalIdentity) recipientId;
-                    toId = senderId;
+                    toIds.add(senderId);
                 } else {
                     // The recipient is not a local identity, so the message cannot be replied to
                     final String title = language.getString("MessagePane.missingLocalIdentityError.title");
@@ -1296,7 +1300,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     subject,
                     inReplyTo,
                     origMessage.getCompleteContent(),
-                    toId,
+                    toIds,
                     fromId,
                     origMessage);
         } else {

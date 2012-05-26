@@ -229,6 +229,16 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 
     /**
      * Finally called to start composing a message. Uses alternate editor if configured.
+     *
+     * @param newBoard
+     * @param newSubject
+     * @param inReplyTo
+     * @param newText
+     * @param isReply
+     * @param toIds
+     *            a list of those identities the new message may be sent to
+     * @param senderId
+     * @param msg
      */
     private void composeMessage(
             final Board newBoard,
@@ -236,7 +246,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             final String inReplyTo,
             String newText,
             final boolean isReply,
-            final Identity recipient,
+            final List<Identity> toIds,
             final LocalIdentity senderId,   // if given compose encrypted reply
             final FrostMessageObject msg) {
 
@@ -254,7 +264,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             to.inReplyTo = inReplyTo;
             to.newText = newText;
             to.isReply = isReply;
-            to.recipient = recipient;
+            to.toIds = toIds;
             to.senderId = senderId;
             // create a temporary editText that is show in alternate editor
             // the editor will return only new text to us
@@ -269,7 +279,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             ae.start();
         } else {
             // invoke frame directly, no alternate editor
-            composeMessageContinued(newBoard, newSubject, inReplyTo, newText, null, isReply, recipient, senderId);
+            composeMessageContinued(newBoard, newSubject, inReplyTo, newText, null, isReply, toIds, senderId);
         }
     }
 
@@ -285,12 +295,24 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
                 to.newText,
                 newAltText,
                 to.isReply,
-                to.recipient,
+                to.toIds,
                 to.senderId);
     }
 
     /**
-     * This method is either invoked by ComposeMessage OR by the callback of the AltEdit class.
+     * This method is either invoked by ComposeMessage OR by the callback of the AltEdit
+     * class.
+     *
+     * @param newBoard
+     * @param newSubject
+     * @param inReplyTo
+     * @param newText
+     * @param altEditText
+     * @param isReply
+     * @param toIds
+     *            a list of those identities the new message may be sent to or null if the
+     *            message to be sent is not a crypted reply
+     * @param senderId
      */
     private void composeMessageContinued(
         final Board newBoard,
@@ -299,7 +321,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         String newText,
         final String altEditText,
         final boolean isReply,
-        final Identity recipient,       // if given compose encrypted reply
+        final List<Identity> toIds,
         final LocalIdentity senderId)   // if given compose encrypted reply
     {
         headerArea.setEnabled(false);
@@ -356,7 +378,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         });
 
         // maybe prepare to reply to an encrypted message
-        if( recipient != null ) {
+        if (toIds != null) {
             // set correct sender identity
             for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
                 final Object obj = getOwnIdentitiesComboBox().getItemAt(x);
@@ -372,12 +394,19 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             // set and lock controls (after we set the identity, the itemlistener would reset the controls!)
             sign.setSelected(true);
             encrypt.setSelected(true);
-            buddies.removeAllItems();
-            buddies.addItem(recipient);
-            buddies.setSelectedItem(recipient);
             // dont allow to disable signing/encryption
             encrypt.setEnabled(false);
-            buddies.setEnabled(false);
+            buddies.removeAllItems();
+            for (int i = 0; i < toIds.size(); i++) {
+                buddies.addItem(toIds.get(i));
+            }
+            buddies.setSelectedItem(toIds.get(0));
+            if (toIds.size() > 1) {
+                // We only let the user choose if there is more than one possible destination
+                buddies.setEnabled(true);
+            } else {
+                buddies.setEnabled(false);
+            }
         } else {
             if( isInitializedSigned ) {
                 // set saved sender identity
@@ -477,8 +506,10 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
      * @param newSubject
      * @param inReplyTo
      * @param newText
-     * @param toId the identity the new message will be sent to
-     * @param fromId the identity the new message will be sent from
+     * @param toIds
+     *            a list of those identities the new message may be sent to
+     * @param fromId
+     *            the identity the new message will be sent from
      * @param msg
      */
     public void composeEncryptedReply(
@@ -486,10 +517,10 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             final String newSubject,
             final String inReplyTo,
             final String newText,
-            final Identity toId,
+            final List<Identity> toIds,
             final LocalIdentity fromId,
             final FrostMessageObject msg) {
-        composeMessage(newBoard, newSubject, inReplyTo, newText, true, toId, fromId, msg);
+        composeMessage(newBoard, newSubject, inReplyTo, newText, true, toIds, fromId, msg);
     }
 
     @Override
@@ -1562,7 +1593,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         public String inReplyTo;
         public String newText;
         public boolean isReply;
-        public Identity recipient = null;;
+        public List<Identity> toIds = null;;
         public LocalIdentity senderId = null;
     }
 
