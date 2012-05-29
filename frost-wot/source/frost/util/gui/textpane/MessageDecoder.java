@@ -18,16 +18,15 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.*;
-import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
-import frost.fcp.*;
-import frost.util.gui.*;
+import frost.fcp.FreenetKeys;
+import frost.util.gui.SmileyCache;
 
 /**
  * Message decoder for search freenet keys and smileys,
@@ -144,6 +143,15 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 		return smileys;
 	}
 
+    /**
+     * Parses the message received on the first parameter, identifying those hyperlinks
+     * contained in it and returning them on the second parameter
+     *
+     * @param message
+     *            the contents of the message to be parsed
+     * @param targetElements
+     *            the hyperlinks found within the parsed message
+     */
     private void processFreenetKeys(final String message, final TreeSet<MessageElement> targetElements) {
         final String[] FREENETKEYS = FreenetKeys.getFreenetKeyTypes();
 
@@ -168,7 +176,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
                             // file links and freesite links will be hyperlinked
                             targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
 
-                            if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {
+                            if( Character.isLetterOrDigit(testMessage.charAt((pos+length)-1)) ) {
                                 // file link must contain at least one '/'
                                 if( aFileLink.indexOf("/") > 0 ) {
                                     hyperlinkedKeys.add(aFileLink);
@@ -188,6 +196,15 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
         }
 	}
 
+    /**
+     * Parses the message received on the first parameter, identifying those smileys
+     * contained in it and returning them on the second parameter
+     *
+     * @param message
+     *            the contents of the message to be parsed
+     * @param targetElements
+     *            the smileys found within the parsed message
+     */
 	private void processSmileys(final String message, final TreeSet<MessageElement> targetElements) {
 		// Find all smileys in message
 		for (int i = 0; i < SMILEYS.length; i++) {
