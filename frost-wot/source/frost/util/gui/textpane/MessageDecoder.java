@@ -207,15 +207,13 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 		for (int i = 0; i < SMILEYS.length; i++) {
 			for (int j = 0; j < SMILEYS[i].length; j++) {
 				int offset = 0;
-				String testMessage = new String(message);
 				while(true) {
-					final int pos = testMessage.indexOf(SMILEYS[i][j]);
+					final int pos = message.indexOf(SMILEYS[i][j], offset);
 					if(pos > -1) {
-                        if (isSmiley(pos, testMessage, SMILEYS[i][j])) {
-                            targetElements.add(new MessageElement(new Integer(pos + offset),SMILEY, i, SMILEYS[i][j].length()));
+                        if (isSmiley(pos, message, SMILEYS[i][j])) {
+                            targetElements.add(new MessageElement(new Integer(pos),SMILEY, i, SMILEYS[i][j].length()));
                         }
-                        offset += pos + SMILEYS[i][j].length();
-                        testMessage = testMessage.substring(pos + SMILEYS[i][j].length());
+                        offset = pos + SMILEYS[i][j].length();
 					} else {
 						break;
 					}
