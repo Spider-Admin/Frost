@@ -158,33 +158,30 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 		try { // don't die here for any reason
             for (int i = 0; i < FREENETKEYS.length; i++) {
             	int offset = 0;
-            	String testMessage = new String(message);
             	while(true) {
-            		final int pos = testMessage.indexOf(FREENETKEYS[i]);
+            		final int pos = message.indexOf(FREENETKEYS[i], offset);
             		if(pos > -1) {
-                        int length = testMessage.indexOf("\n", pos);
+                        int length = message.indexOf("\n", pos);
                         if( length < 0 ) {
                             // at end of string
-                            length = testMessage.length() - pos;
+                            length = message.length() - pos;
                         } else {
                             length -= pos;
                         }
-
-                        final String aFileLink = testMessage.substring(pos, pos+length);
+                        final String aFileLink = message.substring(pos, pos+length);
                         if( FreenetKeys.isValidKey(aFileLink) ) {
                             // we add all file links (last char of link must not be a '/' or similar) to list of links;
                             // file links and freesite links will be hyperlinked
-                            targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
+                            targetElements.add(new MessageElement(new Integer(pos),FREENETKEY, i, length));
 
-                            if( Character.isLetterOrDigit(testMessage.charAt((pos+length)-1)) ) {
+                            if( Character.isLetterOrDigit(message.charAt((pos+length)-1)) ) {
                                 // file link must contain at least one '/'
                                 if( aFileLink.indexOf("/") > 0 ) {
                                     hyperlinkedKeys.add(aFileLink);
                                 }
                             }
                         }
-            			offset += pos + length;
-            			testMessage = testMessage.substring(pos + length); // TODO: no substring, remember pos?!
+            			offset = pos + length;
             		} else {
             			break;
             		}
@@ -192,7 +189,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
             }
         } catch (final Throwable e) {
             e.printStackTrace();
-            logger.log(Level.SEVERE, "Excption in processFreenetKeys", e);
+            logger.log(Level.SEVERE, "Exception in processFreenetKeys", e);
         }
 	}
 
