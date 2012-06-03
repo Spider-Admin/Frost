@@ -168,6 +168,12 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
                         } else {
                             length -= pos;
                         }
+
+                        // Trim trailing white spaces from the link
+                        while (Character.isWhitespace(message.charAt((pos + length) - 1))) {
+                            --length;
+                        }
+
                         final String aFileLink = message.substring(pos, pos+length);
                         if( FreenetKeys.isValidKey(aFileLink) ) {
                             // we add all file links (last char of link must not be a '/' or similar) to list of links;
