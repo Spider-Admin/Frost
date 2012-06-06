@@ -954,6 +954,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             // get the original model column index (maybe columns were reordered by user)
             column = getColumnModel().getColumn(column).getModelIndex();
 
+            // We clear up properties for later tooltip generation
+            toolTipValue = null;
+            toolTipId = null;
+
             // do nice things for FROM and SIG column
             if( column == MessageTreeTableModel.COLUMN_INDEX_FROM ) {
                 // FROM
@@ -969,10 +973,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         setForeground(Color.BLUE);
                     }
                 }
-
-                // We clear up properties for later tooltip generation
-                toolTipValue = null;
-                toolTipId = null;
 
                 if( !msg.isDummy() ) {
                     if( msg.isSignatureStatusVERIFIED() ) {
