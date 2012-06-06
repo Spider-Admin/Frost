@@ -42,20 +42,20 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.Border;
 import javax.swing.event.*;
-import javax.swing.plaf.basic.*;
+import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.fileTransfer.common.*;
-import frost.identities.*;
-import frost.messaging.frost.*;
-import frost.util.*;
+import frost.fileTransfer.common.TableBackgroundColors;
+import frost.identities.Identity;
+import frost.messaging.frost.FrostMessageObject;
+import frost.util.DateFun;
 import frost.util.gui.*;
 
 /**
@@ -379,7 +379,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     @Override
     public void sizeColumnsToFit(final int resizingColumn) {
         super.sizeColumnsToFit(resizingColumn);
-    	if (getEditingColumn() != -1 && getColumnClass(editingColumn) == TreeTableModel.class) {
+    	if ((getEditingColumn() != -1) && (getColumnClass(editingColumn) == TreeTableModel.class)) {
     	    final Rectangle cellRect = getCellRect(realEditingRow(), getEditingColumn(), false);
             final Component component = getEditorComponent();
             component.setBounds(cellRect);
@@ -393,7 +393,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     @Override
     public void setRowHeight(final int rowHeight) {
         super.setRowHeight(rowHeight);
-        if (tree != null && tree.getRowHeight() != rowHeight) {
+        if ((tree != null) && (tree.getRowHeight() != rowHeight)) {
             tree.setRowHeight(getRowHeight());
         }
     }
@@ -422,7 +422,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     @Override
     public boolean editCellAt(final int row, final int column, final EventObject e){
     	final boolean retValue = super.editCellAt(row, column, e);
-    	if (retValue && getColumnClass(column) == TreeTableModel.class) {
+    	if (retValue && (getColumnClass(column) == TreeTableModel.class)) {
     	    repaint(getCellRect(row, column, false));
     	}
     	return retValue;
@@ -530,8 +530,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         public void setRowHeight(final int rowHeight) {
     	    if (rowHeight > 0) {
         		super.setRowHeight(rowHeight);
-        		if (MessageTreeTable.this != null &&
-        		    MessageTreeTable.this.getRowHeight() != rowHeight) {
+        		if ((MessageTreeTable.this != null) &&
+        		    (MessageTreeTable.this.getRowHeight() != rowHeight)) {
         		    MessageTreeTable.this.setRowHeight(getRowHeight());
         		}
     	    }
@@ -578,7 +578,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
 
             // now set foreground color
-            if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
+            if( (msg.getRecipientName() != null) && (msg.getRecipientName().length() > 0)) {
                 foreground = Color.RED;
             } else if (msg.containsAttachments()) {
                 foreground = Color.BLUE;
@@ -635,7 +635,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 if( msg.isDummy() ) {
                     icon = messageDummyIcon;
 //                    dtcr.setToolTipText(null);
-                    if( msg.getSubject() != null && msg.getSubject().length() > 0 ) {
+                    if( (msg.getSubject() != null) && (msg.getSubject().length() > 0) ) {
                         setToolTipText(msg.getSubject());
                     } else {
                         setToolTipText(null);
@@ -746,7 +746,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		    final int max = listSelectionModel.getMaxSelectionIndex();
 
         		    clearSelection();
-        		    if(min != -1 && max != -1) {
+        		    if((min != -1) && (max != -1)) {
             			for(int counter = min; counter <= max; counter++) {
             			    if(listSelectionModel.isSelectedIndex(counter)) {
                 				final TreePath selPath = tree.getPathForRow(counter);
@@ -859,10 +859,43 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         private final Color col_bad     = new Color(0xFF, 0x00, 0x00);
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
 
+        private Object toolTipValue = null;
+        private Identity toolTipId = null;
+
         public StringCellRenderer() {
             setVerticalAlignment(CENTER);
             final Font baseFont = MessageTreeTable.this.getFont();
             fontChanged( baseFont );
+        }
+
+        /**
+         * This method is overriden so the tooltip is only generated when truly needed
+         *
+         * @see javax.swing.JComponent#getToolTipText(java.awt.event.MouseEvent)
+         */
+        public String getToolTipText(MouseEvent event) {
+            if (toolTipId != null) {
+                // The tooltip is generated with information about the sending identity
+                final StringBuilder sb = new StringBuilder();
+                sb.append("<html>");
+                sb.append(toolTipValue.toString());
+                sb.append("<br>Last seen: ");
+                sb.append(DateFun.FORMAT_DATE_VISIBLE.print(toolTipId.getLastSeenTimestamp()));
+                sb.append("  ");
+                sb.append(DateFun.FORMAT_TIME_VISIBLE.print(toolTipId.getLastSeenTimestamp()));
+                sb.append("<br>Received messages: ").append(toolTipId.getReceivedMessageCount());
+                sb.append("<br>Comment: <br>").append(toolTipId.getComment().replace("\n", "<br/>"));
+                sb.append("</html>");
+                return sb.toString();
+            } else {
+                if (toolTipValue != null) {
+                    // The tooltip is the cell value itself
+                    return toolTipValue.toString();
+                } else {
+                    // No tooltip
+                    return null;
+                }
+            }
         }
 
         @Override
@@ -930,12 +963,17 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 }
                 // now set color
                 if (!isSelected) {
-                    if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
+                    if( (msg.getRecipientName() != null) && (msg.getRecipientName().length() > 0)) {
                         setForeground(Color.RED);
                     } else if (msg.containsAttachments()) {
                         setForeground(Color.BLUE);
                     }
                 }
+
+                // We clear up properties for later tooltip generation
+                toolTipValue = null;
+                toolTipId = null;
+
                 if( !msg.isDummy() ) {
                     if( msg.isSignatureStatusVERIFIED() ) {
                         final Identity id = msg.getFromIdentity();
@@ -943,21 +981,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                             logger.severe("getFromidentity() is null for fromName: '"+msg.getFromName()+"', "+
                                     "board="+msg.getBoard().getName()+", msgDate="+msg.getDateAndTimeString()+
                                     ", index="+msg.getIndex());
-                            setToolTipText((String)value);
+                            // The tooltip will be the cell value itself
+                            toolTipValue = value;
                         } else {
-                            // build informative tooltip
-                            final StringBuilder sb = new StringBuilder();
-                            sb.append("<html>");
-                            sb.append((String)value);
-                            sb.append("<br>Last seen: ");
-                            sb.append(DateFun.FORMAT_DATE_VISIBLE.print(id.getLastSeenTimestamp()));
-                            sb.append("  ");
-                            sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
-                            sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
-                            sb.append("<br>Comment: <br>").append(id.getComment().replace("\n", "<br/>"));
-                            sb.append("</html>");
-                            setToolTipText(sb.toString());
-
                             // provide colored icons
                             if( indicateLowReceivedMessages ) {
                                 final int receivedMsgCount = id.getReceivedMessageCount();
@@ -967,9 +993,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                                     setIcon(receivedFiveMessages);
                                 }
                             }
+                            // The tooltip will be generated with information about the sending identity
+                            toolTipValue = value;
+                            toolTipId = id;
                         }
                     } else {
-                        setToolTipText((String)value);
+                        // The tooltip will be the cell value itself
+                        toolTipValue = value;
                     }
                 }
             } else if( column == MessageTreeTableModel.COLUMN_INDEX_INDEX ) {
@@ -1073,7 +1103,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         public boolean isCellEditable(final EventObject e) {
             if (e instanceof MouseEvent) {
                 final MouseEvent me = (MouseEvent)e;
-                if (me.getModifiers() == 0 || me.getModifiers() == InputEvent.BUTTON1_MASK) {
+                if ((me.getModifiers() == 0) || (me.getModifiers() == InputEvent.BUTTON1_MASK)) {
                     for (int counter = getColumnCount() - 1; counter >= 0; counter--) {
                         if (getColumnClass(counter) == TreeTableModel.class) {
                             final MouseEvent newME = new MouseEvent(
@@ -1159,7 +1189,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
             // build array of table to model associations
             final int tableIndex = frostSettings.getIntValue(indexKey);
-            if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
+            if( (tableIndex < 0) || (tableIndex >= tableToModelIndex.length) ) {
                 return false; // invalid table index value
             }
             tableToModelIndex[tableIndex] = x;
@@ -1182,9 +1212,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
             // keep icon columns 0,1 as is
-            if(x != MessageTreeTableModel.COLUMN_INDEX_FLAGGED
-                    && x != MessageTreeTableModel.COLUMN_INDEX_STARRED
-                    && x != MessageTreeTableModel.COLUMN_INDEX_JUNK)
+            if((x != MessageTreeTableModel.COLUMN_INDEX_FLAGGED)
+                    && (x != MessageTreeTableModel.COLUMN_INDEX_STARRED)
+                    && (x != MessageTreeTableModel.COLUMN_INDEX_JUNK))
             {
                 tcms[x].setPreferredWidth(columnWidths[x]);
             }
