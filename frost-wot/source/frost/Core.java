@@ -19,33 +19,33 @@
 package frost;
 
 import java.io.*;
-import java.text.*;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.Timer;
 import java.util.logging.*;
 
 import javax.swing.*;
 
-import frost.fcp.*;
+import frost.fcp.FcpHandler;
 import frost.fcp.fcp07.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
-import frost.gui.help.*;
+import frost.gui.help.CheckHtmlIntegrity;
 import frost.identities.*;
-import frost.messaging.freetalk.*;
-import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
-import frost.messaging.frost.threads.*;
-import frost.storage.*;
+import frost.messaging.freetalk.FreetalkManager;
+import frost.messaging.frost.UnsentMessagesManager;
+import frost.messaging.frost.boards.BoardsManager;
+import frost.messaging.frost.threads.FileAttachmentUploadThread;
+import frost.storage.StorageManager;
 import frost.storage.perst.*;
-import frost.storage.perst.filelist.*;
-import frost.storage.perst.identities.*;
-import frost.storage.perst.messagearchive.*;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.storage.perst.identities.IdentitiesStorage;
+import frost.storage.perst.messagearchive.ArchiveMessageStorage;
 import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.Logging;
 import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
 
 /**
  * Class hold the more non-gui parts of Frost.
@@ -78,6 +78,9 @@ public class Core {
 
     private static FrostIdentities identities;
 
+    /**
+     *
+     */
     private Core() {
         initializeLanguage();
     }
@@ -102,7 +105,7 @@ public class Core {
 
         // get the list of available nodes
         String nodesUnparsed = frostSettings.getValue(SettingsClass.FREENET_FCP_ADDRESS);
-        if (nodesUnparsed == null || nodesUnparsed.length() == 0) {
+        if ((nodesUnparsed == null) || (nodesUnparsed.length() == 0)) {
             frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, "127.0.0.1:9481");
             nodesUnparsed = frostSettings.getValue(SettingsClass.FREENET_FCP_ADDRESS);
         }
@@ -452,7 +455,7 @@ public class Core {
         splashscreen.setProgress(70);
 
         // Display the tray icon (do this before mainframe initializes)
-        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true && SystraySupport.isSupported()) {
+        if ((frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) && SystraySupport.isSupported()) {
             try {
                 if (!SystraySupport.initialize(title)) {
                     logger.log(Level.SEVERE, "Could not create systray icon.");
@@ -604,13 +607,13 @@ public class Core {
             // use config file parameter (format: de or de;ext
             final String lang = frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE);
             final String langIsExternal = frostSettings.getValue("localeExternal");
-            if( lang == null || lang.length() == 0 || lang.equals("default") ) {
+            if( (lang == null) || (lang.length() == 0) || lang.equals("default") ) {
                 // for default or if not set at all
                 frostSettings.setValue(SettingsClass.LANGUAGE_LOCALE, "default");
                 Language.initializeWithName(null);
             } else {
                 boolean isExternal;
-                if( langIsExternal == null || langIsExternal.length() == 0 || !langIsExternal.equals("true")) {
+                if( (langIsExternal == null) || (langIsExternal.length() == 0) || !langIsExternal.equals("true")) {
                     isExternal = false;
                 } else {
                     isExternal = true;
