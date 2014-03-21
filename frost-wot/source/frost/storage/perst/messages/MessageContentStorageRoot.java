@@ -20,7 +20,7 @@ package frost.storage.perst.messages;
 
 import org.garret.perst.*;
 
-import frost.storage.perst.*;
+import frost.storage.perst.PerstString;
 
 public class MessageContentStorageRoot extends Persistent {
 
@@ -28,9 +28,15 @@ public class MessageContentStorageRoot extends Persistent {
     private Index<PerstString> publickeyByMsgOid;
     private Index<PerstString> signatureByMsgOid;
     private Index<PerstAttachments> attachmentsByMsgOid;
-    
+
+    /**
+     *
+     */
     public MessageContentStorageRoot() {}
-    
+
+    /**
+     * @param storage
+     */
     public MessageContentStorageRoot(Storage storage) {
         contentByMsgOid = storage.createIndex(int.class, true);
         publickeyByMsgOid = storage.createIndex(int.class, true);
@@ -38,18 +44,30 @@ public class MessageContentStorageRoot extends Persistent {
         attachmentsByMsgOid = storage.createIndex(int.class, true);
     }
 
+    /**
+     * @return
+     */
     public Index<PerstString> getContentByMsgOid() {
         return contentByMsgOid;
     }
 
+    /**
+     * @return
+     */
     public Index<PerstString> getPublickeyByMsgOid() {
         return publickeyByMsgOid;
     }
 
+    /**
+     * @return
+     */
     public Index<PerstString> getSignatureByMsgOid() {
         return signatureByMsgOid;
     }
 
+    /**
+     * @return
+     */
     public Index<PerstAttachments> getAttachmentsByMsgOid() {
         return attachmentsByMsgOid;
     }
