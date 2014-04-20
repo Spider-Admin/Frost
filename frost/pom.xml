@@ -62,18 +62,32 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>assembly-zip</id>
+						<!-- Executable distribution zip file -->
+						<id>exe</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
 						<configuration>
 							<descriptors>
-								<descriptor>src/assembly/assembly-zip.xml</descriptor>
+								<descriptor>src/assembly/assembly-exe-zip.xml</descriptor>
 							</descriptors>
 							<appendAssemblyId>false</appendAssemblyId>
 						</configuration>
 					</execution>
+					<execution>
+						<!-- Sources distribution zip file -->
+						<id>source</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/assembly/assembly-source-zip.xml</descriptor>
+							</descriptors>
+						</configuration>						
+					</execution>		
 				</executions>
 			</plugin>				
 			<plugin>
