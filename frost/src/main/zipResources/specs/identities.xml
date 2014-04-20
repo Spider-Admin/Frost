@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrostIdentities>
+
+    <LocalID>
+        <name>anonbback</name>
+        <CHK>... to be removed if switched to xml messages ... </CHK> <!-- the freenet key of pubkey.txt -->
+        <publicKey>xxx</publicKey>
+        <privateKey>yyy</privateKey>
+    </LocalID>
+
+    <FrostIdentitiesTree>
+
+        <FrostIdentityTreeEntry isFolder="true" isExpanded="true">
+            <name>Private Message System</name>
+
+            <FrostIdentityTreeEntry isFolder="true" isExpanded="true">
+                <name>Good persons</name>
+
+                <FrostIdentityTreeEntry>
+                    <name>someone@TUC2__2Fck2V9XP0OBpmQ+01ekk</name>
+                    <CHK>... to be removed if switched to xml messages ... </CHK>
+                    <publicKey>aaaa</publicKey>
+                    <status>GOOD</status>
+                </FrostIdentityTreeEntry>
+
+            </FrostIdentityTreeEntry>
+
+            <FrostIdentityTreeEntry isFolder="true" isExpanded="true">
+                <name>Neutral persons</name>
+
+                <FrostIdentityTreeEntry>
+                    <name>someone2@TUC2__2Fck2V9XP0OBpmQ+01ekk</name>
+                    <CHK>... to be removed if switched to xml messages ... </CHK>
+                    <publicKey>aaaa</publicKey>
+                    <status>NEUTRAL</status>
+                </FrostIdentityTreeEntry>
+
+            </FrostIdentityTreeEntry>
+
+        </FrostIdentityTreeEntry>
+
+    </FrostIdentitiesTree>
+
+</FrostIdentities>

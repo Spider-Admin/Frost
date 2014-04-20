@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <META http-equiv="Content-Style-Type" content="text/css">
+    <LINK rel="stylesheet" href="style.css" type="text/css">
+    <TITLE>Frost History</TITLE>
+  </HEAD>
+  <BODY>
+<H2>Frost History</H2>
+<PRE>
+
+<h3>Future</h3>
+
+<b>Most important changes in no particular order:</b>
+<ul>
+<li>All messages (NOT files) are uploaded now with the EarlyEncode FCP option set to true by default. 
+This allows Frost to detect data collisions 6 times faster than before. In any case, that behavior can 
+be controlled using the new fcp2.useEarlyEncode entry in the settings file. Thanks to Sadao for the patch.
+<B>Trac ticket:</B> <A HREF="https://sourceforge.net/apps/trac/jtcfrost/ticket/18"/>18</A></li>
+<li>Now, when you are to compose a crypted reply to a crypted message that you sent to another user, the 
+local identity of yours that sent the message you are to reply to will be assumed to be new destination by 
+default but, in case you actually wanted to reply to the other user instead of to yourself, that will also 
+be offered as an alternative in the combo box of the message composition frame. Thanks to Sadao for 
+highlighting the issue.
+<B>Trac ticket:</B> <A HREF="https://sourceforge.net/apps/trac/jtcfrost/ticket/18"/>18</A></li>
+<li>Trailing white spaces are now removed from the end of hyperlinked keys in messages. Thanks to Sadao 
+for the patch. 
+<B>Trac ticket:</B> <A HREF="https://sourceforge.net/apps/trac/jtcfrost/ticket/18"/>18</A></li>
+<li>Multiple optimizations of the source code, improving performance and reducing memory usage.</li>
+</ul>
+
+<h3>2011.03.05</h3>
+<p>
+The new release of Frost includes a lot of changes. 
+Please see release_nodes.txt file included in the package for a comprehensive list of all changes.
+</p>
+
+<b>Most important changes in chronological order:</b>
+<ul>
+	<li>Switch default of use DDA to false, since default on freenet is off as well.</li>
+	<li>Updated German translation. (Thanks to Frank Nagel)</li>
+	<li>Removed & and # from illegal filename char list, since they seem not to be illegal on any system.</li>
+	<li>Bugfix: Also dequote key names starting with a html entity.</li>
+	<li>Updated for Danish translation</li>
+	<li>Possible bug fix, where duplicate keys have occurred in TrackDownloadKeysStorage</li>
+	<li>TestDDA fix, clear list of checked directories when the persistent FCP thread is diconnected.</li>
+	<li>Open selected file on double click, or when pressing enter in system default program.</li>
+	<li>Fixed bug, where priorities were not persisted, and the priority of not started downloads were not changable.</li>
+	<li>Added duplicate check and board tracking for downloads initialized from addKeysOfCurrentMessage and loadSelectedKeys.</li>
+	<li>Added key listener for hotkeys to AddNewDownloadsDialog:
+		<table>
+			<tr>
+				<td>r</td><td>rename selected files</td>
+			</tr>
+			<tr>
+				<td>p</td><td>prefix selecte files</td>
+			</tr>
+			<tr>
+				<td>d</td><td>change directory for selected files</td>
+			</tr>
+			<tr>
+				<td>1-6</td><td>change priority of selected files to corresponding priority</td>
+			</tr>
+			<tr>
+				<td>DEL</td><td>remove selected files from list</td>
+			</tr>
+			<tr>
+				<td>SHIFT+DEL</td><td>remove _not_ selected files from list</td>
+			</tr>
+			<tr>
+				<td>ENTER</td><td>Confirm dialog</td>
+			</tr>
+			<tr>
+				<td>ESCAPE</td><td>Cancel dialog</td>
+			</tr>
+		</table>
+	</li>
+	<li>Added key listener for hotkeys to AddNewUploadsDialog
+		<table>
+			<tr>
+				<td>r</td><td>rename selected files</td>
+			</tr>
+			<tr>
+				<td>p</td><td>prefix selecte files</td>
+			</tr>
+			<tr>
+				<td>e</td><td>enable compression</td>
+			</tr>
+			<tr>
+				<td>d</td><td>disable compression</td>
+			</tr>
+			<tr>
+				<td>1-6</td><td>change priority of selected files to corresponding priority</td>
+			</tr>
+			<tr>
+				<td>a</td><td>add new files to dialog</td>
+			</tr>
+			<tr>
+				<td>DEL</td><td>remove selected files from list</td>
+			</tr>
+			<tr>
+				<td>SHIFT+DEL</td><td>remove <b>not</b> selected files from list</td>
+			</tr>
+			<tr>
+				<td>ENTER</td><td>Confirm dialog</td>
+			</tr>
+			<tr>
+				<td>ESCAPE</td><td>Cancel dialog</td>
+			</tr>
+		</table>
+	</li>
+	<li>Corrections for readme.en.txt, provided by: Convict ? 19682?@ODNPfyzW6zsBykdOYM_SItF+oDo</li>
+	<li>On a replay to a message, all attached files and boards are now quoted as text in 
+the quoted message so they wont be lost to users reading later follow-ups. (Based on the idea of an anonymous user)</li>
+	<li>Added function to prefix the filename of inserts in the AddNewUploadsDialog.</li>
+	<li>Bugfix for error when systray is not supported.</li>
+	<li>Fix for file sharing system: when the option is turned on (default) we drop file lists from 
+newly received identities or identities marked CHECK or BAD. Then only file lists from GOOD and OBSERVE people make 
+it into our file list store, and this prevents huge store files full of senseless faked files due to the spam attack.</li>
+	<li>Made increaseDownloadItemRuntime resistance against time drifts due heavy load.</li>
+	<li>Fixed bug, where the configured priority of a new download was not honored, but	always set to the default.</li>
+	<li>Show text field with a readable yellow background instead of a red background.</li>
+	<li>Added ability to enable / disable downloads before adding them to the queue. Via clickable checkboxes and 
+context menu items</li>
+	<li>Added context menu items to AddNewUploadsDialog, to remove selected / not selected entries.</li>
+	<li>Added the ability to disable uploads before adding them to the queue</li>
+	<li>Redesigned columns for enabling and disabling compression and the downloads to use click able check boxes.</li>
+	<li>Added the ability to upload a file under a different name</li>
+	<li>Added the ability to set the start priority before adding it to the download queue</li>
+	<li>Extended FrostUploadItem to be configurable with a FreenetCompatibilityMode</li>
+	<li>Added context menu to AddNewUploadsDialog:<ul>
+			<li>Added context menu items to enable and disable compression</li>
+			<li>Added context menu items to set FreenetInsertMode for uploads. Note: This is front-end only. The 
+mode is not honor by the back-end mode yet.</li>
+   	</ul></li>
+	<li>Added ability to add and remove files from the AddNewUploadsDialog</li>
+	<li>Created AddNewUploadsDialog</li>
+	<li>Added fix requested by a Frost user: allow user to suppress initial warning window when filesharing is enabled.</li>
+	<li>Fix for NPE when sending a message. Happens only when persistence is switched off.</li>
+	<li>Implemented support for the TestDDA node request. This re-enables the DDA support in Frost that did not work 
+since the node made TestDDA mandatory. This commit intentionally breaks the GUI feature to change the download target 
+directory AFTER a download was started! We will need to address this issue somehow later.</li>
+	<li>Re-enabled the "always minimize to systray"	functionality.</li>
+	<li>Fix for NPE within systray support.</li>
+</ul>
+
+
+<h3>2011.01.07</h3>
+
+<p>List of most important changes:<br /><em>(Please see release_nodes.txt file included in the package, for a comprehensive list of all changes.)</em></p>
+<ul>
+	<li>Messages get inserted twice to speed up distribution and better availability</li>
+	<li>Download are associated with the currently selected message. When you add keys through the 
+quickload interface, the downloads are associated with the currently selected news message. Simply right-click 
+on a download and select "View associated message" to view the associated message.
+(This option is only shown if the download is associated with a message.)</li>
+	<li>Per-download download directory. For each download, you can now configure its own target directory.</li>
+	<li>New Add Downloads Dialog You can now configure all downloads before adding them to your queue.
+The new dialog allows you to configure:<ul>
+			<li>Download filename</li>
+			<li>Download filename prefix</li>
+			<li>Target directory</li>
+			<li>Download priority</li>
+		</ul>
+	<li>Prefix download names. The name of downloads can now be prefixed. The file will be stored using this prefix.
+Internally the prefix is stored separately, so you can easily change it later on.</li>
+	<li>Quick paste download button. Adds keys from the clipboard. Saves having to paste them into the text box
+and pressing enter.</li>
+  	<li>Ability to execute a program on download/upload completion</li>
+  	<li>Collapsed thread mode changes. See release_nodes for future details</li>
+  	<li>Restarting running downloads actually restarts the downloads</li>
+  	<li>Invalid "keys" that are entered into the quickload text field are silently ignored</li>
+  	<li>New message window context menu items to download keys:<ul>
+  		    <li>Select the part of the message, which includes the keys you want to download, right click
+anywhere (not a key) and select the menu item: Download selected keys.</li>
+  			<li>Right click a key and select: Download all keys of current message
+This will add all keys of the current message, excluding keys from the quote of other messages.</li>
+  		</ul>
+  	</li>
+  	<li>Directories can be created from the download</li>
+  	<li>Two additional buttons to show starred or flagged message threads only.</li>
+  	<li>Download tracking
+Activate under: Options -> Preferences -> Downloads -> Warn if a file has already been downloaded previously
+If this option is enabled, you will get warned if you try to download a file you have downloaded previously.
+Including when and from which board you have downloaded the file.</li>
+  	<li>Warn if target directory already contains a file with the same name.</li>
+  	<li>Keep list of recently used download and upload directories.
+When you change the download target directory, you can choose a dir manuanly or from a list of recently used dirs.</li>
+  	<li>Directly open key in browser.
+Configure under: Options -> Preferences -> Miscellaneous  -> URI Prefix
+If configured, you can right click on a key in the message window and choose  open file (all files) in Browser.
+This will directly open the file in your frost interface in your system default browser</li>
+  	<li>Frost requires now Java 1.6</li>
+  	<li>Updated bundled libraries to new versions</li>
+  	<li>Use of new jcalendar library. This also fixes a long term bug, with the search dialog</li>
+  	<li>Updated German translation</li>
+  	<li>New cross platform system tray support</li>
+</ul>
+
+Even older versions:
+---------------------
+
+Information about even older versions can be found <A HREF="olderHistory.html">here</A>.
+
+</PRE>
+</BODY>
+</HTML>

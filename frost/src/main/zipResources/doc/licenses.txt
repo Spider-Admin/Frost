@@ -1,0 +1,28 @@
+
+External library license information
+
+---
+
+lib/BCastle.jar
+  Author : bouncycastle.org
+  License: BSD license
+  Source : http://bouncycastle.org/
+  
+lib/jcalendar.jar
+  Author : Kai Toedter
+  License: LGPL license
+  Source : http://www.toedter.com/en/jcalendar/index.html
+
+lib/joda-time.jar
+  Author : Volker H. Simonis
+  License: GPL v2 license
+  Source : http://joda-time.sourceforge.net/
+
+lib/perst15.jar
+  Author : McObject LLC
+  License: GPL v2 license
+  Source : http://www.mcobject.com/perst
+
+---
+
+This file was last updated at 2011-01-05.

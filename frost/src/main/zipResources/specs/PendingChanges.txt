@@ -1,0 +1,185 @@
+Pending changes since last release
+-----------------------------------
+
+* worked on Freetalk integration
+
+****************************************************************
+*** Following changes were done by an Jan Gerritsen, thanks! ***
+****************************************************************
+
+* Implemented the ability to track which files have already been downloaded.
+  By default this feature is off, you can activate it in the properties menu.
+  When a new download was already downloaded, the user will be
+  warned and asked if he wants to continue the download.
+
+* When adding a new downloads from a post (keys or attachments) a dialog will
+  be shown where the items can be attributed:
+  - Download dir
+  - Filename
+  - Filename prefix
+  - Priority
+
+  This dialog also states if the file has already been downloaded
+  (download tracking) or if a file with the same name already exists in the
+  download target directory.
+
+* Implemented tracking from which post / board a download was originated.
+  Combined with a new setting (when enabled) the download directory will
+  default to a subdirectory of the default download directory with the board name.
+  If the target download directory does not already exist, it will be created.
+
+
+************************************************************************
+*** Following changes were done by an anonymous contributor, thanks! ***
+************************************************************************
+
+=== Release 2 ================================================================
+
+* Two additional buttons to show starred or flagged messages only.
+
+* Uploading is fixed.
+
+* Sorting by download directory sorts by complete path.
+
+* Filename prefix can be changed for existing downloads.
+
+* Directories can be created from the download pane.
+
+  Simply type in a (non-existent) path and click the "Create directory"
+  button.
+
+  This will create all non-existent components of the path.
+  I.e "/foo/bar/" will create both /foo and /foo/bar if neither exists.
+
+* Keys can be added directly from the message window by highlighting the keys
+  as if you were to copy them to the clipboard, right-clicking the anywhere
+  in the message window to bring up the "copy/paste" menu, and selecting
+  the new "Download keys to..." menu entry.
+
+  You will be asked what folder to download the keys to. After you choose
+  what folder it will give you an option to "Enter text to prefix filenames
+  with, or leave empty for no prefix". If you wish to add a prefix so a
+  filename would change from "01.rar" to "filename_01.rar" you can do so at
+  that point.
+
+  This works regardless of whether "show keys as hyperlinks" is enabled,
+  although, if it is enabled, if you right-click on the linked keys you will
+  instead bring up the regular Frost key download popup menu. So you can NOT
+  click on the linked key to bring up this new menu, you have to click outside
+  of the selected keys.
+
+* Invalid "keys" that are entered into the quickload text field are silently
+  ignored.
+
+* Restarting running downloads actually restarts the downloads.
+
+  Frost normally does nothing when you tell it to restart a running download.
+  There is (hackish) functionally to do that in the latest SVN version that
+  was not being used, so I enabled it.
+
+  There is a chance that downloads get lost if the connection to your Freenet
+  node is very slow, or if Freenet is overloaded, but so far that has never
+  happened to me.
+
+  Note: When you restart a running download, it will briefly disappear, and
+        then re-appear with all settings kept (download dir, assoc. message,
+        priority, etc).
+
+* Ability to execute a program on download/upload completion.
+
+  Enabled through Options -> Preferences -> Downloads/Uploads ->
+                  Execute program on completion.
+
+  To disable, simply set "Execute program on completion" to nothing.
+
+  Arguments passed to the download-completion program:
+    1: Download filename (without path, prefixed)
+    2: Filename prefix (empty if none)
+    3: Download key
+    4: Associated board name (empty if none)
+    5: Associated message ID (empty if none)
+
+    Also available as environment variables:
+      FROST_FILENAME, FROST_FILENAME_PREFIX, FROST_KEY,
+      FROST_ASSOC_BOARD_NAME and FROST_ASSOC_MSG_ID.
+
+    The working directory is set to file's download directory.
+
+  Arguments passed to the upload-completion program:
+    1: Filename
+    2: The CHK key
+
+    Also available as environment variables:
+       FROST_FILENAME and FROST_KEY.
+
+    The working directory is set to file's directory.
+
+* Option to disable checking for non-existent/changed uploading files
+
+  If you're using an upload-completion program that moves uploaded files,
+  this stops Frost from popping up an annoying message that tells you a
+  file has been "moved" or has "changed size", and removing the file from
+  the upload table.
+
+  Options -> Preferences -> Uploads -> Periodically check for ...
+
+* Collapsed thread mode changes:
+
+  * "View associated message" now works
+
+  * Option to expand threads with unread messages
+
+  * Option to pre-expand all replies, but keep the root thread collapsed
+    (When you open a collapsed thread, all messages are expanded by default)
+
+  * Option to disable bringing up a message window when a message is
+    double-clicked. (This is so you can double-click to expand messages)
+
+    Options -> Preferences -> Messages -> Double clicking displays message
+
+* A warning message is displayed if filesharing is enabled.
+
+
+=== Release 1 ================================================================
+
+* Quick paste download button
+  Adds keys from the clipboard. Saves having to paste them into the text box
+  and pressing enter.
+
+* Prefix downloaded filenames with the text of your choice:
+  1. Enter a prefix, such as "playtoy_sugar".
+  2. Add your downloads.
+  3. 1.rar is saved as playtoy_sugar_1.rar, etc.
+
+  Once set, the prefix can't be changed, so don't make any typos.
+
+  You can add a prefix to existing downloads by selecting them and pressing
+  the update button.
+
+* Per-download download directory.
+  Select a download directory prior to adding downloads, either by clicking
+  the browse button, or by typing the path manually (the text field turns red
+  if the path is invalid), and your downloads will end up in that directory.
+
+  You can change the download directory for existing downloads by selecting
+  them and pressing the update button.
+
+* Download are associated with the currently selected message
+  When you add keys through the quickload interface, the downloads are
+  associated with the currently selected news message.
+
+  Simply right-click on a download and select "View associated message" to
+  view the associated message.
+  (This option is only shown if the download is associated with a message.)
+
+  Should make it easier to ask for reinserts...
+
+* "Blahwad's bot blaster"
+  Hides messages from identities with fewer than X received messages.
+  Configurable per board and globally. You can also choose to always show
+  private messages.
+
+* Messages are inserted twice (but not duplicated)
+  Hopefully this reduces the number of messages that get lost.
+
+* Compression for inserts is disabled

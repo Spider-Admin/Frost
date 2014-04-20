@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <META http-equiv="Content-Style-Type" content="text/css">
+    <LINK rel="stylesheet" href="style.css" type="text/css">
+    <TITLE>FROST additional FAQ</TITLE>
+  </HEAD>
+  <BODY>
+<H2>FROST additional FAQ</H2>
+
+<P>This FAQ is a compilation of some of the questions and answers, that come again and again on the boards every week.  Thanks to all of the Frost community members who contributed to this FAQ.</P>
+
+<P><B>Q: Recently I had problems with frost and I deleted all the frost files and downloaded them again.
+Of course I lost my identities, but, does anyone know which frost files should I save in order to keep my identity for next time I need to reinstall frost?
+</B></P>
+
+<P>A: Here's how to back up your ID's and other users's ID with their markings (GOOD, BAD, etc), and also how to back up your boards collections:</P>
+<P><U>Backup:</U></P>
+<OL>
+<LI><B>Your own ID's:</B> click Preferences, Manage own Identities, Export into xml file. Save the resulting file with extension xml, e.g. myidentities.xml.</LI>
+<LI><B>Other users' ID's (info about whhat users are marked BAD, GOOD, etc.):</B> go to Preferences, Manage Identities, Export. Save with extension .xml, e.g. users.xml.</LI>
+<LI>Save those files in a safe place, expecially the file containing your own ID's. (if someone finds it your anonymity is screwed).</LI>
+<LI><B>Board list:</B> You may want to save the file boards.xml, it's found in a folder called Config, inside the Frost directory.</LI>
+</OL>
+<P><U>Restore:</U></P>
+<OL>
+<LI><B>Restore your own ID's:</B> click preferences, manage own identities, import from xml, browse to myidentities.xml, click OK.</LI>
+<LI><B>Restore other users's ID's:</B> click Preferences, Manage Identities, import, browse to users.xml, click OK.</LI>
+<LI><B>Restore your boards collection:</B> Stop Frost. In the Frost directory, Config folder, rename boards.xml to boards.xml.bak, so you can roll back in case of problems.
+Paste the old boards.xml (the one you backed up from the old Frost) into the Config folder. Start Frost.</LI>
+</OL>
+
+<P><U>Automatic board list backup:</U> Frost automatically creates up to 4 backups of the boards.xml file in the Config folder. If you start Frost and your
+boards are gone, do the following:</P>
+<OL>
+<LI>Stop Frost</LI>
+<LI>Copy away all boards.xml.* files in Config folder (otherwise Frost could overwrite them with backups of your empty board list)</LI>
+<LI>Inspect the boards.xml.bak files and restore the last correct version. Copy the correct version into the Config folder and rename it to boards.xml</LI>
+<LI>Start Frost</LI>
+</OL>
+
+<P><B>Q: Where can I find more boards?</B></P>
+<P>A: You need to explore Frost a bit.  See that globe at the top?  Click on it.  Now you see the boards.  Find the boards you like and select them, or select all, then right click on the selection and choose add board.  It's best if you build folders first and add the boards to the folders so they are organized.  If you want more boards follow these steps:</P>
+<OL>
+<LI>Go to Options > Preferences > News (1)</LI>
+<LI>Set the days to download backward to 60 and the days to display to 70.</LI>
+<LI>Enable the News > Automatic Board Update.</LI>
+<LI>Right click on the Boards board and select Refresh Board.</LI>
+<LI>Give it some time and it will start to find messages that have boards and files attached.</LI>
+<LI>After you've caught up on the boards/messages/files, set the options back to a more reasonable level.</LI>
+</OL>
+
+<P><B>Q: How do I download stuff with Frost?</B></P>
+<P>A: Copy the key CHK@ or SSK@, select the downloads tab, and and paste it in field and press Enter.</P>
+
+<P><B>Q: How do I upload stuff with Frost?</B></P>
+<P>A:</P>
+<OL>
+<LI>Enable the Uploads option</LI>
+<LI>Select the Uploads tab</LI>
+<LI>Click on the folder Icon at the top of the page</LI>
+<LI>Select the files or folders you want to upload and click Open (don't select folders with personal information)</LI>
+<LI>The file will populate the Upload page</LI>
+<LI>The upload will start automatically</LI>
+</OL>
+<P>Caution: Once you've uploaded something to Freenet, there is no way to remove it.
+The best you can hope for is that no one downloads it. If you don't spread the key, no one even knows about it.</P>
+
+<P><B>Q: How do I undelete a message?</B></P>
+<P>A:</P>
+<OL>
+<LI>Go to Option > Preferences > News (3) > Show Deleted Messages.</LI>
+<LI>Right click on the deleted message (the one with the line through it) and select Undelete.</LI>
+</OL>
+
+<P><B>Q: How do I send private messages in Frost?</B></P>
+<P>A:</P>
+<OL>
+<LI>You first have to mark the person you want to send a message to as GOOD (not needed if you reply to a message).</LI>
+<LI>Select the board you want to post the message on.</LI>
+<LI>Select the Icon to create a message, or select reply to a current message.</LI>
+<LI>Check the Encrypt For box and select their ID from the drop-down box.</LI>
+<LI>Write the message and send it.</LI>
+</OL>
+
+<P><B>Q: Why do the same board names appear twice in the Known Boards List? They have different icons (a set of keys, a lock, etc.) I can't seem to add two with the same name, so which should I choose?</B></P>
+<P>A: Frost can have duplicate boards (opened, keyed, and locked).  You can add two with the same name, but it will ask you if you want to over write the board.  Most people are moving to the open boards since giving everyone the keys to a locked board doesn't make sense.  Many of the keyed boards you see were created when Frost had that as the default board type.  Locked board are normally for announcement only.</P>
+
+<P><B>Q: What's the big deal about signing FROST posts? Where's the value to me? Creating a signed NIC that can potentially be traced back to a specific computer seems to go against the freenet ideal of total anonymity. Obviously, I am missing something key - what is it?</B></P>
+<P>A: The early Frost didn't have real signatures, so messages were faked, and you couldn't tell who really wrote the post.  Frost signatures were developed so people could carry on a real conversation.  If everyone posted as anonymous, things would get confusing.  You can change your identity, and have multiple identities if you choose.</P>
+
+<P><B>Q: Will Freenet always be slow?</B></P>
+<P>A: It will be slower than the normal internet due to the nature of the routing, but it does get better after time.  Your node needs to become acclimated.  Patience is the key.</P>
+
+<P><B>Q: Where can I find files to download?  When I search for files I don't see anything.</B></P>
+<P>A: Files will show up in the search tab as your node becomes aware of them.  Just give it some time.</P>
+
+<P><B>Q: What is that index number thing about?</B></P>
+<P>A: It's just an order in which messages were inserted. When your frost tries to post the message it starts with 0 of the current day, and moves to whatever slot is the lowest and empty... then puts it there.</P>
+
+<P><B>Q: How do I create boards?</B></P>
+<P>A:</P>
+<OL>
+<LI>Make sure you have a good idea what you want the board to be about. Make sure the
+topic is neither to specific nor too broad. Use your common sense here.</LI>
+<LI>Look around whether there already is a board that suits your interests. Ask in the
+"boards" board.</LI>
+<LI>If there isn't a suitable board yet, ask yourself whether such a board would be
+suitable for Freenet at all. Note that most Freenetizens are very concerned about
+giving away any sort of personal data, which makes discussion pretty hard at times
+and rules out a number of topics right away. Ask yourself whether there would actually
+be anything interesting to discuss about the topic you have in mind.</LI>
+<LI>Choose a good name for your board. Think about this a bit. Choose a name that is
+short and descriptive and clearly defines the limits of the boards topic. If the
+discussion on the board is not supposed to be in english, make sure this is obvious
+from the name (Examples: fr.comics, es.politics...).</LI>
+<LI>Click on the blank-page-with-plus-sign icon in the upper left corner of the frost
+window. Enter the name you just thought of into the dialogue that appears and click
+"Add board". The board should now appear in the board list on the left.
+Note that if several people do that and they all enter the same name there, they will
+all end up on the same board and be able to exchange messages with each other.
+That is, unless any of them messes around with board-keys for that board. (In which case that
+person will end up on a private board all of their own, missing out on all the fun that
+the others are having.)<BR>
+Remember you don't really <I>create</I> a board, you just specify a common board name and all
+users that use the same board name will see the messages sent to this board. If noone
+sends messages, or if you remove the board from your list, the board is still there.</LI>
+<LI>If, and only if, you want this board to be a moderated board (meaning only you can
+post there, while others can only read), right-click the board and select configure.
+Click on "Secure Board". Click on "Generate Key Pair". Click OK.<BR>
+If you want to make a board where other people can post, too, then, please, for the
+love of all that's good and right, do not add any board keys.</LI>
+<LI>Advertise your board. Post a message about it in the boards board. Post something
+interesting/funny/provocative/whatever into the board you created, so that newcomers
+won't find it all empty. If you have chosen to make a keyed board, make sure you never
+give away the private key. That would defeat the purpose of having keys on a board.</LI>
+</OL>
+
+<P><B>Q: Can't Frost post successful downloads automatically to the 'successful' board?</B></P>
+<P>A: This was already discussed multiple times before. The conclusion was always that it is a bad idea to automatically post each download to Frost. You may forget about this and download something 'different' one time and this is posted using your identity. No.
+Instead use the localdata/Frost-Downloads.log file and get the keys from there. Check them, post them, and clean the file for the next downloads.</P>
+
+<P><B>Q: I deleted my shared files, but they still are found by the file search!</B></P>
+<P>A: This is how it works. Freenet is asynchronously. All 3 days your Frost sends a list with shared files. Other Frosts collect this list. When you stop sending a list because you deleted the shared files, other Frosts remember the list for some time. Useful when you are out for vacation for 2 weeks. In this case others find your files and can wait until you come back. When you never come back, the others will give up at some time and hate you ;)</P>
+
+<P><B>Q: Why is the search tab greyed out for me in Frost?</B></P>
+<P>A: Options->Preferences->Search: Untick "Disable filesharing"</P>
+
+<P><B>Q: Anything else?</B></P>
+<P>A: Yes. Visit www.freenethelp.org, and jtcfrost.sourceforge.net/support.html</P>
+  </BODY>
+</HTML>
