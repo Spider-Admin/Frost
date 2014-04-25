@@ -106,9 +106,9 @@
   		<dependency>
       		<groupId>org.bouncycastle</groupId>
       		<artifactId>bcprov-jdk14</artifactId>
-      		<version>1.34</version>
+      		<version>1.39</version>
       		<scope>system</scope>
-      		<systemPath>${basedir}/src/main/zipResources/lib/bcprov-jdk15-134.jar</systemPath>
+      		<systemPath>${basedir}/src/main/zipResources/lib/bcprov-jdk15-139.jar</systemPath>
     	</dependency>
   		<dependency>
       		<groupId>com.toedter</groupId>
