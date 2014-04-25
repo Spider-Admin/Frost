@@ -1,12 +1,12 @@
 Frost
 -----
-José Manuel Arnesto 
-<kevloral -AT+ gmail.com>
-kevloral@0aGR0ur6QBN_+RSuU47Es4X7HVs
-
 Jan Gerritsen
 <frost.artur -AT+ googlemail.com>
 artur@K7dLGJvoXF_QQeUhZq9bNp0lFx4
+
+José Manuel Arnesto 
+<kevloral -AT+ gmail.com>
+kevloral@0aGR0ur6QBN_+RSuU47Es4X7HVs
 
 Karsten Graul
 <bback -AT+ users.sourceforge.net>
