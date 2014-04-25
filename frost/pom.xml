@@ -108,7 +108,7 @@
       		<artifactId>bcprov-jdk14</artifactId>
       		<version>1.34</version>
       		<scope>system</scope>
-      		<systemPath>${basedir}/src/main/zipResources/lib/bcprov-jdk14-134.jar</systemPath>
+      		<systemPath>${basedir}/src/main/zipResources/lib/bcprov-jdk15-134.jar</systemPath>
     	</dependency>
   		<dependency>
       		<groupId>com.toedter</groupId>
