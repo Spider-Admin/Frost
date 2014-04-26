@@ -50,6 +50,8 @@
 							<mainClass>frost.Frost</mainClass>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                			<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>							
 						<manifestEntries>  
 							<!-- System scope depedencies are not automatically added, so we define the classpath by hand -->
