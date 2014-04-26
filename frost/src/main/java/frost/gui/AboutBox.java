@@ -37,7 +37,7 @@ public class AboutBox extends JDialogWithDetails {
     // because a growing amount of users use CVS version:
     private String version = null;
 
-    private final static String copyright = "Copyright 2014 Frost Project";
+    private final static String copyright = "Copyright 2014 Frost development team";
     private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
     private final JPanel imagePanel = new JPanel();
@@ -96,7 +96,7 @@ public class AboutBox extends JDialogWithDetails {
         final StringBuilder details = new StringBuilder();
         details.append(language.getString("AboutBox.text.development") + "\n\n");
         details.append(language.getString("AboutBox.text.active") + "\n");
-        details.append("   Jan Gerritsen \n   (artur@K7dLGJvoXF_QQeUhZq9bNp0lFx4)\n\n");
+        details.append("   Jan Gerritsen \n   (a*rtur@K7dLGJvoXF_QQeUhZq9bNp0lFx4)\n\n");
         details.append("   José Manuel Arnesto \n   (kevloral@0aGR0ur6QBN_+RSuU47Es4X7HVs)\n\n");
         details.append("   Karsten Graul \n   (bback@xgVRApPk+Yngy+jmtOeGzIbN_A0)\n\n");
         details.append(language.getString("AboutBox.text.left") + "\n");
