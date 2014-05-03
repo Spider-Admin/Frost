@@ -132,8 +132,15 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             if( toRow < fromRow ) {
                 toRow = fromRow;
             }
-//            System.out.println("treeExpanded, fromRow="+fromRow+", toRow="+toRow);
-            fireTableRowsInserted(fromRow, toRow);
+
+            final int endRow = toRow;
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    fireTableRowsInserted(fromRow, endRow);
+                }
+            });
+
         }
 
         /**
@@ -142,7 +149,6 @@ public class TreeTableModelAdapter extends AbstractTableModel {
          * @see javax.swing.event.TreeExpansionListener#treeCollapsed(javax.swing.event.TreeExpansionEvent)
          */
         public void treeCollapsed(final TreeExpansionEvent event) {
-//            System.out.println("treeCollapsed");
             final DefaultMutableTreeNode collapsedNode = (DefaultMutableTreeNode)event.getPath().getLastPathComponent();
             final int nodeRow = treeTable.getRowForNode(collapsedNode);
             final int fromRow = nodeRow + 1;
@@ -175,39 +181,25 @@ public class TreeTableModelAdapter extends AbstractTableModel {
          * @see javax.swing.event.TreeModelListener#treeNodesInserted(javax.swing.event.TreeModelEvent)
          */
         public void treeNodesInserted(final TreeModelEvent e) {
-            final DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.getTreePath().getLastPathComponent();
+            final DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getChildren()[0];
             final int[] childIndices = e.getChildIndices();
             // we always insert only one child at a time
             if( childIndices.length != 1 ) {
                 System.out.println("****** FIXME2: more than 1 child: "+childIndices.length+" ********");
             }
-            // compute row that was inserted
-//            System.out.println("a="+MainFrame.getInstance().getMessageTreeTable().getRowForNode(node));
-//            System.out.println("b="+childIndices[0]);
-//            System.out.println("c="+node);
-            // FIXME: fails again: 1st child of a thread selected, new message arrived and replaced the selected
-            //        message! new message was shown in preview and marked unread!
-            final int offset = 0;
-//            if( childIndices[0] == 0 ) {
-//                offset = 0;
-//            } else {
-//                offset = 1;
-//            }
-            final int row = treeTable.getRowForNode(node) + offset + childIndices[0];
-//            final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
+            //            final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-//                    System.out.println("treeNodesInserted: "+row);
+                    final int row = treeTable.getRowForNode(node);
                     fireTableRowsInserted(row, row);
                 }
             });
-        }
-
+        }        
+        
         /* (non-Javadoc)
          * @see javax.swing.event.TreeModelListener#treeNodesRemoved(javax.swing.event.TreeModelEvent)
          */
         public void treeNodesRemoved(final TreeModelEvent e) {
-            System.out.println("treeNodesRemoved");
             final DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.getTreePath().getLastPathComponent();
             final int[] childIndices = e.getChildIndices();
             // we always remove only one child at a time
