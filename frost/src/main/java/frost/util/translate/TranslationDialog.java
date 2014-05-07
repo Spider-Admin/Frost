@@ -19,22 +19,27 @@
 package frost.util.translate;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.WindowEvent;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 
-import frost.*;
-import frost.util.gui.*;
+import frost.MainFrame;
+import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.*;
 
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
 @SuppressWarnings("serial")
 public class TranslationDialog extends JFrame {
 
     private JPanel jContentPane = null;
     private JLabel jLabel = null;
-    private JList Lkeys = null;
+    private JList<String> Lkeys = null;
     private JLabel Lsource = null;
     private JTextArea TAsource = null;
     private JLabel Ltranslation = null;
@@ -172,6 +177,9 @@ public class TranslationDialog extends JFrame {
         return jContentPane;
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.JFrame#processWindowEvent(java.awt.event.WindowEvent)
+     */
     @Override
     protected void processWindowEvent(final WindowEvent e) {
         if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
@@ -185,9 +193,9 @@ public class TranslationDialog extends JFrame {
      *
      * @return javax.swing.JList
      */
-    private JList getLkeys() {
+    private JList<String> getLkeys() {
         if( Lkeys == null ) {
-            Lkeys = new JList();
+            Lkeys = new JList<String>();
             Lkeys.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             Lkeys.setCellRenderer(new ListRenderer());
             Lkeys.setSelectionModel(new DefaultListSelectionModel() {
@@ -196,9 +204,9 @@ public class TranslationDialog extends JFrame {
                     final int oldIndex = getMinSelectionIndex();
                     super.setSelectionInterval(index0, index1);
                     final int newIndex = getMinSelectionIndex();
-                    if (oldIndex > -1 && oldIndex != newIndex) {
+                    if ((oldIndex > -1) && (oldIndex != newIndex)) {
                         // auto apply of changes
-                        final String oldKey = (String)getLkeys().getModel().getElementAt(oldIndex);
+                        final String oldKey = getLkeys().getModel().getElementAt(oldIndex);
                         if( oldKey != null ) {
                             applyChanges(oldKey, oldIndex);
                         }
@@ -358,7 +366,7 @@ public class TranslationDialog extends JFrame {
             BdeleteKey.setMnemonic(java.awt.event.KeyEvent.VK_D);
             BdeleteKey.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
-                    final String selectedKey = (String)getLkeys().getSelectedValue();
+                    final String selectedKey = getLkeys().getSelectedValue();
                     deleteKey(selectedKey);
                 }
             });
@@ -414,7 +422,7 @@ public class TranslationDialog extends JFrame {
             BapplyChanges.setMnemonic(java.awt.event.KeyEvent.VK_A);
             BapplyChanges.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
-                    final String selectedKey = (String)getLkeys().getSelectedValue();
+                    final String selectedKey = getLkeys().getSelectedValue();
                     if( selectedKey == null ) {
                         return;
                     }
@@ -483,6 +491,9 @@ public class TranslationDialog extends JFrame {
         return Bclose;
     }
 
+    /**
+     *
+     */
     private void closeDialog() {
         final int answer = JOptionPane.showConfirmDialog(
                 this,
@@ -504,6 +515,13 @@ public class TranslationDialog extends JFrame {
         dispose();
     }
 
+    /**
+     * @param rootResBundle
+     * @param sourceResBundle
+     * @param sourceLangName
+     * @param targetResBundle
+     * @param targetLangName
+     */
     public void startDialog(
             final FrostResourceBundle rootResBundle,
             final FrostResourceBundle sourceResBundle,
@@ -530,6 +548,9 @@ public class TranslationDialog extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * @return
+     */
     private List<String> getAllKeys() {
         final TreeMap<String,String> sorter = new TreeMap<String,String>();
         for( final String string : rootBundle.getKeys() ) {
@@ -544,6 +565,9 @@ public class TranslationDialog extends JFrame {
         return itemList;
     }
 
+    /**
+     * @return
+     */
     private List<String> getMissingKeys() {
         final TreeMap<String,String> sorter = new TreeMap<String,String>();
         for( final String string : rootBundle.getKeys() ) {
@@ -560,6 +584,10 @@ public class TranslationDialog extends JFrame {
         return itemList;
     }
 
+    /**
+     * @param quiet
+     * @return
+     */
     private boolean saveBundle(final boolean quiet) {
         final boolean wasOk = targetBundle.saveBundleToFile(targetLanguageName);
         if( wasOk == false ) {
@@ -578,6 +606,9 @@ public class TranslationDialog extends JFrame {
         return wasOk;
     }
 
+    /**
+     *
+     */
     private void showKeysChanged() {
         final List<String> items;
         if( getRBshowAll().isSelected() ) {
@@ -588,6 +619,10 @@ public class TranslationDialog extends JFrame {
         getLkeys().setModel(new ItemListModel(items));
     }
 
+    /**
+     * @param selectedKey
+     * @param ix
+     */
     private void applyChanges(final String selectedKey, final int ix) {
         final String txt = getTAtranslation().getText().trim();
         if( txt.length() == 0 ) {
@@ -609,8 +644,11 @@ public class TranslationDialog extends JFrame {
         }
     }
 
+    /**
+     *
+     */
     private void revertChanges() {
-        final String selectedKey = (String)getLkeys().getSelectedValue();
+        final String selectedKey = getLkeys().getSelectedValue();
         if( selectedKey == null ) {
             return;
         }
@@ -623,6 +661,9 @@ public class TranslationDialog extends JFrame {
         getTAtranslation().setText(val);
     }
 
+    /**
+     * @param selectedKey
+     */
     private void deleteKey(final String selectedKey) {
         if( selectedKey == null ) {
             return;
@@ -634,8 +675,11 @@ public class TranslationDialog extends JFrame {
         ((ItemListModel)getLkeys().getModel()).itemChanged(ix);
     }
 
+    /**
+     *
+     */
     private void keySelectionChanged() {
-        final String selectedKey = (String)getLkeys().getSelectedValue();
+        final String selectedKey = getLkeys().getSelectedValue();
         if( selectedKey == null ) {
             getTAsource().setText("");
             getTAtranslation().setText("");
@@ -652,32 +696,63 @@ public class TranslationDialog extends JFrame {
         getTAtranslation().setText(txt);
     }
 
-    private class ItemListModel extends AbstractListModel {
-        List<String> items;
+    /**
+     *
+     */
+    private class ItemListModel extends AbstractListModel<String> {
 
+        private List<String> items;
+
+        /**
+         * @param i
+         */
         public ItemListModel(final List<String> i) {
             super();
             items = i;
         }
+
+        /* (non-Javadoc)
+         * @see javax.swing.ListModel#getSize()
+         */
         public int getSize() {
             return items.size();
         }
-        public Object getElementAt(final int x) {
+
+        /* (non-Javadoc)
+         * @see javax.swing.ListModel#getElementAt(int)
+         */
+        public String getElementAt(final int x) {
             return items.get(x);
         }
+
+        /**
+         * @param ix
+         */
         public void itemChanged(final int ix) {
             fireContentsChanged(this, ix, ix);
         }
+
+        /**
+         * @param ix
+         */
         public void removeItem(final int ix) {
             items.remove(ix);
             fireIntervalRemoved(this, ix, ix);
         }
     }
 
+    /**
+     *
+     */
     private class ListRenderer extends DefaultListCellRenderer {
+
         public ListRenderer() {
             super();
         }
+
+        /* (non-Javadoc)
+         * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
+         */
         @Override
         public Component getListCellRendererComponent(
                 final JList list,
