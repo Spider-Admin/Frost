@@ -42,8 +42,6 @@ import frost.util.gui.translation.Language;
 @SuppressWarnings("serial")
 public class ManageLocalIdentitiesDialog extends JDialog {
 
-//    private static final Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());
-
     private Language language = null;
 
     private JPanel jContentPane = null;
@@ -53,17 +51,16 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JLabel jLabel = null;
     private JScrollPane SPlist = null;
     private JPanel jPanel = null;
-    private JList identitiesList = null;
+    private JList<LocalIdentity> identitiesList = null;
     private JButton BaddNewIdentity = null;
     private JButton BdeleteIdentity = null;
     private JButton BimportIdentityXml = null;
     private JLabel Ldummy = null;
-
     private JButton BimportXml = null;
-
     private JButton BexportXml = null;
-
     private JButton BsetSignature = null;
+
+    private DefaultListModel<LocalIdentity> identitiesModel = null;
 
     private boolean identitiesImported = false;
 
@@ -263,15 +260,27 @@ public class ManageLocalIdentitiesDialog extends JDialog {
      *
      * @return javax.swing.JList
      */
-    private JList getIdentitiesList() {
+    private JList<LocalIdentity> getIdentitiesList() {
         if( identitiesList == null ) {
-            identitiesList = new JList();
-            identitiesList.setModel(new DefaultListModel());
-            for( final Object element : Core.getIdentities().getLocalIdentities() ) {
-                ((DefaultListModel)identitiesList.getModel()).addElement(element);
+            identitiesList = new JList<LocalIdentity>();
+            identitiesList.setModel(getIdentitiesModel());
+            for( final LocalIdentity element : Core.getIdentities().getLocalIdentities() ) {
+                getIdentitiesModel().addElement(element);
             }
         }
         return identitiesList;
+    }
+
+    /**
+     * Returns the list model containing the local identities, creating it if it does not exist yet.
+     *
+     * @return the list model containing the local identities
+     */
+    private DefaultListModel<LocalIdentity> getIdentitiesModel() {
+        if (identitiesModel == null) {
+            identitiesModel = new DefaultListModel<LocalIdentity>();
+        }
+        return identitiesModel;
     }
 
     /**
@@ -287,8 +296,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
                     final LocalIdentity newIdentity = Core.getIdentities().createIdentity();
                     if( newIdentity != null ) {
-                        final DefaultListModel m = (DefaultListModel)getIdentitiesList().getModel();
-                        m.addElement(newIdentity);
+                        getIdentitiesModel().addElement(newIdentity);
                     }
                 }
             });
@@ -308,7 +316,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             BdeleteIdentity.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
 
-                    final LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
+                    final LocalIdentity li = getIdentitiesList().getSelectedValue();
                     if( li == null ) {
                         return;
                     }
@@ -355,7 +363,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     myOld.setGOODWithoutUpdate();
                     Core.getIdentities().addIdentity( myOld );
 
-                    ((DefaultListModel)getIdentitiesList().getModel()).removeElement(li);
+                    getIdentitiesModel().removeElement(li);
                 }
             });
         }
@@ -417,7 +425,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                             language.formatMessage("ManageLocalIdentities.identityImported.body",importedIdentity.getUniqueName()),
                             language.getString("ManageLocalIdentities.identityImported.title"),
                             JOptionPane.INFORMATION_MESSAGE);
-                    ((DefaultListModel)getIdentitiesList().getModel()).addElement(importedIdentity);
+                    getIdentitiesModel().addElement(importedIdentity);
                     identitiesImported = true;
                     return;
                 }
@@ -571,7 +579,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                                     JOptionPane.WARNING_MESSAGE);
                         } else {
                             count++;
-                            ((DefaultListModel)getIdentitiesList().getModel()).addElement(lId);
+                            getIdentitiesModel().addElement(lId);
                         }
                     }
                     JOptionPane.showMessageDialog(
@@ -643,7 +651,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             BsetSignature.setText("ManageLocalIdentities.button.editSignature");
             BsetSignature.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
-                    final LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
+                    final LocalIdentity li = getIdentitiesList().getSelectedValue();
                     if( li == null ) {
                         return;
                     }
