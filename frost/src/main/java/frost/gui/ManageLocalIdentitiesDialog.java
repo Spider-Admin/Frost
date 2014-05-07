@@ -85,7 +85,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         this.setTitle(language.getString("ManageLocalIdentities.title"));
         this.setContentPane(getJContentPane());
 
-        jLabel.setText(language.getString("ManageLocalidentities.listLabel")+":");
+        jLabel.setText(language.getString("ManageLocalidentities.listLabel"));
         BimportIdentityXml.setText(language.getString("ManageLocalIdentities.button.importIdentity"));
         BdeleteIdentity.setText(language.getString("ManageLocalIdentities.button.deleteIdentity"));
         BaddNewIdentity.setText(language.getString("ManageLocalIdentities.button.createNewIdentity"));
