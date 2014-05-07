@@ -20,7 +20,7 @@
 package frost.gui;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
 import java.util.List;
 
 import javax.swing.*;
@@ -30,10 +30,15 @@ import org.w3c.dom.*;
 
 import frost.*;
 import frost.identities.*;
-import frost.storage.*;
-import frost.util.*;
-import frost.util.gui.translation.*;
+import frost.storage.LocalIdentitiesXmlDAO;
+import frost.util.XMLTools;
+import frost.util.gui.translation.Language;
 
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
 @SuppressWarnings("serial")
 public class ManageLocalIdentitiesDialog extends JDialog {
 
@@ -357,6 +362,10 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         return BdeleteIdentity;
     }
 
+    /**
+     * @param identitiesXmlFile
+     * @return
+     */
     protected LocalIdentity importLocalIdentityFromIdentityXml(final File identitiesXmlFile) {
         final Document d = XMLTools.parseXmlFile(identitiesXmlFile);
         final Element rootEl = d.getDocumentElement();
@@ -417,6 +426,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         return BimportIdentityXml;
     }
 
+    /**
+     * @return
+     */
     private File chooseIdentitiesFile() {
 
         final FileFilter myFilter = new FileFilter() {
@@ -445,6 +457,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         return null;
     }
 
+    /**
+     * @return
+     */
     private File chooseXmlImportFile() {
 
         final FileFilter myFilter = new FileFilter() {
@@ -473,6 +488,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         return null;
     }
 
+    /**
+     * @return
+     */
     private File chooseXmlExportFile() {
 
         final FileFilter myFilter = new FileFilter() {
@@ -532,7 +550,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                         return;
                     }
                     final List<LocalIdentity> localIdentities = LocalIdentitiesXmlDAO.loadLocalidentities(xmlFile);
-                    if( null == localIdentities || localIdentities.size() == 0 ) {
+                    if( (null == localIdentities) || (localIdentities.size() == 0) ) {
                         // nothing loaded
                         JOptionPane.showMessageDialog(
                                 ManageLocalIdentitiesDialog.this,
@@ -646,6 +664,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         return BsetSignature;
     }
 
+    /**
+     * @return
+     */
     public boolean isIdentitiesImported() {
         return identitiesImported;
     }
