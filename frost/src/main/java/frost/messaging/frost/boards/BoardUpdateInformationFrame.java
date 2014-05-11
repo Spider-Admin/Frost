@@ -23,10 +23,10 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.*;
 
-import frost.*;
+import frost.MainFrame;
 
 
 /**
@@ -42,7 +42,7 @@ import frost.*;
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
 @SuppressWarnings("serial")
-public class BoardUpdateInformationFrame extends javax.swing.JFrame implements BoardUpdateThreadListener, TreeSelectionListener {
+public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateThreadListener, TreeSelectionListener {
 
     private JComboBox cbBoards;
     private JLabel lBoards;
@@ -60,6 +60,10 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
 
     private final TofTreeModel tofTreeModel;
 
+    /**
+     * @param parentFrame
+     * @param tofTree
+     */
     public BoardUpdateInformationFrame(final JFrame parentFrame, final TofTree tofTree) {
         super();
         this.tofTree = tofTree;
@@ -71,6 +75,9 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         setLocationRelativeTo(parentFrame);
     }
 
+    /**
+     *
+     */
     private void initGUI() {
         try {
             getContentPane().setLayout(new BorderLayout());
@@ -174,10 +181,16 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         }
     }
 
+    /**
+     *
+     */
     private void clearTaContent() {
         taContent.setText("No informations available");
     }
 
+    /**
+     * @param evt
+     */
     private void cbBoardsActionPerformed(final ActionEvent evt) {
         final JComboBox cb = (JComboBox)evt.getSource();
         final Board selectedBoard = (Board)cb.getSelectedItem();
@@ -199,6 +212,9 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         }
     }
 
+    /**
+     * @param evt
+     */
     private void cbDatesActionPerformed(final ActionEvent evt) {
         final JComboBox cb = (JComboBox)evt.getSource();
         final BoardUpdateInformation selectedItem = (BoardUpdateInformation)cb.getSelectedItem();
@@ -229,6 +245,9 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         }
     }
 
+    /**
+     *
+     */
     public void startDialog() {
         tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
         MainFrame.getInstance().getFrostMessageTab().getTofTree().addTreeSelectionListener(this);
@@ -237,6 +256,9 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         setVisible(true);
     }
 
+    /**
+     *
+     */
     private void closeDialog() {
         MainFrame.getInstance().getFrostMessageTab().getTofTree().removeTreeSelectionListener(this);
         tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
@@ -244,10 +266,16 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         dispose();
     }
 
+    /**
+     * @param evt
+     */
     private void BcloseActionPerformed(final ActionEvent evt) {
         closeDialog();
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.JFrame#processWindowEvent(java.awt.event.WindowEvent)
+     */
     @Override
     protected void processWindowEvent(final WindowEvent e) {
         if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
@@ -257,10 +285,16 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         super.processWindowEvent(e);
     }
 
+    /**
+     * @return
+     */
     public static boolean isDialogShowing() {
         return isShowing;
     }
 
+    /**
+     * @param val
+     */
     public static void setDialogShowing(final boolean val) {
         isShowing = val;
     }
@@ -271,26 +305,33 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
      * Is called if a Thread is finished.
      */
     public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
-   }
+    }
 
-   /**
-    * Is called if a Thread is started.
-    *
-    * @see frost.messaging.frost.boards.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.messaging.frost.boards.BoardUpdateThread)
-    */
-   public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
-   }
+    /**
+     * Is called if a Thread is started.
+     *
+     * @see frost.messaging.frost.boards.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.messaging.frost.boards.BoardUpdateThread)
+     */
+    public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
+    }
 
-   public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+    /* (non-Javadoc)
+     * @see frost.messaging.frost.boards.BoardUpdateThreadListener#boardUpdateInformationChanged(frost.messaging.frost.boards.BoardUpdateThread, frost.messaging.frost.boards.BoardUpdateInformation)
+     */
+    public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
 
        SwingUtilities.invokeLater(new Runnable() {
            public void run() {
                updateGui(thread, bui);
            }
        });
-   }
+    }
 
-   private void updateGui(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+    /**
+     * @param thread
+     * @param bui
+     */
+    private void updateGui(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
        maybeUpdateSummaryTextArea();
 
        final Board selectedBoard = (Board)cbBoards.getSelectedItem();
@@ -342,27 +383,30 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
        taContent.setText( bui.getInfoString() );
    }
 
-   private void maybeUpdateSummaryTextArea() {
+    /**
+     *
+     */
+    private void maybeUpdateSummaryTextArea() {
 
-       if( tabbedPane.getSelectedIndex() == 1 ) {
-           taSummary.setText(BoardUpdateInformation.getSummaryInfoString(tofTreeModel.getAllBoards()));
-       }
-   }
+        if (tabbedPane.getSelectedIndex() == 1) {
+            taSummary.setText(BoardUpdateInformation.getSummaryInfoString(tofTreeModel.getAllBoards()));
+        }
+    }
 
-   /**
-    * Implement TreeSelectionListener.
-    */
-   public void valueChanged(final TreeSelectionEvent e) {
-       maybeSyncBoards();
-   }
+    /**
+     * Implement TreeSelectionListener.
+     */
+    public void valueChanged(final TreeSelectionEvent e) {
+        maybeSyncBoards();
+    }
 
-   /**
-    * Maybe change board selection if board tree changes.
-    */
-   private void maybeSyncBoards() {
-       if( cbSyncWithBoardTree.isSelected() ) {
-           // set current board to selected board in board tree
-           final Board selectedBoard = tofTree.getSelectedBoard();
+    /**
+     * Maybe change board selection if board tree changes.
+     */
+    private void maybeSyncBoards() {
+        if (cbSyncWithBoardTree.isSelected()) {
+            // set current board to selected board in board tree
+            final Board selectedBoard = tofTree.getSelectedBoard();
            if( selectedBoard == null ) {
                return;
            }
