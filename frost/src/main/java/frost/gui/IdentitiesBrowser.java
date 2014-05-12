@@ -18,73 +18,29 @@
  */
 package frost.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ProgressMonitor;
-import javax.swing.UIManager;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.table.*;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeZone;
+import org.joda.time.*;
 
-import frost.Core;
-import frost.MainFrame;
-import frost.SettingsClass;
+import frost.*;
 import frost.fileTransfer.common.TableBackgroundColors;
-import frost.gui.model.SortedTableModel;
-import frost.gui.model.TableMember;
+import frost.gui.model.*;
 import frost.identities.Identity;
 import frost.messaging.frost.boards.Board;
 import frost.storage.IdentitiesXmlDAO;
 import frost.storage.perst.identities.IdentitiesStorage;
-import frost.util.CopyToClipboard;
-import frost.util.DateFun;
-import frost.util.Mixed;
-import frost.util.gui.FrostSwingWorker;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.Language;
-import frost.util.gui.translation.LanguageEvent;
-import frost.util.gui.translation.LanguageListener;
+import frost.util.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 @SuppressWarnings("serial")
 public class IdentitiesBrowser extends JDialog {
@@ -284,7 +240,7 @@ public class IdentitiesBrowser extends JDialog {
 
 					if( selRows.length == 1 ) {
 						// one selected: enable good,bad,... buttons, disable button with current state
-						final Identity id = ((InnerTableMember)identitiesTableModel.getRow(selRows[0])).getIdentity();
+						final Identity id = identitiesTableModel.getRow(selRows[0]).getIdentity();
 						// setting all together avoids flickering buttons
 						if( id.isBAD() ) {
 							updateStateButtons(false, true, true, true);
@@ -303,7 +259,7 @@ public class IdentitiesBrowser extends JDialog {
 					// if one in selection has more than 0 msgs / files, disable delete button
 					boolean enableDelete = true;
 					for( final int element : selRows ) {
-						if( ((InnerTableMember)identitiesTableModel.getRow(element)).isDeleteable() == false ) {
+						if( identitiesTableModel.getRow(element).isDeleteable() == false ) {
 							enableDelete = false;
 							break;
 						}
@@ -425,15 +381,15 @@ public class IdentitiesBrowser extends JDialog {
 			gridBagConstraints5.gridy += 1;
 			gridBagConstraints5.insets = new java.awt.Insets(20,5,0,5);
 			String minDays = Long.toString(
-				(new DateMidnight(DateTimeZone.UTC).getMillis() - new DateMidnight(minCleanupTime, DateTimeZone.UTC).getMillis())
-				/ (1000L * 60L * 60L * 24L)
+				((new DateMidnight(DateTimeZone.UTC).getMillis() - new DateMidnight(minCleanupTime, DateTimeZone.UTC).getMillis())
+				/ (1000L * 60L * 60L * 24L))
 				+ 1
 			);
-			
+
 			JLabel clenupLastSeenLabel = new JLabel(language.formatMessage("IdentitiesBrowser.cleanup.lastSeenLabel.text", minDays));
 			clenupLastSeenLabel.setToolTipText(language.getString("IdentitiesBrowser.cleanup.lastSeenLabel.toolTip"));
 			mainPanel.add(clenupLastSeenLabel, gridBagConstraints5);
-			
+
 			gridBagConstraints5.gridy += 1;
 			gridBagConstraints5.insets = new java.awt.Insets(3,5,0,5);
 			gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
@@ -445,12 +401,12 @@ public class IdentitiesBrowser extends JDialog {
 			JLabel cleanupReceivedMessagesCountLabel = new JLabel(language.getString("IdentitiesBrowser.cleanup.receivedMessageCountLabel.text"));
 			cleanupReceivedMessagesCountLabel.setToolTipText(language.getString("IdentitiesBrowser.cleanup.receivedMessageCountLabel.toolTip"));
 			mainPanel.add(cleanupReceivedMessagesCountLabel, gridBagConstraints5);
-			
+
 			gridBagConstraints5.gridy += 1;
 			cleanupReveivedMessageCountTextField.setToolTipText(language.getString("IdentitiesBrowser.cleanup.receivedMessageCountLabel.toolTip"));
 			cleanupReveivedMessageCountTextField.setText("50");
 			mainPanel.add(cleanupReveivedMessageCountTextField, gridBagConstraints5);
-			
+
 			gridBagConstraints5.gridy += 1;
 			gridBagConstraints5.weighty = 1.0;
 			gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
@@ -458,7 +414,7 @@ public class IdentitiesBrowser extends JDialog {
 		}
 		return mainPanel;
 	}
-	
+
 
 	/**
 	 * This method initializes closeButton
@@ -493,7 +449,7 @@ public class IdentitiesBrowser extends JDialog {
 				public void actionPerformed(final java.awt.event.ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
-						final InnerTableMember itm = (InnerTableMember)identitiesTableModel.getRow(element);
+						final InnerTableMember itm = identitiesTableModel.getRow(element);
 						final Identity id = itm.getIdentity();
 						if( id.isGOOD() == false ) {
 							id.setGOOD();
@@ -519,7 +475,7 @@ public class IdentitiesBrowser extends JDialog {
 				public void actionPerformed(final java.awt.event.ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
-						final InnerTableMember itm = (InnerTableMember)identitiesTableModel.getRow(element);
+						final InnerTableMember itm = identitiesTableModel.getRow(element);
 						final Identity id = itm.getIdentity();
 						if( id.isOBSERVE() == false ) {
 							id.setOBSERVE();
@@ -545,7 +501,7 @@ public class IdentitiesBrowser extends JDialog {
 				public void actionPerformed(final java.awt.event.ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
-						final InnerTableMember itm = (InnerTableMember)identitiesTableModel.getRow(element);
+						final InnerTableMember itm = identitiesTableModel.getRow(element);
 						final Identity id = itm.getIdentity();
 						if( id.isCHECK() == false ) {
 							id.setCHECK();
@@ -571,7 +527,7 @@ public class IdentitiesBrowser extends JDialog {
 				public void actionPerformed(final java.awt.event.ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
-						final InnerTableMember itm = (InnerTableMember)identitiesTableModel.getRow(element);
+						final InnerTableMember itm = identitiesTableModel.getRow(element);
 						final Identity id = itm.getIdentity();
 						if( id.isBAD() == false ) {
 							id.setBAD();
@@ -610,7 +566,7 @@ public class IdentitiesBrowser extends JDialog {
 						return;
 					}
 					for( int x=selRows.length-1; x>=0; x-- ) {
-						final InnerTableMember m = (InnerTableMember)identitiesTableModel.getRow(selRows[x]);
+						final InnerTableMember m = identitiesTableModel.getRow(selRows[x]);
 						final Identity id = m.getIdentity();
 						Core.getIdentities().deleteIdentity(id);
 						identitiesTableModel.removeRow(selRows[x]);
@@ -652,7 +608,7 @@ public class IdentitiesBrowser extends JDialog {
 			return identity;
 		}
 		public boolean isDeleteable() {
-			if( msgCount.intValue() == 0 && fileCount.intValue() == 0 ) {
+			if( (msgCount.intValue() == 0) && (fileCount.intValue() == 0) ) {
 				return true;
 			}
 			return false;
@@ -666,7 +622,7 @@ public class IdentitiesBrowser extends JDialog {
 				return false;
 			}
 			// keep identities marked BAD, if not expired
-			if( identity.isBAD() && identity.getLastSeenTimestamp() > minCleanupTime ) {
+			if( identity.isBAD() && (identity.getLastSeenTimestamp() > minCleanupTime) ) {
 				return false;
 			}
 
@@ -710,19 +666,19 @@ public class IdentitiesBrowser extends JDialog {
 		}
 
 		public int compareTo(final InnerTableMember anOther, final int tableColumnIndex) {
-			if( tableColumnIndex == 0 || tableColumnIndex == 1 ) {
+			if( (tableColumnIndex == 0) || (tableColumnIndex == 1) ) {
 				final String s1 = (String)getValueAt(tableColumnIndex);
 				final String s2 = (String)anOther.getValueAt(tableColumnIndex);
 				return s1.compareToIgnoreCase(s2);
 			}
 			if( tableColumnIndex == 2 ) {
 				final int l1 = getIdentity().getReceivedMessageCount();
-				final int l2 = ((InnerTableMember)anOther).getIdentity().getReceivedMessageCount();
+				final int l2 = anOther.getIdentity().getReceivedMessageCount();
 				return Mixed.compareLong(l1, l2);
 			}
 			if( tableColumnIndex == 3 ) {
 				final long l1 = getIdentity().getLastSeenTimestamp();
-				final long l2 = ((InnerTableMember)anOther).getIdentity().getLastSeenTimestamp();
+				final long l2 = anOther.getIdentity().getLastSeenTimestamp();
 				return Mixed.compareLong(l1, l2);
 			}
 			if( tableColumnIndex == 4 ) {
@@ -778,7 +734,7 @@ public class IdentitiesBrowser extends JDialog {
 
 		@Override
 		public String getColumnName(final int column) {
-			if( column >= 0 && column < columnNames.length ) {
+			if( (column >= 0) && (column < columnNames.length) ) {
 				return columnNames[column];
 			}
 			return null;
@@ -791,7 +747,7 @@ public class IdentitiesBrowser extends JDialog {
 
 		@Override
 		public Class<?> getColumnClass(final int column) {
-			if( column >= 0 && column < columnClasses.length ) {
+			if( (column >= 0) && (column < columnClasses.length) ) {
 				return columnClasses[column];
 			}
 			return null;
@@ -837,7 +793,7 @@ public class IdentitiesBrowser extends JDialog {
 
 			setAlignmentY(CENTER_ALIGNMENT);
 
-			final InnerTableMember tableMember = (InnerTableMember) identitiesTableModel.getRow(row);
+			final InnerTableMember tableMember = identitiesTableModel.getRow(row);
 
 			// get the original model column index (maybe columns were reordered by user)
 			final TableColumn tableColumn = getIdentitiesTable().getColumnModel().getColumn(column);
@@ -961,11 +917,11 @@ public class IdentitiesBrowser extends JDialog {
 			cleanupButton.setText("IdentitiesBrowser.button.cleanup");
 			cleanupButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(final java.awt.event.ActionEvent e) {
-					
+
 					long minLastSeenTimestamp = 0L;
 					int minReceivedMessageCount = 0;
 					try {
-						minLastSeenTimestamp = System.currentTimeMillis() - Long.parseLong(cleanupLastSeenTextField.getText()) * 24L * 60L * 60L * 1000L;
+						minLastSeenTimestamp = System.currentTimeMillis() - (Long.parseLong(cleanupLastSeenTextField.getText()) * 24L * 60L * 60L * 1000L);
 						minReceivedMessageCount =  Integer.parseInt(cleanupReveivedMessageCountTextField.getText());
 					} catch(NumberFormatException ex) {
 						JOptionPane.showMessageDialog(
@@ -979,9 +935,9 @@ public class IdentitiesBrowser extends JDialog {
 
 					final LinkedList<Integer> li = new LinkedList<Integer>();
 					for( int i=identitiesTableModel.getRowCount()-1; i >= 0; i-- ) {
-						final InnerTableMember m = (InnerTableMember)identitiesTableModel.getRow(i);
+						final InnerTableMember m = identitiesTableModel.getRow(i);
 						final Identity id = m.getIdentity();
-						if( m.isCleanupable() && id.getReceivedMessageCount() <= minReceivedMessageCount && id.getLastSeenTimestamp() < minLastSeenTimestamp ) {
+						if( m.isCleanupable() && (id.getReceivedMessageCount() <= minReceivedMessageCount) && (id.getLastSeenTimestamp() < minLastSeenTimestamp) ) {
 							li.add(new Integer(i));
 						}
 					}
@@ -1008,7 +964,7 @@ public class IdentitiesBrowser extends JDialog {
 						return;
 					}
 					for( final Integer element : li ) {
-						final InnerTableMember m = (InnerTableMember)identitiesTableModel.getRow(element.intValue());
+						final InnerTableMember m = identitiesTableModel.getRow(element.intValue());
 						final Identity id = m.getIdentity();
 						Core.getIdentities().deleteIdentity(id);
 						identitiesTableModel.removeRow(element.intValue());
@@ -1081,7 +1037,7 @@ public class IdentitiesBrowser extends JDialog {
 			// now try to find the first board name that starts with this txt (case insensitiv),
 			// if we found one set selection to it, else leave selection untouched
 			for( int row=0; row < identitiesTableModel.getRowCount(); row++ ) {
-				final InnerTableMember memb = (InnerTableMember)identitiesTableModel.getRow(row);
+				final InnerTableMember memb = identitiesTableModel.getRow(row);
 				if( memb.getIdentity().getUniqueName().toLowerCase().startsWith(txt.toLowerCase()) ) {
 					getIdentitiesTable().getSelectionModel().setSelectionInterval(row, row);
 					// now scroll to selected row, try to show it on top of table
@@ -1089,10 +1045,10 @@ public class IdentitiesBrowser extends JDialog {
 					// determine the count of showed rows
 					final int visibleRows = (int)(getIdentitiesTable().getVisibleRect().getHeight() / getIdentitiesTable().getCellRect(row,0,true).getHeight());
 					int scrollToRow;
-					if( row + visibleRows > identitiesTableModel.getRowCount() ) {
+					if( (row + visibleRows) > identitiesTableModel.getRowCount() ) {
 						scrollToRow = identitiesTableModel.getRowCount()-1;
 					} else {
-						scrollToRow = row + visibleRows - 1;
+						scrollToRow = (row + visibleRows) - 1;
 					}
 					if( scrollToRow > row ) {
 						scrollToRow--;
@@ -1245,7 +1201,7 @@ public class IdentitiesBrowser extends JDialog {
 		}
 		return importButton;
 	}
-	
+
 	/**
 	 * This method initializes exportButton
 	 *
@@ -1380,7 +1336,7 @@ public class IdentitiesBrowser extends JDialog {
 			final int[] selRows = getIdentitiesTable().getSelectedRows();
 			final List<Identity> selectedIds = new ArrayList<Identity>();
 			for( int x=selRows.length-1; x>=0; x-- ) {
-				final InnerTableMember m = (InnerTableMember)identitiesTableModel.getRow(selRows[x]);
+				final InnerTableMember m = identitiesTableModel.getRow(selRows[x]);
 				final Identity id = m.getIdentity();
 				selectedIds.add(id);
 			}
