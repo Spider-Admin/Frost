@@ -60,7 +60,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final ImageIcon frameIconDefault = MiscToolkit.loadImageIcon("/data/jtc.jpg");
     private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
 
-    private final FrostMessageTab frostMessageTab = new FrostMessageTab(this);
+    private final MessagingTab frostMessageTab = new MessagingTab(this);
     private final FreetalkMessageTab freetalkMessageTab = new FreetalkMessageTab(this);
 
     private HelpBrowserFrame helpBrowser = null;
@@ -1011,7 +1011,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         queuedStartupMessages = null;
     }
 
-    public FrostMessageTab getFrostMessageTab() {
+    public MessagingTab getFrostMessageTab() {
         return frostMessageTab;
     }
 

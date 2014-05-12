@@ -37,9 +37,9 @@ import frost.messaging.frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-public class FrostMessageTab implements LanguageListener {
+public class MessagingTab implements LanguageListener {
 
-    private static final Logger logger = Logger.getLogger(FrostMessageTab.class.getName());
+    private static final Logger logger = Logger.getLogger(MessagingTab.class.getName());
 
     private JSplitPane treeAndTabbedPaneSplitpane = null;
 
@@ -85,7 +85,7 @@ public class FrostMessageTab implements LanguageListener {
 
     String forceSelectMessageId = null;
 
-    public FrostMessageTab(final MainFrame localMainFrame) {
+    public MessagingTab(final MainFrame localMainFrame) {
 
         language = Language.getInstance();
         language.addLanguageListener(this);

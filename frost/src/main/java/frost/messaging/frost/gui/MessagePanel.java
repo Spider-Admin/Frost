@@ -57,7 +57,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private int indicateLowReceivedMessagesCountLightRed;
 
     private final MainFrame mainFrame;
-    private final FrostMessageTab frostMessageTab;
+    private final MessagingTab frostMessageTab;
 
     public static enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
     public static enum BooleanState { FLAGGED, STARRED, JUNK };
@@ -507,7 +507,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private String unreadMessagesCountPrefix = "";
     private final JLabel unreadMessagesCountLabel = new JLabel("");
 
-    public MessagePanel(final SettingsClass settings, final MainFrame mf, final FrostMessageTab fmt) {
+    public MessagePanel(final SettingsClass settings, final MainFrame mf, final MessagingTab fmt) {
         super();
         this.settings = settings;
         mainFrame = mf;
