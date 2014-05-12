@@ -19,14 +19,14 @@
 package frost.gui.help;
 
 import java.io.*;
-import java.util.*;
+import java.util.Enumeration;
 import java.util.logging.*;
 import java.util.zip.*;
 
 /**
  * Checks all HTML files in help.zip for 'http://', 'ftp://' links.
  * If those strings are found the help.zip is not used.
- * 
+ *
  * @author bback
  */
 public class CheckHtmlIntegrity {
@@ -34,16 +34,23 @@ public class CheckHtmlIntegrity {
     private static final Logger logger = Logger.getLogger(CheckHtmlIntegrity.class.getName());
 
     private boolean isHtmlSecure = false;
-    
+
+    /**
+     * @return
+     */
     public boolean isHtmlSecure() {
         return isHtmlSecure;
     }
 
+    /**
+     * @param fileName
+     * @return
+     */
     public boolean scanZipFile(String fileName) {
 
         File file = new File(fileName);
-        
-        if( !file.isFile() || file.length() == 0 ) {
+
+        if( !file.isFile() || (file.length() == 0) ) {
             logger.log(Level.SEVERE, "Zip file does not exist: "+file.getPath());
             return isHtmlSecure;
         }
@@ -52,42 +59,41 @@ public class CheckHtmlIntegrity {
 
         try {
             ZipFile zipFile = new ZipFile(file);
-            final Enumeration<? extends ZipEntry> zipFileEntryEnumeration = zipFile.entries();
-            while( zipFileEntryEnumeration.hasMoreElements() ) {
-                final ZipEntry zipFileEntry = zipFileEntryEnumeration.nextElement();
-                
-                final String zipFileEntryName = zipFileEntry.getName();
-                if( zipFileEntryName.endsWith(".html") || zipFileEntryName.endsWith(".htm") ) {
-                    
-                    InputStream zipFileEntryInputStream = zipFile.getInputStream(zipFileEntry);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream((int)zipFileEntry.getSize());
-                    while( true ) {
-                        int len = zipFileEntryInputStream.read(zipData);
-                        if( len < 0 ) {
-                            break;
+            try {
+                final Enumeration<? extends ZipEntry> zipFileEntryEnumeration = zipFile.entries();
+                while (zipFileEntryEnumeration.hasMoreElements()) {
+                    final ZipEntry zipFileEntry = zipFileEntryEnumeration.nextElement();
+
+                    final String zipFileEntryName = zipFileEntry.getName();
+                    if (zipFileEntryName.endsWith(".html") || zipFileEntryName.endsWith(".htm")) {
+
+                        InputStream zipFileEntryInputStream = zipFile.getInputStream(zipFileEntry);
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream((int) zipFileEntry.getSize());
+                        while (true) {
+                            int len = zipFileEntryInputStream.read(zipData);
+                            if (len < 0) {
+                                break;
+                            }
+                            byteArrayOutputStream.write(zipData, 0, len);
                         }
-                        byteArrayOutputStream.write(zipData, 0, len);
-                    }
-                    zipFileEntryInputStream.close();
-                    
-                    String htmlStr = new String(byteArrayOutputStream.toByteArray(), "UTF-8").toLowerCase();
-                    if( htmlStr.indexOf("http://") > -1 ||
-                        htmlStr.indexOf("ftp://") > -1 ||
-                        htmlStr.indexOf("nntp://") > -1 )
-                    {
-                        logger.log(Level.SEVERE, "Unsecure HTML file in help.zip found: "+zipFileEntryName);
-                        return isHtmlSecure;
+                        zipFileEntryInputStream.close();
+
+                        String htmlStr = new String(byteArrayOutputStream.toByteArray(), "UTF-8").toLowerCase();
+                        if ((htmlStr.indexOf("http://") > -1) || (htmlStr.indexOf("ftp://") > -1) || (htmlStr.indexOf("nntp://") > -1)) {
+                            logger.log(Level.SEVERE, "Unsecure HTML file in help.zip found: " + zipFileEntryName);
+                            return isHtmlSecure;
+                        }
                     }
                 }
+                // all files scanned, no unsecure found
+                logger.log(Level.WARNING, "NO unsecure HTML file in help.zip found, all is ok.");
+                isHtmlSecure = true;
+            } finally {
+                zipFile.close();
             }
-            // all files scanned, no unsecure found
-            logger.log(Level.WARNING, "NO unsecure HTML file in help.zip found, all is ok.");
-            isHtmlSecure = true;
-
-        } catch( FileNotFoundException e ) {
+        } catch (FileNotFoundException e) {
             logger.log(Level.SEVERE, "Exception while reading help.zip. File is invalid.", e);
-        }
-        catch( IOException e ) {
+        } catch (IOException e) {
             logger.log(Level.SEVERE, "Exception while reading help.zip. File is invalid.", e);
         }
         return isHtmlSecure;
