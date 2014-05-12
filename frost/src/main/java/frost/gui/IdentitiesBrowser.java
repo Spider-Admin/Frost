@@ -187,7 +187,7 @@ public class IdentitiesBrowser extends JDialog {
 			minDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
 		}
 
-		for( final Board board : MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards() ) {
+		for( final Board board : MainFrame.getInstance().getMessagingTab().getTofTreeModel().getAllBoards() ) {
 
 			if( board.isConfigured() ) {
 				minDaysOld = Math.max(board.getMaxMessageDisplay(), minDaysOld);

@@ -25,10 +25,10 @@ import javax.swing.*;
 
 import frost.*;
 import frost.messaging.frost.*;
-import frost.messaging.frost.gui.*;
-import frost.util.gui.*;
+import frost.messaging.frost.gui.MessageWindow;
+import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")
 public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableItem> {
@@ -58,12 +58,12 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
 
     public void addUnsentMessage(final FrostUnsentMessageObject i) {
         tableModel.addFrostUnsentMessageObject(i);
-        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
+        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
     }
 
     public void removeUnsentMessage(final FrostUnsentMessageObject i) {
         tableModel.removeFrostUnsentMessageObject(i);
-        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
+        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
     }
 
     public void updateUnsentMessage(final FrostUnsentMessageObject i) {
@@ -76,7 +76,7 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
 
     public void loadTableModel() {
         tableModel.loadTableModel();
-        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
+        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
     }
 
     public void clearTableModel() {
@@ -113,7 +113,7 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
                 final MessageWindow messageWindow = new MessageWindow(
                         MainFrame.getInstance(),
                         sm,
-                        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().getSize(),
+                        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().getSize(),
                         false); // no reply button for unsend messages
                 messageWindow.setVisible(true);
             }
@@ -224,7 +224,7 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
                         language.getString("UnsentMessages.deleteNotPossibleDialog.title"),
                         JOptionPane.ERROR_MESSAGE);
             }
-            MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
+            MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
         }
 
         public void languageChanged(final LanguageEvent event) {

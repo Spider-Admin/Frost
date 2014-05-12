@@ -27,30 +27,30 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.*;
-import javax.swing.tree.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.tree.DefaultTreeModel;
 
 import org.joda.time.*;
 
-import frost.fileTransfer.*;
+import frost.fileTransfer.FileTransferInformation;
 import frost.gui.*;
-import frost.gui.help.*;
-import frost.gui.preferences.*;
+import frost.gui.help.HelpBrowserFrame;
+import frost.gui.preferences.OptionsFrame;
 import frost.messaging.freetalk.gui.*;
-import frost.messaging.frost.*;
+import frost.messaging.frost.UnsentMessagesManager;
 import frost.messaging.frost.boards.*;
 import frost.messaging.frost.gui.*;
 import frost.messaging.frost.gui.messagetreetable.*;
-import frost.messaging.frost.threads.*;
-import frost.storage.*;
-import frost.storage.perst.filelist.*;
-import frost.storage.perst.identities.*;
-import frost.storage.perst.messagearchive.*;
-import frost.storage.perst.messages.*;
+import frost.messaging.frost.threads.RunningMessageThreadsInformation;
+import frost.storage.StorageException;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.storage.perst.identities.IdentitiesStorage;
+import frost.storage.perst.messagearchive.ArchiveMessageStorage;
+import frost.storage.perst.messages.MessageStorage;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.translate.*;
+import frost.util.translate.TranslationStartDialog;
 
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
@@ -60,7 +60,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final ImageIcon frameIconDefault = MiscToolkit.loadImageIcon("/data/jtc.jpg");
     private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
 
-    private final MessagingTab frostMessageTab = new MessagingTab(this);
+    private MessagingTab messagingTab = null;
     private final FreetalkMessageTab freetalkMessageTab = new FreetalkMessageTab(this);
 
     private HelpBrowserFrame helpBrowser = null;
@@ -243,11 +243,17 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
     }
 
+    /**
+     *
+     */
     public void setDisconnected() {
-        getFrostMessageTab().setDisconnected();
+        getMessagingTab().setDisconnected();
     }
+    /**
+     *
+     */
     public void setConnected() {
-        getFrostMessageTab().setConnected();
+        getMessagingTab().setConnected();
     }
 
     /**
@@ -426,10 +432,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         return statusBar;
     }
 
+    /**
+     * @return
+     */
     private JTabbedPane buildMainPanel() {
-
-        getFrostMessageTab().initialize();
-        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getFrostMessageTab().getTabPanel(), null, 0);
+        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getMessagingTab().getTabPanel(), null, 0);
 
         // optionally show Freetalk tab
         if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {
@@ -465,7 +472,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             }
         }
 
-        getFrostMessageTab().saveLayout();
+        getMessagingTab().saveLayout();
         if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {
             getFreetalkMessageTab().saveLayout();
         }
@@ -477,7 +484,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     public void fileExitMenuItem_actionPerformed() {
 
         // warn if create message windows are open
-        if (MessageFrame.getOpenInstanceCount() > 0 || FreetalkMessageFrame.getOpenInstanceCount() > 0) {
+        if ((MessageFrame.getOpenInstanceCount() > 0) || (FreetalkMessageFrame.getOpenInstanceCount() > 0)) {
             final int result = JOptionPane.showConfirmDialog(
                     this,
                     language.getString("MainFrame.openCreateMessageWindows.body"),
@@ -546,7 +553,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public MessagePanel getMessagePanel() {
-        return getFrostMessageTab().getMessagePanel();
+        return getMessagingTab().getMessagePanel();
     }
 
     /**
@@ -558,7 +565,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public void postInitialize() {
-        getFrostMessageTab().postInitialize();
+        getMessagingTab().postInitialize();
     }
 
     public void initialize() {
@@ -667,7 +674,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             }
             if( optionsDlg.shouldResetLastBackloadUpdateFinishedMillis() ) {
                 // reset lastBackloadUpdatedMillis for all boards
-                getFrostMessageTab().getTofTreeModel().resetLastBackloadUpdateFinishedMillis();
+                getMessagingTab().getTofTreeModel().resetLastBackloadUpdateFinishedMillis();
             }
             if( optionsDlg.shouldResetSharedFilesLastDownloaded() ) {
                 // reset lastDownloaded of all shared files
@@ -685,7 +692,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             }
 
             // repaint whole tree, in case the update visualization was enabled or disabled (or others)
-            getFrostMessageTab().getTofTree().updateTree();
+            getMessagingTab().getTofTree().updateTree();
         }
     }
 
@@ -722,11 +729,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public void setTofTree(final TofTree tofTree) {
-        getFrostMessageTab().setTofTree(tofTree);
+        getMessagingTab().setTofTree(tofTree);
     }
 
     public void setTofTreeModel(final TofTreeModel tofTreeModel) {
-        getFrostMessageTab().setTofTreeModel(tofTreeModel);
+        getMessagingTab().setTofTreeModel(tofTreeModel);
     }
 
     /**
@@ -736,18 +743,18 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // this method is called by a timer each second, so this counter counts seconds
         counter++;
 
-        final RunningMessageThreadsInformation msgInfo = getFrostMessageTab().getRunningMessageThreadsInformation();
+        final RunningMessageThreadsInformation msgInfo = getMessagingTab().getRunningMessageThreadsInformation();
         final FileTransferInformation fileInfo = Core.getInstance().getFileTransferManager().getFileTransferInformation();
 
         //////////////////////////////////////////////////
         //   Automatic TOF update
         //////////////////////////////////////////////////
         if (Core.isFreenetOnline() &&
-            counter % 15 == 0 && // check all 15 seconds if a board update could be started
+            ((counter % 15) == 0) && // check all 15 seconds if a board update could be started
             isAutomaticBoardUpdateEnabled() &&
-            msgInfo.getDownloadingBoardCount() < frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES))
+            (msgInfo.getDownloadingBoardCount() < frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES)))
         {
-            getFrostMessageTab().startNextBoardUpdate();
+            getMessagingTab().startNextBoardUpdate();
         }
 
         //////////////////////////////////////////////////
@@ -756,7 +763,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         final DateTime now = new DateTime(DateTimeZone.UTC);
 
         // check all 60 seconds if the day changed
-        if( getTodaysDateMillis() == 0 || (counter % 60) == 0 ) {
+        if( (getTodaysDateMillis() == 0) || ((counter % 60) == 0) ) {
             final long millis = now.toDateMidnight().getMillis();
             if( getTodaysDateMillis() != millis ) {
                 setTodaysDateMillis(millis);
@@ -773,7 +780,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         /////////////////////////////////////////////////
         //   Update status bar and file count in panels
         /////////////////////////////////////////////////
-        getStatusBar().setStatusBarInformations(fileInfo, msgInfo, getFrostMessageTab().getTofTreeModel().getSelectedNode().getName());
+        getStatusBar().setStatusBarInformations(fileInfo, msgInfo, getMessagingTab().getTofTreeModel().getSelectedNode().getName());
 
         Core.getInstance().getFileTransferManager().updateWaitingCountInPanels(fileInfo);
     }
@@ -793,11 +800,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * @param e
      */
     public void tofTree_actionPerformed(final TreeSelectionEvent e) {
-        getFrostMessageTab().boardTree_actionPerformed();
+        getMessagingTab().boardTree_actionPerformed();
     }
 
     public void tofTree_actionPerformed(final TreeSelectionEvent e, final boolean reload) {
-        getFrostMessageTab().boardTree_actionPerformed(reload);
+        getMessagingTab().boardTree_actionPerformed(reload);
     }
 
     private void translateMainMenu() {
@@ -852,7 +859,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * Fires a nodeChanged (redraw) for this board and updates buttons.
      */
     public void updateTofTree(final AbstractNode board) {
-        getFrostMessageTab().updateTofTreeNode(board);
+        getMessagingTab().updateTofTreeNode(board);
     }
 
     public void setAutomaticBoardUpdateEnabled(final boolean state) {
@@ -891,24 +898,24 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      */
     public void startSearchMessagesDialog(final List<Board> l) {
         // show first time or bring to front
-        getFrostMessageTab().getSearchMessagesDialog().startDialog(l);
+        getMessagingTab().getSearchMessagesDialog().startDialog(l);
     }
 
     public void updateMessageCountLabels(final Board board) {
         // forward to MessagePanel
-        getFrostMessageTab().getMessagePanel().updateMessageCountLabels(board);
+        getMessagingTab().getMessagePanel().updateMessageCountLabels(board);
     }
     public TreeTableModelAdapter getMessageTableModel() {
         // forward to MessagePanel
-        return getFrostMessageTab().getMessagePanel().getMessageTableModel();
+        return getMessagingTab().getMessagePanel().getMessageTableModel();
     }
     public DefaultTreeModel getMessageTreeModel() {
         // forward to MessagePanel
-        return getFrostMessageTab().getMessagePanel().getMessageTreeModel();
+        return getMessagingTab().getMessagePanel().getMessageTreeModel();
     }
     public MessageTreeTable getMessageTreeTable() {
         // forward to MessagePanel
-        return getFrostMessageTab().getMessagePanel().getMessageTable();
+        return getMessagingTab().getMessagePanel().getMessageTable();
     }
 
     private class WindowClosingListener extends WindowAdapter {
@@ -927,14 +934,14 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                         && SystraySupport.isInitialized())
                 {
                     final boolean wasMaximized = ((e.getOldState() & Frame.MAXIMIZED_BOTH) != 0);
-                    
+
                     // frame is minimized right now, de-minimize so it shows up next time
                     if (!wasMaximized) {
                         setExtendedState(Frame.NORMAL);
                     } else {
                         setExtendedState(Frame.MAXIMIZED_BOTH);
                     }
-                    
+
                     SystraySupport.minimizeToTray();
                 }
             }
@@ -942,7 +949,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public void activateGlassPane() {
-        getFrostMessageTab().showProgress();
+        getMessagingTab().showProgress();
 
         // Mount the glasspane on the component window
         final GlassPane aPane = GlassPane.mount(this, true);
@@ -962,7 +969,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             glassPane.setVisible(false);
             glassPane = null;
         }
-        getFrostMessageTab().hideProgress();
+        getMessagingTab().hideProgress();
     }
 
     /**
@@ -985,8 +992,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
         // the panels are not all in the component tree, update them manually
         SwingUtilities.updateComponentTreeUI(getMessagePanel());
-        SwingUtilities.updateComponentTreeUI(getFrostMessageTab().getSentMessagesPanel());
-        SwingUtilities.updateComponentTreeUI(getFrostMessageTab().getUnsentMessagesPanel());
+        SwingUtilities.updateComponentTreeUI(getMessagingTab().getSentMessagesPanel());
+        SwingUtilities.updateComponentTreeUI(getMessagingTab().getUnsentMessagesPanel());
         repaint();
     }
 
@@ -1011,8 +1018,14 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         queuedStartupMessages = null;
     }
 
-    public MessagingTab getFrostMessageTab() {
-        return frostMessageTab;
+    /**
+     * @return
+     */
+    public MessagingTab getMessagingTab() {
+        if (messagingTab == null) {
+            messagingTab = new MessagingTab(this);
+        }
+        return messagingTab;
     }
 
     public FreetalkMessageTab getFreetalkMessageTab() {

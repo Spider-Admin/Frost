@@ -25,10 +25,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import frost.*;
+import frost.MainFrame;
 import frost.fcp.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.translation.Language;
 
 /**
  * Settingsdialog for a single Board or a folder.
@@ -535,14 +535,14 @@ public class BoardSettingsFrame extends JDialog {
 
             overrideSettingsCheckBox.setSelected(board.isConfigured());
 
-            if (!board.isConfigured() || board.getMaxMessageDisplayObj() == null) {
+            if (!board.isConfigured() || (board.getMaxMessageDisplayObj() == null)) {
                 maxMessageDisplay_default.setSelected(true);
             } else {
                 maxMessageDisplay_set.setSelected(true);
                 maxMessageDisplay_value.setText("" + board.getMaxMessageDisplay());
             }
 
-            if (!board.isConfigured() || board.getMaxMessageDownloadObj() == null) {
+            if (!board.isConfigured() || (board.getMaxMessageDownloadObj() == null)) {
                 maxMessageDownload_default.setSelected(true);
             } else {
                 maxMessageDownload_set.setSelected(true);
@@ -557,7 +557,7 @@ public class BoardSettingsFrame extends JDialog {
                 autoUpdateEnabled.setSelected(false);
             }
 
-            if (!board.isConfigured() || board.getShowSignedOnlyObj() == null) {
+            if (!board.isConfigured() || (board.getShowSignedOnlyObj() == null)) {
                 signedOnly_default.setSelected(true);
             } else if (board.getShowSignedOnly()) {
                 signedOnly_true.setSelected(true);
@@ -565,7 +565,7 @@ public class BoardSettingsFrame extends JDialog {
                 signedOnly_false.setSelected(true);
             }
 
-            if (!board.isConfigured() || board.getHideBadObj() == null) {
+            if (!board.isConfigured() || (board.getHideBadObj() == null)) {
                 hideBad_default.setSelected(true);
             } else if (board.getHideBad()) {
                 hideBad_true.setSelected(true);
@@ -573,7 +573,7 @@ public class BoardSettingsFrame extends JDialog {
                 hideBad_false.setSelected(true);
             }
 
-            if (!board.isConfigured() || board.getHideCheckObj() == null) {
+            if (!board.isConfigured() || (board.getHideCheckObj() == null)) {
                 hideCheck_default.setSelected(true);
             } else if (board.getHideCheck()) {
                 hideCheck_true.setSelected(true);
@@ -581,7 +581,7 @@ public class BoardSettingsFrame extends JDialog {
                 hideCheck_false.setSelected(true);
             }
 
-            if (!board.isConfigured() || board.getHideObserveObj() == null) {
+            if (!board.isConfigured() || (board.getHideObserveObj() == null)) {
                 hideObserve_default.setSelected(true);
             } else if (board.getHideObserve()) {
                 hideObserve_true.setSelected(true);
@@ -589,14 +589,14 @@ public class BoardSettingsFrame extends JDialog {
                 hideObserve_false.setSelected(true);
             }
 
-            if (!board.isConfigured() || board.getHideMessageCountObj() == null) {
+            if (!board.isConfigured() || (board.getHideMessageCountObj() == null)) {
                 hideMessageCount_default.setSelected(true);
             } else {
                 hideMessageCount_set.setSelected(true);
                 hideMessageCount_value.setText("" + board.getHideMessageCount());
             }
 
-            if (!board.isConfigured() || board.getStoreSentMessagesObj() == null) {
+            if (!board.isConfigured() || (board.getStoreSentMessagesObj() == null)) {
                 storeSentMessages_default.setSelected(true);
             } else if (board.getStoreSentMessages()) {
                 storeSentMessages_true.setSelected(true);
@@ -657,7 +657,7 @@ public class BoardSettingsFrame extends JDialog {
 
         if( node.isBoard() ) {
             // if board was secure before and now its public, ask user if ok to remove the keys
-            if( publicBoardRadioButton.isSelected() && ((Board)node).isPublicBoard() == false ) {
+            if( publicBoardRadioButton.isSelected() && (((Board)node).isPublicBoard() == false) ) {
                 final int result = JOptionPane.showConfirmDialog(
                         this,
                         language.getString("BoardSettings.looseKeysWarningDialog.body"),
@@ -844,7 +844,7 @@ public class BoardSettingsFrame extends JDialog {
             // update the new msg. count for board
             TOF.getInstance().searchUnreadMessages((Board)b);
 
-            if (b == MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getSelectedNode()) {
+            if (b == MainFrame.getInstance().getMessagingTab().getTofTreeModel().getSelectedNode()) {
                 // reload all messages if board is shown
                 MainFrame.getInstance().tofTree_actionPerformed(null);
             }

@@ -468,7 +468,7 @@ public class Core {
         mainFrame.initialize();
 
         // cleanup gets the expiration mode from settings
-        CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards());
+        CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getMessagingTab().getTofTreeModel().getAllBoards());
 
         // Show enqueued startup messages before showing the mainframe,
         // otherwise the glasspane used during load of board messages could corrupt the modal message dialog!

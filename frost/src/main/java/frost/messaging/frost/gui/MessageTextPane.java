@@ -20,78 +20,30 @@
 */
 package frost.messaging.frost.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Desktop;
-import java.awt.Font;
-import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.*;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.net.*;
+import java.util.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Utilities;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.*;
+import javax.swing.text.*;
 
-import frost.Core;
-import frost.MainFrame;
-import frost.SettingsClass;
-import frost.fileTransfer.download.DownloadManager;
-import frost.fileTransfer.download.FrostDownloadItem;
-import frost.gui.AddNewDownloadsDialog;
-import frost.gui.KnownBoardsManager;
-import frost.gui.SearchMessagesConfig;
-import frost.gui.TargetFolderChooser;
-import frost.messaging.frost.AttachmentList;
-import frost.messaging.frost.BoardAttachment;
-import frost.messaging.frost.FileAttachment;
-import frost.messaging.frost.FrostMessageObject;
-import frost.messaging.frost.boards.Board;
-import frost.messaging.frost.boards.Folder;
-import frost.util.CopyToClipboard;
-import frost.util.FileAccess;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.SmileyCache;
-import frost.util.gui.TextHighlighter;
-import frost.util.gui.search.FindAction;
-import frost.util.gui.search.TextComponentFindAction;
-import frost.util.gui.textpane.AntialiasedTextPane;
-import frost.util.gui.textpane.MessageDecoder;
-import frost.util.gui.textpane.MouseHyperlinkEvent;
-import frost.util.gui.textpane.TextPane;
-import frost.util.gui.translation.Language;
-import frost.util.gui.translation.LanguageEvent;
-import frost.util.gui.translation.LanguageListener;
+import frost.*;
+import frost.fileTransfer.download.*;
+import frost.gui.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
+import frost.util.*;
+import frost.util.gui.*;
+import frost.util.gui.search.*;
+import frost.util.gui.textpane.*;
+import frost.util.gui.translation.*;
 
 @SuppressWarnings("serial")
 public class MessageTextPane extends JPanel {
@@ -219,7 +171,7 @@ public class MessageTextPane extends JPanel {
 
         final AttachmentList<FileAttachment> fileAttachments = selectedMessage.getAttachmentsOfTypeFile();
         final AttachmentList<BoardAttachment> boardAttachments = selectedMessage.getAttachmentsOfTypeBoard();
-        
+
         attachedFilesModel.setData(fileAttachments);
         attachedBoardsModel.setData(boardAttachments);
 
@@ -234,7 +186,7 @@ public class MessageTextPane extends JPanel {
         if( searchMessagesConfig == null ) {
             int pos = selectedMessage.getIdLinePos();
             final int len = selectedMessage.getIdLineLen();
-            if( pos > -1 && len > 10 ) {
+            if( (pos > -1) && (len > 10) ) {
                 // highlite id line if there are valid infos abpout the idline in message
                 idLineTextHighlighter.highlight(messageTextArea, pos, len, true);
             } else {
@@ -246,7 +198,7 @@ public class MessageTextPane extends JPanel {
                 // scroll to begin of reply
                 final int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
                 final int s = textViewHeight; // messageBodyScrollPane.getViewport().getHeight();
-                final int v = s/h - 1; // how many lines are visible?
+                final int v = (s/h) - 1; // how many lines are visible?
 
                 pos = calculateCaretPosition(messageTextArea, pos, v);
 
@@ -260,9 +212,9 @@ public class MessageTextPane extends JPanel {
 
         messageBodyScrollPane.getVerticalScrollBar().setValueIsAdjusting(false);
 
-        if( searchMessagesConfig != null &&
-            searchMessagesConfig.content != null &&
-            searchMessagesConfig.content.size() > 0 )
+        if( (searchMessagesConfig != null) &&
+            (searchMessagesConfig.content != null) &&
+            (searchMessagesConfig.content.size() > 0) )
         {
             // highlight words in content that the user searched for
             if( textHighlighter == null ) {
@@ -329,8 +281,8 @@ public class MessageTextPane extends JPanel {
                         column);
 
                     final String sval = (String)value;
-                    if( sval != null &&
-                        sval.length() > 0 )
+                    if( (sval != null) &&
+                        (sval.length() > 0) )
                     {
                         setToolTipText(sval);
                     } else {
@@ -385,7 +337,7 @@ public class MessageTextPane extends JPanel {
             public void keyTyped(final KeyEvent e) {
                 if( e == null ) {
                     return;
-                } else if(e.getKeyChar() == KeyEvent.VK_DELETE && parentFrame == mainFrame ) {
+                } else if((e.getKeyChar() == KeyEvent.VK_DELETE) && (parentFrame == mainFrame) ) {
                     mainFrame.getMessagePanel().deleteSelectedMessage();
                 }
             }
@@ -497,7 +449,7 @@ public class MessageTextPane extends JPanel {
 
     private int positionDividers(final int attachedFiles, final int attachedBoards) {
 
-        if (attachedFiles == 0 && attachedBoards == 0) {
+        if ((attachedFiles == 0) && (attachedBoards == 0)) {
             // Neither files nor boards
             messageSplitPane.setBottomComponent(null);
             messageSplitPane.setDividerSize(0);
@@ -508,7 +460,7 @@ public class MessageTextPane extends JPanel {
         messageSplitPane.setDividerSize(3);
         messageSplitPane.setDividerLocation(0.75);
 
-        if (attachedFiles != 0 && attachedBoards == 0) {
+        if ((attachedFiles != 0) && (attachedBoards == 0)) {
             // Only files
             attachmentsSplitPane.setTopComponent(null);
             attachmentsSplitPane.setBottomComponent(null);
@@ -516,7 +468,7 @@ public class MessageTextPane extends JPanel {
             messageSplitPane.setBottomComponent(filesTableScrollPane);
             return messageSplitPane.getDividerLocation();
         }
-        if (attachedFiles == 0 && attachedBoards != 0) {
+        if ((attachedFiles == 0) && (attachedBoards != 0)) {
             // Only boards
             attachmentsSplitPane.setTopComponent(null);
             attachmentsSplitPane.setBottomComponent(null);
@@ -524,7 +476,7 @@ public class MessageTextPane extends JPanel {
             messageSplitPane.setBottomComponent(boardsTableScrollPane);
             return messageSplitPane.getDividerLocation();
         }
-        if (attachedFiles != 0 && attachedBoards != 0) {
+        if ((attachedFiles != 0) && (attachedBoards != 0)) {
             // Both files and boards
             attachmentsSplitPane.setTopComponent(filesTableScrollPane);
             attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
@@ -561,7 +513,7 @@ public class MessageTextPane extends JPanel {
 
         KnownBoardsManager.addNewKnownBoards(addBoards);
     }
-    
+
     /**
      * Adds all boards from the attachedBoardsTable to board list.
      * If targetFolder is null the boards are added to the root folder.
@@ -584,7 +536,7 @@ public class MessageTextPane extends JPanel {
             final String boardName = fbo.getName();
 
             // search board in exising boards list
-            final Board board = mainFrame.getFrostMessageTab().getTofTreeModel().getBoardByName(boardName);
+            final Board board = mainFrame.getMessagingTab().getTofTreeModel().getBoardByName(boardName);
 
             //ask if we already have the board
             if (board != null) {
@@ -605,9 +557,9 @@ public class MessageTextPane extends JPanel {
             } else {
                 // its a new board
                 if(targetFolder == null) {
-                    mainFrame.getFrostMessageTab().getTofTreeModel().addNodeToTree(fbo);
+                    mainFrame.getMessagingTab().getTofTreeModel().addNodeToTree(fbo);
                 } else {
-                    mainFrame.getFrostMessageTab().getTofTreeModel().addNodeToTree(fbo, targetFolder);
+                    mainFrame.getMessagingTab().getTofTreeModel().addNodeToTree(fbo, targetFolder);
                 }
             }
         }
@@ -647,8 +599,8 @@ public class MessageTextPane extends JPanel {
         }
         popupMenuTofText.show(e.getComponent(), e.getX(), e.getY());
     }
-    
-    
+
+
     private void addKeysInText(final String text) {
     	// parse text for keys
     	List<FrostDownloadItem> parsedKeysfrostDownloadItemList = DownloadManager.parseKeys(text);
@@ -656,22 +608,22 @@ public class MessageTextPane extends JPanel {
     	List<FrostDownloadItem> frostDownloadItemList = new ArrayList<FrostDownloadItem>();
     	HashMap<String, FrostDownloadItem> frostDownloadItemNameMap = new HashMap<String, FrostDownloadItem>();
     	for(FrostDownloadItem frostDownloadItem : parsedKeysfrostDownloadItemList) {
-    		
+
     		// duplicate check
     		if( frostDownloadItemNameMap.containsKey(frostDownloadItem.getFileName())) {
     			continue;
     		}
-    		
+
     		// add to download list
     		frostDownloadItemList.add(frostDownloadItem);
-    		
+
     		// configure download items
     		frostDownloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
     		frostDownloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
     		if( Core.frostSettings.getBoolValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED) ){
     			frostDownloadItem.setDownloadDir(frostDownloadItem.getDownloadDir().concat(frostDownloadItem.getAssociatedBoardName()));
     		}
-    		
+
     		// remember filename for duplicate check
     		frostDownloadItemNameMap.put(frostDownloadItem.getFileName(), frostDownloadItem);
     	}
@@ -679,14 +631,14 @@ public class MessageTextPane extends JPanel {
     	// Start add download dialog
     	new AddNewDownloadsDialog(MainFrame.getInstance()).startDialog(frostDownloadItemList);
     }
-    
+
     private void addKeysOfCurrentMessage() {
     	// get message content
     	String threadMessageContent = selectedMessage.getContent();
-    	
+
     	// get start of current message
     	int pos = selectedMessage.getIdLinePos();
-    	String currentMessageText; 
+    	String currentMessageText;
     	if( pos > -1 ) {
     		currentMessageText = threadMessageContent.substring(pos);
     	} else {
@@ -695,7 +647,7 @@ public class MessageTextPane extends JPanel {
 
     	addKeysInText(currentMessageText);
     }
-   
+
     private class PopupMenuAttachmentBoard
     extends JSkinnablePopupMenu
     implements ActionListener, LanguageListener {
@@ -714,7 +666,7 @@ public class MessageTextPane extends JPanel {
             if (e.getSource() == saveBoardsItem) {
                 downloadBoards(null);
             } else if (e.getSource() == saveBoardsToFolderItem) {
-                final TargetFolderChooser tfc = new TargetFolderChooser(mainFrame.getFrostMessageTab().getTofTreeModel());
+                final TargetFolderChooser tfc = new TargetFolderChooser(mainFrame.getMessagingTab().getTofTreeModel());
                 final Folder targetFolder = tfc.startDialog();
                 if( targetFolder != null ) {
                     downloadBoards(targetFolder);
@@ -774,7 +726,7 @@ public class MessageTextPane extends JPanel {
         }
 
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
+            if ((e.getSource() == saveAttachmentsItem) || (e.getSource() == saveAttachmentItem)) {
                 downloadAttachments();
             } else if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames( getItems().toArray() );
@@ -798,9 +750,9 @@ public class MessageTextPane extends JPanel {
 
             saveAttachmentsItem.addActionListener(this);
             saveAttachmentItem.addActionListener(this);
-            
+
             String browserAddress = Core.frostSettings.getValue(SettingsClass.BROWSER_ADDRESS);
-            if( browserAddress != null && browserAddress.length() > 0 ) {
+            if( (browserAddress != null) && (browserAddress.length() > 0) ) {
 	            openFileInBrowserItem.addActionListener(this);
 	            openAllFilesInBrowserItem.addActionListener(this);
             }
@@ -847,18 +799,18 @@ public class MessageTextPane extends JPanel {
          */
         private void downloadAttachments() {
             final Iterator<FileAttachment> it = getItems().iterator();
-            
+
             List<FrostDownloadItem> frostDownloadItemList = new LinkedList<FrostDownloadItem>();
             HashMap<String, FrostDownloadItem> frostDownloadItemKeyMap = new HashMap<String, FrostDownloadItem>();
             HashMap<String, FrostDownloadItem> frostDownloadItemNameMap = new HashMap<String, FrostDownloadItem>();
-            
+
             while (it.hasNext()) {
                 final FileAttachment fa = it.next();
-                
+
                 if( frostDownloadItemKeyMap.containsKey(fa.getKey())) {
             		continue;
             	}
-                
+
                 String filename = fa.getFileName();
                 // maybe convert html codes (e.g. %2c -> , )
                 if( filename.indexOf("%") > 0 ) {
@@ -876,7 +828,7 @@ public class MessageTextPane extends JPanel {
 	                fa.getKey(),
 	                fa.getFileSize()
                 );
-                
+
                 frostDwonloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
                 frostDwonloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
                 if( Core.frostSettings.getBoolValue(SettingsClass.USE_BOARDNAME_DOWNLOAD_SUBFOLDER_ENABLED) ){
@@ -886,10 +838,10 @@ public class MessageTextPane extends JPanel {
                 frostDownloadItemKeyMap.put(fa.getKey(), frostDwonloadItem);
                 frostDownloadItemNameMap.put(filename, frostDwonloadItem);
             }
-            
+
             frostDownloadItemKeyMap.clear();
             frostDownloadItemNameMap.clear();
-            
+
             new AddNewDownloadsDialog(mainFrame).startDialog(frostDownloadItemList);
         }
 
@@ -898,22 +850,22 @@ public class MessageTextPane extends JPanel {
          */
         private AttachmentList<FileAttachment> getItems() {
             final int[] selectedRows = filesTable.getSelectedRows();
-            
+
             if (selectedRows.length == 0) {
                 // If no rows are selected, add all attachments to download table
                 return selectedMessage.getAttachmentsOfTypeFile();
-            
+
             } else {
                 final AttachmentList<FileAttachment> attachments = selectedMessage.getAttachmentsOfTypeFile();
                 AttachmentList<FileAttachment> items = new AttachmentList<FileAttachment>();
                 for( final int rowPos : selectedRows ) {
                     items.add(attachments.get(rowPos));
                 }
-                
+
                 return items;
             }
         }
-        
+
         private void openFileInBrowser_actionWrapper(final List<FileAttachment> fileAttachementList) {
         	List<String> keys = new LinkedList<String>();
         	for(final FileAttachment fileAttachement : fileAttachementList) {
@@ -990,7 +942,7 @@ public class MessageTextPane extends JPanel {
             downloadFile.addActionListener(this);
             downloadAllFiles.addActionListener(this);
             downloadAllFilesOfMessage.addActionListener(this);
-            
+
         	openFileInBrowser.addActionListener(this);
             openAllFilesInBrowser.addActionListener(this);
         }
@@ -1025,14 +977,14 @@ public class MessageTextPane extends JPanel {
                 add(copyFreesiteLinkToClipboard);
 
 				String browserAddress = Core.frostSettings.getValue(SettingsClass.BROWSER_ADDRESS);
-	            if( browserAddress != null && browserAddress.length() > 0 ) {
+	            if( (browserAddress != null) && (browserAddress.length() > 0) ) {
 	            	addSeparator();
 	            	add(openFileInBrowser);
 					if (allKeys.size() > 1) {
 						add(openAllFilesInBrowser);
 					}
 	            }
-				
+
             } else {
                 // file key
                 add(copyFileLinkToClipboard);
@@ -1046,7 +998,7 @@ public class MessageTextPane extends JPanel {
                     add(downloadAllFiles);
                 }
                 String browserAddress = Core.frostSettings.getValue(SettingsClass.BROWSER_ADDRESS);
-	            if( browserAddress != null && browserAddress.length() > 0 ) {
+	            if( (browserAddress != null) && (browserAddress.length() > 0) ) {
 	            	addSeparator();
 	            	add(openFileInBrowser);
 					if (allKeys.size() > 1) {
@@ -1070,7 +1022,7 @@ public class MessageTextPane extends JPanel {
             if( items == null ) {
                 return;
             }
-            
+
             List<FrostDownloadItem> frostDownloadItemList = new LinkedList<FrostDownloadItem>();
             HashMap<String, FrostDownloadItem> frostDownloadItemKeyMap = new HashMap<String, FrostDownloadItem>();
             HashMap<String, FrostDownloadItem> frostDownloadItemNameMap = new HashMap<String, FrostDownloadItem>();
@@ -1079,7 +1031,7 @@ public class MessageTextPane extends JPanel {
             	if( frostDownloadItemKeyMap.containsKey(key)) {
             		continue;
             	}
-            	
+
                 String name = key.substring(key.lastIndexOf("/")+1);
                 // maybe convert html codes (e.g. %2c -> , )
                 if( name.indexOf("%") >= 0 ) {
@@ -1092,7 +1044,7 @@ public class MessageTextPane extends JPanel {
                 if( frostDownloadItemNameMap.containsKey(name)) {
                 	continue;
                 }
-                
+
                 FrostDownloadItem frostDownloadItem = new FrostDownloadItem(name, key);
                 frostDownloadItem.setAssociatedMessageId(selectedMessage.getMessageId());
                 frostDownloadItem.setAssociatedBoardName(selectedMessage.getBoard().getBoardFilename());
@@ -1105,11 +1057,11 @@ public class MessageTextPane extends JPanel {
             }
             frostDownloadItemKeyMap.clear();
             frostDownloadItemNameMap.clear();
-            
+
             new AddNewDownloadsDialog(mainFrame).startDialog(frostDownloadItemList);
         }
-        
-        
+
+
         private List<String> getItems(final boolean getAll) {
             List<String> items;
             if( getAll ) {
@@ -1117,7 +1069,7 @@ public class MessageTextPane extends JPanel {
             } else {
                 items = Collections.singletonList(clickedKey);
             }
-            if( items == null || items.size() == 0 ) {
+            if( (items == null) || (items.size() == 0) ) {
                 return null;
             }
             return items;
@@ -1146,7 +1098,7 @@ public class MessageTextPane extends JPanel {
             }
             CopyToClipboard.copyText(text);
         }
-        
+
     }
 
     private void openFileInBrowser_action(final List<String> items) {
@@ -1163,7 +1115,7 @@ public class MessageTextPane extends JPanel {
 			System.out.println("DEBUG - Borser address not configured");
 			return;
 		}
-		if (items == null || items.size() < 1) {
+		if ((items == null) || (items.size() < 1)) {
 			return;
 		}
 
@@ -1202,14 +1154,14 @@ public class MessageTextPane extends JPanel {
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == saveMessageItem) {
                 saveMessageButton_actionPerformed();
-                
+
             } else if (e.getSource() == copyItem) {
             	final String text = sourceTextComponent.getSelectedText();
                 CopyToClipboard.copyText(text);
-                
+
             } else if(e.getSource() == downloadKeys ) {
             	addKeysInText(sourceTextComponent.getSelectedText());
-            	
+
             } else if(e.getSource() == downloadAllFilesOfMessage ) {
             	addKeysOfCurrentMessage();
             }

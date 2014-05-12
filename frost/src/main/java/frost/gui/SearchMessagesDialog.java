@@ -26,17 +26,17 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import com.toedter.calendar.*;
+import com.toedter.calendar.JDateChooser;
 
 import frost.*;
-import frost.gui.model.*;
+import frost.gui.model.SearchMessagesTableModel;
 import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
-import frost.messaging.frost.gui.*;
-import frost.messaging.frost.threads.*;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.gui.MessageWindow;
+import frost.messaging.frost.threads.SearchMessagesThread;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.gui.tristatecheckbox.*;
+import frost.util.gui.tristatecheckbox.TristateCheckBox;
 
 @SuppressWarnings("serial")
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
@@ -1161,7 +1161,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             searchResultTable.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(final MouseEvent e) {
-                    if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                    if(SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
                         openSelectedMessage();
                     }
                 }
@@ -1257,7 +1257,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void chooseBoards() {
 
         // get and sort all boards
-        final List<Board> allBoards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
+        final List<Board> allBoards = MainFrame.getInstance().getMessagingTab().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             JOptionPane.showMessageDialog(this,
                     language.getString("SearchMessages.errorDialogs.noBoardsToChoose"),
@@ -1564,7 +1564,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if (row < 0) {
             return;
         }
-        final FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(row);
+        final FrostSearchResultMessageObject msg = getSearchMessagesTableModel().getRow(row);
         if( msg == null ) {
             return;
         }
@@ -1626,7 +1626,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         final int lastPosY = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosY");
         final boolean lastMaximized = Core.frostSettings.getBoolValue("searchMessagesDialog.lastFrameMaximized");
 
-        if( lastHeight <= 0 || lastWidth <= 0 ) {
+        if( (lastHeight <= 0) || (lastWidth <= 0) ) {
             // first call
             setSize(700,550);
             setLocationRelativeTo(MainFrame.getInstance());
@@ -1838,6 +1838,6 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         return Bhelp;
     }
-    
-  
+
+
 }  //  @jve:decl-index=0:visual-constraint="10,10"

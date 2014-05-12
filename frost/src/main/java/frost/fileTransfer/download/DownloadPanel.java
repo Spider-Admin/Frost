@@ -17,85 +17,31 @@
  */
 package frost.fileTransfer.download;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.*;
+import java.awt.datatransfer.*;
+import java.awt.event.*;
+import java.beans.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.logging.Logger;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
+import javax.swing.text.*;
 import javax.swing.tree.TreePath;
 
-import frost.Core;
-import frost.MainFrame;
-import frost.SettingsClass;
-import frost.SettingsUpdater;
+import frost.*;
 import frost.ext.ExecuteDocument;
-import frost.fileTransfer.FileTransferManager;
-import frost.fileTransfer.FreenetPriority;
-import frost.fileTransfer.PersistenceManager;
+import frost.fileTransfer.*;
 import frost.fileTransfer.common.FileListFileDetailsDialog;
 import frost.gui.AddNewDownloadsDialog;
-import frost.messaging.frost.boards.Board;
-import frost.messaging.frost.boards.TofTree;
-import frost.util.CopyToClipboard;
-import frost.util.FileAccess;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.TextComponentClipboardMenu;
+import frost.messaging.frost.boards.*;
+import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.search.TableFindAction;
-import frost.util.gui.translation.Language;
-import frost.util.gui.translation.LanguageEvent;
-import frost.util.gui.translation.LanguageListener;
+import frost.util.gui.translation.*;
 import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")
@@ -480,7 +426,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 */
 	private void downloadTextField_actionPerformed(final ActionEvent e) {
 		String keylist = downloadTextField.getText();
-		if (keylist != null && keylist.length() != 0) {
+		if ((keylist != null) && (keylist.length() != 0)) {
 			openAddNewDownloadsDialog(keylist);
 		}
 	}
@@ -490,7 +436,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 */
 	private void downloadTable_keyPressed(final KeyEvent e) {
 		final char key = e.getKeyChar();
-		if (key == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
+		if ((key == KeyEvent.VK_DELETE) && !modelTable.getTable().isEditing()) {
 			removeSelectedDownloads();
 		}
 	}
@@ -511,7 +457,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		modelTable.getTable().clearSelection();
 
-		if (FileTransferManager.inst().getPersistenceManager() != null && externalRequestsToRemove.size() > 0) {
+		if ((FileTransferManager.inst().getPersistenceManager() != null) && (externalRequestsToRemove.size() > 0)) {
 			new Thread() {
 				@Override
 				public void run() {
@@ -593,7 +539,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			return;
 		}
 
-		if (clipboardText != null && clipboardText.length() != 0) {
+		if ((clipboardText != null) && (clipboardText.length() != 0)) {
 			openAddNewDownloadsDialog(clipboardText);
 		}
 	}
@@ -608,12 +554,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		// add default download dir and prefix
 		for (final FrostDownloadItem frostDownloadItem : frostDownloadItemList) {
 			final String downloadDir = this.downloadDirTextField.getText();
-			if (downloadDir != null && downloadDir.length() != 0) {
+			if ((downloadDir != null) && (downloadDir.length() != 0)) {
 				frostDownloadItem.setDownloadDir(downloadDir);
 			}
 
 			final String filenamePrefix = this.downloadPrefixTextField.getText();
-			if (filenamePrefix != null && filenamePrefix.length() != 0) {
+			if ((filenamePrefix != null) && (filenamePrefix.length() != 0)) {
 				frostDownloadItem.setFilenamePrefix(this.downloadPrefixTextField.getText());
 			}
 		}
@@ -634,7 +580,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		if (dlItem == null) {
 			return;
 		}
-		
+
 		final File targetFile = new File(dlItem.getDownloadFilename());
 		if (!targetFile.isFile()) {
 			logger.info("Executing: File not found: " + targetFile.getAbsolutePath());
@@ -651,7 +597,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see frost.SettingsUpdater#updateSettings()
 	 */
 	public void updateSettings() {
@@ -659,7 +605,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	public void changeItemPriorites(final List<FrostDownloadItem> items, final FreenetPriority newPrio) {
-		if (items == null || items.size() == 0 || FileTransferManager.inst().getPersistenceManager() == null) {
+		if ((items == null) || (items.size() == 0) || (FileTransferManager.inst().getPersistenceManager() == null)) {
 			return;
 		}
 		for (final FrostDownloadItem di : items) {
@@ -682,7 +628,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				final FreenetPriority prio = FreenetPriority.getPriority(new Integer(event.getActionCommand()).intValue());
 				final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 				changeItemPriorites(selectedItems, prio);
-				
+
 			}
 		};
 		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0),
@@ -698,7 +644,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0),
 				"SETPRIO");
 		getActionMap().put("SETPRIO", setPriorityAction);
-		
+
 		// Enter
 		final Action setOpenFileAction = new AbstractAction() {
 			public void actionPerformed(final ActionEvent event) {
@@ -727,7 +673,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			super.getTableCellRendererComponent(table, value, isSelected, /* hasFocus */
 			false, row, column);
 
-			final FrostDownloadItem item = (FrostDownloadItem) model.getItemAt(row);
+			final FrostDownloadItem item = model.getItemAt(row);
 
 			// set background of DONE downloads green
 			if (item.getState() == FrostDownloadItem.STATE_DONE) {
@@ -782,7 +728,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         			});
         			changePriorityMenu.add(priorityMenuItem);
         		}
-				
+
 				removeFromGqItem = new JMenuItem();
 
 				removeFromGqItem.addActionListener(this);
@@ -840,11 +786,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			if (PersistenceManager.isPersistenceEnabled()) {
 				changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
-				
+
 				for(int itemNum = 0; itemNum < changePriorityMenu.getItemCount() ; itemNum++) {
                 	changePriorityMenu.getItem(itemNum).setText(FreenetPriority.getName(itemNum));
                 }
-				
+
 				removeFromGqItem.setText(language.getString("DownloadPane.fileTable.popupmenu.removeFromGlobalQueue"));
 
 				retrieveDirectExternalDownloads.setText(language
@@ -918,7 +864,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			}
 			final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 			for (final FrostDownloadItem item : selectedItems) {
-				if (item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE) {
+				if (item.isExternal() && item.isDirect() && (item.getState() == FrostDownloadItem.STATE_DONE)) {
 					final long expectedFileSize = item.getFileSize(); // set
 					// from
 					// global
@@ -1002,14 +948,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				final String boardName = item.getAssociatedBoardName();
 				final String messageId = item.getAssociatedMessageId();
 
-				if (boardName != null && messageId != null) {
-					final Board board = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getBoardByName(
+				if ((boardName != null) && (messageId != null)) {
+					final Board board = MainFrame.getInstance().getMessagingTab().getTofTreeModel().getBoardByName(
 							boardName);
-					final TofTree t = MainFrame.getInstance().getFrostMessageTab().getTofTree();
+					final TofTree t = MainFrame.getInstance().getMessagingTab().getTofTree();
 
-					if (board != null && t != null) {
+					if ((board != null) && (t != null)) {
 						t.clearSelection();
-						MainFrame.getInstance().getFrostMessageTab().forceSelectMessageId(messageId);
+						MainFrame.getInstance().getMessagingTab().forceSelectMessageId(messageId);
 						t.setSelectionPath(new TreePath(board.getPath()));
 						MainFrame.getInstance().selectTabbedPaneTab("MainFrame.tabbedPane.news");
 					}
@@ -1059,14 +1005,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			// we only find external items if persistence is enabled
 			if (PersistenceManager.isPersistenceEnabled()) {
 				for (final FrostDownloadItem item : selectedItems) {
-					if (item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE) {
+					if (item.isExternal() && item.isDirect() && (item.getState() == FrostDownloadItem.STATE_DONE)) {
 						add(retrieveDirectExternalDownloads);
 						break;
 					}
 				}
 			}
 			add(removeSelectedDownloadsItem);
-			if (FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null) {
+			if ((FileTransferManager.inst().getPersistenceManager() != null) && (selectedItems != null)) {
 				// add only if there are removable items selected
 				for (final FrostDownloadItem item : selectedItems) {
 					if (FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item)) {
@@ -1228,11 +1174,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				final LinkedList<String> dirs = FileTransferManager.inst().getDownloadManager().getRecentDownloadDirs();
 				if( dirs.size() > 0 ) {
 					downloadDirRecentMenu.addSeparator();
-					
+
 					final ListIterator<String> iter = dirs.listIterator(dirs.size());
 					while (iter.hasPrevious()) {
-						final String dir = (String) iter.previous();
-						
+						final String dir = iter.previous();
+
 						item = new JMenuItem(dir);
 						downloadDirRecentMenu.add(item);
 						item.addActionListener(this);

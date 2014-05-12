@@ -250,7 +250,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
      */
     public void startDialog() {
         tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
-        MainFrame.getInstance().getFrostMessageTab().getTofTree().addTreeSelectionListener(this);
+        MainFrame.getInstance().getMessagingTab().getTofTree().addTreeSelectionListener(this);
         setDialogShowing(true);
         loadGuiData();
         setVisible(true);
@@ -260,7 +260,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
      *
      */
     private void closeDialog() {
-        MainFrame.getInstance().getFrostMessageTab().getTofTree().removeTreeSelectionListener(this);
+        MainFrame.getInstance().getMessagingTab().getTofTree().removeTreeSelectionListener(this);
         tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
         setDialogShowing(false);
         dispose();

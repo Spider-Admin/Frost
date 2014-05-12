@@ -21,26 +21,26 @@ package frost.messaging.frost.boards;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
-import java.io.*;
+import java.io.File;
 import java.util.*;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.Border;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import org.joda.time.*;
 
 import frost.*;
-import frost.gui.*;
-import frost.messaging.frost.*;
-import frost.messaging.frost.gui.*;
-import frost.messaging.frost.threads.*;
+import frost.gui.NewBoardDialog;
+import frost.messaging.frost.UnsentMessagesManager;
+import frost.messaging.frost.gui.MessagePanel;
+import frost.messaging.frost.threads.RunningBoardUpdateThreads;
 import frost.storage.*;
 import frost.util.gui.*;
-import frost.util.gui.search.*;
+import frost.util.gui.search.TreeFindAction;
 import frost.util.gui.translation.*;
 
 @SuppressWarnings("serial")
@@ -112,7 +112,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                         cutNodeSelected();
                     } else if (source == pasteNodeItem) {
                         pasteNodeSelected();
-                    } else if (source == configureBoardItem || source == configureFolderItem) {
+                    } else if ((source == configureBoardItem) || (source == configureFolderItem)) {
                         configureBoardSelected();
                     } else if (source == sortFolderItem) {
                         sortFolderSelected();
@@ -216,7 +216,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         }
 
         private void sendMessageSelected() {
-            if( selectedTreeNode == null || !selectedTreeNode.isBoard() ) {
+            if( (selectedTreeNode == null) || !selectedTreeNode.isBoard() ) {
                 return;
             }
             final Board board = (Board) selectedTreeNode;
@@ -285,7 +285,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 add(descriptionItem);
                 addSeparator();
                 add(refreshItem);
-                if (selectedTreeNode.isFolder() == false && !((Board)selectedTreeNode).isReadAccessBoard() ) {
+                if ((selectedTreeNode.isFolder() == false) && !((Board)selectedTreeNode).isReadAccessBoard() ) {
                     add(sendMessageItem);
                 }
                 add(searchMessagesItem);
@@ -309,7 +309,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 if (selectedTreeNode.isRoot() == false) {
                     add(cutNodeItem);
                 }
-                if (clipboard != null && selectedTreeNode.isFolder()) {
+                if ((clipboard != null) && selectedTreeNode.isFolder()) {
                     final String folderOrBoard3 =
                         ((clipboard.isFolder())
                             ? language.getString("BoardTree.popupmenu.folder")
@@ -333,7 +333,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         }
 
         private void renameFolderSelected() {
-            MainFrame.getInstance().getFrostMessageTab().renameFolder( (Folder)selectedTreeNode );
+            MainFrame.getInstance().getMessagingTab().renameFolder( (Folder)selectedTreeNode );
         }
     }
 
@@ -580,7 +580,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             }
 
             // maybe update visualization
-            if (showBoardUpdateVisualization && board != null && board.isUpdating()) {
+            if (showBoardUpdateVisualization && (board != null) && board.isUpdating()) {
                 // set special updating colors
                 Color c;
                 c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED);
@@ -597,7 +597,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
             // visualize DoS attacks
             final boolean isDosed;
-            if( board != null && board.isDosForToday() ) {
+            if( (board != null) && board.isDosForToday() ) {
                 isDosed = true;
             } else {
                 isDosed = false;
@@ -616,9 +616,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
             // set board description as tooltip
             if( showBoardDescriptionToolTips
-                    && board != null
-                    && board.getDescription() != null
-                    && board.getDescription().length() > 0 )
+                    && (board != null)
+                    && (board.getDescription() != null)
+                    && (board.getDescription().length() > 0) )
             {
                 final String newToolTipText;
                 if( isDosed ) {
@@ -765,7 +765,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         if (clipboard == null) {
             return;
         }
-        if (position == null || !position.isFolder()) {
+        if ((position == null) || !position.isFolder()) {
             return; // We only allow pasting under folders
         }
 
@@ -787,10 +787,10 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
      */
     public void pressedKey(final char key) {
         if (!isEditing()) {
-            if (key == 'x' || key == 'X') {
+            if ((key == 'x') || (key == 'X')) {
                 cutNode(model.getSelectedNode());
             }
-            if (key == 'v' || key == 'V') {
+            if ((key == 'v') || (key == 'V')) {
                 pasteNode(model.getSelectedNode());
             }
         }
@@ -801,21 +801,21 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         // hack to prevent the standard JTree idiom (selects nodes starting with pressed key)
         final MessagePanel msgPanel = MainFrame.getInstance().getMessagePanel();
         Action action = null;
-        if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'n' || e.getKeyChar() == 'N') ) {
+        if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 'n') || (e.getKeyChar() == 'N')) ) {
             action = msgPanel.getActionMap().get("NEXT_MSG");
-        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'b' || e.getKeyChar() == 'B') ) {
+        } else if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 'b') || (e.getKeyChar() == 'B')) ) {
             action = msgPanel.getActionMap().get("SET_BAD");
-        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'c' || e.getKeyChar() == 'C') ) {
+        } else if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 'c') || (e.getKeyChar() == 'C')) ) {
             action = msgPanel.getActionMap().get("SET_CHECK");
-        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'o' || e.getKeyChar() == 'O') ) {
+        } else if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 'o') || (e.getKeyChar() == 'O')) ) {
             action = msgPanel.getActionMap().get("SET_OBSERVE");
-        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'g' || e.getKeyChar() == 'G') ) {
+        } else if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 'g') || (e.getKeyChar() == 'G')) ) {
             action = msgPanel.getActionMap().get("SET_GOOD");
-        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'f' || e.getKeyChar() == 'F') ) {
+        } else if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 'f') || (e.getKeyChar() == 'F')) ) {
             action = msgPanel.getActionMap().get("TOGGLE_FLAGGED");
-        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 's' || e.getKeyChar() == 'S') ) {
+        } else if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 's') || (e.getKeyChar() == 'S')) ) {
             action = msgPanel.getActionMap().get("TOGGLE_STARRED");
-        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'j' || e.getKeyChar() == 'J') ) {
+        } else if( (e.getID()==KeyEvent.KEY_TYPED) && ((e.getKeyChar() == 'j') || (e.getKeyChar() == 'J')) ) {
             action = msgPanel.getActionMap().get("TOGGLE_JUNK");
         } else if( Character.isLetter(e.getKeyChar()) || Character.isDigit(e.getKeyChar()) ) {
             // ignore
@@ -861,7 +861,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             if( board.getName().equals(FROST_ANNOUNCE_NAME) ) {
                 boardFound = true;
                 // check if pubkey is correct
-                if( board.getPublicKey() == null || board.getPublicKey().equals(expectedPubkey) == false ) {
+                if( (board.getPublicKey() == null) || (board.getPublicKey().equals(expectedPubkey) == false) ) {
                     board.setPublicKey(expectedPubkey);
                 }
                 break;
@@ -877,7 +877,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         // check all boards for obsolete 0.7 encryption key and warn user
         final List<String> boardsWithObsoleteKeys = new ArrayList<String>();
         for( final Board board : existingBoards ) {
-            if( board.getPublicKey() != null && board.getPublicKey().endsWith("AQABAAE") ) {
+            if( (board.getPublicKey() != null) && board.getPublicKey().endsWith("AQABAAE") ) {
                 boardsWithObsoleteKeys.add( board.getName() );
             }
         }
@@ -1161,7 +1161,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
      * @param board
      */
     public void updateBoard(final Board board) {
-        if (board == null || !board.isBoard()) {
+        if ((board == null) || !board.isBoard()) {
             return;
         }
 
@@ -1189,8 +1189,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             // get the older messages, if configured start backload only after 12 hours
             final long before12hours = now - (12L * 60L * 60L * 1000L); // 12 hours
             boolean downloadCompleteBackload;
-            if( Core.frostSettings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD) == false
-                    && before12hours < board.getLastBackloadUpdateFinishedMillis() )
+            if( (Core.frostSettings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD) == false)
+                    && (before12hours < board.getLastBackloadUpdateFinishedMillis()) )
             {
                 downloadCompleteBackload = false;
             } else {

@@ -25,15 +25,15 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.tree.*;
+import javax.swing.tree.TreeNode;
 
 import frost.*;
 import frost.gui.*;
-import frost.messaging.frost.*;
+import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.boards.*;
-import frost.messaging.frost.gui.sentmessages.*;
-import frost.messaging.frost.gui.unsentmessages.*;
-import frost.messaging.frost.threads.*;
+import frost.messaging.frost.gui.sentmessages.SentMessagesPanel;
+import frost.messaging.frost.gui.unsentmessages.UnsentMessagesPanel;
+import frost.messaging.frost.threads.RunningMessageThreadsInformation;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -85,18 +85,21 @@ public class MessagingTab implements LanguageListener {
 
     String forceSelectMessageId = null;
 
-    public MessagingTab(final MainFrame localMainFrame) {
+    /**
+     * @param mainFrame
+     */
+    public MessagingTab(final MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
 
         language = Language.getInstance();
         language.addLanguageListener(this);
-
-        mainFrame = localMainFrame;
+        initialize();
     }
 
     /**
      * Initializes the panel.
      */
-    public void initialize() {
+    private void initialize() {
         if (tabPanel == null) {
 
             sentMessagesPanel = new SentMessagesPanel();
@@ -508,7 +511,7 @@ public class MessagingTab implements LanguageListener {
     public void boardTree_actionPerformed(final boolean reload) {
 
         final int i[] = tofTree.getSelectionRows();
-        if (i != null && i.length > 0) {
+        if ((i != null) && (i.length > 0)) {
             Core.frostSettings.setValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD, i[0]);
         }
 
@@ -533,7 +536,7 @@ public class MessagingTab implements LanguageListener {
                 forceSelectMessageId = null;
             } else if( reload ) {
                 final int[] rows = getMessagePanel().getMessageTable().getSelectedRows();
-                if( rows != null && rows.length > 0 ) {
+                if( (rows != null) && (rows.length > 0) ) {
                     FrostMessageObject previousMessage = (FrostMessageObject) getMessagePanel().getMessageTableModel().getRow(rows[0]);
                     if( previousMessage != null ) {
                         previousMessageId = previousMessage.getMessageId();

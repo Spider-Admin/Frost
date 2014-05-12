@@ -58,11 +58,11 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
     public AttachmentList<FileAttachment> getUnsentFileAttachments() {
         final AttachmentList<FileAttachment> result = new AttachmentList<FileAttachment>();
         final AttachmentList<FileAttachment> fileAttachments =  getAttachmentsOfTypeFile();
-        if( fileAttachments == null || fileAttachments.size() == 0 ) {
+        if( (fileAttachments == null) || (fileAttachments.size() == 0) ) {
             return result;
         }
         for( final FileAttachment fa : fileAttachments ) {
-            if( fa.getKey() == null || fa.getKey().length() == 0 ) {
+            if( (fa.getKey() == null) || (fa.getKey().length() == 0) ) {
                 result.add(fa);
             }
         }
@@ -76,7 +76,7 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
     public void setCurrentUploadThread(final MessageThread currentUploadThread) {
         this.currentUploadThread = currentUploadThread;
         // update unsend message in unsend messages table
-        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().updateUnsentMessage(this);
+        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().updateUnsentMessage(this);
     }
 
     public long getSendAfterTime() {

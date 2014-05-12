@@ -21,9 +21,9 @@ package frost.messaging.frost;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
-import frost.messaging.frost.boards.*;
-import frost.storage.perst.messages.*;
+import frost.MainFrame;
+import frost.messaging.frost.boards.Board;
+import frost.storage.perst.messages.MessageStorage;
 
 public class SentMessagesManager {
 
@@ -59,7 +59,7 @@ public class SentMessagesManager {
             logger.log(Level.SEVERE, "Error inserting sent message", e);
         }
 
-        return MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().addSentMessage(sentMo);
+        return MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().addSentMessage(sentMo);
     }
 
     public static int deleteSentMessages(final List<FrostMessageObject> msgObjects) {

@@ -18,20 +18,18 @@
 */
 package frost.messaging.frost.gui.sentmessages;
 
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
 import javax.swing.*;
 
 import frost.*;
-import frost.messaging.frost.*;
-import frost.messaging.frost.gui.*;
-import frost.util.gui.*;
+import frost.messaging.frost.FrostMessageObject;
+import frost.messaging.frost.gui.MessageWindow;
+import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")
 public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
@@ -61,7 +59,7 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
 
     public void addSentMessage(final FrostMessageObject i) {
         tableModel.addFrostMessageObject(i);
-        MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().updateSentMessagesCount();
+        MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().updateSentMessagesCount();
     }
 
     public void saveTableFormat() {
@@ -70,7 +68,7 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
 
     public void loadTableModel() {
         tableModel.loadTableModel();
-        MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().updateSentMessagesCount();
+        MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().updateSentMessagesCount();
     }
 
     public void clearTableModel() {
@@ -107,7 +105,7 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
                 final MessageWindow messageWindow = new MessageWindow(
                         MainFrame.getInstance(),
                         sm,
-                        MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().getSize(),
+                        MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().getSize(),
                         false);
                 messageWindow.setVisible(true);
             }
@@ -212,7 +210,7 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
             }
 
             tableModel.removeItems(selectedItems);
-            MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().updateSentMessagesCount();
+            MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().updateSentMessagesCount();
         }
 
         public void languageChanged(final LanguageEvent event) {

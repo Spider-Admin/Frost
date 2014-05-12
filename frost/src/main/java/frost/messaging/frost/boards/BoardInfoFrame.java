@@ -18,62 +18,27 @@
 */
 package frost.messaging.frost.boards;
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
+import javax.swing.table.*;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
+import org.joda.time.*;
 
-import frost.Core;
-import frost.SettingsClass;
+import frost.*;
 import frost.fileTransfer.common.TableBackgroundColors;
 import frost.gui.SortedTable;
-import frost.gui.model.SortedTableModel;
-import frost.gui.model.TableMember;
+import frost.gui.model.*;
 import frost.storage.perst.messages.MessageStorage;
-import frost.util.CopyToClipboard;
-import frost.util.DateFun;
-import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.Language;
-import frost.util.gui.translation.LanguageEvent;
-import frost.util.gui.translation.LanguageListener;
+import frost.util.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 @SuppressWarnings("serial")
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener {
@@ -174,13 +139,13 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         catch( final Exception e ) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
-        
+
         int width = (int) (parentFrame.getWidth() * 0.75);
         int height = (int) (parentFrame.getHeight() * 0.75);
-        
+
         if( width < 1000 ) {
         	Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        	
+
         	if( screenSize.width > 1300 ) {
         		width = 1200;
 
@@ -188,19 +153,19 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         		width = (int) (parentFrame.getWidth() * 0.99);
         	}
         }
-        
+
         if( height < 500 ) {
         	Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        	
+
         	if( screenSize.width > 900 ) {
         		height = 800;
         	} else {
         		height = (int) (screenSize.width * 0.85);
         	}
         }
-        
+
         parentFrame.getWidth();
-        
+
         setSize(width, height);
         setLocationRelativeTo(parentFrame);
 
@@ -424,12 +389,12 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             if( rowIx >= boardTableModel.getRowCount() ) {
                 continue; // paranoia
             }
-            final BoardInfoTableMember row = (BoardInfoTableMember) boardTableModel.getRow(rowIx);
+            final BoardInfoTableMember row = boardTableModel.getRow(rowIx);
             boardsToDelete.add(row.getBoard());
         }
 
         for( final Board board : boardsToDelete ) {
-            Core.getInstance().getMainFrame().getFrostMessageTab().getTofTree().removeNode(this, board);
+            Core.getInstance().getMainFrame().getMessagingTab().getTofTree().removeNode(this, board);
             updateButton_actionPerformed();
         }
     }
@@ -458,7 +423,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                     continue; // paranoia
                 }
 
-                final BoardInfoTableMember row = (BoardInfoTableMember) (boardTableModel).getRow(rowIx);
+                final BoardInfoTableMember row = (boardTableModel).getRow(rowIx);
 
                 if( row.getBoard().isManualUpdateAllowed() ) {
                     tofTree.updateBoard(row.getBoard());
@@ -479,7 +444,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                     continue; // paranoia
                 }
 
-                final BoardInfoTableMember row = (BoardInfoTableMember) (boardTableModel).getRow(rowIx);
+                final BoardInfoTableMember row = (boardTableModel).getRow(rowIx);
 
                 final String boardName = row.getBoard().getName();
                 final String state     = row.getBoard().getStateString();
@@ -677,7 +642,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
          */
         @Override
         public String getColumnName(final int column) {
-            if( column >= 0 && column < columnNames.length ) {
+            if( (column >= 0) && (column < columnNames.length) ) {
                 return columnNames[column];
             }
             return null;
@@ -696,13 +661,13 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
          */
         @Override
         public Class<?> getColumnClass(final int column) {
-            if( column >= 0 && column < columnClasses.length ) {
+            if( (column >= 0) && (column < columnClasses.length) ) {
                 return columnClasses[column];
             }
             return null;
         }
     }
-    
+
     private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer {
         final Font boldFont;
         final Font origFont;
@@ -722,7 +687,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                 final boolean hasFocus, final int row, final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            final BoardInfoTableMember tblrow = (BoardInfoTableMember) boardTableModel.getRow(row);
+            final BoardInfoTableMember tblrow = boardTableModel.getRow(row);
 
             if( tblrow.getBoard().isUpdating() ) {
                 setFont(boldFont);

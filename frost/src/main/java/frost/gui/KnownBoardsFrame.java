@@ -20,7 +20,7 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
+import java.io.File;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -31,12 +31,12 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.fileTransfer.common.*;
+import frost.fileTransfer.common.TableBackgroundColors;
 import frost.gui.model.*;
 import frost.messaging.frost.boards.*;
-import frost.storage.*;
+import frost.storage.KnownBoardsXmlDAO;
 import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class KnownBoardsFrame extends JDialog {
@@ -302,7 +302,7 @@ public class KnownBoardsFrame extends JDialog {
         TFfilterBoard.setText("");
         TFlookupBoard.setText("");
         // gets all known boards from Core, and shows all not-doubles in table
-        final List<Board> frostboards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
+        final List<Board> frostboards = MainFrame.getInstance().getMessagingTab().getTofTreeModel().getAllBoards();
         final Iterator<KnownBoard> i = KnownBoardsManager.getKnownBoardsList().iterator();
         // check each board in list if already in boards tree, if not add to table
         while( i.hasNext() ) {
@@ -327,10 +327,10 @@ public class KnownBoardsFrame extends JDialog {
             while( j.hasNext() ) {
                 final Board board = j.next();
                 if( board.getName().equalsIgnoreCase(bname)
-                    && ((board.getPrivateKey() == null && bprivkey == null) ||
-                        (board.getPrivateKey() != null && board.getPrivateKey().equals(bprivkey)))
-                    && ((board.getPublicKey() == null && bpubkey == null) ||
-                        (board.getPublicKey() != null && board.getPublicKey().equals(bpubkey))) )
+                    && (((board.getPrivateKey() == null) && (bprivkey == null)) ||
+                        ((board.getPrivateKey() != null) && board.getPrivateKey().equals(bprivkey)))
+                    && (((board.getPublicKey() == null) && (bpubkey == null)) ||
+                        ((board.getPublicKey() != null) && board.getPublicKey().equals(bpubkey))) )
                 {
                     // same boards, dont add
                     addMe = false;
@@ -359,7 +359,7 @@ public class KnownBoardsFrame extends JDialog {
                 }
 
                 // add the board(s) to board tree and remove it from table
-                final KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
+                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
                 tofTree.addNewBoard(row.getBoard());
                 tableModel.deleteRow(row);
                 allKnownBoardsList.remove(row);
@@ -372,7 +372,7 @@ public class KnownBoardsFrame extends JDialog {
 
     private void addBoardsToFolder_actionPerformed(final ActionEvent e) {
 
-        final TargetFolderChooser tfc = new TargetFolderChooser(MainFrame.getInstance().getFrostMessageTab().getTofTreeModel());
+        final TargetFolderChooser tfc = new TargetFolderChooser(MainFrame.getInstance().getMessagingTab().getTofTreeModel());
         final Folder targetFolder = tfc.startDialog();
         if( targetFolder == null ) {
             return;
@@ -388,8 +388,8 @@ public class KnownBoardsFrame extends JDialog {
                 }
 
                 // add the board(s) to board tree and remove it from table
-                final KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
-                MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().addNodeToTree(row.getBoard(), targetFolder);
+                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
+                MainFrame.getInstance().getMessagingTab().getTofTreeModel().addNodeToTree(row.getBoard(), targetFolder);
                 tableModel.deleteRow(row);
                 allKnownBoardsList.remove(row);
             }
@@ -409,7 +409,7 @@ public class KnownBoardsFrame extends JDialog {
                     continue; // paranoia
                 }
 
-                final KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
+                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
                 tableModel.deleteRow(row);
 
                 allKnownBoardsList.remove(row);
@@ -432,7 +432,7 @@ public class KnownBoardsFrame extends JDialog {
                     continue; // paranoia
                 }
 
-                final KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
+                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
                 addHiddenName(row.getBoard().getName());
                 row.getBoard().setHidden(true);
             }
@@ -456,7 +456,7 @@ public class KnownBoardsFrame extends JDialog {
                     continue; // paranoia
                 }
 
-                final KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
+                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
                 removeHiddenName(row.getBoard().getName());
                 row.getBoard().setHidden(false);
             }
@@ -469,7 +469,7 @@ public class KnownBoardsFrame extends JDialog {
 
     private void removeHiddenBoards() {
         for( int row=tableModel.getRowCount()-1; row >= 0; row-- ) {
-            final KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
+            final KnownBoardsTableMember memb = tableModel.getRow(row);
             if( isNameHidden(memb.getBoard()) ) {
                 tableModel.removeRow(row);
             }
@@ -515,7 +515,7 @@ public class KnownBoardsFrame extends JDialog {
             return;
         }
         // don't export hidden boards
-        final List<Board> frostboards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
+        final List<Board> frostboards = MainFrame.getInstance().getMessagingTab().getTofTreeModel().getAllBoards();
         frostboards.addAll(KnownBoardsManager.getKnownBoardsList());
         for(final Iterator<Board> i=frostboards.iterator(); i.hasNext(); ) {
             final Board b = i.next();
@@ -624,7 +624,7 @@ public class KnownBoardsFrame extends JDialog {
             }
             return "*ERR*";
         }
-		
+
         public KnownBoard getBoard() {
             return frostboard;
         }
@@ -639,7 +639,7 @@ public class KnownBoardsFrame extends JDialog {
             // now try to find the first board name that starts with this txt (case insensitiv),
             // if we found one set selection to it, else leave selection untouched
             for( int row=0; row < tableModel.getRowCount(); row++ ) {
-                final KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
+                final KnownBoardsTableMember memb = tableModel.getRow(row);
                 if( memb.getBoard().getName().toLowerCase().startsWith(txt.toLowerCase()) ) {
                     boardsTable.getSelectionModel().setSelectionInterval(row, row);
                     // now scroll to selected row, try to show it on top of table
@@ -647,10 +647,10 @@ public class KnownBoardsFrame extends JDialog {
                     // determine the count of showed rows
                     final int visibleRows = (int)(boardsTable.getVisibleRect().getHeight() / boardsTable.getCellRect(row,0,true).getHeight());
                     int scrollToRow;
-                    if( row + visibleRows > tableModel.getRowCount() ) {
+                    if( (row + visibleRows) > tableModel.getRowCount() ) {
                         scrollToRow = tableModel.getRowCount()-1;
                     } else {
-                        scrollToRow = row + visibleRows - 1;
+                        scrollToRow = (row + visibleRows) - 1;
                     }
                     if( scrollToRow > row ) {
                         scrollToRow--;
@@ -705,7 +705,7 @@ public class KnownBoardsFrame extends JDialog {
                 row,
                 column);
 
-            final KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
+            final KnownBoardsTableMember memb = tableModel.getRow(row);
             setIcon(memb.getBoard().getStateIcon());
             return this;
         }
@@ -729,9 +729,9 @@ public class KnownBoardsFrame extends JDialog {
                 row,
                 column);
 
-            final KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-            if( memb.getBoard().getDescription() != null &&
-                memb.getBoard().getDescription().length() > 0 )
+            final KnownBoardsTableMember memb = tableModel.getRow(row);
+            if( (memb.getBoard().getDescription() != null) &&
+                (memb.getBoard().getDescription().length() > 0) )
             {
                 setToolTipText(memb.getBoard().getDescription());
             } else {
@@ -836,7 +836,7 @@ public class KnownBoardsFrame extends JDialog {
     private void removeHiddenName(final String n) {
         hiddenNames.remove(n.toLowerCase());
     }
-    
+
     static public class KnownBoardsTableModel extends SortedTableModel<KnownBoardsTableMember>
     {
         private Language language = null;
@@ -878,8 +878,9 @@ public class KnownBoardsFrame extends JDialog {
         @Override
         public String getColumnName(int column)
         {
-            if( column >= 0 && column < columnNames.length )
+            if( (column >= 0) && (column < columnNames.length) ) {
                 return columnNames[column];
+            }
             return null;
         }
 
@@ -898,8 +899,9 @@ public class KnownBoardsFrame extends JDialog {
         @Override
         public Class<?> getColumnClass(int column)
         {
-            if( column >= 0 && column < columnClasses.length )
+            if( (column >= 0) && (column < columnClasses.length) ) {
                 return columnClasses[column];
+            }
             return null;
         }
     }

@@ -18,11 +18,11 @@
 */
 package frost.messaging.frost.boards;
 
-import java.util.*;
+import java.util.List;
 
 import org.joda.time.*;
 
-import frost.*;
+import frost.MainFrame;
 import frost.util.*;
 
 public class BoardUpdateInformation {
@@ -232,10 +232,10 @@ public class BoardUpdateInformation {
      * Check allowed state, but don't apply and promote it to gui.
      */
     public synchronized boolean checkBoardUpdateAllowedState() {
-        if( MainFrame.getInstance().getFrostMessageTab().getTofTree().isStopBoardUpdatesWhenDOSed() == false ) {
+        if( MainFrame.getInstance().getMessagingTab().getTofTree().isStopBoardUpdatesWhenDOSed() == false ) {
             return true;
         } else {
-            final int maxSubsequentFailuresAllowed = MainFrame.getInstance().getFrostMessageTab().getTofTree().getMaxInvalidMessagesPerDayThreshold();
+            final int maxSubsequentFailuresAllowed = MainFrame.getInstance().getMessagingTab().getTofTree().getMaxInvalidMessagesPerDayThreshold();
             if( getSubsequentInvalidMsgs() > maxSubsequentFailuresAllowed ) {
                 return false;
             } else {

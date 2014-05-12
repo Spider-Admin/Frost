@@ -23,14 +23,14 @@ import java.util.logging.*;
 
 import org.joda.time.*;
 
-import frost.*;
+import frost.MainFrame;
 import frost.gui.*;
 import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
-import frost.storage.*;
-import frost.storage.perst.messagearchive.*;
-import frost.storage.perst.messages.*;
-import frost.util.*;
+import frost.messaging.frost.boards.Board;
+import frost.storage.MessageCallback;
+import frost.storage.perst.messagearchive.ArchiveMessageStorage;
+import frost.storage.perst.messages.MessageStorage;
+import frost.util.TextSearchFun;
 
 public class SearchMessagesThread extends Thread implements MessageCallback {
 
@@ -55,7 +55,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
             // select board dirs
             List<Board> boardsToSearch;
             if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_DISPLAYED ) {
-                boardsToSearch = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
+                boardsToSearch = MainFrame.getInstance().getMessagingTab().getTofTreeModel().getAllBoards();
             } else if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_CHOSED ) {
                 boardsToSearch = searchConfig.chosedBoards;
             } else {
@@ -107,7 +107,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
                         dr.startDate,
                         dr.endDate,
                         retrieveDisplayedMessages,
-                        ((searchConfig.content==null||searchConfig.content.size()==0)?false:true), // withContent
+                        (((searchConfig.content==null)||(searchConfig.content.size()==0))?false:true), // withContent
                         false, // withAttachment
                         false, // showDeleted
                         this);
@@ -132,7 +132,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
 
         // check private, flagged, starred, replied only
         if( searchConfig.searchPrivateMsgsOnly != null ) {
-            if( mo.getRecipientName() == null || mo.getRecipientName().length() == 0 ) {
+            if( (mo.getRecipientName() == null) || (mo.getRecipientName().length() == 0) ) {
                 return;
             }
         }
@@ -219,22 +219,22 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
 
     private boolean matchesTrustStates(final FrostMessageObject msg, final TrustStates ts) {
 
-        if( msg.isMessageStatusGOOD() && ts.trust_good == false ) {
+        if( msg.isMessageStatusGOOD() && (ts.trust_good == false) ) {
             return false;
         }
-        if( msg.isMessageStatusOBSERVE() && ts.trust_observe == false ) {
+        if( msg.isMessageStatusOBSERVE() && (ts.trust_observe == false) ) {
             return false;
         }
-        if( msg.isMessageStatusCHECK() && ts.trust_check == false ) {
+        if( msg.isMessageStatusCHECK() && (ts.trust_check == false) ) {
             return false;
         }
-        if( msg.isMessageStatusBAD() && ts.trust_bad == false ) {
+        if( msg.isMessageStatusBAD() && (ts.trust_bad == false) ) {
             return false;
         }
-        if( msg.isMessageStatusOLD() && ts.trust_none == false ) {
+        if( msg.isMessageStatusOLD() && (ts.trust_none == false) ) {
             return false;
         }
-        if( msg.isMessageStatusTAMPERED() && ts.trust_tampered == false ) {
+        if( msg.isMessageStatusTAMPERED() && (ts.trust_tampered == false) ) {
             return false;
         }
 

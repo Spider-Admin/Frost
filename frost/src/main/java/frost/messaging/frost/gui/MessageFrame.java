@@ -163,7 +163,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     private void attachBoards_actionPerformed(final ActionEvent e) {
 
         // get and sort all boards
-        final List<Board> allBoards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
+        final List<Board> allBoards = MainFrame.getInstance().getMessagingTab().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             return;
         }

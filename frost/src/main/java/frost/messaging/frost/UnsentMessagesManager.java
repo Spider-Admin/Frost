@@ -21,9 +21,9 @@ package frost.messaging.frost;
 import java.util.*;
 
 import frost.*;
-import frost.messaging.frost.boards.*;
-import frost.messaging.frost.threads.*;
-import frost.storage.perst.messages.*;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.threads.FileAttachmentUploadThread;
+import frost.storage.perst.messages.MessageStorage;
 
 /**
  * Holds unsent messages, makes changes persistent.
@@ -41,7 +41,7 @@ public class UnsentMessagesManager {
 
         msgs = MessageStorage.inst().retrieveAllUnsentMessages();
 
-        if( msgs == null || msgs.size() == 0 ) {
+        if( (msgs == null) || (msgs.size() == 0) ) {
             return;
         }
 
@@ -52,7 +52,7 @@ public class UnsentMessagesManager {
             FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(msg);
         }
 
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getMessagingTab().getTofTree().getUnsentMessagesFolder() );
     }
 
     public static int getUnsentMessageCount() {
@@ -94,7 +94,7 @@ public class UnsentMessagesManager {
             if( mo.getBoard().getPerstFrostBoardObject().getBoardId() ==
                     targetBoard.getPerstFrostBoardObject().getBoardId() )
             {
-                if( fromName == null || fromName.equals(mo.getFromName()) ) {
+                if( (fromName == null) || fromName.equals(mo.getFromName()) ) {
                     if( mo.getUnsentFileAttachments().size() == 0 ) {
                         return mo;
                     }
@@ -141,8 +141,8 @@ public class UnsentMessagesManager {
         // enqueue in file attachment upload thread if needed
         FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(mo);
 
-        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().addUnsentMessage(mo);
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().addUnsentMessage(mo);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getMessagingTab().getTofTree().getUnsentMessagesFolder() );
     }
 
     /**
@@ -167,8 +167,8 @@ public class UnsentMessagesManager {
 
         FileAttachmentUploadThread.getInstance().messageWasDeleted(unsentMsg.getMessageId());
 
-        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getMessagingTab().getTofTree().getUnsentMessagesFolder() );
 
         return true;
     }
@@ -183,8 +183,8 @@ public class UnsentMessagesManager {
             }
         }
 
-        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getMessagingTab().getTofTree().getUnsentMessagesFolder() );
 
         return true;
     }

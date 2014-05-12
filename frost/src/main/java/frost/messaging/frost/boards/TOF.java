@@ -17,27 +17,26 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.messaging.frost.boards;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.beans.*;
 import java.util.*;
-import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.joda.time.*;
 
 import frost.*;
-import frost.gui.*;
-import frost.identities.*;
+import frost.gui.KnownBoardsManager;
+import frost.identities.Identity;
 import frost.messaging.frost.*;
 import frost.messaging.frost.gui.messagetreetable.*;
-import frost.storage.*;
-import frost.storage.perst.messages.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.storage.MessageCallback;
+import frost.storage.perst.messages.MessageStorage;
+import frost.util.Mixed;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
 
 /**
  * @pattern Singleton
@@ -163,7 +162,7 @@ public class TOF implements PropertyChangeListener {
 
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
-                if( MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getSelectedNode() == board ) {
+                if( MainFrame.getInstance().getMessagingTab().getTofTreeModel().getSelectedNode() == board ) {
                     for(final Enumeration<FrostMessageObject> e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                         final FrostMessageObject frostMessageObject = e.nextElement();
                         // this cast can only fail, if something other fails..
@@ -295,7 +294,7 @@ public class TOF implements PropertyChangeListener {
             return; // not inserted into database, do not add to gui
         }
 
-        if( newMsg.isSignatureStatusVERIFIED() && newMsg.getFromIdentity() != null ) {
+        if( newMsg.isSignatureStatusVERIFIED() && (newMsg.getFromIdentity() != null) ) {
             // we received a new unique message, count it
             newMsg.getFromIdentity().incReceivedMessageCount();
         }
@@ -376,11 +375,11 @@ public class TOF implements PropertyChangeListener {
         final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
         while(messageObjectEnumeration.hasMoreElements()){
             final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
-            
+
             if( frostMessageObject == rootNode ) {
                 continue;
             }
-            if( frostMessageObject.getMessageId() != null &&
+            if( (frostMessageObject.getMessageId() != null) &&
                 frostMessageObject.getMessageId().equals(newMessage.getMessageId()) &&
                 frostMessageObject.isDummy()
               )
@@ -410,9 +409,9 @@ public class TOF implements PropertyChangeListener {
 
         final boolean showThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
 
-        if( showThreads == false ||
-            newMessage.getMessageId() == null ||
-            newMessage.getInReplyToList().size() == 0
+        if( (showThreads == false) ||
+            (newMessage.getMessageId() == null) ||
+            (newMessage.getInReplyToList().size() == 0)
           )
         {
             rootNode.add(newMessage, false);
@@ -430,12 +429,12 @@ public class TOF implements PropertyChangeListener {
         while( msgParents.size() > 0 ) {
 
             final String directParentId = msgParents.removeLast();
-            
+
             final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
             while(messageObjectEnumeration.hasMoreElements()){
                 final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
-                
-                if( frostMessageObject.getMessageId() != null &&
+
+                if( (frostMessageObject.getMessageId() != null) &&
                     frostMessageObject.getMessageId().equals(directParentId)
                   )
                 {
@@ -653,11 +652,11 @@ public class TOF implements PropertyChangeListener {
                 final Set<String> notBlockedMessageIds = new HashSet<String>();
                 while(true) {
                 	final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
-                    
+
                 	while(messageObjectEnumeration.hasMoreElements()){
                         final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
-                    
-                        if( frostMessageObject.isLeaf() && frostMessageObject != rootNode ) {
+
+                        if( frostMessageObject.isLeaf() && (frostMessageObject != rootNode) ) {
                             if( frostMessageObject.isDummy() ) {
                                 itemsToRemove.add(frostMessageObject);
                             } else if( frostMessageObject.getMessageId() == null ) {
@@ -686,7 +685,7 @@ public class TOF implements PropertyChangeListener {
                             }
                         }
                     }
-                	
+
                     if( itemsToRemove.size() > 0 ) {
                         for( final FrostMessageObject removeMo : itemsToRemove ) {
                             removeMo.removeFromParent();
@@ -704,14 +703,14 @@ public class TOF implements PropertyChangeListener {
                 final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
                 while(messageObjectEnumeration.hasMoreElements()){
                     final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
-                    
+
                     if( frostMessageObject.isDummy() ) {
                         // this thread root node has no subject, get subject of first valid child
                     	final Enumeration<FrostMessageObject> messageObjectEnumeration2 = frostMessageObject.depthFirstEnumeration();
                         while( messageObjectEnumeration2.hasMoreElements() ) {
                             final FrostMessageObject childMo = messageObjectEnumeration2.nextElement();
-                            
-                            if( !childMo.isDummy() && childMo.getSubject() != null ) {
+
+                            if( !childMo.isDummy() && (childMo.getSubject() != null) ) {
                                 final StringBuilder sb = new StringBuilder(childMo.getSubject().length() + 2);
                                 sb.append("[").append(childMo.getSubject()).append("]");
                                 frostMessageObject.setSubject(sb.toString());
@@ -856,11 +855,11 @@ public class TOF implements PropertyChangeListener {
                 int newMessageCountWork = 0;
                 boolean hasStarredWork = false;
                 boolean hasFlaggedWork = false;
-                
+
                 final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
                 while(messageObjectEnumeration.hasMoreElements()){
                     final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
-                    
+
                     if( frostMessageObject.isNew() ) {
                         newMessageCountWork++;
                     }
@@ -917,8 +916,8 @@ public class TOF implements PropertyChangeListener {
                 	final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
                     while(messageObjectEnumeration.hasMoreElements()){
                         final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
-                        
-                        if( frostMessageObject.getMessageId() != null && frostMessageObject.getMessageId().equals(previousSelectedMsgId) ) {
+
+                        if( (frostMessageObject.getMessageId() != null) && frostMessageObject.getMessageId().equals(previousSelectedMsgId) ) {
                         	treeTable.expandFirework(frostMessageObject);
 
                             int row = treeTable.getRowForNode(frostMessageObject);
@@ -940,7 +939,7 @@ public class TOF implements PropertyChangeListener {
                 	final Enumeration<FrostMessageObject> messageObjectEnumeration = rootNode.depthFirstEnumeration();
                     while(messageObjectEnumeration.hasMoreElements()){
                         final FrostMessageObject frostMessageObject = messageObjectEnumeration.nextElement();
-                        
+
                         if( frostMessageObject.isNew() ) {
                         	treeTable.expandFirework(frostMessageObject);
                         }
@@ -997,13 +996,14 @@ public class TOF implements PropertyChangeListener {
         // check for block words, don't check OBSERVE and GOOD
         if (!message.isMessageStatusOBSERVE() && !message.isMessageStatusGOOD()) {
 
-            if (board.getHideMessageCount() > 0 && !message.isMessageFromME()) {
+            if ((board.getHideMessageCount() > 0) && !message.isMessageFromME()) {
                 /* blahwad  bot blaster */
                 Identity sender = message.getFromIdentity();
-                if (sender != null && sender.getReceivedMessageCount() < board.getHideMessageCount()) {
+                if ((sender != null) && (sender.getReceivedMessageCount() < board.getHideMessageCount())) {
                     if (board.getHideMessageCountExcludePrivate()) {
-                        if (message.getRecipientName() == null || message.getRecipientName().length() == 0)
+                        if ((message.getRecipientName() == null) || (message.getRecipientName().length() == 0)) {
                             return true;
+                        }
                     } else {
                         return true;
                     }
@@ -1039,10 +1039,10 @@ public class TOF implements PropertyChangeListener {
                 final AttachmentList<BoardAttachment> boardAttachmentList =  message.getAttachmentsOfTypeBoard();
                 final StringTokenizer blockWords =
                     new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
-                
+
                 while (blockWords.hasMoreTokens()) {
                     final String blockWord = blockWords.nextToken().trim();
-                    
+
                     for( final BoardAttachment boardAttachment : boardAttachmentList ) {
                         if ((blockWord.length() > 0) && (boardAttachment.getBoardObj().getName().equalsIgnoreCase(blockWord))) {
                             return true;
@@ -1060,19 +1060,19 @@ public class TOF implements PropertyChangeListener {
      */
     private void processAttachedBoards(final FrostMessageObject currentMsg) {
         if( currentMsg.isMessageStatusOLD() &&
-            Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED) == true )
+            (Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED) == true) )
         {
             logger.info("Boards from unsigned message blocked");
         } else if( currentMsg.isMessageStatusBAD() &&
-                   Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD) == true )
+                   (Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD) == true) )
         {
             logger.info("Boards from BAD message blocked");
         } else if( currentMsg.isMessageStatusCHECK() &&
-                   Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_CHECK) == true )
+                   (Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_CHECK) == true) )
         {
             logger.info("Boards from CHECK message blocked");
         } else if( currentMsg.isMessageStatusOBSERVE() &&
-                   Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_OBSERVE) == true )
+                   (Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_OBSERVE) == true) )
         {
             logger.info("Boards from OBSERVE message blocked");
         } else if( currentMsg.isMessageStatusTAMPERED() ) {
