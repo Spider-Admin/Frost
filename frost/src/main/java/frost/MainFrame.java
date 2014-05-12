@@ -436,7 +436,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * @return
      */
     private JTabbedPane buildMainPanel() {
-        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getMessagingTab().getTabPanel(), null, 0);
+    	getMessagingTab().initialize();
+        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getMessagingTab(), null, 0);
 
         // optionally show Freetalk tab
         if (frostSettings.getBoolValue(SettingsClass.FREETALK_SHOW_TAB)) {

@@ -37,7 +37,14 @@ import frost.messaging.frost.threads.RunningMessageThreadsInformation;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-public class MessagingTab implements LanguageListener {
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
+public class MessagingTab extends JPanel implements LanguageListener {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Logger logger = Logger.getLogger(MessagingTab.class.getName());
 
@@ -50,8 +57,6 @@ public class MessagingTab implements LanguageListener {
 
     private SentMessagesPanel sentMessagesPanel = null;
     private UnsentMessagesPanel unsentMessagesPanel = null;
-
-    private JPanel tabPanel = null;
 
 //------------------------------------------------------------------------------------
     // toolbar and their items
@@ -93,88 +98,80 @@ public class MessagingTab implements LanguageListener {
 
         language = Language.getInstance();
         language.addLanguageListener(this);
-        initialize();
     }
 
     /**
      * Initializes the panel.
      */
-    private void initialize() {
-        if (tabPanel == null) {
+    public void initialize() {
 
-            sentMessagesPanel = new SentMessagesPanel();
-            unsentMessagesPanel = new UnsentMessagesPanel();
+        sentMessagesPanel = new SentMessagesPanel();
+        unsentMessagesPanel = new UnsentMessagesPanel();
 
-            final JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
-            tofTreeScrollPane.setWheelScrollingEnabled(true);
+        final JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
+        tofTreeScrollPane.setWheelScrollingEnabled(true);
 
-            tofTree.addTreeSelectionListener(new TreeSelectionListener() {
-                public void valueChanged(final TreeSelectionEvent e) {
-                    boardTree_actionPerformed();
-                }
-            });
-
-            // Vertical Board Tree / MessagePane Divider
-            final JPanel panel = new JPanel(new BorderLayout());
-            treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, panel);
-
-            messagePanel = new MessagePanel(Core.frostSettings, mainFrame, this);
-            messagePanel.setParentFrame(mainFrame);
-            messagePanel.setIdentities(Core.getIdentities());
-            messagePanel.initialize();
-
-            panel.add(getMessagePanel(), BorderLayout.CENTER);
-
-            int dividerLoc = Core.frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
-            if( dividerLoc < 10 ) {
-                dividerLoc = 160;
+        tofTree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(final TreeSelectionEvent e) {
+                boardTree_actionPerformed();
             }
-            treeAndTabbedPaneSplitpane.setDividerLocation(dividerLoc);
+        });
 
-            final JPanel p = new JPanel(new BorderLayout());
-            p.add(getButtonToolBar(), BorderLayout.NORTH);
-            p.add(treeAndTabbedPaneSplitpane, BorderLayout.CENTER);
+        // Vertical Board Tree / MessagePane Divider
+        final JPanel panel = new JPanel(new BorderLayout());
+        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, panel);
 
-            tabPanel = p;
+        messagePanel = new MessagePanel(Core.frostSettings, mainFrame, this);
+        messagePanel.setParentFrame(mainFrame);
+        messagePanel.setIdentities(Core.getIdentities());
+        messagePanel.initialize();
 
-            // add menu items to News menu
-            tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/information.png", 16, 16));
-            tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/toolbar/internet-web-browser.png", 16, 16));
-            tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-find.png", 16, 16));
+        panel.add(getMessagePanel(), BorderLayout.CENTER);
 
-            tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayBoardInfoMenuItem_actionPerformed(e);
-                }
-            });
-            tofDisplayBoardUpdateInformationMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayBoardUpdateInformationMenuItem_actionPerformed(e);
-                }
-            });
-            tofDisplayKnownBoards.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayKnownBoardsMenuItem_actionPerformed(e);
-                }
-            });
-            tofSearchMessages.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    startSearchMessagesDialog();
-                }
-            });
-
-            mainFrame.addMenuItem(tofDisplayBoardInfoMenuItem, "MainFrame.menu.news", 2, 1, true);
-            mainFrame.addMenuItem(tofDisplayBoardUpdateInformationMenuItem, "MainFrame.menu.news", 2, 2, false);
-            mainFrame.addMenuItem(tofDisplayKnownBoards, "MainFrame.menu.news", 2, 3, false);
-            mainFrame.addMenuItem(tofSearchMessages, "MainFrame.menu.news", 2, 4, false);
-
-            languageChanged(null);
+        int dividerLoc = Core.frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
+        if (dividerLoc < 10) {
+            dividerLoc = 160;
         }
+        treeAndTabbedPaneSplitpane.setDividerLocation(dividerLoc);
+
+        setLayout(new BorderLayout());
+        add(getButtonToolBar(), BorderLayout.NORTH);
+        add(treeAndTabbedPaneSplitpane, BorderLayout.CENTER);
+
+        // add menu items to News menu
+        tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/information.png", 16, 16));
+        tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/toolbar/internet-web-browser.png", 16, 16));
+        tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-find.png", 16, 16));
+
+        tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                tofDisplayBoardInfoMenuItem_actionPerformed(e);
+            }
+        });
+        tofDisplayBoardUpdateInformationMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                tofDisplayBoardUpdateInformationMenuItem_actionPerformed(e);
+            }
+        });
+        tofDisplayKnownBoards.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                tofDisplayKnownBoardsMenuItem_actionPerformed(e);
+            }
+        });
+        tofSearchMessages.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                startSearchMessagesDialog();
+            }
+        });
+
+        mainFrame.addMenuItem(tofDisplayBoardInfoMenuItem, "MainFrame.menu.news", 2, 1, true);
+        mainFrame.addMenuItem(tofDisplayBoardUpdateInformationMenuItem, "MainFrame.menu.news", 2, 2, false);
+        mainFrame.addMenuItem(tofDisplayKnownBoards, "MainFrame.menu.news", 2, 3, false);
+        mainFrame.addMenuItem(tofSearchMessages, "MainFrame.menu.news", 2, 4, false);
+
+        languageChanged(null);
     }
 
-    public JPanel getTabPanel() {
-        return tabPanel;
-    }
     public MessagePanel getMessagePanel() {
         return messagePanel;
     }
