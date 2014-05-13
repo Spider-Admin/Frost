@@ -512,8 +512,7 @@ public class Core {
      */
     private MessagingManager getMessagingManager() {
         if (messagingManager == null) {
-            messagingManager = new MessagingManager(frostSettings);
-            messagingManager.setMainFrame(mainFrame);
+            messagingManager = new MessagingManager(frostSettings, mainFrame);
         }
         return messagingManager;
     }

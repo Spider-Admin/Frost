@@ -21,9 +21,11 @@ package frost.messaging.frost;
 import frost.*;
 import frost.messaging.frost.boards.*;
 
+
 /**
- * @author $Author: bback $
- * @version $Revision: 3156 $
+ *
+ * @author $Author: $
+ * @version $Revision: $
  */
 public class MessagingManager {
 
@@ -34,11 +36,19 @@ public class MessagingManager {
 
 	private final SettingsClass settings;
 
-	public MessagingManager(final SettingsClass settings) {
+	/**
+	 * @param settings
+	 * @param mainFrame
+	 */
+	public MessagingManager(final SettingsClass settings, final MainFrame mainFrame) {
 		super();
 		this.settings = settings;
+		this.mainFrame = mainFrame;
 	}
 
+	/**
+	 *
+	 */
 	public void initialize() {
 		TOF.initialize(getTofTreeModel());
 		getTofTree().initialize();
@@ -47,6 +57,9 @@ public class MessagingManager {
 		mainFrame.addMenuItem(getTofTree().getConfigBoardMenuItem(), "MainFrame.menu.news", 1, 1, true);
 	}
 
+	/**
+	 * @return
+	 */
 	public TofTree getTofTree() {
 		if (tofTree == null) {
 			tofTree = new TofTree(getTofTreeModel());
@@ -56,6 +69,9 @@ public class MessagingManager {
 		return tofTree;
 	}
 
+	/**
+	 * @return
+	 */
 	public TofTreeModel getTofTreeModel() {
 		if (tofTreeModel == null) {
 			// this rootnode is discarded later, but if we create the tree without parameters,
@@ -67,7 +83,4 @@ public class MessagingManager {
 		return tofTreeModel;
 	}
 
-	public void setMainFrame(final MainFrame mainFrame) {
-		this.mainFrame = mainFrame;
-	}
 }
