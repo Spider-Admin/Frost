@@ -1221,7 +1221,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             model.nodeChanged(e.nextElement());
         }
     }
-    protected JMenuItem getConfigBoardMenuItem() {
+    public JMenuItem getConfigBoardMenuItem() {
         return configBoardMenuItem;
     }
 

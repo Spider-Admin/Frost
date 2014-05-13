@@ -16,15 +16,16 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.messaging.frost.boards;
+package frost.messaging.frost;
 
 import frost.*;
+import frost.messaging.frost.boards.*;
 
 /**
  * @author $Author: bback $
  * @version $Revision: 3156 $
  */
-public class BoardsManager {
+public class MessagingManager {
 
 	private TofTree tofTree;
 	private TofTreeModel tofTreeModel;
@@ -33,7 +34,7 @@ public class BoardsManager {
 
 	private final SettingsClass settings;
 
-	public BoardsManager(final SettingsClass settings) {
+	public MessagingManager(final SettingsClass settings) {
 		super();
 		this.settings = settings;
 	}

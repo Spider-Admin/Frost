@@ -33,8 +33,7 @@ import frost.gui.*;
 import frost.gui.help.CheckHtmlIntegrity;
 import frost.identities.*;
 import frost.messaging.freetalk.FreetalkManager;
-import frost.messaging.frost.UnsentMessagesManager;
-import frost.messaging.frost.boards.BoardsManager;
+import frost.messaging.frost.*;
 import frost.messaging.frost.threads.FileAttachmentUploadThread;
 import frost.storage.StorageManager;
 import frost.storage.perst.*;
@@ -73,7 +72,7 @@ public class Core {
     private final Timer timer = new Timer(true);
 
     private MainFrame mainFrame;
-    private BoardsManager boardsManager;
+    private MessagingManager messagingManager;
     private FileTransferManager fileTransferManager;
 
     private static FrostIdentities identities;
@@ -442,7 +441,7 @@ public class Core {
 
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
-        getBoardsManager().initialize();
+        getMessagingManager().initialize();
 
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
@@ -508,12 +507,15 @@ public class Core {
     	return mainFrame;
     }
 
-    private BoardsManager getBoardsManager() {
-        if (boardsManager == null) {
-            boardsManager = new BoardsManager(frostSettings);
-            boardsManager.setMainFrame(mainFrame);
+    /**
+     * @return
+     */
+    private MessagingManager getMessagingManager() {
+        if (messagingManager == null) {
+            messagingManager = new MessagingManager(frostSettings);
+            messagingManager.setMainFrame(mainFrame);
         }
-        return boardsManager;
+        return messagingManager;
     }
 
     /**
@@ -538,13 +540,13 @@ public class Core {
         final StorageManager saver = new StorageManager(frostSettings);
 
         // auto savables
-        saver.addAutoSavable(getBoardsManager().getTofTree());
+        saver.addAutoSavable(getMessagingManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
         saver.addAutoSavable(new IdentityAutoBackupTask());
 
         // exit savables, must run before the perst storages are closed
         saver.addExitSavable(new IdentityAutoBackupTask());
-        saver.addExitSavable(getBoardsManager().getTofTree());
+        saver.addExitSavable(getMessagingManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
 
         saver.addExitSavable(frostSettings);
