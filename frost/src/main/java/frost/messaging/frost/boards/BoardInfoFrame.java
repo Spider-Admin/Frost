@@ -40,49 +40,79 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
 @SuppressWarnings("serial")
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener {
 
     private final boolean showColoredLines;
 
+    /**
+     *
+     */
     private class Listener implements MouseListener, LanguageListener {
         public Listener() {
             super();
         }
 
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+         */
         public void mouseClicked(final MouseEvent e) {
             if (e.getClickCount() == 2) {
                 updateSelectedBoardButton_actionPerformed(null);
             }
         }
 
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+         */
         public void mouseEntered(final MouseEvent e) {
             //Nothing here
         }
 
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+         */
         public void mouseExited(final MouseEvent e) {
             //Nothing here
         }
 
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+         */
         public void mousePressed(final MouseEvent e) {
             maybeShowPopup(e);
         }
 
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+         */
         public void mouseReleased(final MouseEvent e) {
             maybeShowPopup(e);
         }
 
+        /**
+         * @param e
+         */
         private void maybeShowPopup(final MouseEvent e) {
             if( e.isPopupTrigger() ) {
                 getPopupMenu().show(boardTable, e.getX(), e.getY());
             }
         }
 
+        /* (non-Javadoc)
+         * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
+         */
         public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
     }
 
+    private MainFrame mainFrame;
     private TofTree tofTree = null;
     private static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
     private Language language = null;
@@ -111,6 +141,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private BoardInfoTableModel boardTableModel = null;
     private SortedTable<BoardInfoTableMember> boardTable = null;
 
+    /**
+     *
+     */
     private void refreshLanguage() {
         setTitle(language.getString("BoardInfoFrame.title"));
 
@@ -127,11 +160,17 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         MIremoveSelectedBoards.setText(language.getString("BoardInfoFrame.button.removeSelectedBoards"));
     }
 
-    public BoardInfoFrame(final JFrame parentFrame, final TofTree tofTree) {
+    /**
+     * @param mainFrame
+     * @param tofTree
+     */
+    public BoardInfoFrame(final MainFrame mainFrame, final TofTree tofTree) {
         super();
+        this.mainFrame = mainFrame;
+        this.tofTree = tofTree;
+
         language = Language.getInstance();
         refreshLanguage();
-        this.tofTree = tofTree;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             Init();
@@ -140,8 +179,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
 
-        int width = (int) (parentFrame.getWidth() * 0.75);
-        int height = (int) (parentFrame.getHeight() * 0.75);
+        int width = (int) (mainFrame.getWidth() * 0.75);
+        int height = (int) (mainFrame.getHeight() * 0.75);
 
         if( width < 1000 ) {
         	Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -150,7 +189,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         		width = 1200;
 
         	} else if( screenSize.width > 1000 ) {
-        		width = (int) (parentFrame.getWidth() * 0.99);
+        		width = (int) (mainFrame.getWidth() * 0.99);
         	}
         }
 
@@ -164,10 +203,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         	}
         }
 
-        parentFrame.getWidth();
+        mainFrame.getWidth();
 
         setSize(width, height);
-        setLocationRelativeTo(parentFrame);
+        setLocationRelativeTo(mainFrame);
 
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
