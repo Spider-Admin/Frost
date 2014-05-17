@@ -103,7 +103,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private News2Panel news2Panel = null;
     private JunkPanel junkPanel = null;
     private ExpirationPanel expirationPanel = null;
-    private JList optionsGroupsList = null;
+    private JList<ListBoxData> optionsGroupsList = null;
     private JPanel optionsGroupsPanel = null;
     private SearchPanel searchPanel = null;
 
@@ -169,7 +169,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      * @param m
      * @return
      */
-    protected Dimension computeMaxSize(final ListModel m) {
+    protected Dimension computeMaxSize(final ListModel<ListBoxData> m) {
         if ((m == null) || (m.getSize() == 0)) {
             return null;
         }
@@ -178,7 +178,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         // misuse a JDialog to determine the panel size before showing
         JDialog dlgdummy = new JDialog();
         for (int x = 0; x < m.getSize(); x++) {
-            final ListBoxData lbdata = (ListBoxData) m.getElementAt(x);
+            final ListBoxData lbdata = m.getElementAt(x);
             final JPanel aPanel = lbdata.getPanel();
 
             contentAreaPanel.removeAll();
@@ -334,7 +334,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
-            optionsGroupsList = new JList(listData);
+            optionsGroupsList = new JList<ListBoxData>(listData);
             optionsGroupsList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
             optionsGroupsList.addListSelectionListener(this);
 
