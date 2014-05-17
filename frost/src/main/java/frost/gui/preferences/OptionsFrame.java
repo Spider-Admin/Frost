@@ -26,15 +26,15 @@ package frost.gui.preferences;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
+import java.util.Vector;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
-import frost.storage.*;
-import frost.util.gui.translation.*;
+import frost.storage.StorageException;
+import frost.util.gui.translation.Language;
 
 /**
  * Main options frame.
@@ -63,7 +63,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     private static final Logger logger = Logger.getLogger(OptionsFrame.class.getName());
 
-    private final SettingsClass frostSettings;
+    private MainFrame mainFrame;
+    private final SettingsClass settings;
     private final Language language;
 
     private JPanel buttonPanel = null; // OK / Cancel
@@ -116,16 +117,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     /**
      * Constructor, reads init file and inits the gui.
-     * @param parent
+     * @param mainFrame
      * @param settings
      */
-    public OptionsFrame(final Frame parent, final SettingsClass settings) {
-        super(parent);
+    public OptionsFrame(final MainFrame mainFrame, final SettingsClass settings) {
+        super(mainFrame);
         setModal(true);
+        this.mainFrame = mainFrame;
+        this.settings = settings;
 
         language = Language.getInstance();
 
-        frostSettings = settings;
         setDataElements();
 
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -141,7 +143,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         pack();
 
         // center dialog on parent
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(mainFrame);
     }
 
     /**
@@ -168,7 +170,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      * @return
      */
     protected Dimension computeMaxSize(final ListModel m) {
-        if (m == null || m.getSize() == 0) {
+        if ((m == null) || (m.getSize() == 0)) {
             return null;
         }
         int maxX = -1;
@@ -222,65 +224,92 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return buttonPanel;
     }
 
+    /**
+     * @return
+     */
     private DisplayPanel getDisplayPanel() {
         if (displayPanel == null) {
-            displayPanel = new DisplayPanel(this, frostSettings);
+            displayPanel = new DisplayPanel(this, settings);
         }
         return displayPanel;
     }
 
+    /**
+     * @return
+     */
     private DisplayBoardTreePanel getDisplayBoardTreePanel() {
         if (displayBoardTreePanel == null) {
-            displayBoardTreePanel = new DisplayBoardTreePanel(this, frostSettings);
+            displayBoardTreePanel = new DisplayBoardTreePanel(this, settings);
         }
         return displayBoardTreePanel;
     }
 
+    /**
+     * @return
+     */
     private DisplayMessagesPanel getDisplayMessagesPanel() {
         if (displayMessagesPanel == null) {
-            displayMessagesPanel = new DisplayMessagesPanel(this, frostSettings);
+            displayMessagesPanel = new DisplayMessagesPanel(this, settings);
         }
         return displayMessagesPanel;
     }
 
+    /**
+     * @return
+     */
     private DownloadPanel getDownloadPanel() {
         if (downloadPanel == null) {
-            downloadPanel = new DownloadPanel(this, frostSettings);
+            downloadPanel = new DownloadPanel(this, settings);
         }
         return downloadPanel;
     }
 
+    /**
+     * @return
+     */
     private MiscPanel getMiscPanel() {
         if (miscPanel == null) {
-            miscPanel = new MiscPanel(frostSettings);
+            miscPanel = new MiscPanel(settings);
         }
         return miscPanel;
     }
 
+    /**
+     * @return
+     */
     private News2Panel getNews2Panel() {
         if (news2Panel == null) {
-            news2Panel = new News2Panel(frostSettings);
+            news2Panel = new News2Panel(settings);
         }
         return news2Panel;
     }
 
+    /**
+     * @return
+     */
     private JunkPanel getJunkPanel() {
         if (junkPanel == null) {
-            junkPanel = new JunkPanel(frostSettings);
+            junkPanel = new JunkPanel(settings);
         }
         return junkPanel;
     }
 
+    /**
+     * @return
+     */
     private ExpirationPanel getExpirationPanel() {
         if (expirationPanel == null) {
-            expirationPanel = new ExpirationPanel(this, frostSettings);
+            expirationPanel = new ExpirationPanel(this, settings);
         }
         return expirationPanel;
     }
 
+    /**
+     * @return
+     */
     private NewsPanel getNewsPanel() {
         if (newsPanel == null) {
-            newsPanel = new NewsPanel(frostSettings);
+            newsPanel = new NewsPanel(settings);
         }
         return newsPanel;
     }
@@ -327,16 +356,22 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return optionsGroupsPanel;
     }
 
+    /**
+     * @return
+     */
     private SearchPanel getSearchPanel() {
         if (searchPanel == null) {
-            searchPanel = new SearchPanel(frostSettings);
+            searchPanel = new SearchPanel(settings);
         }
         return searchPanel;
     }
 
+    /**
+     * @return
+     */
     private UploadPanel getUploadPanel() {
         if (uploadPanel == null) {
-            uploadPanel = new UploadPanel(frostSettings);
+            uploadPanel = new UploadPanel(settings);
         }
         return uploadPanel;
     }
@@ -456,37 +491,37 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     private void saveSettings() {
         try {
-            frostSettings.exitSave();
+            settings.exitSave();
         } catch (final StorageException se) {
             logger.log(Level.SEVERE, "Error while saving the settings.", se);
         }
 
         // now check if some settings changed
-        if( !checkMaxMessageDisplay.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY))
-            || checkSignedOnly != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED)
-            || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD)
-            || checkHideCheckMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK)
-            || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE)
-            || checkHideJunkMessages != frostSettings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES)
-            || checkBlock != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)
-            || checkBlockBody != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)
-            || checkShowDeletedMessages != frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES)
-            || showColoredRows != frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS)
-            || checkShowOwnMessagesAsMeDisabled != frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED)
-            || checkIndicateLowReceivedMessages != frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES)
+        if( !checkMaxMessageDisplay.equals(settings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY))
+            || (checkSignedOnly != settings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED))
+            || (checkHideBadMessages != settings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD))
+            || (checkHideCheckMessages != settings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK))
+            || (checkHideObserveMessages != settings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE))
+            || (checkHideJunkMessages != settings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES))
+            || (checkBlock != settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED))
+            || (checkBlockBody != settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED))
+            || (checkShowDeletedMessages != settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES))
+            || (showColoredRows != settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS))
+            || (checkShowOwnMessagesAsMeDisabled != settings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED))
+            || (checkIndicateLowReceivedMessages != settings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES))
           )
         {
             // at least one setting changed, reload messages
             shouldReloadMessages = true;
         }
 
-        if( !checkMaxMessageDownload.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD)) ) {
+        if( !checkMaxMessageDownload.equals(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD)) ) {
             shouldResetLastBackloadUpdateFinishedMillis = true;
         }
 
         // if settings was true before and now its disabled
-        if( checkRememberSharedFileDownloaded == true
-                && frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED) == false )
+        if( (checkRememberSharedFileDownloaded == true)
+                && (settings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED) == false) )
         {
             shouldResetSharedFilesLastDownloaded = true;
         }
@@ -499,23 +534,23 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     private void setDataElements() {
         // first set some settings to check later if they are changed by user
-        checkMaxMessageDisplay = frostSettings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY);
-        checkMaxMessageDownload = frostSettings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD);
-        checkSignedOnly = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED);
-        checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD);
-        checkHideCheckMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK);
-        checkHideObserveMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE);
-        checkHideJunkMessages = frostSettings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES);
-        checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
-        checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
-        checkShowDeletedMessages = frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES);
-        checkShowOwnMessagesAsMeDisabled = frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED);
+        checkMaxMessageDisplay = settings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY);
+        checkMaxMessageDownload = settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD);
+        checkSignedOnly = settings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED);
+        checkHideBadMessages = settings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD);
+        checkHideCheckMessages = settings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK);
+        checkHideObserveMessages = settings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE);
+        checkHideJunkMessages = settings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES);
+        checkBlock = settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
+        checkBlockBody = settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
+        checkShowDeletedMessages = settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES);
+        checkShowOwnMessagesAsMeDisabled = settings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED);
 
-        checkIndicateLowReceivedMessages = frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
+        checkIndicateLowReceivedMessages = settings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
 
-        checkRememberSharedFileDownloaded = frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
+        checkRememberSharedFileDownloaded = settings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
 
-        showColoredRows = frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        showColoredRows = settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
 
     /**
@@ -537,6 +572,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return shouldResetLastBackloadUpdateFinishedMillis;
     }
 
+    /**
+     * @return
+     */
     public boolean shouldResetSharedFilesLastDownloaded() {
         return shouldResetSharedFilesLastDownloaded;
     }
