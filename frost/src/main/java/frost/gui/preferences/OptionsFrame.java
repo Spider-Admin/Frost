@@ -361,7 +361,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     private SearchPanel getSearchPanel() {
         if (searchPanel == null) {
-            searchPanel = new SearchPanel(settings);
+            searchPanel = new SearchPanel(mainFrame, settings);
         }
         return searchPanel;
     }

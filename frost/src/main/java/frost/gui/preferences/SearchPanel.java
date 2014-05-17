@@ -24,13 +24,19 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.storage.perst.filelist.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.translation.Language;
 
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
 @SuppressWarnings("serial")
 class SearchPanel extends JPanel {
 
+    private MainFrame mainFrame;
     private SettingsClass settings = null;
     private Language language = null;
 
@@ -57,12 +63,14 @@ class SearchPanel extends JPanel {
     private final JButton resetHiddenFilesButton = new JButton();
 
     /**
+     * @param mainFrame
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected SearchPanel(final SettingsClass settings) {
+    protected SearchPanel(final MainFrame mainFrame, final SettingsClass settings) {
         super();
 
         this.language = Language.getInstance();
+        this.mainFrame = mainFrame;
         this.settings = settings;
 
         initialize();
@@ -184,9 +192,12 @@ class SearchPanel extends JPanel {
         });
     }
 
+    /**
+     *
+     */
     private void resetHiddenFiles() {
         final int answer = JOptionPane.showConfirmDialog(
-                Core.getInstance().getMainFrame(),
+                mainFrame,
                 language.getString("Options.search.confirmResetHiddenFiles.body"),
                 language.getString("Options.search.confirmResetHiddenFiles.title"),
                 JOptionPane.YES_NO_OPTION,
