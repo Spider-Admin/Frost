@@ -420,6 +420,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
     }
 
+    /**
+     * @param e
+     */
     private void removeSelectedBoards_actionPerformed(final ActionEvent e) {
         final int[] selectedRows = boardTable.getSelectedRows();
 
@@ -433,7 +436,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
 
         for( final Board board : boardsToDelete ) {
-            Core.getInstance().getMainFrame().getMessagingTab().getTofTree().removeNode(this, board);
+            mainFrame.getMessagingTab().getTofTree().removeNode(this, board);
             updateButton_actionPerformed();
         }
     }
