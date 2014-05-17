@@ -503,10 +503,6 @@ public class Core {
         return fileTransferManager;
     }
 
-    public MainFrame getMainFrame(){
-    	return mainFrame;
-    }
-
     /**
      * @return
      */
