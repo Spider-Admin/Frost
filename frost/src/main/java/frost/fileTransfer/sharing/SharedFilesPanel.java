@@ -21,33 +21,41 @@ package frost.fileTransfer.sharing;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
-import java.io.*;
+import java.io.File;
 import java.util.*;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
 import frost.*;
-import frost.fileTransfer.filelist.*;
-import frost.storage.perst.*;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.filelist.FileListUploadThread;
+import frost.storage.perst.NewUploadFile;
 import frost.util.*;
 import frost.util.gui.*;
-import frost.util.gui.search.*;
+import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
+/**
+ * 
+ * @author $Author: $
+ * @version $Revision: $
+ */
 @SuppressWarnings("serial")
 public class SharedFilesPanel extends JPanel {
 
+    private static final Logger logger = Logger.getLogger(SharedFilesPanel.class.getName());
+	
     private PopupMenu popupMenuUpload = null;
 
     private final Listener listener = new Listener();
 
-    private static final Logger logger = Logger.getLogger(SharedFilesPanel.class.getName());
-
     private SharedFilesModel model = null;
 
+    private FileTransferManager fileTransferManager;
+    
     private Language language = null;
 
     private final JToolBar sharedFilesToolBar = new JToolBar();
@@ -60,9 +68,14 @@ public class SharedFilesPanel extends JPanel {
 
     private boolean initialized = false;
 
-    public SharedFilesPanel() {
+    /**
+     * @param fileTransferManager
+     */
+    protected SharedFilesPanel(FileTransferManager fileTransferManager) {
         super();
 
+        this.fileTransferManager = fileTransferManager;
+        
         language = Language.getInstance();
         language.addLanguageListener(listener);
     }
@@ -225,7 +238,7 @@ public class SharedFilesPanel extends JPanel {
             // notify list upload thread about a change in the filelist
             FileListUploadThread.getInstance().userActionOccured();
 
-            Core.getInstance().getFileTransferManager().getNewUploadFilesManager().addNewUploadFiles(uploadItems);
+            fileTransferManager.getNewUploadFilesManager().addNewUploadFiles(uploadItems);
         }
     }
 
