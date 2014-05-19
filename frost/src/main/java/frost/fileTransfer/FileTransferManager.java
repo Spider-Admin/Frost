@@ -18,19 +18,19 @@
 */
 package frost.fileTransfer;
 
-import frost.Core;
-import frost.MainFrame;
+import frost.*;
 import frost.fileTransfer.download.DownloadManager;
 import frost.fileTransfer.search.SearchManager;
-import frost.fileTransfer.sharing.FrostSharedFileItem;
-import frost.fileTransfer.sharing.SharedFilesManager;
-import frost.fileTransfer.upload.FrostUploadItem;
-import frost.fileTransfer.upload.UploadManager;
+import frost.fileTransfer.sharing.*;
+import frost.fileTransfer.upload.*;
 import frost.identities.LocalIdentity;
-import frost.storage.AutoSavable;
-import frost.storage.ExitSavable;
-import frost.storage.StorageException;
+import frost.storage.*;
 
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
 public class FileTransferManager implements ExitSavable, AutoSavable {
 
     private DownloadManager downloadManager;
@@ -43,6 +43,9 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
 
     private static FileTransferManager instance = null;
 
+    /**
+     *
+     */
     private FileTransferManager() {
         super();
     }
@@ -125,7 +128,7 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
     public int countFilesSharedByLocalIdentity(final LocalIdentity li) {
         int count = 0;
         for (int x = 0; x < getSharedFilesManager().getModel().getItemCount(); x++) {
-            final FrostSharedFileItem item = (FrostSharedFileItem) getSharedFilesManager().getModel().getItemAt(x);
+            final FrostSharedFileItem item = getSharedFilesManager().getModel().getItemAt(x);
             if( item.getOwner().equals( li.getUniqueName()) ) {
                 count++;
             }
@@ -151,7 +154,7 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
 
         // remove from sharedfiles table
         for (int x = 0; x < getSharedFilesManager().getModel().getItemCount(); x++) {
-            final FrostSharedFileItem item = (FrostSharedFileItem) getSharedFilesManager().getModel().getItemAt(x);
+            final FrostSharedFileItem item = getSharedFilesManager().getModel().getItemAt(x);
             if( item.getOwner().equals( li.getUniqueName()) ) {
                 getSharedFilesManager().getModel().removeItem(item);
             }
@@ -172,9 +175,12 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
         return uploadManager;
     }
 
+    /**
+     * @return
+     */
     public SharedFilesManager getSharedFilesManager() {
         if (sharedFilesManager == null) {
-            sharedFilesManager = new SharedFilesManager();
+            sharedFilesManager = new SharedFilesManager(this);
         }
         return sharedFilesManager;
     }

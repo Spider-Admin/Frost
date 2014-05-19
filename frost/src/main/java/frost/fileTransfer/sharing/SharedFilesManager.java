@@ -19,18 +19,30 @@
 package frost.fileTransfer.sharing;
 
 import java.beans.*;
-import java.util.*;
+import java.util.List;
 
 import frost.*;
+import frost.fileTransfer.FileTransferManager;
 import frost.storage.*;
 
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
 public class SharedFilesManager implements PropertyChangeListener, ExitSavable {
+
+    private FileTransferManager fileTransferManager;
 
     private SharedFilesModel model;
     private SharedFilesPanel panel;
 
-    public SharedFilesManager() {
+    /**
+     * @param fileTransferManager
+     */
+    public SharedFilesManager(FileTransferManager fileTransferManager) {
         super();
+        this.fileTransferManager = fileTransferManager;
     }
 
     public void initialize() throws StorageException {

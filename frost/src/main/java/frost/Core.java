@@ -496,6 +496,9 @@ public class Core {
         initializeTasks(mainFrame);
     }
 
+    /**
+     * @return
+     */
     public FileTransferManager getFileTransferManager() {
         if (fileTransferManager == null) {
             fileTransferManager = FileTransferManager.inst();
