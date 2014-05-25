@@ -18,15 +18,15 @@
 */
 package frost.fileTransfer.upload;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.LinkedList;
 import java.util.logging.*;
 
-import frost.*;
+import frost.Core;
 import frost.fileTransfer.*;
-import frost.fileTransfer.sharing.*;
-import frost.storage.perst.*;
-import frost.util.*;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.storage.perst.NewUploadFile;
+import frost.util.Mixed;
 
 /**
  * Generates the sha checksum of a file.
@@ -35,22 +35,37 @@ public class GenerateShaThread extends Thread {
 
     private static final Logger logger = Logger.getLogger(GenerateShaThread.class.getName());
 
+    private NewUploadFilesManager newUploadFilesManager;
+    
     private static final int wait1minute = 1 * 60 * 1000;
     FileQueue fileQueue;
 
-    public GenerateShaThread() {
+    /**
+     * @param newUploadFilesManager
+     */
+    public GenerateShaThread(NewUploadFilesManager newUploadFilesManager) {
+        this.newUploadFilesManager = newUploadFilesManager;
         fileQueue = new FileQueue();
     }
 
+    /**
+     * @param f
+     */
     public void addToFileQueue(final NewUploadFile f) {
         // awakes thread
         fileQueue.appendFileToQueue(f);
     }
 
+    /**
+     * @return
+     */
     public int getQueueSize() {
         return fileQueue.getQueueSize();
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Thread#run()
+     */
     @Override
     public void run() {
 
@@ -84,7 +99,7 @@ public class GenerateShaThread extends Thread {
                     FileTransferManager.inst().getSharedFilesManager().getModel().addNewSharedFile(sfi, newUploadFile.isReplacePathIfFileExists());
 
                     // delete from newuploadfiles database
-                    Core.getInstance().getFileTransferManager().getNewUploadFilesManager().deleteNewUploadFile(newUploadFile);
+                    newUploadFilesManager.deleteNewUploadFile(newUploadFile);
                 }
 
             } catch(final Throwable t) {
@@ -99,10 +114,18 @@ public class GenerateShaThread extends Thread {
         }
     }
 
+    /**
+     * 
+     * @author $Author: $
+     * @version $Revision: $
+     */
     private class FileQueue {
 
         private final LinkedList<NewUploadFile> queue = new LinkedList<NewUploadFile>();
 
+        /**
+         * @return
+         */
         public synchronized NewUploadFile getFileFromQueue() {
             try {
                 // let dequeueing threads wait for work
@@ -120,11 +143,17 @@ public class GenerateShaThread extends Thread {
             return null;
         }
 
+        /**
+         * @param f
+         */
         public synchronized void appendFileToQueue(final NewUploadFile f) {
             queue.addLast(f);
             notifyAll(); // notify all waiters (if any) of new record
         }
 
+        /**
+         * @return
+         */
         public synchronized int getQueueSize() {
             return queue.size();
         }

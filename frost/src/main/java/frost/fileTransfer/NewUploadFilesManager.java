@@ -21,10 +21,15 @@ package frost.fileTransfer;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.fileTransfer.upload.*;
+import frost.fileTransfer.upload.GenerateShaThread;
 import frost.storage.*;
 import frost.storage.perst.*;
 
+/**
+ * 
+ * @author $Author: $
+ * @version $Revision: $
+ */
 public class NewUploadFilesManager implements ExitSavable {
 
     private static final Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
@@ -32,6 +37,16 @@ public class NewUploadFilesManager implements ExitSavable {
     private LinkedList<NewUploadFile> newUploadFiles;
     private GenerateShaThread generateShaThread;
 
+    /**
+     * 
+     */
+    public NewUploadFilesManager() {
+        super();
+    }
+    
+    /**
+     * @throws StorageException
+     */
     public void initialize() throws StorageException {
         try {
             newUploadFiles = FrostFilesStorage.inst().loadNewUploadFiles();
@@ -39,7 +54,7 @@ public class NewUploadFilesManager implements ExitSavable {
             logger.log(Level.SEVERE, "Error loading new upload files", e);
             throw new StorageException("Error loading new upload files");
         }
-        generateShaThread = new GenerateShaThread();
+        generateShaThread = new GenerateShaThread(this);
     }
 
     /**
@@ -49,6 +64,9 @@ public class NewUploadFilesManager implements ExitSavable {
         generateShaThread.start();
     }
 
+    /* (non-Javadoc)
+     * @see frost.storage.ExitSavable#exitSave()
+     */
     public void exitSave() throws StorageException {
         synchronized(newUploadFiles) {
             try {
@@ -60,6 +78,9 @@ public class NewUploadFilesManager implements ExitSavable {
         }
     }
 
+    /**
+     * @param newFiles
+     */
     public void addNewUploadFiles(final List<NewUploadFile> newFiles) {
         synchronized(newUploadFiles) {
             for( final NewUploadFile nuf : newFiles ) {
@@ -71,6 +92,9 @@ public class NewUploadFilesManager implements ExitSavable {
         }
     }
 
+    /**
+     * @param nuf
+     */
     public void deleteNewUploadFile(final NewUploadFile nuf) {
         synchronized(newUploadFiles) {
             newUploadFiles.remove(nuf);
