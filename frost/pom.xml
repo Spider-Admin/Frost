@@ -30,6 +30,31 @@
 		<url>http://jtcfrost.sourceforge.net/</url>
 	</organization>	
 	
+	<licenses>
+		<license>
+		 	<name>GNU General Public License (GPL), version 3</name>
+			<url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+	<mailingLists>
+		<mailingList>
+			<name>jtcfrost-cvs</name>
+			<post>jtcfrost-cvs@lists.sourceforge.net</post>
+			<archive>http://sourceforge.net/p/jtcfrost/mailman/jtcfrost-cvs</archive>
+		</mailingList>
+		<mailingList>
+			<name>jtcfrost-devl</name>
+			<post>jtcfrost-devl@lists.sourceforge.net</post>
+			<archive>http://sourceforge.net/p/jtcfrost/mailman/jtcfrost-devl</archive>
+		</mailingList>
+		<mailingList>
+			<name>jtcfrost-support</name>
+			<post>jtcfrost-support@lists.sourceforge.net</post>
+			<archive>http://sourceforge.net/p/jtcfrost/mailman/jtcfrost-support</archive>
+		</mailingList>
+	</mailingLists>
 	
 	<dependencies>
 		<!-- System scope is used for security reasons: I do not want those jars to be automatically downloaded from repositories outside our control -->
