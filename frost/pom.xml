@@ -30,6 +30,34 @@
 		<url>http://jtcfrost.sourceforge.net/</url>
 	</organization>	
 	
+	<developers>
+		<developer>
+			<id>kevloral</id>
+			<name>José Manuel Arnesto</name>
+			<email>kevloral -AT+ gmail.com</email>
+			<timezone>Europe/Madrid</timezone>
+			<properties>
+				<frostId>kevloral@0aGR0ur6QBN_+RSuU47Es4X7HVs</frostId>
+			</properties>
+		</developer>
+		<developer>
+			<id>bback</id>
+			<name>Karsten Graul</name>		
+			<email>bback -AT+ users.sourceforge.net</email>
+			<properties>
+				<frostId>bback@xgVRApPk+Yngy+jmtOeGzIbN_A0</frostId>
+			</properties>				
+		</developer>
+		<developer>
+			<id>artur8ur</id>
+			<name>Jan Gerritsen</name>	
+			<email>frost.artur -AT+ googlemail.com</email>
+			<properties>
+				<frostId>artur@K7dLGJvoXF_QQeUhZq9bNp0lFx4</frostId>
+			</properties>					
+		</developer>				
+	</developers>
+	
 	<licenses>
 		<license>
 		 	<name>GNU General Public License (GPL), version 3</name>
