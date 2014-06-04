@@ -433,7 +433,7 @@ public class Core {
 
         getIdentities().initialize();
 
-        String title = "Frost@Freenet 0.7";
+        String title = "Frost";
 
         if( !isFreenetOnline() ) {
             title += " (offline mode)";
