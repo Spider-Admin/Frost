@@ -29,4 +29,4 @@ else
     ADDFLAGS=''
 fi
 
-java -Xmx192M $ADDFLAGS -jar frost.jar "$@"
+java -Xmx256M $ADDFLAGS -jar frost.jar "$@"

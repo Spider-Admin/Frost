@@ -1,1 +1,1 @@
-start javaw -Xmx192M -jar frost.jar %1 %2 %3 %4 %5 %6 %7
+start javaw -Xmx256M -jar frost.jar %1 %2 %3 %4 %5 %6 %7
