@@ -10,9 +10,9 @@
 	<description>A client that provides newsgroup-like messaging, private encrypted messages, file upload and download functionality and a file sharing system.</description>
 	
 	<properties>	
-		<!-- Compiler settings -->
+		<!-- Java settings -->
 		<java.compiler.fork>true</java.compiler.fork>
-		<java.compiler.version>1.6</java.compiler.version>
+		<java.version>1.6</java.version>
 
 		<!-- Source and output encoding -->
 		<default.encoding>UTF-8</default.encoding>
@@ -122,11 +122,11 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>${java.compiler.version}</source>
-					<target>${java.compiler.version}</target>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 					<encoding>${default.encoding}</encoding>
 					<fork>${java.compiler.fork}</fork>
-					<compilerVersion>${java.compiler.version}</compilerVersion>
+					<compilerVersion>${java.version}</compilerVersion>
 				</configuration>
 			</plugin>		
    			<plugin>
@@ -196,6 +196,9 @@
 			<plugin>
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>3.1</version>
+        		<configuration>
+          			<targetJdk>${java.version}</targetJdk>
+        		</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-jxr-plugin</artifactId>
