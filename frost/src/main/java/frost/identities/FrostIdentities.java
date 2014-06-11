@@ -21,14 +21,14 @@ package frost.identities;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import frost.*;
-import frost.storage.*;
-import frost.storage.perst.identities.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.storage.StorageException;
+import frost.storage.perst.identities.IdentitiesStorage;
+import frost.util.Mixed;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
 
 /**
  * A class that maintains identity stuff.
@@ -43,9 +43,19 @@ public class FrostIdentities {
     private final Object lockObject = new Object();
 
     private Language language = Language.getInstance();
-    
-    private IdentitiesStorage identitiesStorage = IdentitiesStorage.inst(); 
 
+    private IdentitiesStorage identitiesStorage = IdentitiesStorage.inst();
+
+    /**
+     *
+     */
+    public FrostIdentities() {
+        super();
+    }
+
+    /**
+     * @throws StorageException
+     */
     public void initialize() throws StorageException {
 
         localIdentities = identitiesStorage.loadLocalIdentities();
@@ -71,6 +81,8 @@ public class FrostIdentities {
 
     /**
      * Creates new local identity, and adds it to database.
+     *
+     * @return
      */
     public LocalIdentity createIdentity() {
         final LocalIdentity li = createIdentity(false);
@@ -85,6 +97,9 @@ public class FrostIdentities {
 
     /**
      * Creates new local identity, and adds it to database.
+     *
+     * @param firstIdentity
+     * @return
      */
     private LocalIdentity createIdentity(final boolean firstIdentity) {
 
@@ -155,6 +170,10 @@ public class FrostIdentities {
         return newIdentity;
     }
 
+    /**
+     * @param uniqueName
+     * @return
+     */
     public Identity getIdentity(final String uniqueName) {
         if( uniqueName == null ) {
             return null;
@@ -169,11 +188,19 @@ public class FrostIdentities {
 
     /**
      * Adds an Identity, locks the storage.
+     *
+     * @param id
+     * @return
      */
     public boolean addIdentity(final Identity id) {
         return addIdentity(id, true);
     }
 
+    /**
+     * @param id
+     * @param useLock
+     * @return
+     */
     public boolean addIdentity(final Identity id, final boolean useLock) {
         if( id == null ) {
             return false;
@@ -205,6 +232,10 @@ public class FrostIdentities {
         return true;
     }
 
+    /**
+     * @param li
+     * @return
+     */
     public boolean addLocalIdentity(final LocalIdentity li) {
         if( li == null ) {
             return false;
@@ -226,6 +257,10 @@ public class FrostIdentities {
         return true;
     }
 
+    /**
+     * @param li
+     * @return
+     */
     public boolean deleteLocalIdentity(final LocalIdentity li) {
         if( li == null ) {
             return false;
@@ -246,6 +281,10 @@ public class FrostIdentities {
         return removed;
     }
 
+    /**
+     * @param li
+     * @return
+     */
     public boolean deleteIdentity(final Identity li) {
         if( li == null ) {
             return false;
@@ -267,6 +306,10 @@ public class FrostIdentities {
         return removed;
     }
 
+    /**
+     * @param uniqueName
+     * @return
+     */
     public boolean isMySelf(final String uniqueName) {
         if( getLocalIdentity(uniqueName) != null ) {
             return true;
@@ -274,15 +317,19 @@ public class FrostIdentities {
         return false;
     }
 
+    /**
+     * @param uniqueName
+     * @return
+     */
     public LocalIdentity getLocalIdentity(final String uniqueName) {
         LocalIdentity li = null;
         li = localIdentities.get(uniqueName);
-//        if( li == null ) {
-//            li = (LocalIdentity) localIdentities.get(Mixed.makeFilename(uniqueName));
-//        }
         return li;
     }
 
+    /**
+     * @return
+     */
     public List<Identity> getAllGOODIdentities() {
         final List<Identity> list = new ArrayList<Identity>();
         for( final Identity id : identities.values() ) {
@@ -293,16 +340,25 @@ public class FrostIdentities {
         return list;
     }
 
+    /**
+     * @return
+     */
     public List<LocalIdentity> getLocalIdentities() {
         return new ArrayList<LocalIdentity>(localIdentities.values());
     }
 
+    /**
+     * @return
+     */
     public List<Identity> getIdentities() {
         return new ArrayList<Identity>(identities.values());
     }
 
     /**
      * Applies trust state of source identity to target identity.
+     *
+     * @param source
+     * @param target
      */
     private void takeoverTrustState(final Identity source, final Identity target) {
         if( source.isGOOD() ) {
@@ -320,8 +376,12 @@ public class FrostIdentities {
         }
     }
 
-    // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
+    /**
+     * @param importedIdentities
+     * @return
+     */
     public int importIdentities(final List<Identity> importedIdentities) {
+        // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
         // for now we import new identities, and take over the trust state if our identity state is CHECK
         if( !identitiesStorage.beginExclusiveThreadTransaction() ) {
             return 0;
@@ -355,6 +415,9 @@ public class FrostIdentities {
     /**
      * This method checks an Identity for validity.
      * Checks if the digest of this Identity matches the pubkey (digest is the part after the @ in the username)
+     *
+     * @param id
+     * @return
      */
     public boolean isIdentityValid(final Identity id) {
 
@@ -391,6 +454,9 @@ public class FrostIdentities {
     /**
      * Checks if we can accept this new identity.
      * If the public key of this identity is already assigned to another identity, then it is not valid.
+     *
+     * @param id
+     * @return
      */
     public boolean isNewIdentityValid(final Identity id) {
 
@@ -424,6 +490,9 @@ public class FrostIdentities {
         return true;
     }
 
+    /**
+     * @return
+     */
     public Object getLockObject() {
         return lockObject;
     }
