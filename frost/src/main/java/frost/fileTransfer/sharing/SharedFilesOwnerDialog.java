@@ -22,9 +22,9 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import frost.*;
-import frost.identities.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.identities.LocalIdentity;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class SharedFilesOwnerDialog extends JDialog {
@@ -227,7 +227,7 @@ public class SharedFilesOwnerDialog extends JDialog {
     private JComboBox getCBidentities() {
         if( CBidentities == null ) {
             CBidentities = new JComboBox();
-            for( final LocalIdentity localIdentity : Core.getIdentities().getLocalIdentities() ) {
+            for( final LocalIdentity localIdentity : Core.getIdentitiesManager().getLocalIdentities() ) {
                 final LocalIdentity id = localIdentity;
                 CBidentities.addItem(id.getUniqueName());
             }

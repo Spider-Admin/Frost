@@ -23,12 +23,12 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.bouncycastle.util.encoders.*;
+import org.bouncycastle.util.encoders.Base64;
 import org.joda.time.*;
 import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.xml.sax.SAXException;
 
-import frost.*;
+import frost.Core;
 import frost.identities.*;
 import frost.util.*;
 
@@ -155,20 +155,20 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         // attachments
         for(final Iterator<Attachment> attachmentIterator = getAttachmentList().iterator(); attachmentIterator.hasNext(); ) {
             final Attachment attachment = attachmentIterator.next();
-            
+
             if( attachment.getType() == Attachment.BOARD ) {
                 final BoardAttachment boardAttachment = (BoardAttachment)attachment;
-                
+
                 allContent.append( boardAttachment.getBoardObj().getBoardFilename() ).append(escapeChar);
-                
+
                 if( boardAttachment.getBoardObj().getPublicKey() != null ) {
                     allContent.append( boardAttachment.getBoardObj().getPublicKey() ).append(escapeChar);
                 }
-                
+
                 if( boardAttachment.getBoardObj().getPrivateKey() != null ) {
                     allContent.append( boardAttachment.getBoardObj().getPrivateKey() ).append(escapeChar);
                 }
-                
+
             } else if( attachment.getType() == Attachment.FILE ) {
                 final FileAttachment fileAttachment = (FileAttachment)attachment;
                 allContent.append( fileAttachment.getFileName() ).append(escapeChar);
@@ -379,8 +379,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
                 // no recipient
                 throw new Exception("Error - encrypted message contains no 'recipient' section.");
             }
-            final FrostIdentities identities = Core.getIdentities();
-            if( !identities.isMySelf(getRecipientName()) ) {
+            final IdentitiesManager identitiesManager = Core.getIdentitiesManager();
+            if( !identitiesManager.isMySelf(getRecipientName()) ) {
                 // not for me
                 throw new MessageCreationException("Info: Encrypted message is not for me.",
                         MessageCreationException.MSG_NOT_FOR_ME);
@@ -394,7 +394,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             final byte[] encBytes = Base64.decode(base64bytes);
 
             // decrypt content
-            final LocalIdentity receiverId = identities.getLocalIdentity(getRecipientName());
+            final LocalIdentity receiverId = identitiesManager.getLocalIdentity(getRecipientName());
             final byte[] decContent = Core.getCrypto().decrypt(encBytes, receiverId.getPrivateKey());
             if( decContent == null ) {
                 logger.log(Level.SEVERE, "TOFDN: Encrypted message could not be decrypted!");
@@ -601,13 +601,13 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             if (!getFromName().equals(otherMsg.getFromName())) {
                 return false;
             }
-            
+
             final AttachmentList<Attachment> attachments1 = otherMsg.getAttachmentList();
             final AttachmentList<Attachment> attachments2 = getAttachmentList();
             if (attachments1.size() != attachments2.size()) {
                 return false;
             }
-            
+
             final Iterator<Attachment> iterator1 = attachments1.iterator();
             final Iterator<Attachment> iterator2 = attachments2.iterator();
             while (iterator1.hasNext()) {

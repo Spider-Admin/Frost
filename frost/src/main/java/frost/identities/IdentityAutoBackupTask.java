@@ -18,9 +18,9 @@
 */
 package frost.identities;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.List;
+import java.util.logging.Logger;
 
 import frost.*;
 import frost.storage.*;
@@ -59,7 +59,7 @@ public class IdentityAutoBackupTask implements AutoSavable, ExitSavable {
         final File bakFile = new File(bakName);
         final File oldFile = new File(oldName);
 
-        final List<LocalIdentity> lIds = Core.getIdentities().getLocalIdentities();
+        final List<LocalIdentity> lIds = Core.getIdentitiesManager().getLocalIdentities();
         final boolean wasOk = LocalIdentitiesXmlDAO.saveLocalIdentities(newFile, lIds);
         if( !wasOk ) {
             logger.severe("Failed to backup the local identities!");

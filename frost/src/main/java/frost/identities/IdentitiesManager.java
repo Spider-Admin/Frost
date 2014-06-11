@@ -33,9 +33,9 @@ import frost.util.gui.translation.Language;
 /**
  * A class that maintains identity stuff.
  */
-public class FrostIdentities {
+public class IdentitiesManager {
 
-    private static final Logger logger = Logger.getLogger(FrostIdentities.class.getName());
+    private static final Logger logger = Logger.getLogger(IdentitiesManager.class.getName());
 
     private Hashtable<String,Identity> identities = null;
     private Hashtable<String,LocalIdentity> localIdentities = null;
@@ -49,7 +49,7 @@ public class FrostIdentities {
     /**
      *
      */
-    public FrostIdentities() {
+    public IdentitiesManager() {
         super();
     }
 

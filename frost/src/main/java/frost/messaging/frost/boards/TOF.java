@@ -220,9 +220,9 @@ public class TOF implements PropertyChangeListener {
     {
         if( owner != null ) {
             // owner is set, message was signed, owner is validated
-            synchronized(Core.getIdentities().getLockObject()) {
+            synchronized(Core.getIdentitiesManager().getLockObject()) {
                 // check if owner is new
-                final Identity checkOwner = Core.getIdentities().getIdentity(owner.getUniqueName());
+                final Identity checkOwner = Core.getIdentitiesManager().getIdentity(owner.getUniqueName());
                 // if owner is new, add owner to identities list
                 long lastSeenMillis = 0;
                 try {
@@ -232,8 +232,8 @@ public class TOF implements PropertyChangeListener {
                 }
                 if( checkOwner == null ) {
                     owner.setLastSeenTimestampWithoutUpdate(lastSeenMillis);
-                    if( !Core.getIdentities().addIdentity(owner) ) {
-                        logger.severe("Core.getIdentities().addIdentity(owner) returned false for identy: "+owner.getUniqueName());
+                    if( !Core.getIdentitiesManager().addIdentity(owner) ) {
+                        logger.severe("Core.getIdentitiesManager().addIdentity(owner) returned false for identy: "+owner.getUniqueName());
                         currentMsg.setPublicKey(null);
                         currentMsg.setSignatureStatusOLD();
                         owner = null;

@@ -36,14 +36,14 @@ import frost.*;
 import frost.ext.*;
 import frost.gui.*;
 import frost.gui.model.*;
-import frost.identities.*;
+import frost.identities.Identity;
 import frost.messaging.freetalk.*;
-import frost.messaging.freetalk.boards.*;
-import frost.messaging.freetalk.identities.*;
-import frost.messaging.frost.boards.*;
+import frost.messaging.freetalk.boards.FreetalkBoard;
+import frost.messaging.freetalk.identities.FreetalkOwnIdentity;
+import frost.messaging.frost.boards.Board;
 import frost.util.*;
 import frost.util.gui.*;
-import frost.util.gui.textpane.*;
+import frost.util.gui.textpane.AntialiasedTextArea;
 import frost.util.gui.translation.*;
 
 public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInterface{
@@ -489,7 +489,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             filesTable.addMouseListener(listener);
 
 // FIXME: option to show own identities in list, or to hide them
-//            final List<Identity> budList = Core.getIdentities().getAllGOODIdentities();
+//            final List<Identity> budList = Core.getIdentitiesManager().getAllGOODIdentities();
 //            Identity id = null;
 //            if( repliedMessage != null ) {
 //                id = repliedMessage.getAuthor();
@@ -1344,18 +1344,18 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 
     private class MFAttachedFile implements TableMember {
         File aFile;
-        
+
         public MFAttachedFile(final File af) {
             aFile = af;
         }
-        
+
         @SuppressWarnings("unchecked")
 		public int compareTo( final TableMember anOther, final int tableColumIndex ) {
-            final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+            final Comparable c1 = getValueAt(tableColumIndex);
+            final Comparable c2 = anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
-        
+
         @SuppressWarnings("unchecked")
 		public Comparable getValueAt(final int column)  {
             switch(column) {
@@ -1383,21 +1383,21 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     }
 
     private class MFAttachedFilesTableModel extends SortedTableModel {
-    	
+
         protected final Class<?> columnClasses[] = {
             String.class,
             String.class
         };
-        
+
         protected final String columnNames[] = {
             language.getString("MessageFrame.fileAttachmentTable.filename"),
             language.getString("MessageFrame.fileAttachmentTable.size")
         };
-        
+
         public MFAttachedFilesTableModel() {
             super();
         }
-        
+
         @Override
         public Class<?> getColumnClass(final int column) {
             if( column >= 0 && column < columnClasses.length ) {
@@ -1405,7 +1405,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             }
             return null;
         }
-        
+
         @Override
         public int getColumnCount() {
             return columnNames.length;

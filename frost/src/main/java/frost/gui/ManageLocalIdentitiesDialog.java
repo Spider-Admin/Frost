@@ -264,7 +264,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         if( identitiesList == null ) {
             identitiesList = new JList<LocalIdentity>();
             identitiesList.setModel(getIdentitiesModel());
-            for( final LocalIdentity element : Core.getIdentities().getLocalIdentities() ) {
+            for( final LocalIdentity element : Core.getIdentitiesManager().getLocalIdentities() ) {
                 getIdentitiesModel().addElement(element);
             }
         }
@@ -294,7 +294,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             BaddNewIdentity.setText("ManageLocalIdentities.button.createNewIdentity");
             BaddNewIdentity.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
-                    final LocalIdentity newIdentity = Core.getIdentities().createIdentity();
+                    final LocalIdentity newIdentity = Core.getIdentitiesManager().createIdentity();
                     if( newIdentity != null ) {
                         getIdentitiesModel().addElement(newIdentity);
                     }
@@ -321,7 +321,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                         return;
                     }
 
-                    if( Core.getIdentities().getLocalIdentities().size() <= 1 ) {
+                    if( Core.getIdentitiesManager().getLocalIdentities().size() <= 1 ) {
                         JOptionPane.showMessageDialog(
                                 ManageLocalIdentitiesDialog.this,
                                 language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.body"),
@@ -357,11 +357,11 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     }
 
                     Core.getInstance().getFileTransferManager().removeFilesSharedByLocalIdentity(li);
-                    Core.getIdentities().deleteLocalIdentity(li);
+                    Core.getIdentitiesManager().deleteLocalIdentity(li);
                     // put deleted into GOOD state
                     final Identity myOld = new Identity(li);
                     myOld.setGOODWithoutUpdate();
-                    Core.getIdentities().addIdentity( myOld );
+                    Core.getIdentitiesManager().addIdentity( myOld );
 
                     getIdentitiesModel().removeElement(li);
                 }
@@ -411,7 +411,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                                 JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    if( !Core.getIdentities().addLocalIdentity(importedIdentity) ) {
+                    if( !Core.getIdentitiesManager().addLocalIdentity(importedIdentity) ) {
                         // duplicate identity
                         JOptionPane.showMessageDialog(
                                 ManageLocalIdentitiesDialog.this,
@@ -570,7 +570,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     int count = 0;
                     for( final LocalIdentity localIdentity : localIdentities ) {
                         final LocalIdentity lId = localIdentity;
-                        if( !Core.getIdentities().addLocalIdentity(lId) ) {
+                        if( !Core.getIdentitiesManager().addLocalIdentity(lId) ) {
                             // duplicate identity
                             JOptionPane.showMessageDialog(
                                     ManageLocalIdentitiesDialog.this,
@@ -619,7 +619,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     if( xmlFile == null ) {
                         return;
                     }
-                    final List<LocalIdentity> lIds = Core.getIdentities().getLocalIdentities();
+                    final List<LocalIdentity> lIds = Core.getIdentitiesManager().getLocalIdentities();
                     final boolean wasOk = LocalIdentitiesXmlDAO.saveLocalIdentities(xmlFile, lIds);
                     if( wasOk ) {
                         JOptionPane.showMessageDialog(

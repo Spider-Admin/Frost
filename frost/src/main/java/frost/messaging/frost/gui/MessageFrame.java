@@ -340,7 +340,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             if( (userName == null) || (userName.length() == 0) ) {
                 userName = Core.frostSettings.getValue(SettingsClass.LAST_USED_FROMNAME);
             }
-            if( Core.getIdentities().isMySelf(userName) ) {
+            if( Core.getIdentitiesManager().isMySelf(userName) ) {
                 // isSigned
                 from = userName;
                 isInitializedSigned = true;
@@ -560,8 +560,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             filesTableScrollPane.setWheelScrollingEnabled(true);
             filesTable.addMouseListener(listener);
 
-// FIXME: option to show own identities in list, or to hide them
-            final List<Identity> budList = Core.getIdentities().getAllGOODIdentities();
+            // FIXME: option to show own identities in list, or to hide them
+            final List<Identity> budList = Core.getIdentitiesManager().getAllGOODIdentities();
             Identity id = null;
             if( repliedMessage != null ) {
                 id = repliedMessage.getFromIdentity();
@@ -1190,7 +1190,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             ownIdentitiesComboBox.addItem("Anonymous");
             // sort own unique names
             final TreeMap<String,LocalIdentity> sortedIds = new TreeMap<String,LocalIdentity>();
-            for( final Object element : Core.getIdentities().getLocalIdentities() ) {
+            for( final Object element : Core.getIdentitiesManager().getLocalIdentities() ) {
                 final LocalIdentity li = (LocalIdentity)element;
                 sortedIds.put(li.getUniqueName(), li);
             }

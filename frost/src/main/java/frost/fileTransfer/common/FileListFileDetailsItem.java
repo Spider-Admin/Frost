@@ -18,24 +18,24 @@
 */
 package frost.fileTransfer.common;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.identities.*;
+import frost.Core;
+import frost.fileTransfer.FrostFileListFileObjectOwner;
+import frost.identities.Identity;
 import frost.util.*;
-import frost.util.model.*;
+import frost.util.model.ModelItem;
 
 public class FileListFileDetailsItem extends ModelItem<FileListFileDetailsItem> implements CopyToClipboardItem {
 
     private FrostFileListFileObjectOwner fileOwner;
-    
+
     private String displayComment = null;
     private String displayKeywords = null;
-    
+
     private String displayLastReceived;
     private String displayLastUploaded;
-    
+
     private Identity ownerIdentity = null;
-    
+
     public FileListFileDetailsItem(FrostFileListFileObjectOwner o) {
         fileOwner = o;
     }
@@ -83,10 +83,13 @@ public class FileListFileDetailsItem extends ModelItem<FileListFileDetailsItem> 
         }
         return displayLastUploaded;
     }
-    
+
+    /**
+     * @return
+     */
     public Identity getOwnerIdentity() {
         if( ownerIdentity == null ) {
-            ownerIdentity = Core.getIdentities().getIdentity(fileOwner.getOwner());
+            ownerIdentity = Core.getIdentitiesManager().getIdentity(fileOwner.getOwner());
         }
         return ownerIdentity;
     }
@@ -94,7 +97,7 @@ public class FileListFileDetailsItem extends ModelItem<FileListFileDetailsItem> 
     public String getKey() {
         return fileOwner.getKey();
     }
-    
+
     public String getFileName() {
         return getFileOwner().getName();
     }

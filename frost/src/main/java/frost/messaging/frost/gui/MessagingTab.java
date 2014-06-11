@@ -123,7 +123,7 @@ public class MessagingTab extends JPanel implements LanguageListener {
 
         messagePanel = new MessagePanel(Core.frostSettings, mainFrame, this);
         messagePanel.setParentFrame(mainFrame);
-        messagePanel.setIdentities(Core.getIdentities());
+        messagePanel.setIdentitiesManager(Core.getIdentitiesManager());
         messagePanel.initialize();
 
         panel.add(getMessagePanel(), BorderLayout.CENTER);

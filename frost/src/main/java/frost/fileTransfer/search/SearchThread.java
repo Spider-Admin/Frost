@@ -19,19 +19,19 @@
 package frost.fileTransfer.search;
 
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import frost.*;
 import frost.fileTransfer.*;
-import frost.identities.*;
-import frost.storage.*;
-import frost.storage.perst.filelist.*;
-import frost.util.*;
+import frost.identities.Identity;
+import frost.storage.FileListCallback;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.util.TextSearchFun;
 
 class SearchThread extends Thread implements FileListCallback {
 
     private static final Logger logger = Logger.getLogger(SearchThread.class.getName());
-    
+
     private SearchParameters searchParams;
 
     private String[] audioExtension;
@@ -43,14 +43,14 @@ class SearchThread extends Thread implements FileListCallback {
 
     private int allFileCount;
     private int maxSearchResults;
-    
+
     private SearchTable searchTable;
 
     private boolean isCancelRequested = false;
     private boolean isMaximumSearchResultsReached = false;
-    
+
     private SearchPanel.ProxyPanel tabComponent;
-    
+
     private boolean isCancelRequested() {
         return isCancelRequested;
     }
@@ -72,7 +72,7 @@ class SearchThread extends Thread implements FileListCallback {
             return s.toLowerCase();
         }
     }
-    
+
     /**
      * Check search options, step 1.
      */
@@ -86,17 +86,17 @@ class SearchThread extends Thread implements FileListCallback {
         }
 
         // hideFiles: show file if no bad/check/observe owner; or if at least 1 owner is good/observe
-        if( searchParams.isHideBadUserFiles() 
+        if( searchParams.isHideBadUserFiles()
                 || searchParams.isHideCheckUserFiles()
-                || searchParams.isHideObserveUserFiles()) 
+                || searchParams.isHideObserveUserFiles())
         {
             boolean accept = true;
             for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
                 FrostFileListFileObjectOwner ob = i.next();
                 if( ob.getOwner() != null ) {
-                    Identity id = Core.getIdentities().getIdentity(ob.getOwner());
-                    if (id != null ) { 
-                        
+                    Identity id = Core.getIdentitiesManager().getIdentity(ob.getOwner());
+                    if (id != null ) {
+
                         if( id.isBAD() && searchParams.isHideBadUserFiles() ) {
                             accept = false; // dont break, maybe there is a good
                         } else if( id.isCHECK() && searchParams.isHideCheckUserFiles() ) {
@@ -104,19 +104,19 @@ class SearchThread extends Thread implements FileListCallback {
                         } else if( id.isOBSERVE() && searchParams.isHideObserveUserFiles() ) {
                             accept = false; // dont break, maybe there is a good
                         }
-                        
+
                         if( id.isGOOD() || (id.isOBSERVE() && !searchParams.isHideObserveUserFiles()) ) {
                             accept = true;
                             break; // break, one GOOD is enough to accept
                         }
-                    }                
+                    }
                 }
             }
             if( !accept ) {
                 return false;
             }
         }
-        
+
                 // check file extension. if extension of ONE file is ok the file matches
         if( searchParams.getExtensions() != SearchParameters.EXTENSIONS_ALL ) {
             boolean accept = false;
@@ -148,7 +148,7 @@ class SearchThread extends Thread implements FileListCallback {
 
         return true; // accepted
     }
-    
+
     /**
      * Check search options, step 2.
      */
@@ -164,7 +164,7 @@ class SearchThread extends Thread implements FileListCallback {
      * Check all NOT strings, if a not string occurs for a file it is not accepted.
      */
     private boolean searchFile2NotStringsAdvanced(FrostFileListFileObject fo) {
-        
+
         if( searchParams.getNotName().isEmpty()
                 && searchParams.getNotComment().isEmpty()
                 && searchParams.getNotKeyword().isEmpty()
@@ -175,7 +175,7 @@ class SearchThread extends Thread implements FileListCallback {
 
         for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
             FrostFileListFileObjectOwner ob = i.next();
-            
+
             // check notName
             if( TextSearchFun.containsAnyString(lowerCase(ob.getName()), searchParams.getNotName()) ) {
                 return false;
@@ -200,7 +200,7 @@ class SearchThread extends Thread implements FileListCallback {
      * If a NOT string occurs inside name, comment, keyword then do not accept this file.
      */
     private boolean searchFile2NotStringsSimple(FrostFileListFileObject fo) {
-        
+
         if( searchParams.getSimpleSearchNotStrings().isEmpty() ) {
             return true;
         }
@@ -211,7 +211,7 @@ class SearchThread extends Thread implements FileListCallback {
             String name = lowerCase(ob.getName());
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
-            
+
             for(int x=0; x < searchParams.getSimpleSearchNotStrings().size(); x++ ) {
                 String notString = searchParams.getSimpleSearchNotStrings().get(x);
                 if( name.indexOf(notString) > -1 ) {
@@ -238,7 +238,7 @@ class SearchThread extends Thread implements FileListCallback {
         boolean commentFound = false;
         boolean keywordFound = false;
         boolean ownerFound = false;
-        
+
         if( searchParams.getName().isEmpty() ) {
             nameFound = true;
         }
@@ -255,7 +255,7 @@ class SearchThread extends Thread implements FileListCallback {
         if (nameFound && commentFound && keywordFound && ownerFound) {
             return true; // find all
         }
-        
+
         for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
             FrostFileListFileObjectOwner ob = i.next();
 
@@ -283,7 +283,7 @@ class SearchThread extends Thread implements FileListCallback {
                 }
             }
             // check owner
-            String owner = lowerCase(ob.getOwner()); 
+            String owner = lowerCase(ob.getOwner());
             if( !ownerFound && owner.length() > 0 ) {
                 if( TextSearchFun.containsEachString(owner, searchParams.getOwner()) ) {
                     ownerFound = true;
@@ -295,7 +295,7 @@ class SearchThread extends Thread implements FileListCallback {
                 return true;
             }
         }
-        
+
         return (nameFound && commentFound && keywordFound && ownerFound);
     }
 
@@ -304,7 +304,7 @@ class SearchThread extends Thread implements FileListCallback {
      * of any owner.
      */
     private boolean searchFile2StringsSimple(FrostFileListFileObject fo) {
-        
+
         if( searchParams.getSimpleSearchStrings().isEmpty() ) {
             return true; // find all
         }
@@ -320,7 +320,7 @@ class SearchThread extends Thread implements FileListCallback {
         for( Iterator<FrostFileListFileObjectOwner> i=fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
             FrostFileListFileObjectOwner ob = i.next();
 
-            String name = lowerCase(ob.getName()); 
+            String name = lowerCase(ob.getName());
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
 
@@ -337,7 +337,7 @@ class SearchThread extends Thread implements FileListCallback {
                 }
             }
         }
-        
+
         // finally check if all words were found
         boolean allFound = true;
         for( Boolean b : searchStrings.values() ) {
@@ -383,7 +383,7 @@ class SearchThread extends Thread implements FileListCallback {
 //
 //            long diffMillis = (long)age * 24L * 60L * 60L * 1000L;
 //            long minDateMillis = currentDate.getTime() - diffMillis;
-//            
+//
 //            if( fo.getLastReceived() < minDateMillis ) {
 //                return false; // older than age
 //            }
@@ -406,7 +406,7 @@ class SearchThread extends Thread implements FileListCallback {
         FrostSearchItem searchItem = new FrostSearchItem(fo);
         searchTable.addSearchItem(searchItem);
     }
-    
+
     public boolean fileRetrieved(FrostFileListFileObject fo) {
         if( isMaximumSearchResultsReached() ) {
             return isMaximumSearchResultsReached();
@@ -441,7 +441,7 @@ class SearchThread extends Thread implements FileListCallback {
                 searchForExtensions = executableExtension;
             }
         }
-        
+
         if( searchParams.isSimpleSearch() ) {
             FileListStorage.inst().retrieveFiles(
                     this,
@@ -459,7 +459,7 @@ class SearchThread extends Thread implements FileListCallback {
                     searchParams.getOwner(),
                     searchForExtensions);
         }
-        
+
 //        long duration = System.currentTimeMillis() - start;
 //        System.out.println("<<< Filesearch finished, duration="+duration);
 
@@ -473,11 +473,11 @@ class SearchThread extends Thread implements FileListCallback {
     /**Constructor*/
     public SearchThread(SearchParameters searchParams, SearchTable searchTable, SearchPanel.ProxyPanel tabComponent) {
 
-        this.searchParams = searchParams; 
+        this.searchParams = searchParams;
         this.tabComponent = tabComponent;
         tabComponent.setSearchThread(this); // will notify this thread to stop if tab was closed
         this.searchTable = searchTable;
-        
+
         audioExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_AUDIO);
         videoExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_VIDEO);
         documentExtension   = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_DOCUMENT);
@@ -485,7 +485,7 @@ class SearchThread extends Thread implements FileListCallback {
         archiveExtension    = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_ARCHIVE);
         imageExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_IMAGE);
         maxSearchResults    = Core.frostSettings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS);
-        
+
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }

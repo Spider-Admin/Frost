@@ -18,14 +18,14 @@
 */
 package frost.messaging.frost.transfer;
 
-import java.io.*;
+import java.io.File;
 import java.util.logging.*;
 
-import frost.*;
+import frost.Core;
 import frost.fcp.*;
-import frost.identities.*;
+import frost.identities.Identity;
 import frost.messaging.frost.*;
-import frost.util.*;
+import frost.util.FileAccess;
 
 public class MessageDownloader {
 
@@ -166,7 +166,7 @@ public class MessageDownloader {
             }
 
             final Identity owner = Identity.createIdentityFromExactStrings(currentMsg.getFromName(), currentMsg.getPublicKey());
-            if( !Core.getIdentities().isNewIdentityValid(owner) ) {
+            if( !Core.getIdentitiesManager().isNewIdentityValid(owner) ) {
                 // hash of public key does not match the unique name
                 logger.severe("TOFDN: identity failed verification, message dropped." + logInfo);
                 tmpFile.delete();

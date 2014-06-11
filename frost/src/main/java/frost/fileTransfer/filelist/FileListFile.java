@@ -18,16 +18,16 @@
 */
 package frost.fileTransfer.filelist;
 
-import java.io.*;
+import java.io.File;
 import java.util.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.identities.*;
-import frost.util.*;
+import frost.Core;
+import frost.fileTransfer.SharedFileXmlFile;
+import frost.identities.Identity;
+import frost.util.XMLTools;
 
 /**
  * Signs and writes file list files into an XML file.
@@ -195,7 +195,7 @@ public class FileListFile {
             return null;
         }
 
-        if( !Core.getIdentities().isNewIdentityValid(owner) ) {
+        if( !Core.getIdentitiesManager().isNewIdentityValid(owner) ) {
             // hash of public key does not match the unique name
             logger.severe("Error: identity failed verification, file list from owner: "+owner.getUniqueName());
             return null;

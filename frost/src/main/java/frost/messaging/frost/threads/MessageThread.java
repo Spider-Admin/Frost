@@ -19,7 +19,7 @@
 
 package frost.messaging.frost.threads;
 
-import java.io.*;
+import java.io.File;
 import java.util.logging.*;
 
 import org.joda.time.*;
@@ -367,7 +367,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             Identity recipient = null;
             if( unsendMsg.getRecipientName() != null && unsendMsg.getRecipientName().length() > 0) {
-                recipient = Core.getIdentities().getIdentity(unsendMsg.getRecipientName());
+                recipient = Core.getIdentitiesManager().getIdentity(unsendMsg.getRecipientName());
                 if( recipient == null ) {
                     logger.severe("Can't send Message '" + unsendMsg.getSubject() + "', the recipient is not longer in your identites list!");
                     UnsentMessagesManager.deleteMessage(unsendMsg);

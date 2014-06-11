@@ -19,16 +19,16 @@
 package frost.storage.perst.identities;
 
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import org.garret.perst.IPersistentList;
 
 import frost.*;
 import frost.identities.*;
 import frost.storage.*;
-import frost.storage.perst.*;
-import frost.storage.perst.filelist.*;
-import frost.storage.perst.messages.*;
+import frost.storage.perst.AbstractFrostStorage;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.storage.perst.messages.MessageStorage;
 
 public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavable {
 
@@ -140,7 +140,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
                     logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
                 } else {
                     // one-time migration, remove all ids that have a '_' instead of an '@'
-                    if( migrateIdStorage && !Core.getIdentities().isIdentityValid(id) ) {
+                    if( migrateIdStorage && !Core.getIdentitiesManager().isIdentityValid(id) ) {
                         i.remove();
                         logger.severe("Dropped an invalid identity: "+id.getUniqueName());
                     } else {
@@ -243,7 +243,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
         final Hashtable<String,IdentityMsgAndFileCount> data = new Hashtable<String,IdentityMsgAndFileCount>();
 
-        for( final Identity id : Core.getIdentities().getIdentities() ) {
+        for( final Identity id : Core.getIdentitiesManager().getIdentities() ) {
         	final String uniqueName = id.getUniqueName();
             final int messageCount = MessageStorage.inst().getMessageCount(uniqueName);
             final int fileCount = FileListStorage.inst().getFileCount(uniqueName);
@@ -251,7 +251,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             data.put(uniqueName, identityMsgAndFileCount);
         }
 
-        for( final LocalIdentity id : Core.getIdentities().getLocalIdentities() ) {
+        for( final LocalIdentity id : Core.getIdentitiesManager().getLocalIdentities() ) {
         	final String uniqueName = id.getUniqueName();
             final int messageCount = MessageStorage.inst().getMessageCount(uniqueName);
             final int fileCount = FileListStorage.inst().getFileCount(uniqueName);

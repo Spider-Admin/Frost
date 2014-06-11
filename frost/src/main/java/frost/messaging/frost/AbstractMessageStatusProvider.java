@@ -18,9 +18,9 @@
 */
 package frost.messaging.frost;
 
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
 import frost.identities.*;
@@ -74,14 +74,14 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
                 fromIdentity = null;
             } else {
                 // set Identity for FROM, or null
-                synchronized( Core.getIdentities().getLockObject() ) {
-                    fromIdentity = Core.getIdentities().getIdentity(getFromName());
+                synchronized( Core.getIdentitiesManager().getLockObject() ) {
+                    fromIdentity = Core.getIdentitiesManager().getIdentity(getFromName());
                     // if identity was NOT found, add it. maybe it was deleted by the user,
                     // but we still have a msg from this identity
                     if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
                         final Identity newFromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
-                        if( !Core.getIdentities().addIdentity(newFromIdentity) ) {
-                            logger.severe("Core.getIdentities().addIdentity(owner) returned false for identy: "+newFromIdentity.getUniqueName());
+                        if( !Core.getIdentitiesManager().addIdentity(newFromIdentity) ) {
+                            logger.severe("Core.getIdentitiesManager().addIdentity(owner) returned false for identy: "+newFromIdentity.getUniqueName());
                             setSignatureStatusOLD();
                         } else {
                             fromIdentity = newFromIdentity;

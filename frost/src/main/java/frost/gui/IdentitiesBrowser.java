@@ -568,7 +568,7 @@ public class IdentitiesBrowser extends JDialog {
 					for( int x=selRows.length-1; x>=0; x-- ) {
 						final InnerTableMember m = identitiesTableModel.getRow(selRows[x]);
 						final Identity id = m.getIdentity();
-						Core.getIdentities().deleteIdentity(id);
+						Core.getIdentitiesManager().deleteIdentity(id);
 						identitiesTableModel.removeRow(selRows[x]);
 					}
 					IdentitiesStorage.inst().endThreadTransaction();
@@ -812,7 +812,7 @@ public class IdentitiesBrowser extends JDialog {
 				final Identity id = tableMember.getIdentity();
 				// STATE
 				// state == good/bad/check/observe -> bold and coloured
-				if (Core.getIdentities().isMySelf(id.getUniqueName())) {
+				if (Core.getIdentitiesManager().isMySelf(id.getUniqueName())) {
 					if( !Core.frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED) ) {
 						setText("ME");
 					}
@@ -874,9 +874,9 @@ public class IdentitiesBrowser extends JDialog {
 				}
 
 				allTableMembers = new LinkedList<InnerTableMember>(); // remember all table data for filter
-				final List<Identity> allIdentities = Core.getIdentities().getIdentities();
+				final List<Identity> allIdentities = Core.getIdentitiesManager().getIdentities();
 				// show own identities also
-				allIdentities.addAll(Core.getIdentities().getLocalIdentities());
+				allIdentities.addAll(Core.getIdentitiesManager().getLocalIdentities());
 				for( final Identity identity : allIdentities ) {
 					final InnerTableMember memb = new InnerTableMember(identity, idDatas);
 					identitiesTableModel.addRow(memb);
@@ -966,7 +966,7 @@ public class IdentitiesBrowser extends JDialog {
 					for( final Integer element : li ) {
 						final InnerTableMember m = identitiesTableModel.getRow(element.intValue());
 						final Identity id = m.getIdentity();
-						Core.getIdentities().deleteIdentity(id);
+						Core.getIdentitiesManager().deleteIdentity(id);
 						identitiesTableModel.removeRow(element.intValue());
 					}
 					IdentitiesStorage.inst().endThreadTransaction();
@@ -1183,7 +1183,7 @@ public class IdentitiesBrowser extends JDialog {
 						return;
 					}
 
-					final int importedCount = Core.getIdentities().importIdentities(importedIdentities);
+					final int importedCount = Core.getIdentitiesManager().importIdentities(importedIdentities);
 					final int skippedCount = importedIdentities.size() - importedCount;
 
 					JOptionPane.showMessageDialog(
@@ -1213,7 +1213,7 @@ public class IdentitiesBrowser extends JDialog {
 			exportButton.setText("IdentitiesBrowser.button.export");
 			exportButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(final java.awt.event.ActionEvent e) {
-					final List<Identity> allIdentities = Core.getIdentities().getIdentities();
+					final List<Identity> allIdentities = Core.getIdentitiesManager().getIdentities();
 					exportIdentities(allIdentities);
 				}
 			});

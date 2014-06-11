@@ -75,7 +75,7 @@ public class Core {
     private MessagingManager messagingManager;
     private FileTransferManager fileTransferManager;
 
-    private static FrostIdentities identities;
+    private static IdentitiesManager identitiesManager;
 
     /**
      *
@@ -431,7 +431,7 @@ public class Core {
             System.exit(1);
         }
 
-        getIdentities().initialize();
+        getIdentitiesManager().initialize();
 
         String title = "Frost";
 
@@ -582,11 +582,14 @@ public class Core {
         }
     }
 
-    public static FrostIdentities getIdentities() {
-        if (identities == null) {
-            identities = new FrostIdentities();
+    /**
+     * @return
+     */
+    public static IdentitiesManager getIdentitiesManager() {
+        if (identitiesManager == null) {
+            identitiesManager = new IdentitiesManager();
         }
-        return identities;
+        return identitiesManager;
     }
 
     /**

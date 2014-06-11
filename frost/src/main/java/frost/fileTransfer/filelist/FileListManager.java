@@ -23,11 +23,11 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.sharing.*;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
 import frost.identities.*;
-import frost.storage.perst.filelist.*;
-import frost.storage.perst.identities.*;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.storage.perst.identities.IdentitiesStorage;
 
 public class FileListManager {
 
@@ -66,7 +66,7 @@ public class FileListManager {
         final long now = System.currentTimeMillis();
         final long minDate = now - maxDiff;
 
-        final List<LocalIdentity> localIdentities = Core.getIdentities().getLocalIdentities();
+        final List<LocalIdentity> localIdentities = Core.getIdentitiesManager().getLocalIdentities();
         int identityCount = localIdentities.size();
 
         // we modify several own identities (id.setLastFilesSharedMillis())
@@ -196,13 +196,13 @@ public class FileListManager {
         {
             return false;
         }
-        
+
         final boolean fileListAntiSpamMode = Core.frostSettings.getBoolValue(SettingsClass.FILESHARING_IGNORE_CHECK_AND_BELOW);
 
         Identity localOwner;
-        synchronized( Core.getIdentities().getLockObject() ) {
-            localOwner = Core.getIdentities().getIdentity(content.getReceivedOwner().getUniqueName());
-            
+        synchronized( Core.getIdentitiesManager().getLockObject() ) {
+            localOwner = Core.getIdentitiesManager().getIdentity(content.getReceivedOwner().getUniqueName());
+
             if (fileListAntiSpamMode) {
                 // anti-spam mode. Ignore file lists from CHECK, BAD and just newly received identities
                 if (localOwner == null
@@ -212,21 +212,21 @@ public class FileListManager {
                     // only GOOD and OBSERVE allowed
                     // we intentionally don't update timestamp of CHECK or BAD identities to avoid DOS of our database
                     return false;
-                    
+
                 } else {
                     if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
                         localOwner.setLastSeenTimestamp(content.getTimestamp());
                     }
                 }
-                
+
             } else {
                 // normal mode: add all newly received identities with CHECK and add their file lists
                 if( localOwner == null ) {
                     // new identity, add. Validated inside FileListFile.readFileListFile()
                     localOwner = content.getReceivedOwner();
                     localOwner.setLastSeenTimestampWithoutUpdate(content.getTimestamp());
-                    if( !Core.getIdentities().addIdentity(content.getReceivedOwner()) ) {
-                        logger.severe("Core.getIdentities().addIdentity() returned false for identity: "+content.getReceivedOwner());
+                    if( !Core.getIdentitiesManager().addIdentity(content.getReceivedOwner()) ) {
+                        logger.severe("Core.getIdentitiesManager().addIdentity() returned false for identity: "+content.getReceivedOwner());
                         return false;
                     }
                 } else {

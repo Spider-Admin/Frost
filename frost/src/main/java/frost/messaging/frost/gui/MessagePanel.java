@@ -411,7 +411,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setCommentItem.setEnabled(false);
 
                 if ((messageTable.getSelectedRow() > -1) && (selectedMessage != null)) {
-                    if( identities.isMySelf(selectedMessage.getFromName()) ) {
+                    if( identitiesManager.isMySelf(selectedMessage.getFromName()) ) {
                         // keep all off
                     } else if (selectedMessage.isMessageStatusGOOD()) {
                         setObserveItem.setEnabled(true);
@@ -466,7 +466,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private final SettingsClass settings;
     private final Language language  = Language.getInstance();
-    private FrostIdentities identities;
+    private IdentitiesManager identitiesManager;
     private JFrame parentFrame;
 
     private boolean initialized = false;
@@ -1009,7 +1009,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 replyButton.setEnabled(false);
             }
 
-            if( identities.isMySelf(selectedMessage.getFromName()) ) {
+            if( identitiesManager.isMySelf(selectedMessage.getFromName()) ) {
                 setGoodButton.setEnabled(false);
                 setCheckButton.setEnabled(false);
                 setBadButton.setEnabled(false);
@@ -1259,7 +1259,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 return;
             }
 
-            Identity recipientId = identities.getIdentity(origMessage.getRecipientName());
+            Identity recipientId = identitiesManager.getIdentity(origMessage.getRecipientName());
             if (recipientId == null) {
                 // The identity that received the message is missing, so the message cannot be replied to
                 final String title = language.getString("MessagePane.missingRecipientIdentityError.title");
@@ -1607,8 +1607,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         return msgs;
     }
 
-    public void setIdentities(final FrostIdentities identities) {
-        this.identities = identities;
+    /**
+     * @param identitiesManager
+     */
+    public void setIdentitiesManager(final IdentitiesManager identitiesManager) {
+        this.identitiesManager = identitiesManager;
     }
 
     public void setParentFrame(final JFrame parentFrame) {
