@@ -79,7 +79,7 @@ public class LocalIdentity extends Identity {
      * @param name
      * @param keys
      */
-    protected LocalIdentity(final String name, final String[] keys) {
+    private LocalIdentity(final String name, final String[] keys) {
         super(name, keys[1], true);
         this.privateKey = keys[0];
     }
@@ -88,7 +88,7 @@ public class LocalIdentity extends Identity {
      * @param el
      * @throws Exception
      */
-    protected LocalIdentity(final Element el) throws Exception {
+    private LocalIdentity(final Element el) throws Exception {
         // finally calls loadXMLElement of this class!
         super(el);
     }

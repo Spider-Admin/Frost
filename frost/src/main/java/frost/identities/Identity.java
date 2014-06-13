@@ -76,7 +76,7 @@ public class Identity extends Persistent implements XMLizable {
      * @param name
      * @param key
      */
-    protected Identity(final String name, final String key) {
+    private Identity(final String name, final String key) {
         this.publicKey = key;
         this.uniqueName = name;
     }
