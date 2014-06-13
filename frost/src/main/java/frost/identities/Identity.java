@@ -59,13 +59,6 @@ public class Identity extends Persistent implements XMLizable {
     private PerstIdentityPublicKey pPublicKey;
 
     /**
-     *
-     */
-    public Identity() {
-        super();
-    }
-
-    /**
      * @param el
      * @throws Exception
      */

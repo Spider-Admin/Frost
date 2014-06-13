@@ -34,13 +34,6 @@ public class LocalIdentity extends Identity {
 
     private long lastFilesSharedMillis = 0;
 
-    /**
-     *
-     */
-    public LocalIdentity() {
-        super();
-    }
-
     @Override
     public Element getXMLElement(final Document doc) {
         // external element, "Identity"
