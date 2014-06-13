@@ -102,20 +102,6 @@ public class LocalIdentity extends Identity {
     }
 
     /**
-     * Only used for migration.
-     *
-     * @param uname
-     * @param pubKey
-     * @param prvKey
-     * @param sign
-     */
-    public LocalIdentity(final String uname, final String pubKey, final String prvKey, final String sign) {
-        this(uname, pubKey);
-        privateKey = prvKey;
-        signature = sign;
-    }
-
-    /**
      * @param el
      * @throws Exception
      */

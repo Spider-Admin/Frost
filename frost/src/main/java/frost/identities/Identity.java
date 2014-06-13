@@ -89,26 +89,6 @@ public class Identity extends Persistent implements XMLizable {
     }
 
     /**
-     * Only used for migration.
-     *
-     * @param uname
-     * @param pubkey
-     * @param lseen
-     * @param state
-     * @param comment
-     */
-    public Identity(final String uname, final String pubkey, final long lseen, final int state, final String comment) {
-        uniqueName = uname;
-        publicKey = pubkey;
-        lastSeenTimestamp = lseen;
-        this.state = state;
-        this.comment = comment;
-        updateStateString();
-
-        uniqueName = Mixed.makeFilename(uniqueName);
-    }
-
-    /**
      * If a LocalIdentity is deleted, we ceate a GOOD Identity for the deleted LocalIdentity
      *
      * @param li
