@@ -83,21 +83,11 @@ public class LocalIdentity extends Identity {
     }
 
     /**
-     * Creates a new Identity, adds digest to name.
-     *
-     * @param name
-     * @param key
-     */
-    protected LocalIdentity(final String name, final String key) {
-        super(name, key, true);
-    }
-
-    /**
      * @param name
      * @param keys
      */
     protected LocalIdentity(final String name, final String[] keys) {
-        this(name,  keys[1]);
+        super(name, keys[1], true);
         this.privateKey = keys[0];
     }
 
