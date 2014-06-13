@@ -20,13 +20,13 @@ package frost.identities;
 
 import java.util.logging.*;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.xml.sax.SAXException;
 
-import frost.*;
-import frost.messaging.frost.*;
-import frost.storage.perst.identities.*;
+import frost.Core;
+import frost.messaging.frost.BoardAttachment;
+import frost.storage.perst.identities.IdentitiesStorage;
 import frost.util.*;
 
 /**
@@ -58,11 +58,17 @@ public class Identity extends Persistent implements XMLizable {
 
     private PerstIdentityPublicKey pPublicKey;
 
-    public Identity() {}
+    /**
+     *
+     */
+    public Identity() {
+        super();
+    }
 
-    //if this was C++ LocalIdentity wouldn't work
-    //fortunately we have virtual construction so loadXMLElement will be called
-    //for the inheriting class ;-)
+    /**
+     * @param el
+     * @throws Exception
+     */
     protected Identity(final Element el) throws Exception {
         try {
             loadXMLElement(el);
@@ -73,6 +79,9 @@ public class Identity extends Persistent implements XMLizable {
 
     /**
      * we use this constructor whenever we have all the info
+     *
+     * @param name
+     * @param key
      */
     protected Identity(final String name, final String key) {
         this.publicKey = key;
@@ -81,6 +90,12 @@ public class Identity extends Persistent implements XMLizable {
 
     /**
      * Only used for migration.
+     *
+     * @param uname
+     * @param pubkey
+     * @param lseen
+     * @param state
+     * @param comment
      */
     public Identity(final String uname, final String pubkey, final long lseen, final int state, final String comment) {
         uniqueName = uname;
@@ -95,6 +110,8 @@ public class Identity extends Persistent implements XMLizable {
 
     /**
      * If a LocalIdentity is deleted, we ceate a GOOD Identity for the deleted LocalIdentity
+     *
+     * @param li
      */
     public Identity(final LocalIdentity li) {
         uniqueName = li.getUniqueName();
@@ -110,6 +127,10 @@ public class Identity extends Persistent implements XMLizable {
      * If uniqueName does not contain an '@', this method creates a new digest
      * for the publicKey and appens it to the uniqueName.
      * Finally Mixed.makeFilename() is called for the uniqueName.
+     *
+     * @param name
+     * @param key
+     * @param createNew
      */
     protected Identity(String name, final String key, final boolean createNew) {
         if( name.indexOf("@") < 0 ) {
@@ -319,11 +340,11 @@ public class Identity extends Persistent implements XMLizable {
     public int getState() {
         return state;
     }
-    
+
     public String getComment() {
         return comment;
     }
-    
+
     public void setComment(String comment) {
         this.comment = comment;
         updateIdentitiesStorage();

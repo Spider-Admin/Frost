@@ -19,10 +19,10 @@
 package frost.identities;
 
 import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.xml.sax.SAXException;
 
-import frost.*;
-import frost.util.*;
+import frost.Core;
+import frost.util.XMLTools;
 
 /**
  * Represents the main user's identity
@@ -34,7 +34,12 @@ public class LocalIdentity extends Identity {
 
     private long lastFilesSharedMillis = 0;
 
-    public LocalIdentity() {}
+    /**
+     *
+     */
+    public LocalIdentity() {
+        super();
+    }
 
     @Override
     public Element getXMLElement(final Document doc) {
@@ -79,11 +84,18 @@ public class LocalIdentity extends Identity {
 
     /**
      * Creates a new Identity, adds digest to name.
+     *
+     * @param name
+     * @param key
      */
     protected LocalIdentity(final String name, final String key) {
         super(name, key, true);
     }
 
+    /**
+     * @param name
+     * @param keys
+     */
     protected LocalIdentity(final String name, final String[] keys) {
         this(name,  keys[1]);
         this.privateKey = keys[0];
@@ -91,6 +103,11 @@ public class LocalIdentity extends Identity {
 
     /**
      * Only used for migration.
+     *
+     * @param uname
+     * @param pubKey
+     * @param prvKey
+     * @param sign
      */
     public LocalIdentity(final String uname, final String pubKey, final String prvKey, final String sign) {
         this(uname, pubKey);
@@ -98,6 +115,10 @@ public class LocalIdentity extends Identity {
         signature = sign;
     }
 
+    /**
+     * @param el
+     * @throws Exception
+     */
     protected LocalIdentity(final Element el) throws Exception {
         // finally calls loadXMLElement of this class!
         super(el);
@@ -120,6 +141,8 @@ public class LocalIdentity extends Identity {
 
     /**
      * constructor that creates an RSA Keypair
+     *
+     * @param name
      */
     public LocalIdentity(final String name) {
         this(name, Core.getCrypto().generateKeys());
