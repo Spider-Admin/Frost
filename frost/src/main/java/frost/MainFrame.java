@@ -52,6 +52,11 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.translate.TranslationStartDialog;
 
+/**
+ *
+ * @author $Author: $
+ * @version $Revision: $
+ */
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
 
@@ -61,7 +66,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
 
     private MessagingTab messagingTab = null;
-    private final FreetalkMessageTab freetalkMessageTab = new FreetalkMessageTab(this);
+    private FreetalkMessageTab freetalkMessageTab = null;
 
     private HelpBrowserFrame helpBrowser = null;
     private MemoryMonitor memoryMonitor = null;
@@ -1029,7 +1034,13 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         return messagingTab;
     }
 
+    /**
+     * @return
+     */
     public FreetalkMessageTab getFreetalkMessageTab() {
+        if (freetalkMessageTab == null) {
+            freetalkMessageTab = new FreetalkMessageTab(this);
+        }
         return freetalkMessageTab;
     }
 }
