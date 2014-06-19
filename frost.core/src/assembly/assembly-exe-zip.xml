@@ -17,7 +17,7 @@
 	<files>
     	<file>
     		<!-- The executable jar itself, renamed to frost.jar -->
-      		<source>target/${project.build.finalName}.jar</source>
+      		<source>target/${project.parent.build.finalName}.jar</source>
       		<outputDirectory>/</outputDirectory>
       		<destName>frost.jar</destName>
     	</file>
