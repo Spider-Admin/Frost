@@ -25,6 +25,10 @@
 		<svn.scm.base.url>scm:svn:https://svn.code.sf.net/p/jtcfrost/code</svn.scm.base.url>
 	</properties>	
 	
+	<modules>
+        <module>frost.core</module>
+    </modules>
+	
 	<organization>
 		<name>Frost development team</name>
 		<url>http://jtcfrost.sourceforge.net/</url>
