@@ -27,7 +27,8 @@
 	
 	<modules>
         <module>frost.core</module>
-    </modules>
+        <module>frost.util</module>
+	</modules>
 	
 	<organization>
 		<name>Frost development team</name>
