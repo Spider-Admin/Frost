@@ -89,6 +89,31 @@
 		</mailingList>
 	</mailingLists>
 	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+      			<groupId>org.bouncycastle</groupId>
+      			<artifactId>bcprov-jdk14</artifactId>
+      			<version>1.39</version>			
+			</dependency>
+			<dependency>
+      			<groupId>com.toedter</groupId>
+      			<artifactId>jcalendar</artifactId>
+      			<version>1.3.3</version>			
+			</dependency>
+			<dependency>
+      		<groupId>joda-time</groupId>
+      			<artifactId>joda-time</artifactId>
+      			<version>1.3</version>			
+				</dependency>
+			<dependency>
+      			<groupId>org.garret</groupId>
+      			<artifactId>perst</artifactId>
+      			<version>4.21</version>			
+			</dependency>						
+		</dependencies>
+	</dependencyManagement>
+	
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -102,7 +127,11 @@
 						<fork>${java.compiler.fork}</fork>
 						<compilerVersion>${java.version}</compilerVersion>
 					</configuration>	
-				</plugin>				
+				</plugin>	
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.3.2</version>
+				</plugin>												
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
