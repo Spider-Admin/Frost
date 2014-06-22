@@ -88,6 +88,24 @@
 			<archive>http://sourceforge.net/p/jtcfrost/mailman/jtcfrost-support</archive>
 		</mailingList>
 	</mailingLists>
+	
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+						<encoding>${default.encoding}</encoding>
+						<fork>${java.compiler.fork}</fork>
+						<compilerVersion>${java.version}</compilerVersion>
+					</configuration>	
+				</plugin>		
+			</plugins>
+		</pluginManagement>
+	</build>
 		
 	<scm>
 		<url>${svn.view.base.url}/${project.artifactId}/trunk</url>
