@@ -12,9 +12,9 @@
 	<description>A client that provides newsgroup-like messaging, private encrypted messages, file upload and download functionality and a file sharing system.</description>
 	
 	<scm>
-		<url>${svn.view.base.url}/${parent.artifactId}/trunk/${project.artifactId}</url>
-		<connection>${svn.scm.base.url}/${parent.artifactId}/trunk/${project.artifactId}</connection>
-		<developerConnection>${svn.scm.base.url}/${parent.artifactId}/trunk/${project.artifactId}</developerConnection>
+		<url>${svn.view.base.url}/${project.parent.artifactId}/trunk/${project.artifactId}</url>
+		<connection>${svn.scm.base.url}/${project.parent.artifactId}/trunk/${project.artifactId}</connection>
+		<developerConnection>${svn.scm.base.url}/${project.parent.artifactId}/trunk/${project.artifactId}</developerConnection>
 	</scm> 
 	
 </project>
