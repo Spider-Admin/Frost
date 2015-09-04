@@ -13,7 +13,12 @@
 	<description>A client that provides newsgroup-like messaging, private encrypted messages, file upload and download functionality and a file sharing system.</description>
 	
 	<dependencies>
-		<!-- System scope is used for security reasons: I do not want those jars to be automatically downloaded from repositories outside our control -->
+		<!-- Frost artifacts -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>frost.util</artifactId>
+		</dependency>
+		<!-- Third party artifacts, using system scope for security reasons: I do not want those jars to be automatically downloaded from repositories outside our control -->
   		<dependency>
       		<groupId>org.bouncycastle</groupId>
       		<artifactId>bcprov-jdk14</artifactId>
