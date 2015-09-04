@@ -29,7 +29,7 @@
         <module>frost.core</module>
         <module>frost.util</module>
 	</modules>
-	
+		
 	<organization>
 		<name>Frost development team</name>
 		<url>http://jtcfrost.sourceforge.net/</url>
@@ -91,6 +91,18 @@
 	
 	<dependencyManagement>
 		<dependencies>
+			<!-- Frost artifacts -->
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>frost.core</artifactId>
+				<version>1.0.0-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>frost.util</artifactId>
+				<version>1.0.0-SNAPSHOT</version>	
+			</dependency>
+			<!-- Third party artifacts -->
 			<dependency>
       			<groupId>org.bouncycastle</groupId>
       			<artifactId>bcprov-jdk14</artifactId>
