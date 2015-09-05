@@ -7,6 +7,13 @@
 		<format>zip</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		<dependencySet>
+			<!-- All Frost artifacts this one depends on -->
+			<useProjectArtifact>false</useProjectArtifact>
+			<outputDirectory>/lib</outputDirectory>	
+		</dependencySet>
+	</dependencySets>
 	<fileSets>
 		<fileSet>
 			<!-- All the files in the zipResources directory -->
