@@ -18,7 +18,7 @@
 */
 package frost.messaging.frost;
 
-import frost.gui.model.*;
+import frost.gui.model.TableMember;
 
 public class FrostSearchResultMessageObject implements TableMember<FrostSearchResultMessageObject> {
 

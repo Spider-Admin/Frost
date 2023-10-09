@@ -18,11 +18,11 @@
 */
 package frost.util.gui;
 
-import java.util.*;
+import java.util.Hashtable;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
 
-import frost.util.gui.textpane.*;
+import frost.util.gui.textpane.Smileys;
 
 public class SmileyCache implements Smileys {
 

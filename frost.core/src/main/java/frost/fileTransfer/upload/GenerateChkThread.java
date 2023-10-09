@@ -18,9 +18,10 @@
 */
 package frost.fileTransfer.upload;
 
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fcp.*;
+import frost.fcp.FcpHandler;
 
 public class GenerateChkThread extends Thread {
 

@@ -18,9 +18,9 @@
 */
 package frost.messaging.freetalk.boards;
 
-import java.util.*;
+import java.util.Enumeration;
 
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * The base for board, folder, ...

@@ -18,7 +18,7 @@
 */
 package frost.util.model;
 
-import frost.util.gui.*;
+import frost.util.gui.FrostSwingWorker;
 
 @SuppressWarnings("serial")
 public class SortedModelTable<T extends ModelItem<T>> extends ModelTable<T> {

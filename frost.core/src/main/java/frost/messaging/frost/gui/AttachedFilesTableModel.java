@@ -19,16 +19,21 @@
 
 package frost.messaging.frost.gui;
 
-import java.awt.*;
-import java.text.*;
-import java.util.*;
+import java.awt.Component;
+import java.text.NumberFormat;
+import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
-import frost.messaging.frost.*;
-import frost.util.gui.translation.*;
+import frost.messaging.frost.FileAttachment;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener {

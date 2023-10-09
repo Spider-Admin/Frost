@@ -20,10 +20,12 @@ package frost.messaging.frost.boards;
 
 import java.util.List;
 
-import org.joda.time.*;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 
 import frost.MainFrame;
-import frost.util.*;
+import frost.util.DateFun;
+import frost.util.FormatterUtils;
 
 public class BoardUpdateInformation {
 

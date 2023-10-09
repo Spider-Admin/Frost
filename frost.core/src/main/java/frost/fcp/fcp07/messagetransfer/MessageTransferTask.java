@@ -18,9 +18,10 @@
 */
 package frost.fcp.fcp07.messagetransfer;
 
-import java.io.*;
+import java.io.File;
 
-import frost.fcp.*;
+import frost.fcp.FcpResultGet;
+import frost.fcp.FcpResultPut;
 import frost.fileTransfer.FreenetPriority;
 
 public class MessageTransferTask {

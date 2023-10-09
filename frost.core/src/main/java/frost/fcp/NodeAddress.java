@@ -18,7 +18,7 @@
 */
 package frost.fcp;
 
-import java.net.*;
+import java.net.InetAddress;
 
 public class NodeAddress {
 

@@ -16,10 +16,11 @@
 
 package frost.util.gui;
 
-import java.awt.*;
+import java.awt.Component;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * @author <a href="mailto:droden@gmail.com">David Roden</a>, ET

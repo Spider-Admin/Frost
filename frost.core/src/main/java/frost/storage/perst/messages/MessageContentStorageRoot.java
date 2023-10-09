@@ -18,7 +18,9 @@
 */
 package frost.storage.perst.messages;
 
-import org.garret.perst.*;
+import org.garret.perst.Index;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
 import frost.storage.perst.PerstString;
 

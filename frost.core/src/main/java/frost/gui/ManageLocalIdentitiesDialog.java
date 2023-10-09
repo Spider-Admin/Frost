@@ -19,17 +19,32 @@
 */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import frost.*;
-import frost.identities.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
 import frost.storage.LocalIdentitiesXmlDAO;
 import frost.util.XMLTools;
 import frost.util.gui.translation.Language;

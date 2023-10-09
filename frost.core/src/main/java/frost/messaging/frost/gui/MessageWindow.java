@@ -18,16 +18,34 @@
 */
 package frost.messaging.frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-import frost.*;
-import frost.gui.*;
-import frost.messaging.frost.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.MainFrame;
+import frost.gui.SearchMessagesConfig;
+import frost.messaging.frost.FrostMessageObject;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class MessageWindow extends JFrame {

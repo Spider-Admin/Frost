@@ -18,14 +18,14 @@
 */
 package frost.messaging.freetalk.transfer;
 
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
-import frost.*;
-import frost.fcp.fcp07.*;
-import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
-import frost.messaging.freetalk.*;
+import frost.MainFrame;
+import frost.fcp.fcp07.NodeMessage;
+import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.FreetalkNodeMessageCallback;
+import frost.messaging.freetalk.FreetalkManager;
 
 /**
  * Callback for PutMessage command.

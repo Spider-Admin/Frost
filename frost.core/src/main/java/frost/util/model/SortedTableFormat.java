@@ -18,9 +18,11 @@
 */
 package frost.util.model;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
-import frost.util.*;
+import frost.util.ReverseComparator;
 
 public abstract class SortedTableFormat<ModelItemType extends ModelItem<ModelItemType>> extends AbstractTableFormat<ModelItemType> {
 

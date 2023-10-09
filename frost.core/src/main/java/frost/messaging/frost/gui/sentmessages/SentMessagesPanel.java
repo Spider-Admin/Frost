@@ -18,12 +18,17 @@
 */
 package frost.messaging.frost.gui.sentmessages;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import frost.messaging.frost.*;
-import frost.util.gui.translation.*;
+import frost.messaging.frost.FrostMessageObject;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class SentMessagesPanel extends JPanel implements LanguageListener {

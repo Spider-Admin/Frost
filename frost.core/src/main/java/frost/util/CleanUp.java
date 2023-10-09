@@ -19,18 +19,21 @@
 
 package frost.util;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.gui.*;
-import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
-import frost.storage.*;
-import frost.storage.perst.*;
-import frost.storage.perst.filelist.*;
-import frost.storage.perst.messagearchive.*;
-import frost.storage.perst.messages.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.gui.Splashscreen;
+import frost.messaging.frost.FrostMessageObject;
+import frost.messaging.frost.boards.Board;
+import frost.storage.MessageArchivingCallback;
+import frost.storage.perst.IndexSlotsStorage;
+import frost.storage.perst.SharedFilesCHKKeyStorage;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.storage.perst.messagearchive.ArchiveMessageStorage;
+import frost.storage.perst.messages.MessageStorage;
 
 /**
  * Expire messages and cleans several database tables.

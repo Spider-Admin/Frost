@@ -18,12 +18,13 @@
 */
 package frost.messaging.frost;
 
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-import frost.util.*;
+import frost.util.XMLizable;
 
 @SuppressWarnings("serial")
 

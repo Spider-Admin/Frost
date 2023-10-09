@@ -18,20 +18,26 @@
 */
 package frost.storage.perst;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Logger;
 
-import org.garret.perst.*;
+import org.garret.perst.IPersistentList;
+import org.garret.perst.Persistent;
 
-import frost.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.sharing.*;
-import frost.fileTransfer.upload.*;
-import frost.gui.*;
-import frost.messaging.frost.boards.*;
-import frost.storage.*;
-import frost.util.gui.translation.*;
+import frost.SettingsClass;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.fileTransfer.upload.FrostUploadItem;
+import frost.gui.KnownBoard;
+import frost.messaging.frost.boards.Board;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
+import frost.util.gui.translation.Language;
 
 /**
  * A Storage for FrostDownloadFiles, FrostUploadFiles and SharedFiles.

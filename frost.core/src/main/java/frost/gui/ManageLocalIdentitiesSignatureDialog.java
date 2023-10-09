@@ -18,13 +18,20 @@
  */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dialog;
+import java.awt.FlowLayout;
+import java.awt.Font;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
-import frost.*;
-import frost.util.gui.textpane.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.util.gui.textpane.AntialiasedTextArea;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class ManageLocalIdentitiesSignatureDialog extends JDialog {

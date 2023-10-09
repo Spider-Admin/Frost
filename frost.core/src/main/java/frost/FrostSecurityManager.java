@@ -18,9 +18,10 @@
 */
 package frost;
 
-import java.security.*;
+import java.security.Permission;
 
-import frost.fcp.*;
+import frost.fcp.FcpHandler;
+import frost.fcp.NodeAddress;
 
 /**
  * Our security manager does not allow any socket connections to other host:port

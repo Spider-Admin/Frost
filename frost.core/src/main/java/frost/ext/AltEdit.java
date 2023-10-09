@@ -18,17 +18,21 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.ext;
 
-import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.awt.Frame;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
-import frost.*;
-import frost.util.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.util.FileAccess;
+import frost.util.gui.translation.Language;
 
 /**
  * Class provides alternate editor functionality.

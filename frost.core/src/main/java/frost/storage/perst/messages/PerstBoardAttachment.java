@@ -18,9 +18,9 @@
 */
 package frost.storage.perst.messages;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
-import frost.messaging.frost.*;
+import frost.messaging.frost.BoardAttachment;
 
 public class PerstBoardAttachment extends Persistent {
     String name;

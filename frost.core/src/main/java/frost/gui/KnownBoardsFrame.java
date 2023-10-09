@@ -18,24 +18,64 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
-import frost.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
 import frost.fileTransfer.common.TableBackgroundColors;
-import frost.gui.model.*;
-import frost.messaging.frost.boards.*;
+import frost.gui.model.SortedTableModel;
+import frost.gui.model.TableMember;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.boards.Folder;
+import frost.messaging.frost.boards.TofTree;
 import frost.storage.KnownBoardsXmlDAO;
-import frost.util.gui.*;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")

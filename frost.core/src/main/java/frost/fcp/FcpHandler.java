@@ -18,11 +18,12 @@
 */
 package frost.fcp;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
 
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.upload.*;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.fileTransfer.upload.FrostUploadItem;
 
 public abstract class FcpHandler {
 

@@ -18,7 +18,7 @@
 */
 package frost.storage;
 
-import frost.fileTransfer.*;
+import frost.fileTransfer.FrostFileListFileObject;
 
 public interface FileListCallback {
     public boolean fileRetrieved(FrostFileListFileObject fo);

@@ -18,13 +18,23 @@
 */
 package frost.gui.preferences;
 
-import java.awt.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
-import frost.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.SettingsClass;
+import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 class ExpirationPanel extends JPanel {

@@ -18,10 +18,15 @@
 */
 package frost.storage;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
+import frost.Core;
+import frost.Frost;
+import frost.SettingsClass;
 import frost.util.Logging;
 
 /**

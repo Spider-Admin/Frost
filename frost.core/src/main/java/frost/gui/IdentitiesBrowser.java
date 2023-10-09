@@ -18,29 +18,72 @@
  */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ProgressMonitor;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
-import org.joda.time.*;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeZone;
 
-import frost.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
 import frost.fileTransfer.common.TableBackgroundColors;
-import frost.gui.model.*;
+import frost.gui.model.SortedTableModel;
+import frost.gui.model.TableMember;
 import frost.identities.Identity;
 import frost.messaging.frost.boards.Board;
 import frost.storage.IdentitiesXmlDAO;
 import frost.storage.perst.identities.IdentitiesStorage;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.CopyToClipboard;
+import frost.util.DateFun;
+import frost.util.Mixed;
+import frost.util.gui.FrostSwingWorker;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class IdentitiesBrowser extends JDialog {

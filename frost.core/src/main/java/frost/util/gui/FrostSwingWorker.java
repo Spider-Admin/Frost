@@ -18,10 +18,11 @@
 */
 package frost.util.gui;
 
-import java.awt.*;
-import java.util.logging.*;
+import java.awt.Component;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 /**
  * This is a variant of the SwingWorker
  * It works in conjunction with the GlassPane class

@@ -18,9 +18,12 @@
 */
 package frost.storage.perst.identities;
 
-import org.garret.perst.*;
+import org.garret.perst.IPersistentList;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
-import frost.identities.*;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
 
 public class IdentitiesStorageRoot extends Persistent {
 

@@ -18,11 +18,13 @@
 */
 package frost.fileTransfer.search;
 
-import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.sharing.*;
-import frost.util.*;
-import frost.util.model.*;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.download.DownloadModel;
+import frost.fileTransfer.sharing.SharedFilesModel;
+import frost.util.CopyToClipboardItem;
+import frost.util.DateFun;
+import frost.util.model.ModelItem;
 
 public class FrostSearchItem extends ModelItem<FrostSearchItem> implements CopyToClipboardItem {
 

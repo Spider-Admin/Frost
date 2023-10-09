@@ -18,15 +18,18 @@
 */
 package frost.fileTransfer.filelist;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fcp.*;
-import frost.fileTransfer.*;
-import frost.transferlayer.*;
-import frost.util.*;
+import frost.fcp.FcpHandler;
+import frost.fileTransfer.SharedFilesCHKKeyManager;
+import frost.transferlayer.GlobalFileDownloader;
+import frost.transferlayer.GlobalFileDownloaderResult;
 import frost.util.Logging;
+import frost.util.Mixed;
 
 /**
  * Thread that downloads the CHK file lists.

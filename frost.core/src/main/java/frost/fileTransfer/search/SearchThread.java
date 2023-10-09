@@ -18,11 +18,15 @@
 */
 package frost.fileTransfer.search;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Logger;
 
-import frost.*;
-import frost.fileTransfer.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.FrostFileListFileObjectOwner;
 import frost.identities.Identity;
 import frost.storage.FileListCallback;
 import frost.storage.perst.filelist.FileListStorage;

@@ -18,7 +18,7 @@
 */
 package frost.util.model;
 
-import javax.swing.*;
+import javax.swing.JTable;
 
 
 public interface ModelTableFormat<ModelItemType extends ModelItem<ModelItemType>> {

@@ -18,13 +18,21 @@
 */
 package frost.fcp.fcp07;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fcp.*;
+import frost.Core;
+import frost.fcp.NodeAddress;
 
 public class FcpSocket {
 

@@ -18,12 +18,16 @@
 */
 package frost.fileTransfer;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import frost.fileTransfer.upload.GenerateShaThread;
-import frost.storage.*;
-import frost.storage.perst.*;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
+import frost.storage.perst.FrostFilesStorage;
+import frost.storage.perst.NewUploadFile;
 
 /**
  * 

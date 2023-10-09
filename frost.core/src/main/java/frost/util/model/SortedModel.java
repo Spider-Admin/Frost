@@ -18,7 +18,11 @@
 */
 package frost.util.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class is a Model that stores ModelItems in a certain order. That does not

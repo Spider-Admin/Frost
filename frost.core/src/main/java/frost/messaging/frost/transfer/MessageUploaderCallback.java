@@ -18,7 +18,7 @@
 */
 package frost.messaging.frost.transfer;
 
-import frost.messaging.frost.*;
+import frost.messaging.frost.MessageXmlFile;
 
 /**
  * This interface is used by the MessageUploader to ask the GUI

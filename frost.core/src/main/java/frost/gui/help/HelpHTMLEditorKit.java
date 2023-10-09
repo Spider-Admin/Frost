@@ -18,8 +18,9 @@
  */
 package frost.gui.help;
 
-import javax.swing.text.*;
-import javax.swing.text.html.*;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 /**
  * @author notitaccu

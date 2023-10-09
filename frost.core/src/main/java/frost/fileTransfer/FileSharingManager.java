@@ -18,8 +18,10 @@
 */
 package frost.fileTransfer;
 
-import frost.fileTransfer.filelist.*;
-import frost.fileTransfer.filerequest.*;
+import frost.fileTransfer.filelist.FileListDownloadThread;
+import frost.fileTransfer.filelist.FileListUploadThread;
+import frost.fileTransfer.filelist.FilePointersThread;
+import frost.fileTransfer.filerequest.FileRequestsThread;
 
 /**
  * This class is the manager for the whole filesharing.

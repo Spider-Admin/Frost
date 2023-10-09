@@ -18,24 +18,56 @@
 */
 package frost.messaging.frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeNode;
 
-import frost.*;
-import frost.gui.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.gui.KnownBoardsFrame;
+import frost.gui.SearchMessagesDialog;
 import frost.messaging.frost.FrostMessageObject;
-import frost.messaging.frost.boards.*;
+import frost.messaging.frost.boards.AbstractNode;
+import frost.messaging.frost.boards.Board;
+import frost.messaging.frost.boards.BoardInfoFrame;
+import frost.messaging.frost.boards.BoardUpdateBoardSelector;
+import frost.messaging.frost.boards.BoardUpdateInformationFrame;
+import frost.messaging.frost.boards.Folder;
+import frost.messaging.frost.boards.TOF;
+import frost.messaging.frost.boards.TofTree;
+import frost.messaging.frost.boards.TofTreeModel;
 import frost.messaging.frost.gui.sentmessages.SentMessagesPanel;
 import frost.messaging.frost.gui.unsentmessages.UnsentMessagesPanel;
 import frost.messaging.frost.threads.RunningMessageThreadsInformation;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.SystraySupport;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 /**
  *

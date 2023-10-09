@@ -18,9 +18,16 @@
 */
 package frost.messaging.frost;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import frost.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
 import frost.messaging.frost.boards.Board;
 import frost.messaging.frost.threads.FileAttachmentUploadThread;
 import frost.storage.perst.messages.MessageStorage;

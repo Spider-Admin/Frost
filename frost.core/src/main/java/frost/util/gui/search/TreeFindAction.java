@@ -18,9 +18,10 @@
 */
 package frost.util.gui.search;
 
-import javax.swing.*;
-import javax.swing.text.*;
-import javax.swing.tree.*;
+import javax.swing.JComponent;
+import javax.swing.JTree;
+import javax.swing.text.Position;
+import javax.swing.tree.TreePath;
 
 //@author Santhosh Kumar T - santhosh@in.fiorano.com 
 @SuppressWarnings("serial")

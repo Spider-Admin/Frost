@@ -18,9 +18,9 @@
 */
 package frost.messaging.freetalk;
 
-import java.io.*;
+import java.io.File;
 
-import frost.util.*;
+import frost.util.CopyToClipboardItem;
 
 public class FreetalkFileAttachment implements CopyToClipboardItem {
 

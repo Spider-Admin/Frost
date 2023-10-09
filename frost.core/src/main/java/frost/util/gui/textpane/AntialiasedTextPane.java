@@ -18,7 +18,9 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 /**
  * Extend {@link TextPane} class with antialiasing render

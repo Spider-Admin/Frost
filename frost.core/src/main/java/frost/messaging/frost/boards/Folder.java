@@ -18,7 +18,7 @@
 */
 package frost.messaging.frost.boards;
 
-import java.util.*;
+import java.util.Collections;
 
 /**
  * Represents a folder in the board tree.

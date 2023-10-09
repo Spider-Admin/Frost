@@ -18,14 +18,17 @@
 */
 package frost.storage.perst;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.Iterator;
+import java.util.logging.Logger;
 
-import org.garret.perst.*;
-import org.joda.time.*;
+import org.garret.perst.GenericIndex;
+import org.garret.perst.Key;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 
-import frost.*;
-import frost.storage.*;
+import frost.SettingsClass;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
 
 /**
  * Storage with an compound index of indexName and msgDate (int/long)

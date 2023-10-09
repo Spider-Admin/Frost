@@ -18,8 +18,8 @@
 */
 package frost.messaging.frost.gui.sentmessages;
 
-import frost.messaging.frost.*;
-import frost.util.model.*;
+import frost.messaging.frost.FrostMessageObject;
+import frost.util.model.ModelItem;
 
 public class SentMessagesTableItem extends ModelItem<SentMessagesTableItem> {
 

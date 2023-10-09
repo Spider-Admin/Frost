@@ -18,7 +18,8 @@
 */
 package frost.util.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * This class provides support for sending change events of models 

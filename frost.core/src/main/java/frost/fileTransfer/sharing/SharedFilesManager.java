@@ -18,12 +18,16 @@
 */
 package frost.fileTransfer.sharing;
 
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import frost.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
-import frost.storage.*;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
 
 /**
  *

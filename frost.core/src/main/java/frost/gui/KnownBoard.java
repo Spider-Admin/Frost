@@ -18,7 +18,7 @@
 */
 package frost.gui;
 
-import frost.messaging.frost.boards.*;
+import frost.messaging.frost.boards.Board;
 
 @SuppressWarnings("serial")
 public class KnownBoard extends Board {

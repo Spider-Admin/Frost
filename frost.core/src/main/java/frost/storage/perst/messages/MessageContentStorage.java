@@ -18,10 +18,13 @@
 */
 package frost.storage.perst.messages;
 
-import frost.*;
-import frost.messaging.frost.*;
-import frost.storage.*;
-import frost.storage.perst.*;
+import frost.SettingsClass;
+import frost.messaging.frost.AttachmentList;
+import frost.messaging.frost.BoardAttachment;
+import frost.messaging.frost.FileAttachment;
+import frost.storage.ExitSavable;
+import frost.storage.perst.AbstractFrostStorage;
+import frost.storage.perst.PerstString;
 
 public class MessageContentStorage extends AbstractFrostStorage implements ExitSavable {
 

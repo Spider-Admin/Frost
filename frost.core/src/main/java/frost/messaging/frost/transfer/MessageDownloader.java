@@ -19,12 +19,15 @@
 package frost.messaging.frost.transfer;
 
 import java.io.File;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import frost.Core;
-import frost.fcp.*;
+import frost.fcp.FcpHandler;
+import frost.fcp.FcpResultGet;
 import frost.identities.Identity;
-import frost.messaging.frost.*;
+import frost.messaging.frost.MessageCreationException;
+import frost.messaging.frost.MessageXmlFile;
 import frost.util.FileAccess;
 
 public class MessageDownloader {

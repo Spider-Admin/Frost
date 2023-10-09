@@ -22,8 +22,10 @@ import java.util.logging.Logger;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import frost.*;
-import frost.identities.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
 
 @SuppressWarnings("serial")
 public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNode {

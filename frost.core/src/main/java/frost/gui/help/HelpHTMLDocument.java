@@ -18,10 +18,13 @@
  */
 package frost.gui.help;
 
-import java.net.*;
+import java.net.URL;
 
-import javax.swing.text.*;
-import javax.swing.text.html.*;
+import javax.swing.text.Document;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.StyleSheet;
 
 /**
  * 

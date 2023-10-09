@@ -19,10 +19,16 @@
 package frost.fileTransfer.filelist;
 
 import java.io.File;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.w3c.dom.*;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 import frost.Core;
 import frost.fileTransfer.SharedFileXmlFile;

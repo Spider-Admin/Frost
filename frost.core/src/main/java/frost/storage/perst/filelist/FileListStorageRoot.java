@@ -18,9 +18,12 @@
 */
 package frost.storage.perst.filelist;
 
-import org.garret.perst.*;
+import org.garret.perst.IPersistentSet;
+import org.garret.perst.Index;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
-import frost.fileTransfer.*;
+import frost.fileTransfer.FrostFileListFileObject;
 
 public class FileListStorageRoot extends Persistent {
 

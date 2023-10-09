@@ -18,12 +18,14 @@
 */
 package frost.gui.model;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.logging.Logger;
 
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
 
-import frost.gui.*;
+import frost.gui.SortedTable;
 
 @SuppressWarnings("serial")
 public class SortedTableModel<T extends TableMember<T>> extends DefaultTableModel

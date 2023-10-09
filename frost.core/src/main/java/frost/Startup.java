@@ -18,8 +18,8 @@
  */
 package frost;
 
-import java.io.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.logging.Logger;
 
 /**
  * Does some things that have to be done when starting Frost.

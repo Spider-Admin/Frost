@@ -19,18 +19,30 @@
 
 package frost.messaging.frost;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bouncycastle.util.encoders.Base64;
-import org.joda.time.*;
-import org.w3c.dom.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import frost.Core;
-import frost.identities.*;
-import frost.util.*;
+import frost.identities.IdentitiesManager;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
+import frost.util.DateFun;
+import frost.util.FileAccess;
+import frost.util.XMLTools;
+import frost.util.XMLizable;
 
 @SuppressWarnings("serial")
 public class MessageXmlFile extends AbstractMessageObject implements XMLizable {

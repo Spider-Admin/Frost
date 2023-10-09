@@ -18,11 +18,18 @@
 */
 package frost.util.gui.translation;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
+import frost.MainFrame;
 
 /**
  * Methods to read in a langres.properties file with UTF-8 encoding.

@@ -18,16 +18,37 @@
 */
 package frost.util.translate;
 
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.WindowEvent;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
-import javax.swing.*;
+import javax.swing.AbstractListModel;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
 
 import frost.MainFrame;
 import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.FrostResourceBundle;
+import frost.util.gui.translation.LanguageGuiSupport;
+import frost.util.gui.translation.TranslateableFrostResourceBundle;
 
 /**
  *

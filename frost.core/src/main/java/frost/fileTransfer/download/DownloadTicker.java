@@ -17,11 +17,13 @@
 */
 package frost.fileTransfer.download;
 
-import java.io.*;
+import java.io.File;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.util.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.PersistenceManager;
+import frost.util.Mixed;
 
 public class DownloadTicker extends Thread {
 

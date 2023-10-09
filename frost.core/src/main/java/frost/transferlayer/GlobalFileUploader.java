@@ -18,11 +18,13 @@
 */
 package frost.transferlayer;
 
-import java.io.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fcp.*;
-import frost.storage.perst.*;
+import frost.fcp.FcpHandler;
+import frost.fcp.FcpResultPut;
+import frost.storage.perst.IndexSlot;
 
 /**
  * Provides an upload functionality, using the global index slots.

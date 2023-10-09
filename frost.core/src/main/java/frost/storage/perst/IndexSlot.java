@@ -18,9 +18,9 @@
 */
 package frost.storage.perst;
 
-import java.util.*;
+import java.util.BitSet;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
 public class IndexSlot extends Persistent {
 

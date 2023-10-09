@@ -18,17 +18,25 @@
 */
 package frost;
 
-import java.io.*;
-import java.nio.channels.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.UIManager.*;
+import javax.swing.JOptionPane;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.FileAccess;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
 
 public class Frost {
 

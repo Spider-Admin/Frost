@@ -18,13 +18,14 @@
 */
 package frost.fileTransfer.upload;
 
-import java.io.*;
+import java.io.File;
 
-import frost.*;
+import frost.Core;
+import frost.SettingsClass;
 import frost.fileTransfer.FreenetPriority;
-import frost.fileTransfer.sharing.*;
-import frost.util.*;
-import frost.util.model.*;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.util.CopyToClipboardItem;
+import frost.util.model.ModelItem;
 
 /**
  * Represents a file to upload.

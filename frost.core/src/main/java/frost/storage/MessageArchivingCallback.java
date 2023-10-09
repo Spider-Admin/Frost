@@ -18,7 +18,7 @@
 */
 package frost.storage;
 
-import frost.messaging.frost.*;
+import frost.messaging.frost.FrostMessageObject;
 
 public interface MessageArchivingCallback {
     

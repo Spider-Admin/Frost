@@ -18,10 +18,10 @@
 */
 package frost.util.gui;
 
-import java.lang.ref.*;
-import java.util.*;
+import java.lang.ref.WeakReference;
+import java.util.Vector;
 
-import javax.swing.*;
+import javax.swing.JPopupMenu;
 
 @SuppressWarnings("serial")
 public class JSkinnablePopupMenu extends JPopupMenu {

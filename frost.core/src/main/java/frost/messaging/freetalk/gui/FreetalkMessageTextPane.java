@@ -19,27 +19,63 @@
 */
 package frost.messaging.freetalk.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.beans.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
+import javax.swing.BorderFactory;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.Utilities;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.gui.*;
-import frost.messaging.freetalk.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.search.*;
-import frost.util.gui.textpane.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.download.DownloadModel;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.gui.SearchMessagesConfig;
+import frost.messaging.freetalk.FreetalkFileAttachment;
+import frost.messaging.freetalk.FreetalkMessage;
+import frost.util.CopyToClipboard;
+import frost.util.FileAccess;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.SmileyCache;
+import frost.util.gui.TextHighlighter;
+import frost.util.gui.search.FindAction;
+import frost.util.gui.search.TextComponentFindAction;
+import frost.util.gui.textpane.AntialiasedTextPane;
+import frost.util.gui.textpane.MessageDecoder;
+import frost.util.gui.textpane.MouseHyperlinkEvent;
+import frost.util.gui.textpane.TextPane;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageTextPane extends JPanel {
 

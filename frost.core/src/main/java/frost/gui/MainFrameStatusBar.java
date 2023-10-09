@@ -18,17 +18,26 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.MouseEvent;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.ToolTipManager;
+import javax.swing.border.BevelBorder;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.messaging.frost.threads.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferInformation;
+import frost.messaging.frost.threads.RunningMessageThreadsInformation;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
 
 /**
  * Represents the mainframe status bar.

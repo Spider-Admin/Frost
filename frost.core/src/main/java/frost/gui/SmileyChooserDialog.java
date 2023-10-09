@@ -18,13 +18,21 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.util.gui.SmileyCache;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class SmileyChooserDialog extends JDialog {

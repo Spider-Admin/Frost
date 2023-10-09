@@ -18,14 +18,23 @@
 */
 package frost.messaging.frost.gui.unsentmessages;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import frost.*;
-import frost.messaging.frost.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.messaging.frost.FrostUnsentMessageObject;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class UnsentMessagesPanel extends JPanel implements LanguageListener {

@@ -18,16 +18,22 @@
 */
 package frost.storage;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import frost.fcp.*;
-import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
-import frost.util.*;
+import frost.fcp.FreenetKeys;
+import frost.messaging.frost.Attachment;
+import frost.messaging.frost.AttachmentList;
+import frost.messaging.frost.BoardAttachment;
+import frost.messaging.frost.boards.Board;
+import frost.util.XMLTools;
 
 public class KnownBoardsXmlDAO {
 

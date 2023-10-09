@@ -21,7 +21,8 @@ package frost.fileTransfer.common;
 import frost.Core;
 import frost.fileTransfer.FrostFileListFileObjectOwner;
 import frost.identities.Identity;
-import frost.util.*;
+import frost.util.CopyToClipboardItem;
+import frost.util.DateFun;
 import frost.util.model.ModelItem;
 
 public class FileListFileDetailsItem extends ModelItem<FileListFileDetailsItem> implements CopyToClipboardItem {

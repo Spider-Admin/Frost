@@ -18,14 +18,20 @@
  */
 package frost.gui.help;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
+import java.awt.AWTEvent;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
-import frost.*;
-import frost.util.gui.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.util.gui.MiscToolkit;
 
 @SuppressWarnings("serial")
 public class HelpBrowserFrame extends JFrame {

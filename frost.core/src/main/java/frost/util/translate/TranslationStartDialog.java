@@ -18,15 +18,25 @@
 */
 package frost.util.translate;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.List;
+import java.util.Locale;
+import java.util.TreeMap;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import frost.Core;
 import frost.SettingsClass;
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.FrostResourceBundle;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageGuiSupport;
+import frost.util.gui.translation.TranslateableFrostResourceBundle;
 
 @SuppressWarnings("serial")
 public class TranslationStartDialog extends JFrame {

@@ -18,11 +18,14 @@
 */
 package frost.fileTransfer;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fileTransfer.filelist.*;
-import frost.storage.perst.*;
+import frost.fileTransfer.filelist.FileListDownloadThread;
+import frost.fileTransfer.filelist.FilePointerFileContent;
+import frost.storage.perst.SharedFilesCHKKey;
+import frost.storage.perst.SharedFilesCHKKeyStorage;
 import frost.util.Logging;
 
 public class SharedFilesCHKKeyManager {

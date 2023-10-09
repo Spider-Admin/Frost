@@ -40,10 +40,17 @@ package frost.messaging.frost.gui.messagetreetable;
 
 import java.util.Enumeration;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreePath;
 
 /**
  * This wrapper class takes a TreeTableModel and implements the table model interface. The implementation is trivial,

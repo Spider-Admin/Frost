@@ -18,7 +18,8 @@
 */
 package frost.util.gui;
 
-import javax.swing.text.*;
+import javax.swing.text.Document;
+import javax.swing.text.Position;
 
 public class ImmutableArea {
 

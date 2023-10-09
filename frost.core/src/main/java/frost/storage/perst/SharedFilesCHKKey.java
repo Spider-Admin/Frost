@@ -18,7 +18,7 @@
 */
 package frost.storage.perst;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
 /**
  * Represents the CHK key of a filelist.

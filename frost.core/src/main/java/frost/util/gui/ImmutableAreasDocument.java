@@ -18,9 +18,14 @@
 */
 package frost.util.gui;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 
-import javax.swing.text.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
+import javax.swing.text.Position;
 
 @SuppressWarnings("serial")
 public class ImmutableAreasDocument extends PlainDocument {

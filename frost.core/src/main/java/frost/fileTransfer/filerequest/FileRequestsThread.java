@@ -18,19 +18,27 @@
 */
 package frost.fileTransfer.filerequest;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.joda.time.*;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 
-import frost.*;
-import frost.fcp.*;
-import frost.fileTransfer.filelist.*;
-import frost.storage.perst.*;
-import frost.transferlayer.*;
-import frost.util.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fcp.FcpHandler;
+import frost.fileTransfer.filelist.FilePointersThread;
+import frost.storage.perst.IndexSlot;
+import frost.storage.perst.IndexSlotsStorage;
+import frost.transferlayer.GlobalFileDownloader;
+import frost.transferlayer.GlobalFileDownloaderResult;
+import frost.transferlayer.GlobalFileUploader;
+import frost.util.DateFun;
+import frost.util.FileAccess;
 import frost.util.Logging;
+import frost.util.Mixed;
 
 /**
  * Thread receives and sends file requests periodically.

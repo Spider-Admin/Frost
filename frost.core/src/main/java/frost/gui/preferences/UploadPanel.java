@@ -18,15 +18,24 @@
 */
 package frost.gui.preferences;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-import frost.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.SettingsClass;
+import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 class UploadPanel extends JPanel {

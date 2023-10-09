@@ -18,7 +18,7 @@
 */
 package frost.transferlayer;
 
-import java.io.*;
+import java.io.File;
 
 public class GlobalFileDownloaderResult {
 

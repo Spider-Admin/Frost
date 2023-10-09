@@ -18,10 +18,11 @@
 */
 package frost.gui;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
 
-import frost.messaging.frost.boards.*;
-import frost.storage.perst.*;
+import frost.messaging.frost.boards.Board;
+import frost.storage.perst.FrostFilesStorage;
 
 /**
  * Manages the access to KnownBoards and hidden board names.

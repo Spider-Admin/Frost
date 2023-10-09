@@ -18,14 +18,16 @@
 */
 package frost.fileTransfer.sharing;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.List;
 
-import frost.fileTransfer.*;
-import frost.fileTransfer.filelist.*;
-import frost.fileTransfer.upload.*;
-import frost.util.*;
-import frost.util.model.*;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.SharedFileXmlFile;
+import frost.fileTransfer.filelist.FileListUploadThread;
+import frost.fileTransfer.upload.FrostUploadItem;
+import frost.util.CopyToClipboardItem;
+import frost.util.DateFun;
+import frost.util.model.ModelItem;
 
 /**
  * This item is shown in the shared files panel, and it can be shown in the

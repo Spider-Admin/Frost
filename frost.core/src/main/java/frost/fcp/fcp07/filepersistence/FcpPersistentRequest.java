@@ -18,9 +18,9 @@
 */
 package frost.fcp.fcp07.filepersistence;
 
-import java.util.*;
+import java.util.Observable;
 
-import frost.fcp.fcp07.*;
+import frost.fcp.fcp07.NodeMessage;
 import frost.fileTransfer.FreenetPriority;
 
 

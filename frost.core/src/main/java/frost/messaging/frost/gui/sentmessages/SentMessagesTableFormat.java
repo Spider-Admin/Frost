@@ -18,17 +18,26 @@
 */
 package frost.messaging.frost.gui.sentmessages;
 
-import java.awt.*;
-import java.beans.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Comparator;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import frost.*;
-import frost.fileTransfer.common.*;
-import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.common.TableBackgroundColors;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
+import frost.util.model.ModelTable;
+import frost.util.model.SortedModelTable;
+import frost.util.model.SortedTableFormat;
 
 public class SentMessagesTableFormat extends SortedTableFormat<SentMessagesTableItem> implements LanguageListener, PropertyChangeListener {
 

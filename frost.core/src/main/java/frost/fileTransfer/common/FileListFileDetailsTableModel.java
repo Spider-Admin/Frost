@@ -18,7 +18,8 @@
 */
 package frost.fileTransfer.common;
 
-import frost.util.model.*;
+import frost.util.model.SortedModel;
+import frost.util.model.SortedTableFormat;
 
 public class FileListFileDetailsTableModel extends SortedModel<FileListFileDetailsItem> {
 

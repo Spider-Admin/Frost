@@ -18,13 +18,25 @@
 */
 package frost.fileTransfer.sharing;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
-import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
-import frost.fileTransfer.*;
-import frost.gui.*;
+import frost.fileTransfer.SharedFileXmlFile;
+import frost.gui.RatingStringProvider;
 
 /**
  * Configure comment, rating and keywords for one or multiple FrostSharedFileItems. 

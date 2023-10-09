@@ -18,11 +18,15 @@
 */
 package frost.util.model;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.JTable;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 
 public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelItemType>> implements ModelTableFormat<ModelItemType> {

@@ -18,13 +18,23 @@
 */
 package frost.util.gui.translation;
 
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 
-import frost.*;
-import frost.util.gui.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.util.gui.MiscToolkit;
 
 /**
  * Builds and updates the language menu in MainFrame,

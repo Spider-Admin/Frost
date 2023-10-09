@@ -18,12 +18,21 @@
 */
 package frost.util.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
+import java.awt.AWTException;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.util.gui.translation.*;
+import frost.MainFrame;
+import frost.util.gui.translation.Language;
 
 public class SystraySupport {
     

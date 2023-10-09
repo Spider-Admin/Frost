@@ -18,15 +18,23 @@
 */
 package frost.storage;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-import frost.identities.*;
-import frost.util.*;
+import frost.identities.Identity;
+import frost.util.Mixed;
+import frost.util.XMLTools;
+import frost.util.XMLizable;
 
 public class IdentitiesXmlDAO {
 

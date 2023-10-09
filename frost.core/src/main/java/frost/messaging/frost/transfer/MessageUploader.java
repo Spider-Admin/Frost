@@ -18,18 +18,24 @@
 */
 package frost.messaging.frost.transfer;
 
-import java.io.*;
-import java.util.logging.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
-import frost.*;
-import frost.fcp.*;
-import frost.identities.*;
-import frost.messaging.frost.*;
-import frost.messaging.frost.gui.*;
-import frost.storage.perst.*;
-import frost.util.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fcp.FcpHandler;
+import frost.fcp.FcpResultGet;
+import frost.fcp.FcpResultPut;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
+import frost.messaging.frost.MessageXmlFile;
+import frost.messaging.frost.gui.MessageUploadFailedDialog;
+import frost.storage.perst.IndexSlot;
+import frost.util.Mixed;
 
 /**
  * This class uploads a message file to freenet.

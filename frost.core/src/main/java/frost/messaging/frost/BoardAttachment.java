@@ -18,11 +18,13 @@
 */
 package frost.messaging.frost;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-import frost.messaging.frost.boards.*;
-import frost.util.*;
+import frost.messaging.frost.boards.Board;
+import frost.util.XMLTools;
 
 @SuppressWarnings("serial")
 public class BoardAttachment extends Attachment {

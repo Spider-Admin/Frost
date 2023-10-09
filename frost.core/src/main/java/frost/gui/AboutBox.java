@@ -18,12 +18,18 @@
 */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import frost.util.gui.*;
+import frost.util.gui.JDialogWithDetails;
+import frost.util.gui.MiscToolkit;
 
 /**
  * @author $Author: kevloral $

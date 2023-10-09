@@ -18,22 +18,43 @@
  */
 package frost.fileTransfer.common;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.search.*;
-import frost.identities.*;
-import frost.messaging.frost.gui.MessagePanel.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.FrostFileListFileObjectOwner;
+import frost.fileTransfer.search.SearchParameters;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
+import frost.messaging.frost.gui.MessagePanel.IdentityState;
+import frost.util.CopyToClipboard;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
+import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")
 public class FileListFileDetailsDialog extends JDialog {

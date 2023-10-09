@@ -18,7 +18,8 @@
 */
 package frost.util.model;
 
-import java.util.*;
+import java.util.EventListener;
+import java.util.List;
 
 public interface SortedModelListener<T extends ModelItem<T>> extends EventListener {
 

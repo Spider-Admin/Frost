@@ -18,32 +18,52 @@
 */
 package frost;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
-import java.util.logging.*;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import frost.fcp.FcpHandler;
-import frost.fcp.fcp07.*;
-import frost.fileTransfer.*;
-import frost.gui.*;
+import frost.fcp.fcp07.FcpConnection;
+import frost.fcp.fcp07.NodeMessage;
+import frost.fileTransfer.FileSharingManager;
+import frost.fileTransfer.FileTransferManager;
+import frost.gui.FirstStartupDialog;
+import frost.gui.Splashscreen;
 import frost.gui.help.CheckHtmlIntegrity;
-import frost.identities.*;
+import frost.identities.IdentitiesManager;
+import frost.identities.IdentityAutoBackupTask;
 import frost.messaging.freetalk.FreetalkManager;
-import frost.messaging.frost.*;
+import frost.messaging.frost.MessagingManager;
+import frost.messaging.frost.UnsentMessagesManager;
 import frost.messaging.frost.threads.FileAttachmentUploadThread;
 import frost.storage.StorageManager;
-import frost.storage.perst.*;
+import frost.storage.perst.AbstractFrostStorage;
+import frost.storage.perst.FrostFilesStorage;
+import frost.storage.perst.IndexSlotsStorage;
+import frost.storage.perst.SharedFilesCHKKeyStorage;
+import frost.storage.perst.TrackDownloadKeysStorage;
 import frost.storage.perst.filelist.FileListStorage;
 import frost.storage.perst.identities.IdentitiesStorage;
 import frost.storage.perst.messagearchive.ArchiveMessageStorage;
-import frost.storage.perst.messages.*;
-import frost.util.*;
+import frost.storage.perst.messages.MessageContentStorage;
+import frost.storage.perst.messages.MessageStorage;
+import frost.util.CleanUp;
+import frost.util.FrostCrypt;
 import frost.util.Logging;
-import frost.util.gui.*;
+import frost.util.Mixed;
+import frost.util.gui.JDialogWithDetails;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.SystraySupport;
 import frost.util.gui.translation.Language;
 
 /**

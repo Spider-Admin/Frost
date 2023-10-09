@@ -18,20 +18,39 @@
 */
 package frost.messaging.frost.boards;
 import java.awt.Rectangle;
-import java.beans.*;
-import java.util.*;
-import java.util.logging.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 
-import frost.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
 import frost.gui.KnownBoardsManager;
 import frost.identities.Identity;
-import frost.messaging.frost.*;
-import frost.messaging.frost.gui.messagetreetable.*;
+import frost.messaging.frost.AttachmentList;
+import frost.messaging.frost.BoardAttachment;
+import frost.messaging.frost.FrostMessageObject;
+import frost.messaging.frost.MessageXmlFile;
+import frost.messaging.frost.gui.messagetreetable.MessageTreeTable;
+import frost.messaging.frost.gui.messagetreetable.MessageTreeTableSortStateBean;
 import frost.storage.MessageCallback;
 import frost.storage.perst.messages.MessageStorage;
 import frost.util.Mixed;

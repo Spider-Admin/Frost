@@ -18,14 +18,20 @@
 */
 package frost.storage.perst.identities;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.garret.perst.IPersistentList;
 
-import frost.*;
-import frost.identities.*;
-import frost.storage.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
 import frost.storage.perst.AbstractFrostStorage;
 import frost.storage.perst.filelist.FileListStorage;
 import frost.storage.perst.messages.MessageStorage;

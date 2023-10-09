@@ -18,7 +18,7 @@
 */
 package frost.util.gui.textpane;
 
-import javax.swing.*;
+import javax.swing.JEditorPane;
 
 /**
  * Base class for Decoder

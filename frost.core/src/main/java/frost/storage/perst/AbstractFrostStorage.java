@@ -18,13 +18,18 @@
 */
 package frost.storage.perst;
 
-import java.io.*;
-import java.text.*;
-import java.util.logging.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.text.NumberFormat;
+import java.util.logging.Logger;
 
-import org.garret.perst.*;
+import org.garret.perst.Storage;
+import org.garret.perst.StorageFactory;
 
-import frost.*;
+import frost.Core;
+import frost.SettingsClass;
 
 public abstract class AbstractFrostStorage {
 

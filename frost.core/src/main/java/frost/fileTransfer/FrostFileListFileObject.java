@@ -18,16 +18,21 @@
 */
 package frost.fileTransfer;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.garret.perst.*;
-import org.joda.time.*;
+import org.garret.perst.IPersistentList;
+import org.garret.perst.Persistent;
+import org.joda.time.DateTime;
 
-import frost.fileTransfer.download.*;
-import frost.identities.*;
-import frost.storage.perst.filelist.*;
-import frost.util.*;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.identities.Identity;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.util.DateFun;
 
 public class FrostFileListFileObject extends Persistent {
 

@@ -18,9 +18,12 @@
 */
 package frost.fileTransfer.search;
 
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-import frost.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
 
 public class SearchManager implements PropertyChangeListener {
 

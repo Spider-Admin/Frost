@@ -18,8 +18,9 @@
 */
 package frost.util.gui.search;
 
-import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.JComponent;
+import javax.swing.JTable;
+import javax.swing.text.Position;
 
 //@author Santhosh Kumar T - santhosh@in.fiorano.com 
 @SuppressWarnings("serial")

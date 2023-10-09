@@ -18,8 +18,11 @@
 */
 package frost.util.gui.translation;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.MissingResourceException;
 
 /**
  * Because the Java PropertyResourceBundle does still not support

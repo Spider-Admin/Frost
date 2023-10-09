@@ -18,10 +18,12 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
-import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.JTextArea;
+import javax.swing.text.Document;
 
 /**
  * @author Administrator

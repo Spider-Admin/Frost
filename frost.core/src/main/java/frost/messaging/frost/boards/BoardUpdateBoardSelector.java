@@ -18,10 +18,13 @@
 */
 package frost.messaging.frost.boards;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import frost.*;
-import frost.messaging.frost.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.messaging.frost.UnsentMessagesManager;
 
 /**
  * Selects the next board eligible for updating.

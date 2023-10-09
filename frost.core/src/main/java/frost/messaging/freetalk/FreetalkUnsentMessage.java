@@ -18,10 +18,10 @@
 */
 package frost.messaging.freetalk;
 
-import java.util.*;
+import java.util.List;
 
-import frost.messaging.freetalk.boards.*;
-import frost.messaging.freetalk.identities.*;
+import frost.messaging.freetalk.boards.FreetalkBoard;
+import frost.messaging.freetalk.identities.FreetalkOwnIdentity;
 
 /**
  * Holds fields of an unsent Freetalk message.

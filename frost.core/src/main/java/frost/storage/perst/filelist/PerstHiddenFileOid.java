@@ -18,7 +18,7 @@
 */
 package frost.storage.perst.filelist;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
 /**
  * Holds the perst oid for of a hidden filelist file.

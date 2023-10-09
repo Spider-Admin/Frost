@@ -18,12 +18,17 @@
 */
 package frost.identities;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import frost.*;
+import frost.Core;
+import frost.SettingsClass;
 import frost.storage.StorageException;
 import frost.storage.perst.identities.IdentitiesStorage;
 import frost.util.Mixed;

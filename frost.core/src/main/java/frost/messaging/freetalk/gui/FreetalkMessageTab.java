@@ -18,23 +18,47 @@
 */
 package frost.messaging.freetalk.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.logging.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JToolBar;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreeNode;
 
-import frost.*;
-import frost.fcp.fcp07.freetalk.*;
-import frost.gui.*;
-import frost.messaging.freetalk.*;
-import frost.messaging.freetalk.boards.*;
-import frost.messaging.freetalk.transfer.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.fcp.fcp07.freetalk.FcpFreetalkConnection;
+import frost.gui.NewBoardDialog;
+import frost.messaging.freetalk.FreetalkManager;
+import frost.messaging.freetalk.FreetalkMessage;
+import frost.messaging.freetalk.FreetalkUnsentMessage;
+import frost.messaging.freetalk.boards.AbstractFreetalkNode;
+import frost.messaging.freetalk.boards.FreetalkBoard;
+import frost.messaging.freetalk.boards.FreetalkBoardTree;
+import frost.messaging.freetalk.boards.FreetalkBoardTreeModel;
+import frost.messaging.freetalk.boards.FreetalkFolder;
+import frost.messaging.freetalk.transfer.CreateBoardCallback;
+import frost.messaging.freetalk.transfer.ListMessagesCallback;
+import frost.messaging.freetalk.transfer.ListOwnIdentitiesCallback;
+import frost.messaging.freetalk.transfer.ListSubscribedBoardsCallback;
+import frost.messaging.freetalk.transfer.PutMessageCallback;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageTab implements LanguageListener {
 

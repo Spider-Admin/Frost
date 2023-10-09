@@ -19,7 +19,8 @@
 
 package frost.messaging.frost.boards;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Vector;
 
 /**
  * This class implements most methods needed by the BoardUpdateThread interface.

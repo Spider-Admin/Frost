@@ -18,7 +18,7 @@
 */
 package frost.fileTransfer.filerequest;
 
-import java.util.*;
+import java.util.List;
 
 public class FileRequestFileContent {
 

@@ -18,12 +18,16 @@
 */
 package frost.messaging.frost;
 
-import java.io.*;
+import java.io.File;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
 
-import frost.util.*;
+import frost.util.CopyToClipboardItem;
+import frost.util.XMLTools;
 
 @SuppressWarnings("serial")
 public class FileAttachment extends Attachment implements CopyToClipboardItem {

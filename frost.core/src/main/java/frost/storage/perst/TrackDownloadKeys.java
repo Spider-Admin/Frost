@@ -18,7 +18,7 @@
  */
 package frost.storage.perst;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
 /**
  * Represents the item for the TrackDownloadKey.

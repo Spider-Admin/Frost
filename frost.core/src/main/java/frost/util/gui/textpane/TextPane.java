@@ -18,9 +18,9 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.image.*;
+import java.awt.image.ImageObserver;
 
-import javax.swing.*;
+import javax.swing.JTextPane;
 
 @SuppressWarnings("serial")
 public class TextPane extends JTextPane implements ImageObserver {

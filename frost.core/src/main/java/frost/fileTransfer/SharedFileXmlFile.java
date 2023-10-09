@@ -18,12 +18,17 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.fileTransfer;
 
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
 
-import frost.util.*;
+import frost.util.XMLTools;
+import frost.util.XMLizable;
 
 @SuppressWarnings("serial")
 public class SharedFileXmlFile implements XMLizable {

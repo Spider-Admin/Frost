@@ -5,9 +5,13 @@
  */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.UIManager;
 
 @SuppressWarnings("serial")
 public class ScrollButton extends JButton {

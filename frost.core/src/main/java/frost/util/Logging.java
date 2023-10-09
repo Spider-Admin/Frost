@@ -18,11 +18,17 @@
 */
 package frost.util;
 
-import java.beans.*;
-import java.io.*;
-import java.util.logging.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
-import frost.*;
+import frost.SettingsClass;
 
 public class Logging {
 

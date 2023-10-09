@@ -18,7 +18,7 @@
 */
 package frost.util;
 
-import java.text.*;
+import java.text.NumberFormat;
 
 /**
  * Partially derived from freenetproject.

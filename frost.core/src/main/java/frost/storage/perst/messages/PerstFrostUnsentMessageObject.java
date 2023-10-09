@@ -18,13 +18,18 @@
 */
 package frost.storage.perst.messages;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Iterator;
 
-import org.garret.perst.*;
+import org.garret.perst.Link;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
-import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
+import frost.messaging.frost.AttachmentList;
+import frost.messaging.frost.BoardAttachment;
+import frost.messaging.frost.FileAttachment;
+import frost.messaging.frost.FrostUnsentMessageObject;
+import frost.messaging.frost.boards.Board;
 
 public class PerstFrostUnsentMessageObject extends Persistent {
 

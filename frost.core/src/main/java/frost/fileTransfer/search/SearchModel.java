@@ -19,11 +19,15 @@
 package frost.fileTransfer.search;
 
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.util.model.*;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.download.DownloadModel;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.util.model.SortedModel;
+import frost.util.model.SortedTableFormat;
 
 public class SearchModel extends SortedModel<FrostSearchItem> {
 

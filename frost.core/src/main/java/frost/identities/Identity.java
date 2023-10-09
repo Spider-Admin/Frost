@@ -18,16 +18,22 @@
 */
 package frost.identities;
 
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.garret.perst.Persistent;
-import org.w3c.dom.*;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import frost.Core;
 import frost.messaging.frost.BoardAttachment;
 import frost.storage.perst.identities.IdentitiesStorage;
-import frost.util.*;
+import frost.util.Mixed;
+import frost.util.XMLTools;
+import frost.util.XMLizable;
 
 /**
  * Represents a user identity, should be immutable.

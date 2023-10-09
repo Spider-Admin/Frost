@@ -18,16 +18,23 @@
 */
 package frost.messaging.freetalk;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 
-import org.joda.time.*;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.TimeOfDay;
 
-import frost.*;
-import frost.messaging.freetalk.boards.*;
-import frost.messaging.freetalk.gui.messagetreetable.*;
-import frost.util.*;
+import frost.MainFrame;
+import frost.messaging.freetalk.boards.FreetalkBoard;
+import frost.messaging.freetalk.gui.messagetreetable.FreetalkMessageTreeTableSortStateBean;
+import frost.util.DateFun;
 
 /**
  * A Freetalk message.

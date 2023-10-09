@@ -18,14 +18,20 @@
 */
 package frost.util.model;
 
-import java.awt.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.awt.Font;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /**
  * This subclass of AbstractTableModel is passed an OrderedModel and a

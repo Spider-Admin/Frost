@@ -18,8 +18,8 @@
 */
 package frost.messaging.frost.gui.unsentmessages;
 
-import frost.messaging.frost.*;
-import frost.util.model.*;
+import frost.messaging.frost.FrostUnsentMessageObject;
+import frost.util.model.ModelItem;
 
 public class UnsentMessagesTableItem extends ModelItem<UnsentMessagesTableItem> {
 

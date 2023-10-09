@@ -19,11 +19,11 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.event.*;
-import java.net.*;
+import java.awt.event.MouseEvent;
+import java.net.URL;
 
-import javax.swing.event.*;
-import javax.swing.text.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.text.Element;
 
 /**
  * Own hyperlink event containing the mouse position.

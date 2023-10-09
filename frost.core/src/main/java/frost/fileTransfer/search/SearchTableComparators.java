@@ -18,7 +18,7 @@
 */
 package frost.fileTransfer.search;
 
-import java.util.*;
+import java.util.Comparator;
 
 public class SearchTableComparators {
 

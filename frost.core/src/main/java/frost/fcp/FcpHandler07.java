@@ -18,16 +18,24 @@
 */
 package frost.fcp;
 
-import java.io.*;
-import java.net.*;
-import java.util.logging.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fcp.fcp07.*;
-import frost.fcp.fcp07.messagetransfer.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fcp.fcp07.FcpConnection;
+import frost.fcp.fcp07.FcpFactory;
+import frost.fcp.fcp07.FcpInsert;
+import frost.fcp.fcp07.FcpRequest;
+import frost.fcp.fcp07.FcpSocket;
+import frost.fcp.fcp07.messagetransfer.MessageTransferHandler;
+import frost.fcp.fcp07.messagetransfer.MessageTransferTask;
 import frost.fileTransfer.FreenetPriority;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.upload.*;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.fileTransfer.upload.FrostUploadItem;
 import frost.util.Logging;
 
 public class FcpHandler07 extends FcpHandler {

@@ -18,12 +18,16 @@
 */
 package frost.util.gui.translation;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.event.*;
+import javax.swing.event.EventListenerList;
 
 /**
  * @pattern Singleton

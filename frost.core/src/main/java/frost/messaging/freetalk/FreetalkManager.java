@@ -18,12 +18,17 @@
 */
 package frost.messaging.freetalk;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
-import frost.*;
-import frost.fcp.*;
-import frost.fcp.fcp07.freetalk.*;
-import frost.messaging.freetalk.identities.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fcp.FcpHandler;
+import frost.fcp.NodeAddress;
+import frost.fcp.fcp07.freetalk.FcpFreetalkConnection;
+import frost.messaging.freetalk.identities.FreetalkOwnIdentity;
 
 public class FreetalkManager {
 

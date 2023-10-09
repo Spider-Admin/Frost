@@ -18,9 +18,9 @@
 */
 package frost.util.gui.tristatecheckbox;
 
-import java.awt.event.*;
+import java.awt.event.ItemEvent;
 
-import javax.swing.JToggleButton.*;
+import javax.swing.JToggleButton.ToggleButtonModel;
 
 /**
  * Derived from  The Java Specialists' Newsletter Issue 145 (2007-05-25)

@@ -18,16 +18,29 @@
 */
 package frost.messaging.frost.gui.unsentmessages;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
-import frost.*;
-import frost.messaging.frost.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.messaging.frost.FrostMessageObject;
+import frost.messaging.frost.FrostUnsentMessageObject;
 import frost.messaging.frost.gui.MessageWindow;
 import frost.util.gui.JSkinnablePopupMenu;
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")

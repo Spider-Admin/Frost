@@ -18,17 +18,23 @@
 */
 package frost.messaging.frost.threads;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
-import frost.*;
-import frost.fcp.*;
-import frost.fileTransfer.upload.*;
-import frost.messaging.frost.*;
-import frost.util.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.fcp.FcpHandler;
+import frost.fcp.FcpResultPut;
+import frost.fileTransfer.upload.FrostUploadItem;
+import frost.messaging.frost.FileAttachment;
+import frost.messaging.frost.FrostUnsentMessageObject;
+import frost.messaging.frost.UnsentMessagesManager;
+import frost.util.Mixed;
+import frost.util.gui.translation.Language;
 
 /**
  * Uploads file attachments from unsend messages and updates db table after successful uploads.

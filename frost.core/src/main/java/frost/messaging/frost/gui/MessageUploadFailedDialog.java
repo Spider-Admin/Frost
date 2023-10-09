@@ -20,16 +20,27 @@
 
 package frost.messaging.frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Timer;
+import java.util.TimerTask;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 
-import frost.messaging.frost.*;
-import frost.util.gui.translation.*;
+import frost.messaging.frost.Attachment;
+import frost.messaging.frost.MessageXmlFile;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class MessageUploadFailedDialog extends JDialog {

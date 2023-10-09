@@ -18,7 +18,7 @@
 */
 package frost.fileTransfer.filelist;
 
-import java.util.*;
+import java.util.List;
 
 public class FilePointerFileContent {
 

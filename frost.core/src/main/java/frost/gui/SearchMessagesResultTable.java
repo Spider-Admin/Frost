@@ -18,16 +18,27 @@
 */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import frost.*;
-import frost.fileTransfer.common.*;
-import frost.gui.model.*;
-import frost.messaging.frost.*;
-import frost.util.gui.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.common.TableBackgroundColors;
+import frost.gui.model.SearchMessagesTableModel;
+import frost.messaging.frost.FrostSearchResultMessageObject;
+import frost.util.gui.IconTableHeaderRenderer;
+import frost.util.gui.MiscToolkit;
 
 @SuppressWarnings("serial")
 public class SearchMessagesResultTable extends SortedTable<FrostSearchResultMessageObject> {

@@ -18,13 +18,16 @@
 */
 package frost.messaging.frost.gui;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
 
-import frost.messaging.frost.*;
-import frost.messaging.frost.boards.*;
-import frost.util.gui.translation.*;
+import frost.messaging.frost.BoardAttachment;
+import frost.messaging.frost.boards.Board;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class AttachedBoardTableModel extends DefaultTableModel implements LanguageListener

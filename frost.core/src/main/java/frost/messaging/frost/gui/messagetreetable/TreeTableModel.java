@@ -37,7 +37,7 @@
  */
 
 package frost.messaging.frost.gui.messagetreetable;
-import javax.swing.tree.*;
+import javax.swing.tree.TreeModel;
 
 /**
  * TreeTableModel is the model used by a JTreeTable. It extends TreeModel

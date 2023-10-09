@@ -18,8 +18,12 @@
 */
 package frost.messaging.frost;
 
-import frost.*;
-import frost.messaging.frost.boards.*;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.messaging.frost.boards.Folder;
+import frost.messaging.frost.boards.TOF;
+import frost.messaging.frost.boards.TofTree;
+import frost.messaging.frost.boards.TofTreeModel;
 
 
 /**

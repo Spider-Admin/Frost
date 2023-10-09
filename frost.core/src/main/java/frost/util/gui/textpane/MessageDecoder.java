@@ -19,11 +19,21 @@
 package frost.util.gui.textpane;
 
 import java.awt.Color;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.text.*;
+import javax.swing.Icon;
+import javax.swing.JEditorPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledEditorKit;
 
 import frost.fcp.FreenetKeys;
 import frost.util.gui.SmileyCache;

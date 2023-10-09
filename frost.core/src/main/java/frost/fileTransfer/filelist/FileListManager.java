@@ -18,14 +18,23 @@
 */
 package frost.fileTransfer.filelist;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fileTransfer.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.SharedFileXmlFile;
 import frost.fileTransfer.download.FrostDownloadItem;
 import frost.fileTransfer.sharing.FrostSharedFileItem;
-import frost.identities.*;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
 import frost.storage.perst.filelist.FileListStorage;
 import frost.storage.perst.identities.IdentitiesStorage;
 

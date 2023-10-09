@@ -18,13 +18,19 @@
 */
 package frost.fileTransfer.filerequest;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.sharing.*;
-import frost.storage.perst.filelist.*;
+import frost.fileTransfer.FileSharingManager;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.fileTransfer.SharedFilesCHKKeyManager;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.storage.perst.filelist.FileListStorage;
 
 /**
  * Collects the files to request from other users.

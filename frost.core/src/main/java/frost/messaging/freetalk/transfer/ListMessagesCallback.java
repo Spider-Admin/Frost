@@ -18,15 +18,21 @@
 */
 package frost.messaging.freetalk.transfer;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.*;
-import frost.fcp.fcp07.*;
-import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
-import frost.messaging.freetalk.*;
-import frost.messaging.freetalk.boards.*;
+import frost.MainFrame;
+import frost.fcp.fcp07.NodeMessage;
+import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.FreetalkNodeMessageCallback;
+import frost.messaging.freetalk.FreetalkFileAttachment;
+import frost.messaging.freetalk.FreetalkManager;
+import frost.messaging.freetalk.FreetalkMessage;
+import frost.messaging.freetalk.boards.FreetalkBoard;
 
 public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 

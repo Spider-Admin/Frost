@@ -18,7 +18,9 @@
 */
 package frost.storage.perst.messages;
 
-import org.garret.perst.*;
+import org.garret.perst.IPersistentList;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
 public class PerstIdentitiesMessages extends Persistent {
     private String uniqueName;

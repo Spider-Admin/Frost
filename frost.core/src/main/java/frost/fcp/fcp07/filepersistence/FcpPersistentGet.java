@@ -18,7 +18,7 @@
 */
 package frost.fcp.fcp07.filepersistence;
 
-import frost.fcp.fcp07.*;
+import frost.fcp.fcp07.NodeMessage;
 
 public class FcpPersistentGet extends FcpPersistentRequest {
 

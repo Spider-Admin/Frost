@@ -38,12 +38,16 @@
 
 package frost.messaging.freetalk.gui.messagetreetable;
 
-import javax.swing.table.*;
-import javax.swing.tree.*;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 
-import frost.*;
-import frost.messaging.freetalk.*;
-import frost.util.gui.translation.*;
+import frost.MainFrame;
+import frost.messaging.freetalk.FreetalkMessage;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 /**
  * An implementation of TreeTableModel that uses reflection to answer

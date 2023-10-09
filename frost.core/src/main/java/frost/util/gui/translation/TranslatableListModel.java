@@ -18,7 +18,7 @@
 */
 package frost.util.gui.translation;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
 
 /**
  * A translatable list model contains keys to a Language. It shows the localized values on screen.

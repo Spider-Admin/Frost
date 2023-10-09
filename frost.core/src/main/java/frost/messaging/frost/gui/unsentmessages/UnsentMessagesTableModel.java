@@ -18,10 +18,13 @@
 */
 package frost.messaging.frost.gui.unsentmessages;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 
-import frost.messaging.frost.*;
-import frost.util.model.*;
+import frost.messaging.frost.FrostUnsentMessageObject;
+import frost.messaging.frost.UnsentMessagesManager;
+import frost.util.model.SortedModel;
+import frost.util.model.SortedTableFormat;
 
 public class UnsentMessagesTableModel extends SortedModel<UnsentMessagesTableItem> {
 

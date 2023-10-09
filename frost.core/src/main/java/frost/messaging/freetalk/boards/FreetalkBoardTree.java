@@ -18,24 +18,50 @@
 */
 package frost.messaging.freetalk.boards;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.beans.*;
-import java.util.*;
-import java.util.logging.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Enumeration;
+import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JTree;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
-import frost.*;
-import frost.messaging.frost.gui.*;
-import frost.messaging.frost.threads.*;
-import frost.storage.*;
-import frost.util.gui.*;
-import frost.util.gui.search.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.messaging.frost.gui.MessagePanel;
+import frost.messaging.frost.threads.RunningBoardUpdateThreads;
+import frost.storage.AutoSavable;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
+import frost.util.gui.JDragTree;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.search.TreeFindAction;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSavable, PropertyChangeListener {

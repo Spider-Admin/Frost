@@ -18,13 +18,19 @@
 */
 package frost.storage.perst;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.garret.perst.*;
+import org.garret.perst.Key;
 
-import frost.*;
-import frost.storage.*;
-import frost.util.*;
+import frost.SettingsClass;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
+import frost.util.Mixed;
 
 public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements ExitSavable {
 

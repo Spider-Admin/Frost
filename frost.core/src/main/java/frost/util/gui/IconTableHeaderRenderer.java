@@ -18,10 +18,14 @@
 */
 package frost.util.gui;
 
-import java.awt.*;
+import java.awt.Component;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * Renderer to use an icon in table header.

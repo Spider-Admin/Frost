@@ -18,14 +18,21 @@
 */
 package frost.messaging.frost.gui.messagetreetable;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Enumeration;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
-import frost.util.gui.*;
+import frost.util.gui.MiscToolkit;
 
 @SuppressWarnings("serial")
 public class MessageTreeTableHeader extends JTableHeader {

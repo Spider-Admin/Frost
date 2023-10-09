@@ -18,15 +18,20 @@
 */
 package frost.messaging.frost.boards;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
 
-import frost.*;
-import frost.storage.perst.messages.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.storage.perst.messages.PerstFrostBoardObject;
+import frost.util.Mixed;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
 
 /**
  * Represents a board in the board tree.

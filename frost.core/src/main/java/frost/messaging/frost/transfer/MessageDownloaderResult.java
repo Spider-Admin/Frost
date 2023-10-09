@@ -18,8 +18,8 @@
 */
 package frost.messaging.frost.transfer;
 
-import frost.identities.*;
-import frost.messaging.frost.*;
+import frost.identities.Identity;
+import frost.messaging.frost.MessageXmlFile;
 
 /**
  * Contains the result after processing a downloaded message.

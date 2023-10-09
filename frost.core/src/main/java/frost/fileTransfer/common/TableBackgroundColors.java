@@ -18,9 +18,9 @@
 */
 package frost.fileTransfer.common;
 
-import java.awt.*;
+import java.awt.Color;
 
-import javax.swing.*;
+import javax.swing.JTable;
 
 public class TableBackgroundColors {
 

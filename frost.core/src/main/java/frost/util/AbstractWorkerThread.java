@@ -1,8 +1,9 @@
 package frost.util;
 
-import java.util.*;
+import java.util.EventListener;
+import java.util.EventObject;
 
-import javax.swing.event.*;
+import javax.swing.event.EventListenerList;
 
 public abstract class AbstractWorkerThread  extends Thread {
 

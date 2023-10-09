@@ -18,9 +18,12 @@
 */
 package frost.fileTransfer.search;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import frost.util.*;
+import frost.util.TextSearchFun;
 
 public class SearchParameters {
 

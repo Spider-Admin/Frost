@@ -18,9 +18,11 @@
 */
 package frost.storage.perst.filelist;
 
-import org.garret.perst.*;
+import org.garret.perst.IPersistentList;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
-import frost.fileTransfer.*;
+import frost.fileTransfer.FrostFileListFileObjectOwner;
 
 public class PerstIdentitiesFiles extends Persistent {
 

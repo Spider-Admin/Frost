@@ -18,12 +18,18 @@
  */
 package frost.gui;
 
-import java.awt.*;
-import java.text.*;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.text.NumberFormat;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class StatisticsDialog extends JDialog {

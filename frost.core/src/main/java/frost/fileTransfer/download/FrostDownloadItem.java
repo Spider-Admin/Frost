@@ -17,12 +17,17 @@
 */
 package frost.fileTransfer.download;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.storage.perst.filelist.*;
-import frost.util.*;
-import frost.util.model.*;
-import frost.messaging.frost.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.FreenetPriority;
+import frost.fileTransfer.FrostFileListFileObject;
+import frost.messaging.frost.FrostMessageObject;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.util.CopyToClipboardItem;
+import frost.util.FileAccess;
+import frost.util.Mixed;
+import frost.util.model.ModelItem;
 
 public class FrostDownloadItem extends ModelItem<FrostDownloadItem> implements CopyToClipboardItem {
 

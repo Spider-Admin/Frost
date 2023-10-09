@@ -22,8 +22,12 @@ import java.io.File;
 import java.util.List;
 import java.util.logging.Logger;
 
-import frost.*;
-import frost.storage.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.storage.AutoSavable;
+import frost.storage.ExitSavable;
+import frost.storage.LocalIdentitiesXmlDAO;
+import frost.storage.StorageException;
 
 /**
  * Automatically backups the LocalIdentities to an XML file located in the localdata directory.

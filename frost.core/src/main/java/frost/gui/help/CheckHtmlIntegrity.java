@@ -18,10 +18,16 @@
 */
 package frost.gui.help;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.logging.*;
-import java.util.zip.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Checks all HTML files in help.zip for 'http://', 'ftp://' links.

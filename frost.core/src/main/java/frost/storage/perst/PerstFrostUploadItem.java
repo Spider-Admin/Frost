@@ -18,19 +18,22 @@
 */
 package frost.storage.perst;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.List;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
-import frost.*;
-import frost.fileTransfer.sharing.*;
-import frost.fileTransfer.upload.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.fileTransfer.upload.FreenetCompatibilityMode;
+import frost.fileTransfer.upload.FrostUploadItem;
+import frost.util.gui.StartupMessage;
+import frost.util.gui.translation.Language;
 
 public class PerstFrostUploadItem extends Persistent {
 

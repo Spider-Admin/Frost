@@ -18,10 +18,14 @@
 */
 package frost.messaging.frost.gui.sentmessages;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import frost.messaging.frost.*;
-import frost.util.model.*;
+import frost.messaging.frost.FrostMessageObject;
+import frost.messaging.frost.SentMessagesManager;
+import frost.util.model.SortedModel;
+import frost.util.model.SortedTableFormat;
 
 public class SentMessagesTableModel extends SortedModel<SentMessagesTableItem> {
 

@@ -18,13 +18,18 @@
 */
 package frost.fileTransfer;
 
-import frost.*;
+import frost.Core;
+import frost.MainFrame;
 import frost.fileTransfer.download.DownloadManager;
 import frost.fileTransfer.search.SearchManager;
-import frost.fileTransfer.sharing.*;
-import frost.fileTransfer.upload.*;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.fileTransfer.sharing.SharedFilesManager;
+import frost.fileTransfer.upload.FrostUploadItem;
+import frost.fileTransfer.upload.UploadManager;
 import frost.identities.LocalIdentity;
-import frost.storage.*;
+import frost.storage.AutoSavable;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
 
 /**
  *

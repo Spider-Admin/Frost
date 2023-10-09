@@ -18,9 +18,15 @@
 */
 package frost.util.gui.translation;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TranslateableFrostResourceBundle extends FrostResourceBundle {
 

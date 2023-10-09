@@ -18,18 +18,22 @@
 */
 package frost.fileTransfer.upload;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.fileTransfer.sharing.*;
-import frost.storage.*;
-import frost.storage.perst.*;
-import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.MainFrame;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.sharing.FrostSharedFileItem;
+import frost.storage.ExitSavable;
+import frost.storage.StorageException;
+import frost.storage.perst.FrostFilesStorage;
+import frost.util.gui.translation.Language;
+import frost.util.model.SortedModel;
+import frost.util.model.SortedTableFormat;
 
 /**
  * This is the model that stores all FrostUploadItems.

@@ -18,10 +18,13 @@
 */
 package frost.util;
 
-import java.awt.*;
-import java.awt.datatransfer.*;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
 
 public class CopyToClipboard {
 

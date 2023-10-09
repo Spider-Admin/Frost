@@ -18,7 +18,7 @@
 */
 package frost.fcp.fcp07;
 
-import java.util.*;
+import java.util.EventListener;
 
 public interface NodeMessageListener extends EventListener {
 

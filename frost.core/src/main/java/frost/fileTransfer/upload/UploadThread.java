@@ -18,10 +18,12 @@
 */
 package frost.fileTransfer.upload;
 
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fcp.*;
-import frost.fileTransfer.*;
+import frost.fcp.FcpHandler;
+import frost.fcp.FcpResultPut;
+import frost.fileTransfer.FileTransferManager;
 
 class UploadThread extends Thread {
 

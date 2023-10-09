@@ -18,9 +18,11 @@
 */
 package frost.fileTransfer.upload;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.util.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.PersistenceManager;
+import frost.util.Mixed;
 
 public class UploadTicker extends Thread {
 

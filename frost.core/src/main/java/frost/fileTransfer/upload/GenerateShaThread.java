@@ -20,10 +20,12 @@ package frost.fileTransfer.upload;
 
 import java.io.File;
 import java.util.LinkedList;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import frost.Core;
-import frost.fileTransfer.*;
+import frost.fileTransfer.FileTransferManager;
+import frost.fileTransfer.NewUploadFilesManager;
 import frost.fileTransfer.sharing.FrostSharedFileItem;
 import frost.storage.perst.NewUploadFile;
 import frost.util.Mixed;

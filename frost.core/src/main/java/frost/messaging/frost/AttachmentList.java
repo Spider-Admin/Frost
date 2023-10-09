@@ -18,13 +18,16 @@
 */
 package frost.messaging.frost;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.logging.Logger;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-import frost.util.*;
+import frost.util.XMLTools;
+import frost.util.XMLizable;
 
 @SuppressWarnings("serial")
 public class AttachmentList<T extends Attachment> extends LinkedList<T> implements XMLizable {

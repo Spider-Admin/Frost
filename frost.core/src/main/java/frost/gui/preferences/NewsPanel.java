@@ -18,16 +18,25 @@
 */
 package frost.gui.preferences;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import frost.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 class NewsPanel extends JPanel {

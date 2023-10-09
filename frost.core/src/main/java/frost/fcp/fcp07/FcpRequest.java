@@ -18,13 +18,17 @@
 */
 package frost.fcp.fcp07;
 
-import java.io.*;
-import java.net.*;
-import java.util.logging.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import frost.fcp.*;
-import frost.fileTransfer.download.*;
-import frost.util.*;
+import frost.fcp.DataNotFoundException;
+import frost.fcp.FcpResultGet;
+import frost.fcp.FcpToolsException;
+import frost.fileTransfer.download.FrostDownloadItem;
+import frost.util.FileAccess;
 import frost.util.Logging;
 
 /**

@@ -18,11 +18,14 @@
 */
 package frost.fcp.fcp07.filepersistence;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import frost.fcp.fcp07.*;
+import frost.fcp.fcp07.FcpMultiRequestConnectionFileTransferTools;
+import frost.fcp.fcp07.NodeMessage;
+import frost.fcp.fcp07.NodeMessageListener;
 import frost.fileTransfer.FreenetPriority;
-import frost.util.*;
+import frost.util.Logging;
 
 public class FcpPersistentQueue implements NodeMessageListener {
 

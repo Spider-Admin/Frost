@@ -18,9 +18,12 @@
 */
 package frost.storage.perst.messages;
 
-import org.garret.perst.*;
+import org.garret.perst.IPersistentList;
+import org.garret.perst.Index;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
-import frost.messaging.frost.boards.*;
+import frost.messaging.frost.boards.Board;
 
 /**
  * Relation between a board name and a unique number for this board.

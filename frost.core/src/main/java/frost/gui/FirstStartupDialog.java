@@ -19,11 +19,21 @@
 */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class FirstStartupDialog extends JDialog {

@@ -18,9 +18,9 @@
 */
 package frost.storage.perst;
 
-import java.io.*;
+import java.io.File;
 
-import org.garret.perst.*;
+import org.garret.perst.Persistent;
 
 /**
  * Holds the data for a new upload file until SHA is calculated.

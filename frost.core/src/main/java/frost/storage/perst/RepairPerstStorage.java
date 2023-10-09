@@ -18,7 +18,7 @@
 */
 package frost.storage.perst;
 
-import frost.storage.perst.identities.*;
+import frost.storage.perst.identities.IdentitiesStorage;
 
 public class RepairPerstStorage {
 

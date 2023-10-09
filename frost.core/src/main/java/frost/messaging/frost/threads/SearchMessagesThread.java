@@ -18,14 +18,19 @@
 */
 package frost.messaging.frost.threads;
 
-import java.util.*;
-import java.util.logging.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.joda.time.*;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
 
 import frost.MainFrame;
-import frost.gui.*;
-import frost.messaging.frost.*;
+import frost.gui.SearchMessagesConfig;
+import frost.gui.SearchMessagesDialog;
+import frost.messaging.frost.FrostMessageObject;
+import frost.messaging.frost.FrostSearchResultMessageObject;
 import frost.messaging.frost.boards.Board;
 import frost.storage.MessageCallback;
 import frost.storage.perst.messagearchive.ArchiveMessageStorage;

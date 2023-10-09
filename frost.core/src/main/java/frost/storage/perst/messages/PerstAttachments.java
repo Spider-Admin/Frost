@@ -18,11 +18,15 @@
 */
 package frost.storage.perst.messages;
 
-import java.util.*;
+import java.util.Iterator;
 
-import org.garret.perst.*;
+import org.garret.perst.IPersistentList;
+import org.garret.perst.Persistent;
+import org.garret.perst.Storage;
 
-import frost.messaging.frost.*;
+import frost.messaging.frost.AttachmentList;
+import frost.messaging.frost.BoardAttachment;
+import frost.messaging.frost.FileAttachment;
 
 public class PerstAttachments extends Persistent {
 

@@ -18,9 +18,9 @@
 */
 package frost.messaging.frost.gui.messagetreetable;
 
-import java.util.*;
+import java.util.Comparator;
 
-import frost.messaging.frost.*;
+import frost.messaging.frost.FrostMessageObject;
 
 public class MessageTreeTableSortStateBean {
 

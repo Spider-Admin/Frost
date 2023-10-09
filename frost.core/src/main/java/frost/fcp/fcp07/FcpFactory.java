@@ -18,12 +18,14 @@
 */
 package frost.fcp.fcp07;
 
-import java.io.*;
-import java.net.*;
-import java.util.logging.*;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.logging.Logger;
 
-import frost.fcp.*;
-import frost.util.*;
+import frost.fcp.NodeAddress;
+import frost.util.Mixed;
 
 public class FcpFactory {
     private static final Logger logger = Logger.getLogger(FcpFactory.class.getName());

@@ -18,20 +18,32 @@
 */
 package frost.fileTransfer.search;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
-import frost.*;
-import frost.fileTransfer.common.*;
-import frost.storage.perst.filelist.*;
-import frost.util.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
-import frost.util.model.*;
+import frost.Core;
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.fileTransfer.common.FileListFileDetailsDialog;
+import frost.storage.perst.filelist.FileListStorage;
+import frost.util.CopyToClipboard;
+import frost.util.gui.CloseableTabbedPane;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
+import frost.util.model.SortedModelTable;
 
 @SuppressWarnings("serial")
 public class SearchTable extends SortedModelTable<FrostSearchItem> {

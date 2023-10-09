@@ -18,11 +18,12 @@
 */
 package frost.util.gui;
 
-import java.util.*;
+import java.util.HashSet;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
 
 public class StartupMessage {
 

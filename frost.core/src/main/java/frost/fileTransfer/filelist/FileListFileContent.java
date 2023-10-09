@@ -18,10 +18,11 @@
 */
 package frost.fileTransfer.filelist;
 
-import java.util.*;
+import java.util.LinkedList;
 
-import frost.fileTransfer.*;
-import frost.identities.*;
+import frost.fileTransfer.SharedFileXmlFile;
+import frost.identities.Identity;
+import frost.identities.LocalIdentity;
 
 public class FileListFileContent {
 

@@ -18,9 +18,9 @@
 */
 package frost.messaging.freetalk.gui.messagetreetable;
 
-import java.util.*;
+import java.util.Comparator;
 
-import frost.messaging.freetalk.*;
+import frost.messaging.freetalk.FreetalkMessage;
 
 public class FreetalkMessageTreeTableSortStateBean {
 

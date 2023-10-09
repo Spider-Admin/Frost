@@ -19,14 +19,27 @@
 */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Toolkit;
 
-import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 
-import frost.messaging.frost.boards.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.messaging.frost.boards.AbstractNode;
+import frost.messaging.frost.boards.Folder;
+import frost.messaging.frost.boards.TofTreeModel;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.Language;
 
 /**
  * This class let the user choose a folder from the folders in tofTree.

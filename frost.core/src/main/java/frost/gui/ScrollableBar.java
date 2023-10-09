@@ -5,9 +5,11 @@
  */
 package frost.gui;
 
-import java.awt.*;
+import java.awt.Component;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 @SuppressWarnings("serial")
 public class ScrollableBar extends JComponent implements SwingConstants {

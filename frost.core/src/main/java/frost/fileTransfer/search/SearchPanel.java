@@ -18,17 +18,39 @@
 */
 package frost.fileTransfer.search;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
-import javax.swing.*;
-import javax.swing.Box.*;
+import javax.swing.Box;
+import javax.swing.Box.Filler;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
 
-import frost.*;
-import frost.util.gui.*;
-import frost.util.gui.search.*;
-import frost.util.gui.translation.*;
+import frost.Core;
+import frost.SettingsClass;
+import frost.util.gui.CloseableTabbedPane;
+import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.MiscToolkit;
+import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.search.TableFindAction;
+import frost.util.gui.translation.JTranslatableComboBox;
+import frost.util.gui.translation.Language;
+import frost.util.gui.translation.LanguageEvent;
+import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class SearchPanel extends JPanel implements LanguageListener {

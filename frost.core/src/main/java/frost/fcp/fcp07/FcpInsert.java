@@ -22,15 +22,17 @@
  */
 package frost.fcp.fcp07;
 
-import java.io.*;
-import java.net.*;
-import java.util.logging.*;
+import java.io.File;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
-import frost.*;
-import frost.fcp.*;
-import frost.fileTransfer.upload.*;
+import frost.MainFrame;
+import frost.fcp.FcpResultPut;
+import frost.fileTransfer.upload.FrostUploadItem;
 
 /**
  * This class provides methods to insert data into freenet.

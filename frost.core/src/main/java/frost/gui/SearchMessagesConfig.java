@@ -18,10 +18,11 @@
 */
 package frost.gui;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
-import frost.messaging.frost.boards.*;
-import frost.util.*;
+import frost.messaging.frost.boards.Board;
+import frost.util.TextSearchFun;
 
 /**
  * This class contains all configured search options.
