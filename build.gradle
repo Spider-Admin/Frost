@@ -20,7 +20,7 @@ application {
 
 dependencies {
 	implementation(files("lib/perst-jdk16-421.jar"))
-	implementation("org.bouncycastle:bcprov-jdk15:1.38")
+	implementation("org.bouncycastle:bcprov-jdk18on:1.76")
 	implementation("com.toedter:jcalendar:1.4")
 	implementation("joda-time:joda-time:1.3")
 }
