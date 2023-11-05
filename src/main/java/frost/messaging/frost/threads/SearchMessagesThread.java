@@ -20,11 +20,11 @@ package frost.messaging.frost.threads;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.gui.SearchMessagesConfig;
@@ -39,7 +39,7 @@ import frost.util.TextSearchFun;
 
 public class SearchMessagesThread extends Thread implements MessageCallback {
 
-    private static final Logger logger = Logger.getLogger(SearchMessagesThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SearchMessagesThread.class);
 
     SearchMessagesDialog searchDialog; // used to add found messages
     SearchMessagesConfig searchConfig;
@@ -86,7 +86,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
                 }
             }
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Catched exception:", t);
+            logger.error("Catched exception:", t);
         }
         searchDialog.notifySearchThreadFinished();
     }
@@ -101,8 +101,8 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
 
     // Format: boards\2006.3.1\2006.3.1-boards-0.xml
     private void searchBoard(final Board board, final DateRange dr) {
-//System.out.println("startDate="+dr.startDate);
-//System.out.println("endDate="+dr.endDate);
+        logger.debug("startDate = {}", dr.startDate);
+        logger.debug("endDate = {}", dr.endDate);
         if( searchConfig.searchInKeypool ) {
             try {
                 // if we search displayed messages, we must search all new and flagged/starred too
@@ -117,7 +117,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
                         false, // showDeleted
                         this);
             } catch(final Throwable e) {
-                logger.log(Level.SEVERE, "Catched exception during getMessageTable().retrieveMessagesForSearch:", e);
+                logger.error("Catched exception during getMessageTable().retrieveMessagesForSearch:", e);
             }
         }
         if( searchConfig.searchInArchive ) {
@@ -128,7 +128,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
                         dr.endDate,
                         this);
             } catch(final Throwable e) {
-                logger.log(Level.SEVERE, "Catched exception during getMessageArchiveTable().retrieveMessagesForSearch:", e);
+                logger.error("Catched exception during getMessageArchiveTable().retrieveMessagesForSearch:", e);
             }
         }
     }

@@ -20,11 +20,11 @@ package frost.storage.perst;
 
 import java.io.File;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
 import org.garret.perst.Persistent;
+import org.slf4j.Logger;
 
 import frost.Core;
 import frost.MainFrame;
@@ -93,7 +93,7 @@ public class PerstFrostUploadItem extends Persistent {
                     JOptionPane.ERROR_MESSAGE,
                     true);
             MainFrame.enqueueStartupMessage(sm);
-            logger.severe("Upload items file does not exist, removed from upload files: "+filePath);
+            logger.warn("Upload items file does not exist, removed from upload files: {}", filePath);
             return null;
         }
         if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_NOT_EXISTING_FILES) && file.length() != fileSize ) {
@@ -106,7 +106,7 @@ public class PerstFrostUploadItem extends Persistent {
                     JOptionPane.ERROR_MESSAGE,
                     true);
             MainFrame.enqueueStartupMessage(sm);
-            logger.severe("Upload items file size changed, removed from upload files: "+filePath);
+            logger.warn("Upload items file size changed, removed from upload files: {}", filePath);
             return null;
         }
 
@@ -119,11 +119,11 @@ public class PerstFrostUploadItem extends Persistent {
                 }
             }
             if( sharedFileItem == null ) {
-                logger.severe("Upload items shared file object does not exist, removed from upload files: "+filePath);
+                logger.warn("Upload items shared file object does not exist, removed from upload files: {}", filePath);
                 return null;
             }
             if( !sharedFileItem.isValid() ) {
-                logger.severe("Upload items shared file is invalid, removed from upload files: "+filePath);
+                logger.warn("Upload items shared file is invalid, removed from upload files: {}", filePath);
                 return null;
             }
         }

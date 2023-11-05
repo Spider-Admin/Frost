@@ -19,8 +19,9 @@
 package frost.fileTransfer.download;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fcp.FcpResultGet;
@@ -28,7 +29,7 @@ import frost.fileTransfer.FileTransferManager;
 
 public class DownloadThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(DownloadThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(DownloadThread.class);
 
     private final DownloadTicker ticker;
     private final String filename;
@@ -59,7 +60,7 @@ public class DownloadThread extends Thread {
 
         try {
             // otherwise, proceed as usual
-            logger.info("FILEDN: Download of '" + filename + "' started.");
+            logger.info("FILEDN: Download of '{}' started.", filename);
 
             // Download file
             FcpResultGet result = null;
@@ -75,7 +76,7 @@ public class DownloadThread extends Thread {
                             false,    // maxSize
                             downloadItem);
             } catch (final Throwable t) {
-                logger.log(Level.SEVERE, "Exception thrown in getFile()", t);
+                logger.error("Exception thrown in getFile()", t);
             }
 
             final boolean retryNow =
@@ -86,7 +87,7 @@ public class DownloadThread extends Thread {
             }
 
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
+            logger.error("Oo. EXCEPTION in requestThread.run", t);
         }
 
         ticker.threadFinished();

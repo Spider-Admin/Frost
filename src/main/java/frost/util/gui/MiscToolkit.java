@@ -49,8 +49,6 @@ import frost.util.gui.translation.Language;
  */
 public class MiscToolkit {
 
-//	private static final Logger logger = Logger.getLogger(MiscToolkit.class.getName());
-
 	/**
 	 * Prevent instances of this class from being created.
 	 */

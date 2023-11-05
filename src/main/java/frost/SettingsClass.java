@@ -36,17 +36,19 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.storage.ExitSavable;
 import frost.storage.StorageException;
-import frost.util.Logging;
 
 /**
  * Read settings from frost.ini and store them.
  */
 public class SettingsClass implements ExitSavable {
+
+	private static final Logger logger = LoggerFactory.getLogger(SettingsClass.class);
 
     private final File settingsFile;
     private final Hashtable<String,Object> settingsHash;
@@ -54,8 +56,6 @@ public class SettingsClass implements ExitSavable {
     private final String fs = System.getProperty("file.separator");
     private PropertyChangeSupport changeSupport = null;
     private Vector<SettingsUpdater> updaters = null;
-
-    private static final Logger logger = Logger.getLogger(SettingsClass.class.getName());
 
     public static final String DOS_STOP_BOARD_UPDATES_WHEN_DOSED = "dos.stopBoardUpdatesWhenDosed";
     public static final String DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD = "dos.invalidSubsequentMessagesThreshold";
@@ -133,14 +133,6 @@ public class SettingsClass implements ExitSavable {
     public static final String FILESHARING_IGNORE_CHECK_AND_BELOW = "filesharing.ignoreCheckAndBelow";
     public static final String REMEMBER_SHAREDFILE_DOWNLOADED = "rememberSharedFileDownloaded";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
-
-    public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
-    public static final String LOG_LEVEL = "logLevel";
-    public static final String LOG_TO_CONSOLE = "logToConsole"; // not in gui dialog!
-    public static final String LOG_TO_FILE = "logToFile";       // not in gui dialog!
-
-    public static final String LOG_FCP2_MESSAGES = "log.logFcp2MessagesToConsole";       // not in gui dialog!
-    public static final String LOG_FILEBASE_MESSAGES = "log.logFilebaseMessagesToConsole";       // not in gui dialog!
 
     public static final String BOARD_TREE_FONT_NAME = "boardTreeFontName";
     public static final String BOARD_TREE_FONT_SIZE = "boardTreeFontSize";
@@ -376,7 +368,7 @@ public class SettingsClass implements ExitSavable {
         try {
             settingsReader = new LineNumberReader(new FileReader(settingsFile));
         } catch (final Exception e) {
-            logger.warning(settingsFile.getName() + " does not exist, will create it");
+            logger.warn("{} does not exist, will create it", settingsFile.getName());
             return false;
         }
         try {
@@ -433,12 +425,12 @@ public class SettingsClass implements ExitSavable {
                 }
             }
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
+            logger.error("Exception thrown in readSettingsFile()", e);
         }
         try {
             settingsReader.close();
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
+            logger.error("Exception thrown in readSettingsFile()", e);
         }
 
         doCleanup();
@@ -504,7 +496,7 @@ public class SettingsClass implements ExitSavable {
         try {
             settingsWriter = new PrintWriter(new FileWriter(newFile));
         } catch (final IOException exception) {
-            logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile()", exception);
+            logger.error("Exception thrown in writeSettingsFile()", exception);
             return false;
         }
 
@@ -536,7 +528,7 @@ public class SettingsClass implements ExitSavable {
         try {
             settingsWriter.close();
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile", e);
+            logger.error("Exception thrown in writeSettingsFile", e);
             return false;
         }
 
@@ -1040,15 +1032,6 @@ public class SettingsClass implements ExitSavable {
         defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
         defaults.put(PREVENT_BOARDTREE_REORDERING, "false");
         defaults.put(SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, "true");
-
-        defaults.put(LOG_TO_CONSOLE, "false");
-
-        defaults.put(LOG_TO_FILE, "true");
-        defaults.put(LOG_LEVEL, Logging.DEFAULT);
-        defaults.put(LOG_FILE_SIZE_LIMIT, "1000");
-
-        defaults.put(LOG_FCP2_MESSAGES, "false");
-        defaults.put(LOG_FILEBASE_MESSAGES, "false");
 
         defaults.put(SILENTLY_RETRY_MESSAGES, "false");
         defaults.put(SHOW_DELETED_MESSAGES, "false");

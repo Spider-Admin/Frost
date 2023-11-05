@@ -18,9 +18,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.fileTransfer;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -36,7 +35,7 @@ public class SharedFileXmlFile implements XMLizable {
     public static final int MAX_COMMENT_LENGTH = 100;
     public static final int MAX_KEYWORDS_LENGTH = 100;
 
-    private static final Logger logger = Logger.getLogger(SharedFileXmlFile.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SharedFileXmlFile.class);
 
     private final static char[] invalidChars = {'/', '\\', '?', '*', '<', '>', '\"', ':', '|'};
 
@@ -248,7 +247,7 @@ public class SharedFileXmlFile implements XMLizable {
             result.loadXMLElement(e);
             return result;
         } catch(final SAXException ex) {
-            logger.log(Level.SEVERE, "parsing file failed.", ex);
+            logger.error("parsing file failed.", ex);
             return null;
         }
     }

@@ -29,7 +29,9 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -42,14 +44,13 @@ import frost.fcp.NodeAddress;
 import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.download.FrostDownloadItem;
 import frost.fileTransfer.upload.FrostUploadItem;
-import frost.util.Logging;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
  */
 public class FcpConnection {
 
-	private static final Logger logger = Logger.getLogger(FcpConnection.class.getName());
+	private static final Logger logger =  LoggerFactory.getLogger(FcpConnection.class);
 
     private final FcpSocket fcpSocket;
 
@@ -70,21 +71,14 @@ public class FcpConnection {
     }
 
     protected void sendMessage(final List<String> msg) {
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
-        if (doLogging) {
-            System.out.println("### SEND >>>>>>>>> (FcpConnection)");
-        }
+        logger.debug("### SEND >>>>>>>>> (FcpConnection)");
         for (final String msgLine : msg) {
-            if (doLogging) {
-                System.out.println(msgLine);
-            }
+            logger.debug("{}", msgLine);
             fcpSocket.getFcpOut().println(msgLine);
         }
         fcpSocket.getFcpOut().flush();
 
-        if (doLogging) {
-            System.out.println("### SEND <<<<<<<<< (FcpConnection)");
-        }
+        logger.debug("### SEND <<<<<<<<< (FcpConnection)");
     }
 
     /**
@@ -108,9 +102,9 @@ public class FcpConnection {
         keyString = stripSlashes(keyString);
 
         final FreenetKey key = new FreenetKey(keyString);
-		logger.fine("KeyString = " + keyString + "\n" +
-					"Key =       " + key + "\n" +
-					"KeyType =   " + key.getKeyType());
+		logger.debug("KeyString = {}", keyString);
+		logger.debug("Key =       {}", key);
+		logger.debug("KeyType =   {}", key.getKeyType());
 
         final boolean useDDA;
         if( type == FcpHandler.TYPE_MESSAGE ) {
@@ -191,15 +185,13 @@ public class FcpConnection {
                 break;
             }
 
-            if(Logging.inst().doLogFcp2Messages()) {
-                System.out.println("*GET** INFO - NodeMessage:");
-                System.out.println(nodeMsg.toString());
-            }
+            logger.debug("*GET** INFO - NodeMessage:");
+            logger.debug("{}", nodeMsg);
 
             final String endMarker = nodeMsg.getMessageEnd();
             if( endMarker == null ) {
                 // should never happen
-                System.out.println("*GET** ENDMARKER is NULL!");
+                logger.error("*GET** ENDMARKER is NULL!");
                 break;
             }
 
@@ -223,9 +215,7 @@ public class FcpConnection {
                     bytesWritten += count;
                 }
                 fileOut.close();
-                if(Logging.inst().doLogFcp2Messages()) {
-                    System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
-                }
+                logger.debug("*GET** Wrote {} of {} bytes to file.", bytesWritten, dataLength);
                 if( bytesWritten == dataLength ) {
                     isSuccess = true;
                     if( dlItem != null && dlItem.getRequiredBlocks() > 0 ) {
@@ -240,7 +230,7 @@ public class FcpConnection {
             if( useDDA && nodeMsg.isMessageName("DataFound") ) {
                 final long dataLength = nodeMsg.getLongValue("DataLength");
                 isSuccess = true;
-                System.out.println("*GET**: DataFound, len="+dataLength);
+                logger.debug("*GET**: DataFound, len = {}", dataLength);
                 if( dlItem != null && dlItem.getRequiredBlocks() > 0 ) {
                     dlItem.setFinalized(true);
                     dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
@@ -435,10 +425,8 @@ public class FcpConnection {
                 break;
             }
 
-            if(Logging.inst().doLogFcp2Messages()) {
-                System.out.println("*PUT** INFO - NodeMessage:");
-                System.out.println(nodeMsg.toString());
-            }
+            logger.debug("*PUT** INFO - NodeMessage:");
+            logger.debug("{}", nodeMsg);
 
             if( getChkOnly == true && nodeMsg.isMessageName("URIGenerated") ) {
                 isSuccess = true;
@@ -555,8 +543,8 @@ public class FcpConnection {
                 break;
             }
 
-            System.out.println("*GENERATESSK** INFO - NodeMessage:");
-            System.out.println(nodeMsg.toString());
+            logger.debug("*GENERATESSK** INFO - NodeMessage:");
+            logger.debug("{}", nodeMsg);
 
             if( nodeMsg.isMessageName("SSKKeypair") ) {
 
@@ -644,22 +632,22 @@ public class FcpConnection {
         final NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
 
         if (nodeMsg == null) {
-            logger.warning("No answer to GetPluginInfo command received");
+            logger.warn("No answer to GetPluginInfo command received");
             return false;
         }
 
         if (nodeMsg.isMessageName("ProtocolError")) {
-            logger.warning("ProtocolError received: "+nodeMsg.toString());
+            logger.error("ProtocolError received: {}", nodeMsg);
             return false;
         }
 
         if (nodeMsg.isMessageName("PluginInfo")) {
-            logger.warning("Freetalk plugin answered with PluginInfo: "+nodeMsg.toString());
+            logger.warn("Freetalk plugin answered with PluginInfo: {}", nodeMsg);
             if (nodeMsg.getBoolValue("IsTalkable")) {
                 return true;
             }
         } else {
-            logger.warning("Unknown answer to GetPluginInfo command: "+nodeMsg.toString());
+            logger.warn("Unknown answer to GetPluginInfo command: {}", nodeMsg);
         }
         return false;
     }

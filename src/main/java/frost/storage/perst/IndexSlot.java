@@ -21,10 +21,12 @@ package frost.storage.perst;
 import java.util.BitSet;
 
 import org.garret.perst.Persistent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IndexSlot extends Persistent {
 
-//    private static final Logger logger = Logger.getLogger(IndexSlot.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(IndexSlot.class);
 
     private int indexName;
     private long msgDate;
@@ -106,39 +108,39 @@ public class IndexSlot extends Persistent {
         }
     }
 
-//    public void onStore() {
-//        if( indexName < 0 ) return;
-//        String s = "";
-//        s += ">>>>>>>>>>STORE>>>\n";
-//        s += this;
-//        s += "<<<<<<<<<<STORE<<<\n";
-//        logger.warning(s);
-//    }
-//
-//    public void onLoad() {
-//        if( indexName < 0 ) return;
-//        String s = "";
-//        s += ">>>>>>>>>>LOAD>>>\n";
-//        s += this;
-//        s += "<<<<<<<<<<LOAD<<<\n";
-//        logger.warning(s);
-//    }
+	public void onStore() {
+		if (indexName < 0) {
+			return;
+		}
+		logger.debug(">>>>>>>>>>STORE>>>");
+		logger.debug("{}", this);
+		logger.debug("<<<<<<<<<<STORE<<<");
+	}
 
-    // testcase
-//    public static void main(String[] args) {
-//        IndexSlot gis = new IndexSlot(1, 123L);
-//        gis.setDownloadSlotUsed(1);
-//        gis.setDownloadSlotUsed(2);
-//        gis.setDownloadSlotUsed(4);
-//        gis.setUploadSlotUsed(3);
-//
-//        System.out.println(gis);
-//        System.out.println("findFirstDownloadSlot: "+gis.findFirstDownloadSlot());
-//        System.out.println("findNextDownloadSlot(0): "+gis.findNextDownloadSlot(0));
-//        System.out.println("findFirstUploadSlot: "+gis.findFirstUploadSlot());
-//        System.out.println("findNextUploadSlot: "+gis.findNextUploadSlot(5));
-//
-//        System.out.println("isDownloadIndexBehindLastSetIndex(3): "+gis.isDownloadIndexBehindLastSetIndex(3));
-//        System.out.println("isDownloadIndexBehindLastSetIndex(5): "+gis.isDownloadIndexBehindLastSetIndex(5));
-//    }
+	public void onLoad() {
+		if (indexName < 0) {
+			return;
+		}
+		logger.debug(">>>>>>>>>>LOAD>>>");
+		logger.debug("{}", this);
+		logger.debug("<<<<<<<<<<LOAD<<<");
+	}
+
+	// testcase
+	public static void main(String[] args) {
+		IndexSlot gis = new IndexSlot(1, 123L);
+		gis.setDownloadSlotUsed(1);
+		gis.setDownloadSlotUsed(2);
+		gis.setDownloadSlotUsed(4);
+		gis.setUploadSlotUsed(3);
+
+		logger.info("{}", gis);
+		logger.info("findFirstDownloadSlot: {}", gis.findFirstDownloadSlot());
+		logger.info("findNextDownloadSlot(0): {}", gis.findNextDownloadSlot(0));
+		logger.info("findFirstUploadSlot: {}", gis.findFirstUploadSlot());
+		logger.info("findNextUploadSlot: {}", gis.findNextUploadSlot(5));
+
+		logger.info("isDownloadIndexBehindLastSetIndex(3): {}", gis.isDownloadIndexBehindLastSetIndex(3));
+		logger.info("isDownloadIndexBehindLastSetIndex(5): {}", gis.isDownloadIndexBehindLastSetIndex(5));
+	}
 }

@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.SettingsClass;
 import frost.fcp.FcpHandler;
@@ -31,6 +34,8 @@ import frost.fcp.fcp07.freetalk.FcpFreetalkConnection;
 import frost.messaging.freetalk.identities.FreetalkOwnIdentity;
 
 public class FreetalkManager {
+
+	private static final Logger logger =  LoggerFactory.getLogger(FreetalkManager.class);
 
     private FcpFreetalkConnection fcpFreetalkConnection = null;
 
@@ -122,6 +127,6 @@ public class FreetalkManager {
             }
         }
 
-        System.out.println("~~~~~ OwnIdentity count = "+ownIdentityList.size());
+        logger.debug("~~~~~ OwnIdentity count = {}", ownIdentityList.size());
     }
 }

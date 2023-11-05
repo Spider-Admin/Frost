@@ -24,10 +24,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.garret.perst.IPersistentList;
 import org.garret.perst.Persistent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.SettingsClass;
 import frost.fileTransfer.download.FrostDownloadItem;
@@ -45,7 +46,7 @@ import frost.util.gui.translation.Language;
  */
 public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(FrostFilesStorage.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FrostFilesStorage.class);
 
     private static final String STORAGE_FILENAME = "filesStore.dbs";
 
@@ -101,7 +102,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
     public void exitSave() throws StorageException {
         close();
         storageRoot = null;
-        System.out.println("INFO: FrostFilesStorage closed.");
+        logger.info("FrostFilesStorage closed.");
     }
 
     // only used for migration
@@ -275,7 +276,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
             for( final NewUploadFile nuf : storageRoot.newUploadFiles ) {
                 final File f = new File(nuf.getFilePath());
                 if( !f.isFile() ) {
-                    logger.warning("File (" + nuf.getFilePath() + ") is missing. File removed.");
+                    logger.warn("File ({}) is missing. File removed.", nuf.getFilePath());
                     continue;
                 }
                 newUploadFiles.add(nuf);

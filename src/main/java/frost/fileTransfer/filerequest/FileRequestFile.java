@@ -21,9 +21,9 @@ package frost.fileTransfer.filerequest;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -46,7 +46,7 @@ import frost.util.XMLTools;
  */
 public class FileRequestFile {
 
-    private static final Logger logger = Logger.getLogger(FileRequestFile.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileRequestFile.class);
 
     private static final String TAG_FrostFileRequestFile = "FrostFileRequestFile";
     private static final String TAG_timestamp = "timestamp";
@@ -62,7 +62,7 @@ public class FileRequestFile {
 
         final Document doc = XMLTools.createDomDocument();
         if( doc == null ) {
-            logger.severe("Error - writeRequestFile: factory could'nt create XML Document.");
+            logger.error("writeRequestFile: factory could'nt create XML Document.");
             return false;
         }
 
@@ -90,7 +90,7 @@ public class FileRequestFile {
         try {
             writeOK = XMLTools.writeXmlFile(doc, targetFile);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in writeRequestFile/writeXmlFile", t);
+            logger.error("Exception in writeRequestFile/writeXmlFile", t);
         }
 
         return writeOK;
@@ -118,32 +118,32 @@ public class FileRequestFile {
         try {
             d = XMLTools.parseXmlFile(sourceFile.getPath());
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in readRequestFile, during XML parsing", t);
+            logger.error("Exception in readRequestFile, during XML parsing", t);
             return null;
         }
 
         if( d == null ) {
-            logger.log(Level.SEVERE, "Could'nt parse the request file");
+            logger.error("Could'nt parse the request file");
             return null;
         }
 
         final Element rootNode = d.getDocumentElement();
 
         if( rootNode.getTagName().equals(TAG_FrostFileRequestFile) == false ) {
-            logger.severe("Error: xml request file does not contain the root tag '"+TAG_FrostFileRequestFile+"'");
+            logger.error("xml request file does not contain the root tag '{}'", TAG_FrostFileRequestFile);
             return null;
         }
 
         final String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, TAG_timestamp);
         if( timeStampStr == null ) {
-            logger.severe("Error: xml file does not contain the tag '"+TAG_timestamp+"'");
+            logger.error("xml file does not contain the tag '{}'", TAG_timestamp);
             return null;
         }
         final long timestamp = Long.parseLong(timeStampStr);
 
         final List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_shaList);
         if( nodelist.size() != 1 ) {
-            logger.severe("Error: xml request files must contain only one element '"+TAG_shaList+"'");
+            logger.error("xml request files must contain only one element '{}'", TAG_shaList);
             return null;
         }
 

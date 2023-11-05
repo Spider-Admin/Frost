@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.garret.perst.GenericIndex;
 import org.garret.perst.Index;
@@ -31,6 +30,8 @@ import org.garret.perst.PersistentIterator;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -46,7 +47,7 @@ import frost.storage.perst.AbstractFrostStorage;
 
 public class MessageStorage extends AbstractFrostStorage implements ExitSavable {
 
-    private static transient final Logger logger = Logger.getLogger(MessageStorage.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MessageStorage.class);
 
     private static final String STORAGE_FILENAME = "messages.dbs";
 
@@ -113,7 +114,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     public void exitSave() {
         close();
         storageRoot = null;
-        System.out.println("INFO: MessagesStorage closed.");
+        logger.info("MessagesStorage closed.");
     }
 
     public void silentClose() {
@@ -165,7 +166,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
                 pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
                 if( pbo == null ) {
-                    logger.severe("board still not added!");
+                    logger.error("board still not added!");
                     return false;
                 }
             }
@@ -436,12 +437,12 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         // add to indices, check for duplicate msgId
         try {
             if( mo.getPerstFrostMessageObject() != null ) {
-                logger.severe("msgInsertError: perst obj already set");
+                logger.error("msgInsertError: perst obj already set");
                 return INSERT_ERROR; // skip msg
             }
             final Board targetBoard = mo.getBoard();
             if( targetBoard == null ) {
-                logger.severe("msgInsertError: no board in msg");
+                logger.error("msgInsertError: no board in msg");
                 return INSERT_ERROR; // skip msg
             }
             if( !storeInvalidMessages && !mo.isValid() ) {
@@ -451,11 +452,11 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
             if( bo == null ) {
                 // create new perst board
-                logger.severe("Creating new perst board: " + targetBoard.getName());
+                logger.info("Creating new perst board: {}", targetBoard.getName());
                 addBoard(targetBoard);
                 bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
                 if( bo == null ) {
-                    logger.severe("Error: duplicate board???");
+                    logger.error("duplicate board???");
                     return INSERT_ERROR;
                 }
             }
@@ -571,7 +572,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
         final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
-            logger.severe("error: no perst board for archive");
+            logger.error("no perst board for archive");
             return;
         }
         // normal messages in date range
@@ -647,7 +648,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
             if( bo == null ) {
-                logger.severe("error: no perst board for search");
+                logger.error("no perst board for search");
                 return;
             }
 
@@ -692,7 +693,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
             if( bo == null ) {
-                logger.severe("error: no perst board for show");
+                logger.error("no perst board for show");
                 return null;
             }
 
@@ -726,7 +727,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
             if( bo == null ) {
-                logger.severe("error: no perst board for show");
+                logger.error("no perst board for show");
                 return;
             }
 
@@ -774,7 +775,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
             if( bo == null ) {
-                logger.severe("error: no perst board for update");
+                logger.error("no perst board for update");
                 return;
             }
             final Iterator<PerstFrostMessageObject> i = bo.getUnreadMessageIndex().iterator();
@@ -799,14 +800,14 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
             if( bo == null ) {
-                logger.severe("error: no perst board for update");
+                logger.error("no perst board for update");
                 return;
             }
 
             for( final FrostMessageObject mo : msgs ) {
                 final PerstFrostMessageObject pmo = mo.getPerstFrostMessageObject();
                 if( pmo == null ) {
-                    logger.severe("error: no perst obj in msg");
+                    logger.error("no perst obj in msg");
                     continue;
                 }
                 if( pmo.isNew ) {
@@ -838,7 +839,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
             if( bo == null ) {
-                logger.severe("error: no perst board for update");
+                logger.error("no perst board for update");
                 return;
             }
 
@@ -923,7 +924,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
             if( bo == null ) {
-                logger.severe("no board for new sent msg!");
+                logger.error("no board for new sent msg!");
                 return false;
             }
             final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, getStorage(), useTransaction);
@@ -947,12 +948,12 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         	final Index<PerstFrostBoardObject> boardsByName = storageRoot.getBoardsByName();
             for( final FrostMessageObject mo : msgObjects ) {
                 if (mo.getPerstFrostMessageObject() == null || mo.getBoard() == null) {
-                    logger.severe("delete not possible");
+                    logger.error("delete not possible");
                     continue;
                 }
                 final PerstFrostBoardObject bo = boardsByName.get(mo.getBoard().getNameLowerCase());
                 if( bo == null ) {
-                    logger.severe("board not found");
+                    logger.error("board not found");
                     continue;
                 }
                 bo.getSentMessagesList().remove(mo.getPerstFrostMessageObject());
@@ -1005,7 +1006,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         try {
             final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
             if( bo == null ) {
-                logger.severe("no board for new unsent msg!");
+                logger.error("no board for new unsent msg!");
                 return false;
             }
             final PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(getStorage(), mo);
@@ -1021,12 +1022,12 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     public boolean deleteUnsentMessage(final FrostUnsentMessageObject mo) {
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
-            logger.severe("no board for unsent msg!");
+            logger.error("no board for unsent msg!");
             return false;
         }
         final PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
         if( pmo == null ) {
-            logger.severe("no perst unsent msg obj!");
+            logger.error("no perst unsent msg obj!");
             return false;
         }
         if( !beginExclusiveThreadTransaction() ) {
@@ -1048,12 +1049,12 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
-            logger.severe("no board for new unsent msg update!");
+            logger.error("no board for new unsent msg update!");
             return;
         }
         final PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
         if( pmo == null ) {
-            logger.severe("no perst unsent msg obj for update!");
+            logger.error("no perst unsent msg obj for update!");
             return;
         }
         if( !beginExclusiveThreadTransaction() ) {

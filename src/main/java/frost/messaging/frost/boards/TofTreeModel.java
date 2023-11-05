@@ -39,8 +39,6 @@ import frost.storage.perst.messages.MessageStorage;
 @SuppressWarnings("serial")
 public class TofTreeModel extends DefaultTreeModel {
 
-//    private static final Logger logger = Logger.getLogger(TofTreeModel.class.getName());
-
     private final DefaultTreeSelectionModel selectionModel;
 
     /**

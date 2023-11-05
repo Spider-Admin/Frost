@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -38,7 +38,7 @@ import frost.util.XMLizable;
 
 public class IdentitiesXmlDAO {
 
-    private static final Logger logger = Logger.getLogger(IdentitiesXmlDAO.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(IdentitiesXmlDAO.class);
 
     /**
      * Loads good, observe and bad identities from xml file.
@@ -60,7 +60,7 @@ public class IdentitiesXmlDAO {
                 try {
                     buddyList.loadXMLElement(current);
                 } catch (final SAXException e) {
-                    logger.log(Level.SEVERE, "Error loading good identities", e);
+                    logger.error("Error loading good identities", e);
                 }
                 for( final Object element : buddyList.getAllValues() ) {
                     final Identity id = (Identity)element;
@@ -72,7 +72,7 @@ public class IdentitiesXmlDAO {
                 try {
                     buddyList.loadXMLElement(current);
                 } catch (final SAXException e) {
-                    logger.log(Level.SEVERE, "Error loading bad identities", e);
+                    logger.error("Error loading bad identities", e);
                 }
                 for( final Object element : buddyList.getAllValues() ) {
                     final Identity id = (Identity)element;
@@ -84,7 +84,7 @@ public class IdentitiesXmlDAO {
                 try {
                     buddyList.loadXMLElement(current);
                 } catch (final SAXException e) {
-                    logger.log(Level.SEVERE, "Error loading check identities", e);
+                    logger.error("Error loading check identities", e);
                 }
                 for( final Object element : buddyList.getAllValues() ) {
                     final Identity id = (Identity)element;
@@ -96,7 +96,7 @@ public class IdentitiesXmlDAO {
                 try {
                     buddyList.loadXMLElement(current);
                 } catch (final SAXException e) {
-                    logger.log(Level.SEVERE, "Error loading observe identities", e);
+                    logger.error("Error loading observe identities", e);
                 }
                 for( final Object element : buddyList.getAllValues() ) {
                     final Identity id = (Identity)element;

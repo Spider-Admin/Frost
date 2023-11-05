@@ -22,8 +22,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fcp.FcpResultGet;
@@ -33,11 +34,10 @@ import frost.fcp.fcp07.FcpListenThreadConnection;
 import frost.fcp.fcp07.FcpMultiRequestConnectionFileTransferTools;
 import frost.fcp.fcp07.NodeMessage;
 import frost.fcp.fcp07.NodeMessageListener;
-import frost.util.Logging;
 
 public class MessageTransferHandler implements NodeMessageListener {
 
-    private static final Logger logger = Logger.getLogger(MessageTransferHandler.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MessageTransferHandler.class);
 
     private final FcpMultiRequestConnectionFileTransferTools fcpTools;
 
@@ -61,7 +61,7 @@ public class MessageTransferHandler implements NodeMessageListener {
     public synchronized void enqueueTask(final MessageTransferTask task) {
 
         if( !isConnected ) {
-            logger.severe("Rejecting new task, not connected!");
+            logger.error("Rejecting new task, not connected!");
             task.setFailed();
             task.setFinished();
             return;
@@ -98,7 +98,7 @@ public class MessageTransferHandler implements NodeMessageListener {
     public synchronized void connected() {
         // allow new tasks
         isConnected = true;
-        logger.severe("now connected");
+        logger.info("now connected");
     }
 
     public synchronized void disconnected() {
@@ -114,7 +114,7 @@ public class MessageTransferHandler implements NodeMessageListener {
             }
             taskMap.clear();
         }
-        logger.severe("disconnected, set "+taskCount+" tasks failed");
+        logger.info("disconnected, set {} tasks failed", taskCount);
     }
 
     public void handleNodeMessage(final NodeMessage nm) {
@@ -122,15 +122,13 @@ public class MessageTransferHandler implements NodeMessageListener {
     }
 
     public void handleNodeMessage(final String id, final NodeMessage nm) {
-        if(Logging.inst().doLogFcp2Messages()) {
-            System.out.println(">>>RCV>>>>");
-            System.out.println("MSG="+nm);
-            System.out.println("<<<<<<<<<<");
-        }
+    	logger.debug(">>>RCV>>>>");
+    	logger.debug("MSG = {}", nm);
+    	logger.debug("<<<<<<<<<<");
 
         final MessageTransferTask task = taskMap.get(id);
         if( task == null ) {
-            logger.severe("No task in list for identifier: "+id);
+            logger.error("No task in list for identifier: {}", id);
             return;
         }
 
@@ -162,7 +160,7 @@ public class MessageTransferHandler implements NodeMessageListener {
             handleError(task, nm);
         } else {
             // unhandled msg
-            System.out.println("### INFO - Unhandled msg: "+nm);
+            logger.warn("Unhandled msg: {}", nm);
         }
     }
 
@@ -172,7 +170,7 @@ public class MessageTransferHandler implements NodeMessageListener {
 
     protected void onAllData(final MessageTransferTask task, final NodeMessage nm) {
         if( nm.getMessageEnd() == null || !nm.getMessageEnd().equals("Data") ) {
-            logger.severe("NodeMessage has invalid end marker: "+nm.getMessageEnd());
+            logger.error("NodeMessage has invalid end marker: {}", nm.getMessageEnd());
             return;
         }
         // data follow, first get datalength
@@ -197,12 +195,10 @@ public class MessageTransferHandler implements NodeMessageListener {
             }
             fileOut.close();
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Catched exception", e);
+            logger.error("Catched exception", e);
         }
 
-        if(Logging.inst().doLogFcp2Messages()) {
-            System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
-        }
+        logger.debug("*GET** Wrote {} of {} bytes to file.", bytesWritten, dataLength);
         final FcpResultGet result;
         if( bytesWritten == dataLength ) {
             // success

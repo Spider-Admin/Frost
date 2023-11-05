@@ -21,12 +21,16 @@ package frost.storage.perst;
 import java.util.Iterator;
 
 import org.garret.perst.Index;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.SettingsClass;
 import frost.storage.ExitSavable;
 import frost.storage.StorageException;
 
 public class TrackDownloadKeysStorage extends AbstractFrostStorage implements ExitSavable {
+
+	private static final Logger logger =  LoggerFactory.getLogger(TrackDownloadKeysStorage.class);
 
 	private TrackDownloadKeysStorageRoot storageRoot = null;
 
@@ -74,7 +78,7 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 	public void exitSave() throws StorageException {
 		close();
 		storageRoot = null;
-		System.out.println("INFO: TrackDownloadKeyStorage closed.");
+		logger.info("TrackDownloadKeyStorage closed.");
 	}
 
 	public final Index<TrackDownloadKeys> getDownloadKeyList() {
@@ -103,7 +107,7 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 			getStorage().setRoot(storageRoot);
 			commit(); // commit transaction
 		}
-//		System.out.println("INFO: TrackDownloadKeyStorage initialized.");
+		logger.info("TrackDownloadKeyStorage initialized.");
 		return true;
 	}
 

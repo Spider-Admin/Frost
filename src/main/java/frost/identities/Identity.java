@@ -18,10 +18,9 @@
 */
 package frost.identities;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.garret.perst.Persistent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,7 +39,7 @@ import frost.util.XMLizable;
  */
 public class Identity extends Persistent implements XMLizable {
 
-    private static transient final Logger logger = Logger.getLogger(Identity.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(Identity.class);
 
     private static transient final int GOOD    = 1;
     private static transient final int CHECK   = 2;
@@ -72,7 +71,7 @@ public class Identity extends Persistent implements XMLizable {
         try {
             loadXMLElement(el);
         } catch (final SAXException e) {
-            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+            logger.error("Exception thrown in constructor", e);
         }
     }
 
@@ -176,9 +175,11 @@ public class Identity extends Persistent implements XMLizable {
         public String getPublicKey() {
             return perstPublicKey;
         }
-//        public void onLoad() {
-//            System.out.println("load pubkey");
-//        }
+
+		public void onLoad() {
+			logger.debug("load pubkey");
+		}
+
         @Override
         public boolean recursiveLoading() {
             return false; // load publicKey on demand

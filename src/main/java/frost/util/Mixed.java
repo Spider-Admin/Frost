@@ -18,21 +18,21 @@
 */
 package frost.util;
 
-import java.util.logging.Logger;
-
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 
 public final class Mixed {
 
-    private static final Logger logger = Logger.getLogger(Mixed.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(Mixed.class);
 
     private static final char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|'};
 
-    public static void main(final String[] args) {
-        System.out.println(createUniqueId());
-    }
+	public static void main(final String[] args) {
+		logger.info("{}", createUniqueId());
+	}
 
     /**
      * Creates a new unique ID.
@@ -117,7 +117,7 @@ public final class Mixed {
      */
     public static String makeFilename(String text) {
         if (text == null) {
-            logger.severe("ERROR: mixed.makeFilename() was called with NULL!");
+            logger.error("mixed.makeFilename() was called with NULL!");
             return null;
         }
 

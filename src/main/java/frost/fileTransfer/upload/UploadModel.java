@@ -20,10 +20,11 @@ package frost.fileTransfer.upload;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.fileTransfer.FileTransferManager;
@@ -44,7 +45,7 @@ import frost.util.model.SortedTableFormat;
  */
 public class UploadModel extends SortedModel<FrostUploadItem> implements ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(UploadModel.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(UploadModel.class);
 
     public UploadModel(final SortedTableFormat<FrostUploadItem> f) {
         super(f);
@@ -136,11 +137,11 @@ public class UploadModel extends SortedModel<FrostUploadItem> implements ExitSav
             }
             if (!ulItem.getFile().exists()) {
                 items.add(ulItem);
-                logger.severe("Upload items file does not exist, removed from upload files: "+ulItem.getFile().getPath());
+                logger.warn("Upload items file does not exist, removed from upload files: {}", ulItem.getFile().getPath());
             
             } else if( ulItem.getFileSize() != ulItem.getFile().length() ){
                 items.add(ulItem);
-                logger.severe("Upload items file size changed, removed from upload files: "+ulItem.getFile().getPath());
+                logger.warn("Upload items file size changed, removed from upload files: {}", ulItem.getFile().getPath());
             }
         }
         if (items.size() > 0) {
@@ -236,7 +237,7 @@ public class UploadModel extends SortedModel<FrostUploadItem> implements ExitSav
         try {
             uploadItems = FrostFilesStorage.inst().loadUploadFiles(sharedFiles);
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Error loading upload items", e);
+            logger.error("Error loading upload items", e);
             throw new StorageException("Error loading upload items");
         }
         for( final FrostUploadItem di : uploadItems ) {
@@ -252,7 +253,7 @@ public class UploadModel extends SortedModel<FrostUploadItem> implements ExitSav
         try {
             FrostFilesStorage.inst().saveUploadFiles(itemList);
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Error saving upload items", e);
+            logger.error("Error saving upload items", e);
             throw new StorageException("Error saving upload items");
         }
     }

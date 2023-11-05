@@ -19,10 +19,11 @@
 package frost.util.gui;
 
 import java.awt.Component;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * This is a variant of the SwingWorker
  * It works in conjunction with the GlassPane class
@@ -33,8 +34,8 @@ import javax.swing.SwingUtilities;
  * @author Yexin Chen
  */
 public abstract class FrostSwingWorker {
-	
-	private static final Logger logger = Logger.getLogger(FrostSwingWorker.class.getName());
+
+	private static final Logger logger = LoggerFactory.getLogger(FrostSwingWorker.class);
 
 	/**
 	 * Class to maintain reference to current worker thread
@@ -148,7 +149,7 @@ public abstract class FrostSwingWorker {
 			doUIUpdateLogic();
 		} catch (RuntimeException e) {
 			// Do nothing, simply cleanup below
-			logger.log(Level.SEVERE, "SwingWorker error", e);
+			logger.error("SwingWorker error", e);
 		} finally {
 			// Allow original component to get the focus
 			if (getAComponent() != null) {

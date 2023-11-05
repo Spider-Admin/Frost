@@ -18,6 +18,9 @@
 */
 package frost.fileTransfer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.MainFrame;
 import frost.fileTransfer.download.DownloadManager;
@@ -37,6 +40,8 @@ import frost.storage.StorageException;
  * @version $Revision: $
  */
 public class FileTransferManager implements ExitSavable, AutoSavable {
+
+	private static final Logger logger =  LoggerFactory.getLogger(FileTransferManager.class);
 
     private DownloadManager downloadManager;
     private SearchManager searchManager;
@@ -72,9 +77,8 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
         if( PersistenceManager.isPersistenceEnabled() && Core.isFreenetOnline() ) {
             try {
                 persistenceManager = new PersistenceManager(getUploadManager().getModel(), getDownloadManager().getModel());
-            } catch(final Throwable t) {
-                System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
-                t.printStackTrace();
+            } catch (Throwable e) {
+                logger.error("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!", e);
             }
         }
 

@@ -19,8 +19,9 @@
 package frost.fileTransfer.search;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.FrostFileListFileObject;
@@ -31,7 +32,7 @@ import frost.util.model.SortedTableFormat;
 
 public class SearchModel extends SortedModel<FrostSearchItem> {
 
-    final static Logger logger = Logger.getLogger(SearchModel.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SearchModel.class);
 
     public SearchModel(final SortedTableFormat<FrostSearchItem> f) {
         super(f);
@@ -57,7 +58,7 @@ public class SearchModel extends SortedModel<FrostSearchItem> {
                 try {
                     filename = java.net.URLDecoder.decode(filename, "UTF-8");
                 } catch (final java.io.UnsupportedEncodingException ex) {
-                    logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                    logger.error("Decode of HTML code failed", ex);
                 }
             }
             final FrostDownloadItem dlItem = new FrostDownloadItem(flf, filename);

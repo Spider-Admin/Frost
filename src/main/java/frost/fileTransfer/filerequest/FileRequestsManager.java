@@ -21,13 +21,13 @@ package frost.fileTransfer.filerequest;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fileTransfer.FileSharingManager;
 import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.FrostFileListFileObject;
-import frost.fileTransfer.SharedFilesCHKKeyManager;
 import frost.fileTransfer.download.FrostDownloadItem;
 import frost.fileTransfer.sharing.FrostSharedFileItem;
 import frost.storage.perst.filelist.FileListStorage;
@@ -38,7 +38,7 @@ import frost.storage.perst.filelist.FileListStorage;
  */
 public class FileRequestsManager {
 
-    private static final Logger logger = Logger.getLogger(SharedFilesCHKKeyManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileRequestsManager.class);
 
     private static final int MAX_SHA_PER_REQUESTFILE = 350;
 
@@ -149,7 +149,7 @@ public class FileRequestsManager {
 
         // then update same filelistfiles in database
         if( !FileListStorage.inst().beginExclusiveThreadTransaction() ) {
-            logger.severe("Failed to begin an EXCLUSIVE thread transaction, aborting.");
+            logger.error("Failed to begin an EXCLUSIVE thread transaction, aborting.");
             return;
         }
 
@@ -219,11 +219,7 @@ public class FileRequestsManager {
                         // add to upload files
                         FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfo);
 
-                        logger.log(Level.SEVERE, "INFO: Shared file upload started, file='"+sfo.getFileName()+
-                                "', timeNow="+now+
-                                ", minLastUploaded="+minLastUploaded+
-                                ", requestTimestamp="+content.getTimestamp()+
-                                ", lastUploaded="+sfo.getLastUploaded());
+                        logger.info("Shared file upload started, file = '{}', timeNow = {}, minLastUploaded = {}, requestTimestamp = {}, lastUploaded = {}", sfo.getFileName(), now, minLastUploaded, content.getTimestamp(), sfo.getLastUploaded());
                     }
                 }
             }
@@ -231,7 +227,7 @@ public class FileRequestsManager {
 
         // now update the filelistfiles in database
         if( !FileListStorage.inst().beginExclusiveThreadTransaction() ) {
-            logger.severe("Failed to begin an EXCLUSIVE thread transaction, aborting.");
+            logger.error("Failed to begin an EXCLUSIVE thread transaction, aborting.");
             return;
         }
         for( final String sha : content.getShaStrings() ) {

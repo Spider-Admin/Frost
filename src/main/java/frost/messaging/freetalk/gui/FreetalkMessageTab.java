@@ -23,8 +23,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -36,6 +34,9 @@ import javax.swing.JToolBar;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeNode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -62,7 +63,7 @@ import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageTab implements LanguageListener {
 
-    private static final Logger logger = Logger.getLogger(FreetalkMessageTab.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageTab.class);
 
     private JSplitPane treeAndTabbedPaneSplitpane = null;
     private JPanel tabPanel = null;
@@ -347,7 +348,7 @@ public class FreetalkMessageTab implements LanguageListener {
         try {
             ftManager.getConnection().sendCommandListBoards(id);
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error sending command ListBoards", ex);
+            logger.error("Error sending command ListBoards", ex);
             mainFrame.deactivateGlassPane();
             return;
         }
@@ -363,7 +364,7 @@ public class FreetalkMessageTab implements LanguageListener {
         try {
             ftManager.getConnection().sendCommandListSubscribedBoards(id, ownId);
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error sending command ListBoards", ex);
+            logger.error("Error sending command ListBoards", ex);
             mainFrame.deactivateGlassPane();
             return;
         }
@@ -381,7 +382,7 @@ public class FreetalkMessageTab implements LanguageListener {
         try {
             ftManager.getConnection().sendCommandListMessages(id, board.getName(), FreetalkManager.getInstance().getLoginUserId(), withContent);
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error sending command ListMessages", ex);
+            logger.error("Error sending command ListMessages", ex);
             mainFrame.deactivateGlassPane();
             return;
         }
@@ -396,7 +397,7 @@ public class FreetalkMessageTab implements LanguageListener {
         try {
             ftManager.getConnection().sendCommandCreateBoard(id, newBoardName);
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error sending command CreateBoard", ex);
+            logger.error("Error sending command CreateBoard", ex);
             return;
         }
     }
@@ -410,7 +411,7 @@ public class FreetalkMessageTab implements LanguageListener {
         try {
             ftManager.getConnection().sendCommandListOwnIdentities(id);
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error sending command ListOwnIdentities", ex);
+            logger.error("Error sending command ListOwnIdentities", ex);
             return;
         }
     }
@@ -427,7 +428,7 @@ public class FreetalkMessageTab implements LanguageListener {
         }
 
         try {
-            System.out.println("DBG: "+msg.getOwnIdentity().getUid());
+            logger.debug("{}", msg.getOwnIdentity().getUid());
             ftManager.getConnection().sendCommandPutMessage(
                     id,
                     msg.getParentId(),
@@ -438,7 +439,7 @@ public class FreetalkMessageTab implements LanguageListener {
                     msg.getContent(),
                     msg.getFileAttachments());
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error sending command ListOwnIdentities", ex);
+            logger.error("Error sending command ListOwnIdentities", ex);
             return;
         }
     }

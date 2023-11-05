@@ -34,8 +34,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -48,6 +46,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.MainFrame;
 import frost.SettingsClass;
 import frost.storage.StorageException;
@@ -58,6 +59,8 @@ import frost.util.gui.translation.Language;
  */
 @SuppressWarnings("serial")
 public class OptionsFrame extends JDialog implements ListSelectionListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(OptionsFrame.class);
 
     /**
      * A simple helper class to store JPanels and their name into a JList.
@@ -77,8 +80,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             return name;
         }
     }
-
-    private static final Logger logger = Logger.getLogger(OptionsFrame.class.getName());
 
     private MainFrame mainFrame;
     private final SettingsClass settings;
@@ -151,7 +152,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         try {
             Init();
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+            logger.error("Exception thrown in constructor", e);
         }
         // set initial selection (also sets panel)
         optionsGroupsList.setSelectedIndex(lastSelectedPanelIndex);
@@ -510,7 +511,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         try {
             settings.exitSave();
         } catch (final StorageException se) {
-            logger.log(Level.SEVERE, "Error while saving the settings.", se);
+            logger.error("Error while saving the settings.", se);
         }
 
         // now check if some settings changed

@@ -35,7 +35,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -45,6 +44,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -73,7 +75,7 @@ import frost.util.model.SortedModelTable;
 @SuppressWarnings("serial")
 public class SharedFilesPanel extends JPanel {
 
-    private static final Logger logger = Logger.getLogger(SharedFilesPanel.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SharedFilesPanel.class);
 	
     private PopupMenu popupMenuUpload = null;
 
@@ -288,8 +290,8 @@ public class SharedFilesPanel extends JPanel {
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-            logger.severe("The selected font was not found in your system\n" +
-                           "That selection will be changed to \"SansSerif\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"SansSerif\".");
             Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
             font = new Font("SansSerif", fontStyle, fontSize);
         }

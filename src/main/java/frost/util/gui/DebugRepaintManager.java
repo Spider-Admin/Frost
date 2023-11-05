@@ -22,6 +22,9 @@ import javax.swing.JComponent;
 import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The purpose of this class is to check for calls to Swing outside of the Swing thread. To use,
  * just instance it and install as the current repaint manager like this:
@@ -34,6 +37,8 @@ import javax.swing.SwingUtilities;
  * @version $revision$
  */
 public class DebugRepaintManager extends RepaintManager {
+	
+	private static final Logger logger = LoggerFactory.getLogger(DebugRepaintManager.class);
 
 	/* (non-Javadoc)
 	 * @see javax.swing.RepaintManager#addDirtyRegion(javax.swing.JComponent, int, int, int, int)
@@ -53,8 +58,9 @@ public class DebugRepaintManager extends RepaintManager {
 	}
 	private void checkThread() {
 		 if (!SwingUtilities.isEventDispatchThread()) {
-            System.out.println("Wrong Thread");
-            Thread.dumpStack();
-        }		
+			Exception e = new Exception();
+			e.fillInStackTrace();
+			logger.error("Wrong Thread", e);
+		}
 	}
 }

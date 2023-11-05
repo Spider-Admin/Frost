@@ -20,10 +20,11 @@ package frost.messaging.frost.threads;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -41,7 +42,7 @@ import frost.util.gui.translation.Language;
  */
 public class FileAttachmentUploadThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(FileAttachmentUploadThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileAttachmentUploadThread.class);
 
     private static final int wait1minute = 1 * 60 * 1000;
 
@@ -102,7 +103,7 @@ public class FileAttachmentUploadThread extends Thread {
                             title,
                             JOptionPane.ERROR_MESSAGE);
 
-                    logger.warning("FileAttachmentUploadThread: unsent file attachment disappeared: "+fa.getInternalFile()+"; "+fa.getFileName());
+                    logger.warn("FileAttachmentUploadThread: unsent file attachment disappeared: {}; {}", fa.getInternalFile(), fa.getFileName());
 
                     UnsentMessagesManager.deleteMessage(msgFileAttachment.getMessageObject());
 
@@ -113,7 +114,7 @@ public class FileAttachmentUploadThread extends Thread {
                     continue; // drop
                 }
 
-                logger.severe("Starting upload of file: "+fa.getInternalFile().getPath());
+                logger.info("Starting upload of file: {}", fa.getInternalFile().getPath());
 
                 String chkKey = null;
                 try {
@@ -128,10 +129,10 @@ public class FileAttachmentUploadThread extends Thread {
                         chkKey = result.getChkKey();
                     }
                 } catch (final Exception ex) {
-                    logger.log(Level.WARNING, "Exception catched",ex);
+                    logger.error("Exception catched", ex);
                 }
 
-                logger.severe("Finished upload of "+fa.getInternalFile().getPath()+", key: "+chkKey);
+                logger.info("Finished upload of {}, key: {}", fa.getInternalFile(), chkKey);
 
                 // if the assiciated msg was deleted by user, forget all updates
                 if( !msgFileAttachment.isDeleted() ) {
@@ -148,12 +149,12 @@ public class FileAttachmentUploadThread extends Thread {
                 }
 
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Exception catched",t);
+                logger.error("Exception catched", t);
                 occuredExceptions++;
             }
 
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping because of too much exceptions");
+                logger.error("Stopping because of too much exceptions");
                 break;
             }
         }

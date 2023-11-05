@@ -21,16 +21,18 @@ package frost.gui.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.logging.Logger;
 
 import javax.swing.table.DefaultTableModel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.gui.SortedTable;
 
 @SuppressWarnings("serial")
 public class SortedTableModel<T extends TableMember<T>> extends DefaultTableModel
 {
-    private static final Logger logger = Logger.getLogger(SortedTableModel.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SortedTableModel.class);
 
     private boolean bWasResized = false;
     private ArrayList<T> rows = null;
@@ -293,7 +295,7 @@ public class SortedTableModel<T extends TableMember<T>> extends DefaultTableMode
     @Override
     public void setValueAt(Object aValue, int row, int column)
     {
-        logger.severe("setValueAt() - ERROR: NOT IMPLEMENTED");
+        logger.error("setValueAt() - NOT IMPLEMENTED");
     }
 
     /**

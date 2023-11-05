@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -40,7 +41,7 @@ import frost.util.gui.translation.Language;
  */
 public class IdentitiesManager {
 
-    private static final Logger logger = Logger.getLogger(IdentitiesManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(IdentitiesManager.class);
 
     private Hashtable<String,Identity> identities = null;
     private Hashtable<String,LocalIdentity> localIdentities = null;
@@ -69,7 +70,7 @@ public class IdentitiesManager {
         if ( localIdentities.size() == 0 ) {
             final LocalIdentity mySelf = createIdentity(true);
             if(mySelf == null) {
-                logger.severe("Frost can't run without an identity.");
+                logger.error("Frost can't run without an identity.");
                 System.exit(1);
             }
             addLocalIdentity(mySelf); // add and save
@@ -166,7 +167,7 @@ public class IdentitiesManager {
             } while (newIdentity.getUniqueName().indexOf("//") != -1);
 
         } catch (final Exception e) {
-            logger.severe("couldn't create new identitiy" + e.toString());
+            logger.error("couldn't create new identitiy", e);
         }
         if( newIdentity != null && firstIdentity ) {
             Core.frostSettings.setValue(SettingsClass.LAST_USED_FROMNAME, newIdentity.getUniqueName());
@@ -440,17 +441,17 @@ public class IdentitiesManager {
             String calculatedDigest = Core.getCrypto().digest(puKey.trim()).trim();
             calculatedDigest = Mixed.makeFilename(calculatedDigest).trim();
 
-            // FIX: given_digest must already not contain invalid characters
+            // FIXME: given_digest must already not contain invalid characters
 //            if( !Mixed.makeFilename(given_digest).equals(calculatedDigest) ) {
             if( !given_digest.equals(calculatedDigest) ) {
-                logger.severe("Warning: public key of sharer didn't match its digest:\n" +
-                              "given digest :'" + given_digest + "'\n" +
-                              "pubkey       :'" + puKey.trim() + "'\n" +
-                              "calc. digest :'" + calculatedDigest + "'");
+                logger.warn("public key of sharer didn't match its digest:");
+                logger.warn("given digest :'{}'", given_digest);
+                logger.warn("pubkey       :'{}'", puKey.trim());
+                logger.warn("calc. digest :'{}'", calculatedDigest);
                 return false;
             }
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Exception during key validation", e);
+            logger.error("Exception during key validation", e);
             return false;
         }
         return true;
@@ -475,8 +476,7 @@ public class IdentitiesManager {
             if( id.getPublicKey().equals(anId.getPublicKey())
                     && !id.getUniqueName().equals(anId.getUniqueName()) )
             {
-                logger.severe("Rejecting new Identity because its public key is already used by another known Identity. "+
-                        "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
+                logger.error("Rejecting new Identity because its public key is already used by another known Identity. newId = '{}', oldId = '{}'", id.getUniqueName(), anId.getUniqueName());
                 return false;
             }
         }
@@ -487,8 +487,7 @@ public class IdentitiesManager {
             if( id.getPublicKey().equals(anId.getPublicKey())
                     && !id.getUniqueName().equals(anId.getUniqueName()) )
             {
-                logger.severe("Rejecting new Identity because its public key is already used by an OWN Identity. "+
-                        "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
+                logger.error("Rejecting new Identity because its public key is already used by an OWN Identity. newId = '{}', oldId = '{}'", id.getUniqueName(), anId.getUniqueName());
                 return false;
             }
         }

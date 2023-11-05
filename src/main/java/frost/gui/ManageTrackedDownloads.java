@@ -49,6 +49,9 @@ import javax.swing.WindowConstants;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.SettingsClass;
 import frost.fcp.FreenetKeys;
@@ -67,6 +70,8 @@ import frost.util.gui.translation.Language;
  * @version $Revision: $
  */
 public class ManageTrackedDownloads extends javax.swing.JDialog {
+
+	private static final Logger logger = LoggerFactory.getLogger(ManageTrackedDownloads.class);
 
     private final Language language;
 	private final TrackDownloadKeysStorage trackDownloadKeysStorage;
@@ -172,7 +177,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 
 			this.initPopupMenu();
 		} catch (final Exception e) {
-			e.printStackTrace();
+			logger.error("Exception", e);
 		}
 	}
 
@@ -308,9 +313,9 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
                 bufferedReader.close();
             }
         } catch (final FileNotFoundException ex) {
-            ex.printStackTrace();
+            logger.error("FileNotFoundException", ex);
         } catch (final IOException ex) {
-            ex.printStackTrace();
+            logger.error("IOException", ex);
         }
         loadTrackedDownloadsIntoTable();
 	}

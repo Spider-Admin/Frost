@@ -52,6 +52,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import frost.MainFrame;
+
 /**
  * This wrapper class takes a TreeTableModel and implements the table model interface. The implementation is trivial,
  * with all of the event dispatching support provided by the superclass: the AbstractTableModel.
@@ -62,6 +67,8 @@ import javax.swing.tree.TreePath;
  * @author Scott Violet
  */
 public class FreetalkTreeTableModelAdapter extends AbstractTableModel {
+
+	private static final Logger logger =  LoggerFactory.getLogger(FreetalkTreeTableModelAdapter.class);
 
     final JTree tree;
     final FreetalkMessageTreeTable treeTable;
@@ -124,13 +131,13 @@ public class FreetalkTreeTableModelAdapter extends AbstractTableModel {
                 if( toRow < fromRow ) {
                     toRow = fromRow;
                 }
-//                System.out.println("treeExpanded, fromRow="+fromRow+", toRow="+toRow);
+                logger.debug("treeExpanded, fromRow = {}, toRow = {}", fromRow, toRow);
                 fireTableRowsInserted(fromRow, toRow);
             }
 
             // fire table event, use toRow computed in treeWillCollpaseListener
             public void treeCollapsed(final TreeExpansionEvent event) {
-//                System.out.println("treeCollapsed");
+                logger.debug("treeCollapsed");
                 final DefaultMutableTreeNode collapsedNode = (DefaultMutableTreeNode)event.getPath().getLastPathComponent();
                 final int nodeRow = treeTable.getRowForNode(collapsedNode);
                 final int fromRow = nodeRow + 1;
@@ -150,14 +157,14 @@ public class FreetalkTreeTableModelAdapter extends AbstractTableModel {
                 final int[] childIndices = e.getChildIndices();
                 // we always insert only one child at a time
                 if( childIndices.length != 1 ) {
-                    System.out.println("****** FIXME1: more than 1 child: "+childIndices.length+" ********");
+                    logger.warn("****** FIXME1: more than 1 child: {} ********", childIndices.length);
                 }
                 // update the row for this node
                 final DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(childIndices[0]);
                 final int row = treeTable.getRowForNode(childNode);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-//                        System.out.println("treeNodesChanged: "+row);
+                        logger.debug("treeNodesChanged: {}", row);
                         fireTableRowsUpdated(row, row);
                     }
                 });
@@ -168,12 +175,12 @@ public class FreetalkTreeTableModelAdapter extends AbstractTableModel {
                 final int[] childIndices = e.getChildIndices();
                 // we always insert only one child at a time
                 if( childIndices.length != 1 ) {
-                    System.out.println("****** FIXME2: more than 1 child: "+childIndices.length+" ********");
+                    logger.warn("****** FIXME2: more than 1 child: {} ********", childIndices.length);
                 }
                 // compute row that was inserted
-//                System.out.println("a="+MainFrame.getInstance().getMessageTreeTable().getRowForNode(node));
-//                System.out.println("b="+childIndices[0]);
-//                System.out.println("c="+node);
+                logger.debug("a = {}", MainFrame.getInstance().getMessageTreeTable().getRowForNode(node));
+                logger.debug("b = {}", childIndices[0]);
+                logger.debug("c = {}", node);
                 // FIXME: fails again: 1st child of a thread selected, new message arrived and replaced the selected
                 //        message! new message was shown in preview and marked unread!
                 final int offset = 0;
@@ -186,19 +193,19 @@ public class FreetalkTreeTableModelAdapter extends AbstractTableModel {
 //                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-//                        System.out.println("treeNodesInserted: "+row);
+                        logger.debug("treeNodesInserted: {}", row);
                         fireTableRowsInserted(row, row);
                     }
                 });
             }
 
             public void treeNodesRemoved(final TreeModelEvent e) {
-                System.out.println("treeNodesRemoved");
+                logger.debug("treeNodesRemoved");
                 final DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.getTreePath().getLastPathComponent();
                 final int[] childIndices = e.getChildIndices();
                 // we always remove only one child at a time
                 if( childIndices.length != 1 ) {
-                    System.out.println("****** FIXME3: more than 1 child: "+childIndices.length+" ********");
+                    logger.warn("****** FIXME3: more than 1 child: {} ********", childIndices.length);
                 }
                 // ATTN: will getRowForNode work if node was already removed from tree?
                 //  -> we currently don't remove nodes from tree anywhere in Frost

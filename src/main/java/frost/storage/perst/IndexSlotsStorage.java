@@ -19,12 +19,13 @@
 package frost.storage.perst;
 
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import org.garret.perst.GenericIndex;
 import org.garret.perst.Key;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.SettingsClass;
 import frost.storage.ExitSavable;
@@ -35,7 +36,7 @@ import frost.storage.StorageException;
  */
 public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(IndexSlotsStorage.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(IndexSlotsStorage.class);
 
     private static final String STORAGE_FILENAME = "gixSlots.dbs";
 
@@ -137,7 +138,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     public IndexSlot getSlotForDate(final int indexName, final long date) {
         final Key dateKey = new Key(indexName, date);
         if( !beginCooperativeThreadTransaction() ) {
-            logger.severe("Failed to gather cooperative storage lock, returning new indexslot!");
+            logger.error("Failed to gather cooperative storage lock, returning new indexslot!");
             return new IndexSlot(indexName, date);
         }
         IndexSlot gis;
@@ -157,7 +158,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
 
     public void storeSlot(final IndexSlot gis) {
         if( !beginExclusiveThreadTransaction() ) {
-            logger.severe("Failed to gather exclusive storage lock, don't stored the indexslot!");
+            logger.error("Failed to gather exclusive storage lock, don't stored the indexslot!");
             return;
         }
         try {
@@ -175,23 +176,23 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     public void exitSave() throws StorageException {
         close();
         storageRoot = null;
-        System.out.println("INFO: GlobalIndexSlotsStorage closed.");
+        logger.info("GlobalIndexSlotsStorage closed.");
     }
 
-    // tests
-//    public static void main(String[] args) {
-//        IndexSlotsStorage s = IndexSlotsStorage.inst();
-//
-//        s.initStorage();
-//
-//        IndexSlotsStorageRoot root = (IndexSlotsStorageRoot)s.getStorage().getRoot();
-//
-//        for( Iterator<IndexSlot> i = root.slotsIndexIL.iterator(); i.hasNext(); ) {
-//            IndexSlot gi = i.next();
-//            System.out.println("----GI-------");
-//            System.out.println(gi);
-//        }
-//
-//        s.getStorage().close();
-//    }
+	// tests
+	public static void main(String[] args) {
+		IndexSlotsStorage s = IndexSlotsStorage.inst();
+
+		s.initStorage();
+
+		IndexSlotsStorageRoot root = (IndexSlotsStorageRoot) s.getStorage().getRoot();
+
+		for (Iterator<IndexSlot> i = root.slotsIndexIL.iterator(); i.hasNext();) {
+			IndexSlot gi = i.next();
+			logger.info("----GI-------");
+			logger.info("{}", gi);
+		}
+
+		s.getStorage().close();
+	}
 }

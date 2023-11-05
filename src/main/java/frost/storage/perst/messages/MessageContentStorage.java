@@ -18,6 +18,9 @@
 */
 package frost.storage.perst.messages;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.SettingsClass;
 import frost.messaging.frost.AttachmentList;
 import frost.messaging.frost.BoardAttachment;
@@ -27,6 +30,8 @@ import frost.storage.perst.AbstractFrostStorage;
 import frost.storage.perst.PerstString;
 
 public class MessageContentStorage extends AbstractFrostStorage implements ExitSavable {
+
+	private static final Logger logger =  LoggerFactory.getLogger(MessageContentStorage.class);
 
     private MessageContentStorageRoot storageRoot = null;
 
@@ -67,7 +72,7 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
     public void exitSave() {
         close();
         storageRoot = null;
-        System.out.println("INFO: MessagesContentStorage closed.");
+        logger.info("MessagesContentStorage closed.");
     }
 
     protected synchronized boolean addContentForOid(final int oid, final String content) {

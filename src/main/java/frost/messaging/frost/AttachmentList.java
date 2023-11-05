@@ -20,8 +20,9 @@ package frost.messaging.frost;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -32,7 +33,7 @@ import frost.util.XMLizable;
 @SuppressWarnings("serial")
 public class AttachmentList<T extends Attachment> extends LinkedList<T> implements XMLizable {
 
-	private static final Logger logger = Logger.getLogger(AttachmentList.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(AttachmentList.class);
 
 	/**
 	 * traverses the list for attachment of given type

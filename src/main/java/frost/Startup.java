@@ -19,13 +19,16 @@
 package frost;
 
 import java.io.File;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Does some things that have to be done when starting Frost.
  */
 public class Startup {
-    private static final Logger logger = Logger.getLogger(Startup.class.getName());
+
+	private static final Logger logger = LoggerFactory.getLogger(Startup.class);
 
     /**
      * The Main method, check if allowed to run
@@ -115,25 +118,25 @@ public class Startup {
     private static void checkDirectories(final SettingsClass settings) {
         final File downloadDirectory = new File(settings.getValue(SettingsClass.DIR_DOWNLOAD));
         if( !downloadDirectory.isDirectory() ) {
-            logger.warning("Creating download directory");
+            logger.info("Creating download directory");
             downloadDirectory.mkdirs();
         }
 
 //        final File execDirectory = new File("exec");
 //        if( !execDirectory.isDirectory() ) {
-//            logger.warning("Creating exec directory");
+//            logger.info("Creating exec directory");
 //            execDirectory.mkdirs();
 //        }
 
         final File tempDirectory = new File(settings.getValue(SettingsClass.DIR_TEMP));
         if( !tempDirectory.isDirectory() ) {
-            logger.warning("Creating temp directory");
+            logger.info("Creating temp directory");
             tempDirectory.mkdirs();
         }
 
         final File storeDirectory = new File(settings.getValue(SettingsClass.DIR_STORE));
         if( !storeDirectory.isDirectory() ) {
-            logger.warning("Creating store directory");
+            logger.info("Creating store directory");
             storeDirectory.mkdirs();
         }
     }

@@ -26,8 +26,6 @@ import frost.util.Mixed;
 
 public class UploadTicker extends Thread {
 
-//    private static final Logger logger = Logger.getLogger(UploadTicker.class.getName());
-
     //To be able to increase this value, we have to add support for that. Without it,
     //the loops in generateCHK and prepareUpladHashes would process the same file
     //several times.

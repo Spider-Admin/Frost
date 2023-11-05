@@ -30,6 +30,8 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.TimeOfDay;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.messaging.freetalk.boards.FreetalkBoard;
@@ -41,6 +43,8 @@ import frost.util.DateFun;
  */
 @SuppressWarnings("serial")
 public class FreetalkMessage extends DefaultMutableTreeNode {
+
+	private static final Logger logger =  LoggerFactory.getLogger(FreetalkMessage.class);
 
     private FreetalkBoard board = null;
     private String msgId = null;
@@ -148,7 +152,7 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     }
     public void setContent(final String c) {
         if (c == null) {
-            System.out.println("!!!!!!!!!!!!! prevented null content");
+            logger.warn("!!!!!!!!!!!!! prevented null content");
             return;
         }
         content = c;

@@ -1,0 +1,43 @@
+<included>
+	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator" />
+
+	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date{"HH:mm:ss,SSS"} %-5level %logger{10} - %message%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
+	</appender>
+
+	<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./logs/frost-latest.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/frost-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%date{"HH:mm:ss,SSS"} %-5level %logger [%file:%line] - %message%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ImportantLogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./logs/frost-error-latest.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/frost-error-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%date{"HH:mm:ss,SSS"} %-5level %logger [%file:%line] - %message%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>WARN</level>
+		</filter>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="Console" />
+		<appender-ref ref="LogFile" />
+		<appender-ref ref="ImportantLogFile" />
+	</root>
+</included>

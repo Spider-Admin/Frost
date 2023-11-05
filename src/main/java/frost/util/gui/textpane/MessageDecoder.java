@@ -23,8 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 import javax.swing.JEditorPane;
@@ -34,6 +32,9 @@ import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FreenetKeys;
 import frost.util.gui.SmileyCache;
@@ -45,7 +46,7 @@ import frost.util.gui.SmileyCache;
  */
 public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 
-    private final Logger logger = Logger.getLogger(MessageDecoder.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MessageDecoder.class);
 
 	private boolean smileys = true;
 	private boolean freenetKeys = true;
@@ -114,7 +115,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 			// insert text after last element
 			doc.insertString(doc.getLength(),message.substring(begin), new SimpleAttributeSet());
 		} catch (final BadLocationException e) {
-            logger.log(Level.SEVERE, "Excpetion during construction of message", e);
+            logger.error("Excpetion during construction of message", e);
 		}
 
         // set constructed doc to view
@@ -204,8 +205,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
             	}
             }
         } catch (final Throwable e) {
-            e.printStackTrace();
-            logger.log(Level.SEVERE, "Exception in processFreenetKeys", e);
+            logger.error("Exception in processFreenetKeys", e);
         }
 	}
 

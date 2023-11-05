@@ -30,18 +30,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Derived from  The Java Specialists' Newsletter Issue 145 (2007-05-25)
  * by Dr. Heinz M. Kabutz
  */
 public class TristateCheckBoxTest {
+
+	private static final Logger logger =  LoggerFactory.getLogger(TristateCheckBoxTest.class);
+
     public static void main(final String args[]) throws Exception {
       final JFrame frame = new JFrame("TristateCheckBoxTest");
       frame.setLayout(new GridLayout(0, 1, 15, 15));
       final UIManager.LookAndFeelInfo[] lfs =
           UIManager.getInstalledLookAndFeels();
       for (final UIManager.LookAndFeelInfo lf : lfs) {
-        System.out.println("Look&Feel " + lf.getName());
+        logger.info("Look&Feel {}", lf.getName());
         UIManager.setLookAndFeel(lf.getClassName());
         frame.add(makePanel(lf));
       }
@@ -57,23 +63,26 @@ public class TristateCheckBoxTest {
         public void itemStateChanged(final ItemEvent e) {
           switch(tristateBox.getState()) {
             case SELECTED:
-              System.out.println("Selected"); break;
+                logger.info("Selected");
+                break;
             case DESELECTED:
-              System.out.println("Not Selected"); break;
+                logger.info("Not Selected");
+                break;
             case INDETERMINATE:
-              System.out.println("Tristate Selected"); break;
+                logger.info("Tristate Selected");
+                break;
           }
         }
       });
       tristateBox.addActionListener(new ActionListener() {
         public void actionPerformed(final ActionEvent e) {
-          System.out.println(e);
+            logger.info("{}", e);
         }
       });
       final JCheckBox normalBox = new JCheckBox("Normal checkbox");
       normalBox.addActionListener(new ActionListener() {
         public void actionPerformed(final ActionEvent e) {
-          System.out.println(e);
+            logger.info("{}", e);
         }
       });
 

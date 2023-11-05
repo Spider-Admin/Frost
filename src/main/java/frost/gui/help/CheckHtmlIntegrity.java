@@ -24,10 +24,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Checks all HTML files in help.zip for 'http://', 'ftp://' links.
@@ -37,7 +38,7 @@ import java.util.zip.ZipFile;
  */
 public class CheckHtmlIntegrity {
 
-    private static final Logger logger = Logger.getLogger(CheckHtmlIntegrity.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(CheckHtmlIntegrity.class);
 
     private boolean isHtmlSecure = false;
 
@@ -57,7 +58,7 @@ public class CheckHtmlIntegrity {
         File file = new File(fileName);
 
         if( !file.isFile() || (file.length() == 0) ) {
-            logger.log(Level.SEVERE, "Zip file does not exist: "+file.getPath());
+            logger.error("Zip file does not exist: {}", file.getPath());
             return isHtmlSecure;
         }
 
@@ -86,21 +87,21 @@ public class CheckHtmlIntegrity {
 
                         String htmlStr = new String(byteArrayOutputStream.toByteArray(), "UTF-8").toLowerCase();
                         if ((htmlStr.indexOf("http://") > -1) || (htmlStr.indexOf("ftp://") > -1) || (htmlStr.indexOf("nntp://") > -1)) {
-                            logger.log(Level.SEVERE, "Unsecure HTML file in help.zip found: " + zipFileEntryName);
+                            logger.warn("Unsecure HTML file in help.zip found: {}", zipFileEntryName);
                             return isHtmlSecure;
                         }
                     }
                 }
                 // all files scanned, no unsecure found
-                logger.log(Level.WARNING, "NO unsecure HTML file in help.zip found, all is ok.");
+                logger.info("NO unsecure HTML file in help.zip found, all is ok.");
                 isHtmlSecure = true;
             } finally {
                 zipFile.close();
             }
         } catch (FileNotFoundException e) {
-            logger.log(Level.SEVERE, "Exception while reading help.zip. File is invalid.", e);
+            logger.error("Exception while reading help.zip. File is invalid.", e);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Exception while reading help.zip. File is invalid.", e);
+            logger.error("Exception while reading help.zip. File is invalid.", e);
         }
         return isHtmlSecure;
     }

@@ -20,8 +20,9 @@ package frost.messaging.frost;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.messaging.frost.boards.Board;
@@ -29,13 +30,13 @@ import frost.storage.perst.messages.MessageStorage;
 
 public class SentMessagesManager {
 
-    private static final Logger logger = Logger.getLogger(SentMessagesManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SentMessagesManager.class);
 
     public static List<FrostMessageObject> retrieveSentMessages() {
         try {
             return MessageStorage.inst().retrieveAllSentMessages();
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Error retrieving sent messages", t);
+            logger.error("Error retrieving sent messages", t);
         }
 
         return new LinkedList<FrostMessageObject>();
@@ -58,7 +59,7 @@ public class SentMessagesManager {
             MessageStorage.inst().insertSentMessage(sentMo);
         } catch (final Throwable e) {
             // paranoia
-            logger.log(Level.SEVERE, "Error inserting sent message", e);
+            logger.error("Error inserting sent message", e);
         }
 
         return MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().addSentMessage(sentMo);
@@ -69,7 +70,7 @@ public class SentMessagesManager {
         try {
             deleted = MessageStorage.inst().deleteSentMessages(msgObjects);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Error deleting sent messages", t);
+            logger.error("Error deleting sent messages", t);
         }
         return deleted;
     }

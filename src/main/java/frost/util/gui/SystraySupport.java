@@ -28,15 +28,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.util.gui.translation.Language;
 
 public class SystraySupport {
-    
-    private static final Logger logger = Logger.getLogger(SystraySupport.class.getName());
+
+	private static final Logger logger = LoggerFactory.getLogger(SystraySupport.class);
 
     final private static Language language = Language.getInstance();
 
@@ -56,7 +57,7 @@ public class SystraySupport {
         try {
             return SystemTray.isSupported();
         } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Could not check for systray support.", t);            
+            logger.error("Could not check for systray support.", t);
         }
         return false;
     }

@@ -24,8 +24,9 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Method to read a message from freenet 0.7 node (InputStream).
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  */
 public class NodeMessage {
 
-    private static final Logger logger = Logger.getLogger(NodeMessage.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(NodeMessage.class);
 
     private final String messageName;
     private final HashMap<String,String> items;
@@ -105,7 +106,7 @@ public class NodeMessage {
                 final String[] tmp2 = tmp.split("=", 2);
                 result.addItem(tmp2[0], tmp2[1]);
             } else {
-                logger.severe("ERROR: no '=' in message line. This shouldn't happen. FIXME. : " + tmp + " -> " + tmp.length());
+                logger.error("no '=' in message line. This shouldn't happen. FIXME. : {} -> {}", tmp, tmp.length());
                 result.addItem("Unknown", tmp);
             }
         }
@@ -147,7 +148,7 @@ public class NodeMessage {
                 }
             }
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Throwable catched", e);
+            logger.error("Throwable catched", e);
             return null;
         }
     }

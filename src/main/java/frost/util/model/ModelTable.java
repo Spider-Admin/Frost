@@ -23,8 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -32,6 +30,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This subclass of AbstractTableModel is passed an OrderedModel and a
@@ -47,6 +48,8 @@ import javax.swing.table.TableColumnModel;
  */
 @SuppressWarnings("serial")
 abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableModel {
+
+	private static final Logger logger = LoggerFactory.getLogger(ModelTable.class);
 
 	/**
 	 * Helper class to be able to safely get the selection fron any thread
@@ -74,9 +77,9 @@ abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableMo
 				try {
 					SwingUtilities.invokeAndWait(this);
 				} catch (final InterruptedException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+					logger.error("Exception thrown in SelectionGetter.run()", e);
 				} catch (final InvocationTargetException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+					logger.error("Exception thrown in SelectionGetter.run()", e);
 				}
 			}
 			return selectedItems;
@@ -98,9 +101,9 @@ abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableMo
 				try {
 					SwingUtilities.invokeAndWait(this);
 				} catch (final InterruptedException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+					logger.error("Exception thrown in SelectionGetter.run()", e);
 				} catch (final InvocationTargetException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+					logger.error("Exception thrown in SelectionGetter.run()", e);
 				}
 			}
 			return selectedItem;
@@ -133,8 +136,6 @@ abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableMo
 		}
 
 	}
-
-	private static final Logger logger = Logger.getLogger(ModelTable.class.getName());
 
 	protected ModelTableFormat<T> tableFormat;
 	protected SortedModel<T> model;

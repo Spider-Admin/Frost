@@ -20,7 +20,9 @@ package frost.messaging.freetalk.transfer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.fcp07.NodeMessage;
 import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.FreetalkNodeMessageCallback;
@@ -29,7 +31,7 @@ import frost.messaging.freetalk.identities.FreetalkOwnIdentity;
 
 public class ListOwnIdentitiesCallback implements FreetalkNodeMessageCallback {
 
-    private static final Logger logger = Logger.getLogger(ListMessagesCallback.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(ListOwnIdentitiesCallback.class);
 
     private final List<FreetalkOwnIdentity> ownIdentityList = new ArrayList<FreetalkOwnIdentity>();
 
@@ -39,7 +41,7 @@ public class ListOwnIdentitiesCallback implements FreetalkNodeMessageCallback {
     public void handleNodeMessage(final String id, final NodeMessage nodeMsg) {
 
         if (!nodeMsg.isMessageName("FCPPluginReply")) {
-            logger.severe("Unexpected NodeMessage received: "+nodeMsg.getMessageName());
+            logger.warn("Unexpected NodeMessage received: {}", nodeMsg.getMessageName());
             FreetalkManager.getInstance().getConnection().unregisterCallback(id);
             return;
         }
@@ -53,7 +55,7 @@ public class ListOwnIdentitiesCallback implements FreetalkNodeMessageCallback {
         }
 
         if (!"OwnIdentity".equals(nodeMsg.getStringValue("Replies.Message"))) {
-            logger.severe("Unexpected NodeMessage received: "+nodeMsg.getStringValue("Replies.Message"));
+            logger.warn("Unexpected NodeMessage received: {}", nodeMsg.getStringValue("Replies.Message"));
             FreetalkManager.getInstance().getConnection().unregisterCallback(id);
             return;
         }

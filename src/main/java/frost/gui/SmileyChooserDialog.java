@@ -31,11 +31,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.util.gui.SmileyCache;
 import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class SmileyChooserDialog extends JDialog {
+
+	private static final Logger logger =  LoggerFactory.getLogger(SmileyChooserDialog.class);
 
     Language language = Language.getInstance();
 
@@ -126,9 +131,9 @@ public class SmileyChooserDialog extends JDialog {
         return returnValue;
     }
 
-//    public static void main(final String[] args) {
-//        final String s = new SmileyChooserDialog(null).startDialog();
-//        System.out.println("choosed="+s);
-//    }
+	public static void main(final String[] args) {
+		final String s = new SmileyChooserDialog((JDialog) null).startDialog(0, 0);
+		logger.info("choosed = {}", s);
+	}
 
 }

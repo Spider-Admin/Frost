@@ -22,9 +22,9 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -52,7 +52,7 @@ import frost.util.XMLTools;
  */
 public class FileListFile {
 
-    private static final Logger logger = Logger.getLogger(FileListFile.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileListFile.class);
 
     private static final String TAG_FrostFileListFile = "FrostFileListFile";
     private static final String TAG_timestamp = "timestamp";
@@ -70,7 +70,7 @@ public class FileListFile {
 
         final Document doc = XMLTools.createDomDocument();
         if( doc == null ) {
-            logger.severe("Error - writeFileListFile: factory could'nt create XML Document.");
+            logger.error("writeFileListFile: factory could'nt create XML Document.");
             return false;
         }
 
@@ -118,7 +118,7 @@ public class FileListFile {
         try {
             writeOK = XMLTools.writeXmlFile(doc, targetFile);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in writeFileListFile/writeXmlFile", t);
+            logger.error("Exception in writeFileListFile/writeXmlFile", t);
         }
 
         return writeOK;
@@ -135,32 +135,32 @@ public class FileListFile {
         try {
             d = XMLTools.parseXmlFile(sourceFile.getPath());
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during XML parsing", t);
+            logger.error("Exception during XML parsing", t);
             return null;
         }
 
         if( d == null ) {
-            logger.log(Level.SEVERE, "Could'nt parse the file");
+            logger.error("Could'nt parse the file");
             return null;
         }
 
         final Element rootNode = d.getDocumentElement();
 
         if( rootNode.getTagName().equals(TAG_FrostFileListFile) == false ) {
-            logger.severe("Error: xml file does not contain the root tag '"+TAG_FrostFileListFile+"'");
+            logger.error("xml file does not contain the root tag '{}'", TAG_FrostFileListFile);
             return null;
         }
 
         final String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, TAG_timestamp);
         if( timeStampStr == null ) {
-            logger.severe("Error: xml file does not contain the tag '"+TAG_timestamp+"'");
+            logger.error("xml file does not contain the tag '{}'", TAG_timestamp);
             return null;
         }
         final long timestamp = Long.parseLong(timeStampStr);
 
         final String signature = XMLTools.getChildElementsCDATAValue(rootNode, TAG_sign);
         if( signature == null ) {
-            logger.severe("Error: xml file does not contain the tag '"+TAG_sign+"'");
+            logger.error("xml file does not contain the tag '{}'", TAG_sign);
             return null;
         }
 
@@ -169,14 +169,14 @@ public class FileListFile {
         {
             List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_Identity);
             if( nodelist.size() != 1 ) {
-                logger.severe("Error: xml files must contain exactly one element '"+TAG_Identity+"'");
+                logger.error("xml files must contain exactly one element '{}'", TAG_Identity);
                 return null;
             }
             identityNode = nodelist.get(0);
 
             nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_files);
             if( nodelist.size() != 1 ) {
-                logger.severe("Error: xml files must contain exactly one element '"+TAG_files+"'");
+                logger.error("xml files must contain exactly one element '{}'", TAG_files);
                 return null;
             }
             filesNode = nodelist.get(0);
@@ -188,7 +188,7 @@ public class FileListFile {
             for( final Element el : _files ) {
                 final SharedFileXmlFile file = SharedFileXmlFile.getInstance(el);
                 if( file == null ) {
-                    logger.severe("Error: shared files xml parsing failed, most likely the signature verification will fail!");
+                    logger.error("shared files xml parsing failed, most likely the signature verification will fail!");
                     continue;
                 }
                 files.add( file );
@@ -197,20 +197,20 @@ public class FileListFile {
 
         final Identity owner = Identity.createIdentityFromXmlElement(identityNode);
         if( owner == null ) {
-            logger.severe("Error: invalid identity information");
+            logger.error("invalid identity information");
             return null;
         }
 
         if( !Core.getIdentitiesManager().isNewIdentityValid(owner) ) {
             // hash of public key does not match the unique name
-            logger.severe("Error: identity failed verification, file list from owner: "+owner.getUniqueName());
+            logger.error("identity failed verification, file list from owner: {}", owner.getUniqueName());
             return null;
         }
 
         final String signContent = getSignableContent(files, owner.getUniqueName(), timestamp);
         final boolean sigIsValid = Core.getCrypto().detachedVerify(signContent, owner.getPublicKey(), signature);
         if( !sigIsValid ) {
-            logger.severe("Error: invalid file signature from owner "+owner.getUniqueName());
+            logger.error("invalid file signature from owner {}", owner.getUniqueName());
             return null;
         }
 
@@ -218,12 +218,11 @@ public class FileListFile {
         for(final Iterator<SharedFileXmlFile> i=files.iterator(); i.hasNext(); ) {
             final SharedFileXmlFile file = i.next();
             if( !file.isSharedFileValid() ) {
-                final String txt = "Shared file is invalid (missing fields or wrong contents):"+
-                             "\n  size="+file.getSize()+
-                             "\n  sha="+file.getSha()+
-                             "\n  name="+file.getFilename()+
-                             "\n  key="+file.getKey();
-                logger.log(Level.SEVERE, txt);
+                logger.error("Shared file is invalid (missing fields or wrong contents):");
+                logger.error("  size = {}", file.getSize());
+                logger.error("  sha  = {}", file.getSha());
+                logger.error("  name = {}", file.getFilename());
+                logger.error("  key  = {}", file.getKey());
                 i.remove();
             }
         }

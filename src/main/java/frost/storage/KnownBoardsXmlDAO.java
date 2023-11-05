@@ -22,9 +22,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -37,7 +37,7 @@ import frost.util.XMLTools;
 
 public class KnownBoardsXmlDAO {
 
-    private static final Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(KnownBoardsXmlDAO.class);
 
     /**
      * @param file
@@ -52,12 +52,12 @@ public class KnownBoardsXmlDAO {
             try {
                 doc = XMLTools.parseXmlFile(boards);
             } catch (final Exception ex) {
-                logger.log(Level.SEVERE, "Error reading knownboards.xml", ex);
+                logger.error("Error reading knownboards.xml", ex);
                 return knownBoards;
             }
             final Element rootNode = doc.getDocumentElement();
             if( rootNode.getTagName().equals("FrostKnownBoards") == false ) {
-                logger.severe("Error - invalid knownboards.xml: does not contain the root tag 'FrostKnownBoards'");
+                logger.error("invalid knownboards.xml: does not contain the root tag 'FrostKnownBoards'");
                 return knownBoards;
             }
             // pass this as an 'AttachmentList' to xml read method and get all board attachments
@@ -65,7 +65,7 @@ public class KnownBoardsXmlDAO {
             try {
                 attachmentList.loadXMLElement(rootNode);
             } catch (final Exception ex) {
-                logger.log(Level.SEVERE, "Error - knownboards.xml: contains unexpected content.", ex);
+                logger.error("knownboards.xml: contains unexpected content.", ex);
                 return knownBoards;
             }
             final AttachmentList<BoardAttachment> lst = attachmentList.getAllOfTypeBoard();
@@ -74,10 +74,10 @@ public class KnownBoardsXmlDAO {
                 if( isBoardKeyValidForFreenetVersion(b) ) {
                     knownBoards.add(b);
                 } else {
-                    logger.warning("Known board keys are invalid for this freenet version, board ignored: "+b.getName());
+                    logger.warn("Known board keys are invalid for this freenet version, board ignored: {}", b.getName());
                 }
             }
-            logger.info("Loaded " + knownBoards.size() + " known boards.");
+            logger.info("Loaded {} known boards.", knownBoards.size());
         }
         return knownBoards;
     }
@@ -111,7 +111,7 @@ public class KnownBoardsXmlDAO {
     public static boolean saveKnownBoards(final File file, final List<Board> knownBoardList) {
         final Document doc = XMLTools.createDomDocument();
         if (doc == null) {
-            logger.severe("Error - saveBoardTree: factory couldn't create XML Document.");
+            logger.error("saveBoardTree: factory couldn't create XML Document.");
             return false;
         }
 
@@ -128,10 +128,10 @@ public class KnownBoardsXmlDAO {
         try {
             writeOK = XMLTools.writeXmlFile(doc, file.getPath());
         } catch (final Throwable ex) {
-            logger.log(Level.SEVERE, "Exception while writing knownboards.xml:", ex);
+            logger.error("Exception while writing knownboards.xml:", ex);
         }
         if (!writeOK) {
-            logger.severe("Error exporting knownboards, file was not saved");
+            logger.error("Error exporting knownboards, file was not saved");
         }
         return writeOK;
     }

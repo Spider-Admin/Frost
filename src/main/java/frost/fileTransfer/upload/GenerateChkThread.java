@@ -18,16 +18,16 @@
 */
 package frost.fileTransfer.upload;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 
 public class GenerateChkThread extends Thread {
 
-    private UploadTicker ticker;
+	private static final Logger logger = LoggerFactory.getLogger(GenerateChkThread.class);
 
-    private static final Logger logger = Logger.getLogger(GenerateChkThread.class.getName());
+    private UploadTicker ticker;
 
     FrostUploadItem uploadItem = null; // for upload and generate CHK
 
@@ -42,13 +42,13 @@ public class GenerateChkThread extends Thread {
         try {
             generateCHK();
         } catch (Throwable e) {
-            logger.log(Level.SEVERE, "Exception thrown in run()", e);
+            logger.error("Exception thrown in run()", e);
         }
         ticker.generatingThreadFinished();
     }
 
     private void generateCHK() {
-        logger.info("CHK generation started for file: " + uploadItem.getFileName());
+        logger.info("CHK generation started for file: {}", uploadItem.getFileName());
         String chkkey = null;
         
         // yes, this destroys any upload progress, but we come only here if
@@ -56,7 +56,7 @@ public class GenerateChkThread extends Thread {
         try {
             chkkey = FcpHandler.inst().generateCHK(uploadItem.getFile());
         } catch (Throwable t) {
-            logger.log(Level.SEVERE, "Encoding failed", t);
+            logger.error("Encoding failed", t);
             uploadItem.setState(FrostUploadItem.STATE_WAITING);
             return;
         }
@@ -67,8 +67,7 @@ public class GenerateChkThread extends Thread {
                 chkkey = chkkey.substring(prefix.length());
             }
         } else {
-            logger.warning("Could not generate CHK key for file.");
-            logger.log(Level.SEVERE, "Encoding failed");
+            logger.error("Could not generate CHK key for file.");
             uploadItem.setState(FrostUploadItem.STATE_WAITING);
             return;
         }

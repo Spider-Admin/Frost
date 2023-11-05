@@ -28,15 +28,16 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.fcp.NodeAddress;
 
 public class FcpSocket {
 
-    private static final Logger logger = Logger.getLogger(FcpSocket.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FcpSocket.class);
 
     // This is the timeout set in Socket.setSoTimeout().
     private final static int TIMEOUT = 90 * 60 * 1000;
@@ -107,7 +108,7 @@ public class FcpSocket {
             final FcpSocket newSocket = new FcpSocket(na);
             return newSocket;
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception catched", t);
+            logger.error("Exception catched", t);
             return null;
         }
     }

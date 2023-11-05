@@ -34,8 +34,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -53,6 +51,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.JTextComponent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
@@ -67,7 +68,7 @@ import frost.util.gui.translation.LanguageListener;
 @SuppressWarnings("serial")
 public class HelpBrowser extends JPanel {
 
-    private static final Logger logger = Logger.getLogger(HelpBrowser.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(HelpBrowser.class);
 
     private static Language language = Language.getInstance();
 
@@ -251,7 +252,7 @@ public class HelpBrowser extends JPanel {
             docTxt = helpHTMLEditorKit.getHelpHTMLDocument().getText(0, helpHTMLEditorKit.getHelpHTMLDocument().getLength());
             docTxt = docTxt.toLowerCase();
         } catch (final BadLocationException e1) {
-            logger.log(Level.SEVERE, "Could not get text from document.", e1);
+            logger.error("Could not get text from document.", e1);
             return;
         }
 
@@ -303,7 +304,7 @@ public class HelpBrowser extends JPanel {
             editorPane.requestFocus();
 
         } catch (final IOException e1) {
-            logger.log(Level.INFO, "HELP: Missing file: '" + url + "'");
+            logger.error("Missing file: '{}'", url);
         }
 
         updateBrowserButtons();

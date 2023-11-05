@@ -19,18 +19,18 @@
 package frost.fileTransfer;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fileTransfer.filelist.FileListDownloadThread;
 import frost.fileTransfer.filelist.FilePointerFileContent;
 import frost.storage.perst.SharedFilesCHKKey;
 import frost.storage.perst.SharedFilesCHKKeyStorage;
-import frost.util.Logging;
 
 public class SharedFilesCHKKeyManager {
 
-    private static final Logger logger = Logger.getLogger(SharedFilesCHKKeyManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SharedFilesCHKKeyManager.class);
 
     // TODO: download bis zu _1 mal hintereinander, wenn fail dann noch bis _2 mal taeglich. dann ende.
     private static final int MAX_DOWNLOAD_RETRIES_1 = 7;
@@ -49,7 +49,7 @@ public class SharedFilesCHKKeyManager {
             // rules what chks are choosed are in the following method
             return SharedFilesCHKKeyStorage.inst().getSharedFilesCHKKeysToSend(MAX_KEYS_TO_SEND);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in SharedFilesCHKKeysDatabaseTable().getSharedFilesCHKKeysToSend", t);
+            logger.error("Exception in SharedFilesCHKKeysDatabaseTable().getSharedFilesCHKKeysToSend", t);
         }
         return null;
     }
@@ -73,7 +73,7 @@ public class SharedFilesCHKKeyManager {
                 key.modify();
             }
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during database update", t);
+            logger.error("Exception during database update", t);
         } finally {
             SharedFilesCHKKeyStorage.inst().endThreadTransaction();
         }
@@ -93,9 +93,7 @@ public class SharedFilesCHKKeyManager {
             return;
         }
         try {
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyStrings().size()+" keys");
-            }
+            logger.debug("processReceivedCHKKeys: processing {} keys", content.getChkKeyStrings().size());
             int newKeys = 0;
             int seenKeys = 0;
             int newOwnKeys = 0;
@@ -105,7 +103,7 @@ public class SharedFilesCHKKeyManager {
                     SharedFilesCHKKey ck = SharedFilesCHKKeyStorage.inst().retrieveSharedFilesCHKKey(chkStr);
                     if( ck == null ) {
                         // new key
-//                        System.out.println("processReceivedCHKKeys: enqueueing new key");
+                        logger.debug("processReceivedCHKKeys: enqueueing new key");
                         newKeys++;
                         // add to database
                         ck = new SharedFilesCHKKey(chkStr, content.getTimestamp());
@@ -132,22 +130,20 @@ public class SharedFilesCHKKeyManager {
                         if( isOurOwnKey && !ck.isDownloaded() ) {
                             // enqueue for download
                             FileListDownloadThread.getInstance().enqueueNewKey(chkStr);
-//                            System.out.println("processReceivedCHKKeys: new own key enqueued");
+                            logger.debug("processReceivedCHKKeys: new own key enqueued");
                             newOwnKeys++;
                         } else {
-//                            System.out.println("processReceivedCHKKeys: key seen again");
+                            logger.debug("processReceivedCHKKeys: key seen again");
                             seenKeys++;
                         }
                     }
                 } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Exception in processReceivedCHKKeys", t);
+                    logger.error("Exception in processReceivedCHKKeys", t);
                 }
             }
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("processReceivedCHKKeys: finished processing keys, new="+newKeys+", seen="+seenKeys+", newOwn="+newOwnKeys);
-            }
+            logger.debug("processReceivedCHKKeys: finished processing keys, new = {}, seen = {}, newOwn = {}", newKeys, seenKeys, newOwnKeys);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during chk key processing", t);
+            logger.error("Exception during chk key processing", t);
         } finally {
             SharedFilesCHKKeyStorage.inst().endThreadTransaction();
         }
@@ -158,12 +154,10 @@ public class SharedFilesCHKKeyManager {
         try {
             // rules what chks are choosed are in the following method
             final List<String> chkKeys = SharedFilesCHKKeyStorage.inst().retrieveSharedFilesCHKKeysToDownload(MAX_DOWNLOAD_RETRIES_1);
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":Integer.toString(chkKeys.size())));
-            }
+            logger.debug("getCHKKeyStringsToDownload: returning keys: {}", chkKeys.size());
             return chkKeys;
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in retrieveSharedFilesCHKKeysToDownload", t);
+            logger.error("Exception in retrieveSharedFilesCHKKeysToDownload", t);
         }
         return null;
     }
@@ -174,12 +168,10 @@ public class SharedFilesCHKKeyManager {
     public static boolean updateCHKKeyDownloadSuccessful(final String chkKey, final long timestamp, final boolean isValid) {
         // this chk was successfully downloaded, update database
         try {
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+isValid);
-            }
+            logger.debug("updateCHKKeyDownloadSuccessful: key = {}, isValid = {}", chkKey, isValid);
             return SharedFilesCHKKeyStorage.inst().updateSharedFilesCHKKeyAfterDownloadSuccessful(chkKey, timestamp, isValid);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in updateSharedFilesCHKKeyAfterDownloadSuccessful", t);
+            logger.error("Exception in updateSharedFilesCHKKeyAfterDownloadSuccessful", t);
         }
         return false;
     }
@@ -192,16 +184,14 @@ public class SharedFilesCHKKeyManager {
             final boolean doRetry = SharedFilesCHKKeyStorage.inst().updateSharedFilesCHKKeyAfterDownloadFailed(chkKey, MAX_DOWNLOAD_RETRIES_1);
             return doRetry;
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in updateCHKKeyDownloadFailed", t);
+            logger.error("Exception in updateCHKKeyDownloadFailed", t);
         }
         return false;
     }
 
     public static boolean addNewCHKKeyToSend(final SharedFilesCHKKey key) {
         try {
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("addNewCHKKeyToSend: "+key);
-            }
+            logger.debug("addNewCHKKeyToSend: {}", key);
             if( !SharedFilesCHKKeyStorage.inst().beginExclusiveThreadTransaction() ) {
                 return false;
             }
@@ -212,7 +202,7 @@ public class SharedFilesCHKKeyManager {
             }
             return true;
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in addNewCHKKeyToSend", t);
+            logger.error("Exception in addNewCHKKeyToSend", t);
         }
         return false;
     }

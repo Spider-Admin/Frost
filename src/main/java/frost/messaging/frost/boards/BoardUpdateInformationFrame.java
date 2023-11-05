@@ -48,6 +48,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.MainFrame;
 
 
@@ -65,6 +68,8 @@ import frost.MainFrame;
 */
 @SuppressWarnings("serial")
 public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateThreadListener, TreeSelectionListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(BoardUpdateInformationFrame.class);
 
     private JComboBox cbBoards;
     private JLabel lBoards;
@@ -199,7 +204,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
             pack();
             setSize(400, 470);
         } catch (final Exception e) {
-            e.printStackTrace();
+            logger.error("Exception", e);
         }
     }
 

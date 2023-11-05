@@ -50,8 +50,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -62,12 +60,17 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.SettingsClass;
 import frost.messaging.frost.boards.AbstractNode;
 
 @SuppressWarnings("serial")
 public class JDragTree extends JTree implements DragGestureListener, DragSourceListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(JDragTree.class);
 
 	 //	DropTargetListener interface object...
 	 private class CDropTargetListener implements DropTargetListener 
@@ -257,7 +260,7 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 							 int idx = newParent.getIndex(targetNode);
 							 if( idx < 0 )
 							 {
-								 logger.warning("child not found in parent!!!");
+								 logger.warn("child not found in parent!!!");
 								 e.dropComplete(false);
 								 return;
 							 }
@@ -310,13 +313,13 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 					 }
 					 catch (UnsupportedFlavorException ufe)
 					 {
-						 logger.log(Level.SEVERE, "Exception thrown in drop(DropTargetDropEvent e)", ufe);
+						 logger.error("Exception thrown in drop(DropTargetDropEvent e)", ufe);
 						 e.dropComplete(false);
 						 return;
 					 }
 					 catch (IOException ioe)
 					 {
-						 logger.log(Level.SEVERE, "Exception thrown in drop(DropTargetDropEvent e)", ioe);
+						 logger.error("Exception thrown in drop(DropTargetDropEvent e)", ioe);
 						 e.dropComplete(false);
 						 return;
 					 }
@@ -399,8 +402,6 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		}
 	} 
 
-	private static final Logger logger = Logger.getLogger(JDragTree.class.getName());
-	
 	private TreePath        _pathSource;                // The path being dragged
 	private BufferedImage   _imgGhost;                  // The 'drag image'
 	private Point           _ptOffset = new Point();    // Where, in the drag image, the mouse was clicked

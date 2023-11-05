@@ -20,10 +20,11 @@ package frost.messaging.frost.transfer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -42,7 +43,7 @@ import frost.util.Mixed;
  */
 public class MessageUploader {
 
-    private static final Logger logger = Logger.getLogger(MessageUploader.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MessageUploader.class);
 
     /**
      * The work area for MessageUploader.
@@ -111,9 +112,9 @@ public class MessageUploader {
         try {
             return uploadMessage(wa);
         } catch (final IOException ex) {
-            logger.log(Level.SEVERE,"ERROR: Unexpected IOException, upload stopped.",ex);
+            logger.error("Unexpected IOException, upload stopped.",ex);
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Oo. EXCEPTION in MessageUploadThread", t);
+            logger.error("Oo. EXCEPTION in MessageUploadThread", t);
         }
         return new MessageUploaderResult(true); // keep msg
     }
@@ -123,7 +124,7 @@ public class MessageUploader {
      */
     protected static MessageUploaderResult uploadMessage(final MessageUploaderWorkArea wa) throws IOException {
 
-        logger.info("TOFUP: Uploading message to board '" + wa.logBoardName + "'");
+        logger.info("TOFUP: Uploading message to board '{}'", wa.logBoardName);
 
         boolean tryAgain;
         do {
@@ -166,14 +167,15 @@ public class MessageUploader {
                             wa.uploadFile,
                             true);  // doMime
                 } catch (final Throwable t) {
-                    logger.log(Level.SEVERE, "TOFUP: Error in FcpInsert.putFile."+logInfo, t);
+                    logger.error("TOFUP: Error in FcpInsert.putFile. {}", logInfo, t);
                 }
 
                 final int waitTime = 15000;
 
                 if (result.isRetry()) {
-                    logger.severe("TOFUP: Message upload failed (RouteNotFound)!\n"+logInfo+
-                            "\n(try no. " + tries + " of " + maxTries + "), retrying index " + index);
+                    logger.error("TOFUP: Message upload failed (RouteNotFound)!");
+                    logger.error("{}", logInfo);
+                    logger.error("(try no. {} of {}), retrying index {}",  tries, maxTries, index);
                     tries++;
                     retrySameIndex = true;
                     Mixed.wait(waitTime);
@@ -190,8 +192,8 @@ public class MessageUploader {
                         if( downloadMessage(index, tmpFile, wa) ) {
                             break;
                         } else {
-                            logger.severe("TOFUP: Uploaded message could NOT be retrieved! "+
-                                    "Download try "+dlTries+" of "+maxTries+"\n"+logInfo);
+                            logger.error("TOFUP: Uploaded message could NOT be retrieved! Download try {} of {}", dlTries, maxTries);
+                            logger.error("{}", logInfo);
                             dlTries++;
                         }
                     }
@@ -199,35 +201,35 @@ public class MessageUploader {
                     if( tmpFile.length() > 0 ) {
                         insertions++;
                         if (insertions >= 2) {
-                        logger.warning("TOFUP: Uploaded message was successfully retrieved."+logInfo);
+                        logger.info("TOFUP: Uploaded message was successfully retrieved. {}", logInfo);
                         success = true;
                     } else {
-                        	logger.warning("TOFUP: Uploaded message was successfully retrieved; "+
-                        					"inserting a second time because Freenet sucks."+logInfo);
+                            logger.info("TOFUP: Uploaded message was successfully retrieved; inserting a second time because Freenet sucks. {}", logInfo);
 							retrySameIndex = true;
 						}
                     } else {
-                        logger.severe("TOFUP: Uploaded message could NOT be retrieved!\n"+logInfo+
-                                "\n(try no. " + tries + " of " + maxTries + "), retrying index " + index);
+                        logger.error("TOFUP: Uploaded message could NOT be retrieved!");
+                        logger.error("{}", logInfo);
+                        logger.error("(try no. {} of {}), retrying index {}", tries, maxTries, index);
                         tries++;
                         retrySameIndex = true;
                     }
                     tmpFile.delete();
 
                 } else if (result.isKeyCollision()) {
-                    logger.warning("TOFUP: Upload collided, trying next free index."+logInfo);
+                    logger.warn("TOFUP: Upload collided, trying next free index. {}", logInfo);
                     Mixed.wait(waitTime);
                 } else if (result.isNoConnection()) {
                     // no connection to node, try after next update
-                    logger.severe("TOFUP: Upload failed, no node connection."+logInfo);
+                    logger.error("TOFUP: Upload failed, no node connection. {}", logInfo);
                     error = true;
                 } else {
                     // other error
                     if (tries > maxTries) {
                         error = true;
                     } else {
-                        logger.warning("TOFUP: Upload failed, "+logInfo+"\n(try no. " + tries + " of " + maxTries
-                                + "), retrying index " + index);
+                        logger.warn("TOFUP: Upload failed, {}", logInfo);
+                        logger.warn("(try no. {} of {}), retrying index {}", tries, maxTries, index);
                         tries++;
                         retrySameIndex = true;
                         Mixed.wait(waitTime);
@@ -239,14 +241,14 @@ public class MessageUploader {
                 // mark slot used
                 wa.indexSlot.setUploadSlotUsed(index);
 
-                logger.info("Message successfully uploaded."+logInfo+"\n");
+                logger.info("Message successfully uploaded. {}", logInfo);
 
                 wa.uploadFile.delete();
 
                 return new MessageUploaderResult(index); // success
 
             } else { // error == true
-                logger.warning("TOFUP: Error while uploading message.");
+                logger.error("TOFUP: Error while uploading message.");
 
                 final boolean retrySilently = Core.frostSettings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES);
                 if (!retrySilently) {
@@ -265,11 +267,11 @@ public class MessageUploader {
                         return new MessageUploaderResult(true); // keep msg
                     } else if (answer == MessageUploadFailedDialog.DISCARD_VALUE) {
                         wa.uploadFile.delete();
-                        logger.warning("TOFUP: Will NOT try to upload message again.");
+                        logger.warn("TOFUP: Will NOT try to upload message again.");
 //                        tryAgain = false;
                         return new MessageUploaderResult(false); // delete msg
                     } else { // paranoia
-                        logger.warning("TOFUP: Paranoia - will try to upload message again.");
+                        logger.warn("TOFUP: Paranoia - will try to upload message again.");
                         tryAgain = true;
                     }
                 } else {
@@ -299,7 +301,7 @@ public class MessageUploader {
                 return true;
             }
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Handled exception in downloadMessage", t);
+            logger.error("Handled exception in downloadMessage", t);
         }
         return false;
     }
@@ -319,7 +321,7 @@ public class MessageUploader {
 
         // save msg to uploadFile
         if (!wa.message.saveToFile(wa.uploadFile)) {
-            logger.severe("Save to file '"+wa.uploadFile.getPath()+"' failed. This was a HARD error, file was NOT uploaded, please report to a dev!");
+            logger.error("Save to file '{}' failed. This was a HARD error, file was NOT uploaded, please report to a dev!", wa.uploadFile.getPath());
             return false;
         }
 
@@ -329,12 +331,12 @@ public class MessageUploader {
         {
             // encrypt file to temp. upload file
             if(!MessageXmlFile.encryptForRecipientAndSaveCopy(wa.uploadFile, wa.encryptForRecipient, wa.uploadFile)) {
-                logger.severe("This was a HARD error, file was NOT uploaded, please report to a dev!");
+                logger.error("This was a HARD error, file was NOT uploaded, please report to a dev!");
                 return false;
             }
 
         } else if( wa.encryptForRecipient != null ) {
-            logger.log(Level.SEVERE, "TOFUP: ALERT - can't encrypt message if sender is Anonymous! Will not send message!");
+            logger.error("TOFUP: ALERT - can't encrypt message if sender is Anonymous! Will not send message!");
             return false; // unable to encrypt
         }
         // else leave msg as is

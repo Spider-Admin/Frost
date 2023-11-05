@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.fcp.fcp07.NodeMessage;
@@ -36,7 +37,7 @@ import frost.messaging.freetalk.boards.FreetalkBoard;
 
 public class ListMessagesCallback implements FreetalkNodeMessageCallback {
 
-    private static final Logger logger = Logger.getLogger(ListMessagesCallback.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(ListMessagesCallback.class);
 
     private final MainFrame mainFrame;
     private final FreetalkBoard board;
@@ -53,7 +54,7 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
     public void handleNodeMessage(final String id, final NodeMessage nodeMsg) {
 
         if (!nodeMsg.isMessageName("FCPPluginReply")) {
-            logger.severe("Unexpected NodeMessage received: "+nodeMsg.getMessageName());
+            logger.warn("Unexpected NodeMessage received: {}", nodeMsg.getMessageName());
             FreetalkManager.getInstance().getConnection().unregisterCallback(id);
             mainFrame.deactivateGlassPane();
             return;
@@ -75,7 +76,7 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
         }
 
         if (!"Message".equals(nodeMsg.getStringValue("Replies.Message"))) {
-            logger.severe("Unexpected NodeMessage received: "+nodeMsg.getStringValue("Replies.Message"));
+            logger.warn("Unexpected NodeMessage received: {}", nodeMsg.getStringValue("Replies.Message"));
             FreetalkManager.getInstance().getConnection().unregisterCallback(id);
             mainFrame.deactivateGlassPane();
             return;
@@ -110,7 +111,7 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
         if (nodeMsg.isValueSet("DataLength")) {
 
             if (!"Data".equals(nodeMsg.getMessageEnd())) {
-                logger.severe("Endmarker is not Data: "+nodeMsg.getStringValue("Replies.Message"));
+                logger.error("Endmarker is not Data: {}", nodeMsg.getStringValue("Replies.Message"));
             } else {
                 final long i = Long.parseLong(nodeMsg.getStringValue("DataLength"));
 
@@ -119,7 +120,7 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
                     final byte[] dataBytes = nodeMsg.receiveMessageData(i);
                     messageText = new String(dataBytes, "UTF-8");
                 } catch(final IOException ex) {
-                    logger.log(Level.SEVERE, "Error receiving message data", ex);
+                    logger.error("Error receiving message data", ex);
                 }
             }
         }

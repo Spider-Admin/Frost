@@ -32,6 +32,9 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
@@ -49,6 +52,8 @@ import frost.util.gui.translation.Language;
 
 @SuppressWarnings("serial")
 public class AddNewUploadsDialog extends JFrame {
+
+	private static final Logger logger = LoggerFactory.getLogger(AddNewUploadsDialog.class);
 
 	private final Language language;
 
@@ -209,7 +214,7 @@ public class AddNewUploadsDialog extends JFrame {
 			}
 			
 		} catch (final Exception e) {
-			e.printStackTrace();
+			logger.error("Exception", e);
 		}
 	}
 	

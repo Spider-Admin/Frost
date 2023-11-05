@@ -22,12 +22,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
 import frost.util.FileAccess;
-import frost.util.Logging;
 
 /**
  * Helper class to provide TestDDA functionality for DIRECT or SHARED FCP connections.
@@ -50,7 +51,7 @@ import frost.util.Logging;
  */
 public class TestDDAHelper {
 
-    private static final Logger logger = Logger.getLogger(TestDDAHelper.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(TestDDAHelper.class);
 
     /**
      * Receives a node message using a NodeMessageListener on the FcpListenThreadConnection.
@@ -94,7 +95,7 @@ public class TestDDAHelper {
         }
         
         if ((listenThread == null && fcpSocket == null) || (listenThread != null && fcpSocket != null)) {
-            logger.severe("TestDDA: Invalid call, listenThread and fcpSocket both null or both set.");
+            logger.error("TestDDA: Invalid call, listenThread and fcpSocket both null or both set.");
             return false;
         }
         
@@ -106,7 +107,7 @@ public class TestDDAHelper {
         }
 
         if (checkedDirectories.contains(dir.getAbsolutePath())) {
-            logger.warning("TestDDA: directory is already permitted: "+dir.getAbsolutePath());
+            logger.warn("TestDDA: directory is already permitted: {}", dir.getAbsolutePath());
             return true;
         }
 
@@ -144,7 +145,7 @@ public class TestDDAHelper {
             nodeMsg = receiveNodeMessage(fcpSocket, listenThread, nodeMessageListener);
             
             if (nodeMsg == null || !nodeMsg.isMessageName("TestDDAReply")) {
-                logger.warning("TestDDA failed, TestDDAReply expected: "+nodeMsg);
+                logger.warn("TestDDA failed, TestDDAReply expected: {}", nodeMsg);
                 return false;
             }
             
@@ -158,7 +159,7 @@ public class TestDDAHelper {
                 EndMessage
              */
             if (!dir.getAbsolutePath().equals(nodeMsg.getStringValue("Directory"))) {
-                logger.warning("TestDDA failed, different directory returned: "+nodeMsg);
+                logger.warn("TestDDA failed, different directory returned: {}", nodeMsg);
                 return false;
             }
             
@@ -167,7 +168,7 @@ public class TestDDAHelper {
             final String contentToWrite = nodeMsg.getStringValue("ContentToWrite");
             
             if (readFilename == null || writeFilename == null || contentToWrite == null) {
-                logger.warning("TestDDA failed, invalid parameters returned: "+nodeMsg);
+                logger.warn("TestDDA failed, invalid parameters returned: {}", nodeMsg);
                 return false;
             }
             
@@ -175,7 +176,7 @@ public class TestDDAHelper {
             final File writeFile = new File(writeFilename);
             
             if (!FileAccess.writeFile(contentToWrite, writeFile, "UTF-8")) {
-                logger.warning("TestDDA failed, could not write requested writeFile: "+nodeMsg);
+                logger.warn("TestDDA failed, could not write requested writeFile: {}", nodeMsg);
                 return false;
             }
             
@@ -205,7 +206,7 @@ public class TestDDAHelper {
             writeFile.delete();
             
             if (nodeMsg == null || !nodeMsg.isMessageName("TestDDAComplete")) {
-                logger.warning("TestDDA failed, TestDDAComplete expected: "+nodeMsg);
+                logger.warn("TestDDA failed, TestDDAComplete expected: {}", nodeMsg);
                 return false;
             }
             
@@ -218,7 +219,7 @@ public class TestDDAHelper {
                 EndMessage
              */
             if (!dir.getAbsolutePath().equals(nodeMsg.getStringValue("Directory"))) {
-                logger.warning("TestDDA failed, different directory returned: "+nodeMsg);
+                logger.warn("TestDDA failed, different directory returned: {}", nodeMsg);
                 return false;
             }
             
@@ -226,7 +227,7 @@ public class TestDDAHelper {
             boolean writeDirectoryAllowed = nodeMsg.getBoolValue("WriteDirectoryAllowed");
             
             if (!readDirectoryAllowed || !writeDirectoryAllowed) {
-                logger.warning("TestDDA completed, DDA not permitted: "+nodeMsg);
+                logger.warn("TestDDA completed, DDA not permitted: {}", nodeMsg);
                 return false;
             }
 
@@ -234,11 +235,7 @@ public class TestDDAHelper {
             
             checkedDirectories.add(dir.getAbsolutePath());
             
-            if(Logging.inst().doLogFcp2Messages()) {
-                logger.warning("TestDDA: DDA permitted for dir='"+dir.getAbsolutePath()+"'");
-            }
-            System.out.println("DDA permitted for dir='"+dir.getAbsolutePath()+"'");
-            
+            logger.warn("TestDDA: DDA permitted for dir='{}'", dir.getAbsolutePath());
             return true;
             
         } finally {
@@ -268,7 +265,7 @@ public class TestDDAHelper {
                     }
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("InterruptedException", e);
             }
             nodeMsg = nodeMessageListener.getReceivedNodeMessage();
         } else {

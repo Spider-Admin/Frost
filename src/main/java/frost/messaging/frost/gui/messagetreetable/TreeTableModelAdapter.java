@@ -52,6 +52,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This wrapper class takes a TreeTableModel and implements the table model interface. The implementation is trivial,
  * with all of the event dispatching support provided by the superclass: the AbstractTableModel.
@@ -63,6 +66,8 @@ import javax.swing.tree.TreePath;
  */
 @SuppressWarnings("serial")
 public class TreeTableModelAdapter extends AbstractTableModel {
+
+	private static final Logger logger = LoggerFactory.getLogger(TreeTableModelAdapter.class);
 
     final JTree tree;
     final MessageTreeTable treeTable;
@@ -171,14 +176,14 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             final int[] childIndices = e.getChildIndices();
             // we always insert only one child at a time
             if( childIndices.length != 1 ) {
-                System.out.println("****** FIXME1: more than 1 child: "+childIndices.length+" ********");
+                logger.warn("****** FIXME1: more than 1 child: {} ********", childIndices.length);
             }
             // update the row for this node
             final DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(childIndices[0]);
             final int row = treeTable.getRowForNode(childNode);
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-//                    System.out.println("treeNodesChanged: "+row);
+                    logger.debug("treeNodesChanged: {}", row);
                     fireTableRowsUpdated(row, row);
                 }
             });
@@ -192,7 +197,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             final int[] childIndices = e.getChildIndices();
             // we always insert only one child at a time
             if( childIndices.length != 1 ) {
-                System.out.println("****** FIXME2: more than 1 child: "+childIndices.length+" ********");
+                logger.warn("****** FIXME2: more than 1 child: {} ********", childIndices.length);
             }
             //            final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
             SwingUtilities.invokeLater(new Runnable() {
@@ -211,7 +216,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             final int[] childIndices = e.getChildIndices();
             // we always remove only one child at a time
             if( childIndices.length != 1 ) {
-                System.out.println("****** FIXME3: more than 1 child: "+childIndices.length+" ********");
+                logger.warn("****** FIXME3: more than 1 child: {} ********", childIndices.length);
             }
             // ATTN: will getRowForNode work if node was already removed from tree?
             //  -> we currently don't remove nodes from tree anywhere in Frost

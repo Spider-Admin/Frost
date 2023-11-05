@@ -25,12 +25,13 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TranslateableFrostResourceBundle extends FrostResourceBundle {
 
-    private static final Logger logger = Logger.getLogger(TranslateableFrostResourceBundle.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(TranslateableFrostResourceBundle.class);
 
     /**
      * Changed default constructor:
@@ -110,7 +111,7 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
             out.close();
             return true;
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Error saving bundle.", t);
+            logger.error("Error saving bundle.", t);
             return false;
         }
     }

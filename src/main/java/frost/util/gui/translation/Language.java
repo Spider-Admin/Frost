@@ -24,17 +24,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @pattern Singleton
  */
 public class Language {
 
-    private static final Logger logger = Logger.getLogger(Language.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(Language.class);
 
     private FrostResourceBundle RESOURCE_BUNDLE = null;
     private FrostResourceBundle ROOT_RESOURCE_BUNDLE = null;
@@ -233,10 +234,10 @@ public class Language {
             s = null;
         } catch(final Throwable t) {
             s = null;
-            logger.log(Level.SEVERE, "Exception catched", t);
+            logger.error("Exception catched", t);
         }
         if( s == null ) {
-            logger.severe("No translation found for key '"+origKey+"', using key.");
+            logger.error("No translation found for key '{}', using key.", origKey);
             return origKey;
         } else {
             return s;

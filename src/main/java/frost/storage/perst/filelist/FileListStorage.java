@@ -29,6 +29,8 @@ import org.garret.perst.IPersistentList;
 import org.garret.perst.Index;
 import org.garret.perst.PersistentIterator;
 import org.garret.perst.Storage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -39,6 +41,8 @@ import frost.storage.FileListCallback;
 import frost.storage.perst.AbstractFrostStorage;
 
 public class FileListStorage extends AbstractFrostStorage implements ExitSavable, PropertyChangeListener {
+	
+	private static final Logger logger =  LoggerFactory.getLogger(FileListStorage.class);
 
     private FileListStorageRoot storageRoot = null;
 
@@ -90,7 +94,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     public void exitSave() {
         close();
         storageRoot = null;
-        System.out.println("INFO: FileListStorage closed.");
+        logger.info("FileListStorage closed.");
     }
 
     public IPersistentList<FrostFileListFileObjectOwner> createList() {
@@ -480,7 +484,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return;
         }
 
-        System.out.println("Starting file search...");
+        logger.info("Starting file search...");
         final long t = System.currentTimeMillis();
 
         boolean searchForNames = true;
@@ -549,7 +553,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                 }
             }
         } finally {
-            System.out.println("Finished file search, duration="+(System.currentTimeMillis() - t));
+            logger.info("Finished file search, duration = {}", System.currentTimeMillis() - t);
             endThreadTransaction();
         }
     }

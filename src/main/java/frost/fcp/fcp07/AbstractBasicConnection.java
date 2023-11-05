@@ -25,15 +25,15 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.NodeAddress;
-import frost.util.Logging;
 
 public abstract class AbstractBasicConnection {
 
-    protected static final Logger mylogger = Logger.getLogger(AbstractBasicConnection.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(AbstractBasicConnection.class);
 
     protected FcpSocket fcpSocket;
     protected final NodeAddress nodeAddress;
@@ -64,25 +64,16 @@ public abstract class AbstractBasicConnection {
     public boolean sendMessage(final List<String> message) {
 
         writeSocketLock.lock();
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
         try {
-            if(doLogging) {
-                System.out.println("### SEND >>>>>>> (FcpMultiRequestConnection.sendMessage)");
-            }
+            logger.debug("### SEND >>>>>>> (FcpMultiRequestConnection.sendMessage)");
             for( final String msgLine : message ) {
                 fcpSocket.getFcpOut().println(msgLine);
-                if(doLogging) {
-                    System.out.println(msgLine);
-                }
+                logger.debug("{}", msgLine);
             }
             fcpSocket.getFcpOut().println("EndMessage");
-            if(doLogging) {
-                System.out.println("*EndMessage*");
-            }
+            logger.debug("*EndMessage*");
             final boolean isError = fcpSocket.getFcpOut().checkError();
-            if(doLogging) {
-                System.out.println("### SEND <<<<<<< isError="+isError);
-            }
+            logger.debug("### SEND <<<<<<< isError = {}", isError);
             return isError;
         } finally {
             writeSocketLock.unlock();
@@ -98,16 +89,11 @@ public abstract class AbstractBasicConnection {
     public boolean sendMessageAndData(final List<String> message, final File sourceFile) {
 
         writeSocketLock.lock();
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
         try {
-            if(doLogging) {
-                System.out.println("### SEND_DATA >>>>>>>");
-            }
+            logger.debug("### SEND_DATA >>>>>>>");
             for( final String msgLine : message ) {
                 fcpSocket.getFcpOut().println(msgLine);
-                if(doLogging) {
-                    System.out.println(msgLine);
-                }
+                logger.debug("{}", msgLine);
             }
 
             fcpSocket.getFcpOut().println("DataLength=" + Long.toString(sourceFile.length()));
@@ -127,12 +113,10 @@ public abstract class AbstractBasicConnection {
             fileInput.close();
             fcpSocket.getFcpRawOut().flush();
 
-            if(doLogging) {
-                System.out.println("### SEND_DATA <<<<<<<");
-            }
+            logger.debug("### SEND_DATA <<<<<<<");
             return false; // no error
         } catch(final Throwable t) {
-            mylogger.log(Level.SEVERE, "Error sending file to socket", t);
+            logger.error("Error sending file to socket", t);
             return true; // error
         } finally {
             writeSocketLock.unlock();
@@ -148,16 +132,11 @@ public abstract class AbstractBasicConnection {
     public boolean sendMessageAndData(final List<String> message, final byte[] data) {
 
         writeSocketLock.lock();
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
         try {
-            if(doLogging) {
-                System.out.println("### SEND_DATA >>>>>>>");
-            }
+            logger.debug("### SEND_DATA >>>>>>>");
             for( final String msgLine : message ) {
                 fcpSocket.getFcpOut().println(msgLine);
-                if(doLogging) {
-                    System.out.println(msgLine);
-                }
+                logger.debug("{}", msgLine);
             }
             fcpSocket.getFcpOut().println("DataLength="+Integer.toString(data.length));
             fcpSocket.getFcpOut().println("Data");
@@ -170,12 +149,10 @@ public abstract class AbstractBasicConnection {
             }
             fcpSocket.getFcpRawOut().flush();
 
-            if(doLogging) {
-                System.out.println("### SEND_DATA <<<<<<<");
-            }
+            logger.debug("### SEND_DATA <<<<<<<");
             return false; // no error
         } catch(final Throwable t) {
-            mylogger.log(Level.SEVERE, "Error sending data to socket", t);
+            logger.error("Error sending data to socket", t);
             return true; // error
         } finally {
             writeSocketLock.unlock();

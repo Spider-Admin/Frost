@@ -22,13 +22,16 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.NodeAddress;
 import frost.util.Mixed;
 
 public class FcpFactory {
-    private static final Logger logger = Logger.getLogger(FcpFactory.class.getName());
+
+	private static final Logger logger = LoggerFactory.getLogger(FcpFactory.class);
 
     private static NodeAddress freenetNode = null;
 
@@ -46,26 +49,22 @@ public class FcpFactory {
             try {
                 connection = getConnection();
             } catch (final UnknownHostException e) {
-                logger.severe("FcpConnection.getFcpConnectionInstance: UnknownHostException " + e);
+                logger.error("FcpConnection.getFcpConnectionInstance: UnknownHostException", e);
                 break;
             } catch (final java.net.ConnectException e) {
                 /*  IOException java.net.ConnectException: Connection refused: connect  */
-                logger.warning(
-                    "FcpConnection.getFcpConnectionInstance: java.net.ConnectException "
-                        + e + " , this was try " + (tries + 1) + "/" + maxTries);
+                logger.error("FcpConnection.getFcpConnectionInstance: java.net.ConnectException, this was try {}/{}", tries + 1, maxTries, e);
             } catch (final IOException e) {
-                logger.warning(
-                    "FcpConnection.getFcpConnectionInstance: IOException "
-                        + e + " , this was try " + (tries + 1) + "/" + maxTries);
+                logger.error("FcpConnection.getFcpConnectionInstance: IOException, this was try {}/{}", tries + 1, maxTries, e);
             } catch (final Throwable e) {
-                logger.severe("FcpConnection.getFcpConnectionInstance: Throwable " + e);
+                logger.error("FcpConnection.getFcpConnectionInstance: Throwable", e);
                 break;
             }
             tries++;
             Mixed.wait(tries * 1250);
         }
         if (connection == null) {
-            logger.warning("ERROR: FcpConnection.getFcpConnectionInstance: Could not connect to node!");
+            logger.error("FcpConnection.getFcpConnectionInstance: Could not connect to node!");
             throw new ConnectException("Could not connect to FCP node.");
         }
         return connection;
@@ -103,7 +102,7 @@ public class FcpFactory {
 
         final NodeAddress selectedNode = freenetNode;
 
-        logger.info("Using node "+selectedNode.getHost().getHostAddress()+" port "+selectedNode.getPort());
+        logger.info("Using node {} port {}", selectedNode.getHost().getHostAddress(), selectedNode.getPort());
         try {
             con = new FcpConnection(selectedNode);
         } catch (final IOException e) {

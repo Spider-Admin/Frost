@@ -21,13 +21,15 @@ package frost.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.util.gui.MiscToolkit;
 
@@ -53,7 +55,7 @@ import frost.util.gui.MiscToolkit;
 @SuppressWarnings("serial")
 public class Splashscreen extends JDialog {
 
-    private static final Logger logger = Logger.getLogger(Splashscreen.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(Splashscreen.class);
 
     private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
 
@@ -71,8 +73,7 @@ public class Splashscreen extends JDialog {
         try {
             frostLogo = MiscToolkit.loadImageIcon(SPLASH_LOGO_FILENAME);
         } catch (NullPointerException npe) {
-            logger.severe("Error while initializing splash screen. Resource " + SPLASH_LOGO_FILENAME
-                    + " could not be found.");
+            logger.error("Error while initializing splash screen. Resource {} could not be found.", SPLASH_LOGO_FILENAME);
             throw npe;
         }
     }

@@ -51,7 +51,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Enumeration;
 import java.util.EventObject;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
@@ -84,6 +83,9 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.SettingsClass;
 import frost.fileTransfer.common.TableBackgroundColors;
@@ -106,7 +108,7 @@ import frost.util.gui.MiscToolkit;
 @SuppressWarnings("serial")
 public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
-    private static final Logger logger = Logger.getLogger(MessageTreeTable.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MessageTreeTable.class);
 
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
@@ -486,8 +488,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
             if( getUI() instanceof BasicTreeUI ) {
                 final BasicTreeUI treeUI = (BasicTreeUI)getUI();
-//                System.out.println("1:"+treeUI.getLeftChildIndent()); // default 7
-//                System.out.println("2:"+treeUI.getRightChildIndent());// default 13
+                logger.debug("1: {}", treeUI.getLeftChildIndent()); // default 7
+                logger.debug("2: {}", treeUI.getRightChildIndent());// default 13
                 treeUI.setLeftChildIndent(6);
                 treeUI.setRightChildIndent(10);
             }
@@ -1013,9 +1015,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                     if( msg.isSignatureStatusVERIFIED() ) {
                         final Identity id = msg.getFromIdentity();
                         if( id == null ) {
-                            logger.severe("getFromidentity() is null for fromName: '"+msg.getFromName()+"', "+
-                                    "board="+msg.getBoard().getName()+", msgDate="+msg.getDateAndTimeString()+
-                                    ", index="+msg.getIndex());
+                            logger.error("getFromidentity() is null for fromName: '{}', board = {}, msgDate = {}, index = {}", msg.getFromName(), msg.getBoard().getName(), msg.getDateAndTimeString(), msg.getIndex());
                             // The tooltip will be the cell value itself
                             toolTipValue = value;
                         } else {
@@ -1279,9 +1279,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-//            logger.severe(
-//                "The selected font was not found in your system\n"
-//                    + "That selection will be changed to \"Monospaced\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"Monospaced\".");
             Core.frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "Monospaced");
             font = new Font("Monospaced", fontStyle, fontSize);
         }

@@ -31,7 +31,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -47,6 +46,9 @@ import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -65,6 +67,8 @@ import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSavable, PropertyChangeListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(FreetalkBoardTree.class);
 
     private boolean showBoardDescriptionToolTips;
     private boolean showFlaggedStarredIndicators;
@@ -546,8 +550,6 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
 
     private final CellRenderer cellRenderer = new CellRenderer();
 
-    private static final Logger logger = Logger.getLogger(FreetalkBoardTree.class.getName());
-
     private final FreetalkBoardTreeModel model;
 
     private final JMenuItem configBoardMenuItem = new JMenuItem();
@@ -718,7 +720,7 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
 //        // the call changes the toftree and loads nodes into it
 //        final File iniFile = new File(boardIniFilename);
 //        if( iniFile.exists() == false ) {
-//            logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
+//            logger.warn("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
 //            final String defaultBoardsFile = "boards.xml.default07";
 //            boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + defaultBoardsFile;
 //        }
@@ -773,7 +775,7 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
 //                        JOptionPane.ERROR_MESSAGE,
 //                        true);
 //                MainFrame.enqueueStartupMessage(sm);
-//                logger.severe("Board with obsolete public key found: "+boardName);
+//                logger.error("Board with obsolete public key found: {}", boardName);
 //            }
 //        }
 //
@@ -1030,7 +1032,7 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
 //                board,
 //                settings,
 //                listener);
-//            logger.info("Starting update (MSG_TODAY) of " + board.getName());
+//            logger.info("Starting update (MSG_TODAY) of {}", board.getName());
 //            threadStarted = true;
 //        }
 //
@@ -1051,7 +1053,7 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
 //            }
 //
 //            getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener, downloadCompleteBackload);
-//            logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
+//            logger.info("Starting update (MSG_BACKLOAD) of {}", board.getName());
 //            threadStarted = true;
 //        }
 //
@@ -1098,9 +1100,8 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-//            logger.severe(
-//                "The selected font was not found in your system\n"
-//                    + "That selection will be changed to \"Monospaced\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"Tahoma\".");
             Core.frostSettings.setValue(SettingsClass.BOARD_TREE_FONT_NAME, "Tahoma");
             font = new Font("Tahoma", fontStyle, fontSize);
         }

@@ -20,8 +20,9 @@
 package frost.util;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -41,7 +42,7 @@ import frost.storage.perst.messages.MessageStorage;
  */
 public class CleanUp {
 
-    private static final Logger logger = Logger.getLogger(CleanUp.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(CleanUp.class);
 
     public static final int DELETE_MESSAGES  = 1;
     public static final int ARCHIVE_MESSAGES = 2;
@@ -117,7 +118,7 @@ public class CleanUp {
         } else if( mode == KEEP_MESSAGES ) {
             logger.info("Expiration mode is KEEP_MESSAGES.");
         } else {
-            logger.severe("ERROR: invalid MODE specified: "+mode);
+            logger.error("invalid MODE specified: {}", mode);
             return;
         }
 
@@ -158,11 +159,11 @@ public class CleanUp {
                         archiveKeepFlaggedAndStarred,
                         mtCallback);
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Exception during retrieveMessagesForArchive", t);
+                logger.error("Exception during retrieveMessagesForArchive", t);
                 continue;
             }
             if( mtCallback.getCount() > 0 ) {
-                logger.warning("INFO: Processed "+mtCallback.getCount()+" expired messages for board "+board.getName());
+                logger.info("Processed {} expired messages for board {}", mtCallback.getCount(), board.getName());
             }
 
             MessageStorage.inst().commit();
@@ -224,10 +225,10 @@ public class CleanUp {
         try {
             deletedCount += IndexSlotsStorage.inst().cleanup(maxDaysOld);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during cleanup of IndexSlots", t);
+            logger.error("Exception during cleanup of IndexSlots", t);
         }
         if( deletedCount > 0 ) {
-            logger.warning("INFO: Finished to delete expired index slots, deleted "+deletedCount+" rows.");
+            logger.info("Finished to delete expired index slots, deleted {} rows.", deletedCount);
         }
     }
 
@@ -240,10 +241,10 @@ public class CleanUp {
         try {
             deletedCount = SharedFilesCHKKeyStorage.inst().cleanupTable(SFCHKKEYS_MINIMUM_DAYS_OLD);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
+            logger.error("Exception during cleanup of SharedFilesCHKKeys", t);
         }
         if( deletedCount > 0 ) {
-            logger.warning("INFO: Finished to delete expired SharedFilesCHKKeys, deleted "+deletedCount+" rows.");
+            logger.info("Finished to delete expired SharedFilesCHKKeys, deleted {} rows.", deletedCount);
         }
     }
 
@@ -258,10 +259,10 @@ public class CleanUp {
         try {
             deletedCount = FileListStorage.inst().cleanupFileListFileOwners(removeOfflineFilesWithKey, offlineFilesMaxDaysOld);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during cleanup of FileListFileOwners", t);
+            logger.error("Exception during cleanup of FileListFileOwners", t);
         }
         if( deletedCount > 0 ) {
-            logger.warning("INFO: Finished to delete expired FileListFileOwners, deleted "+deletedCount+" rows.");
+            logger.info("Finished to delete expired FileListFileOwners, deleted {} rows.", deletedCount);
         }
     }
 
@@ -274,10 +275,10 @@ public class CleanUp {
         try {
             deletedCount = FileListStorage.inst().cleanupFileListFiles();
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during cleanup of FileListFiles", t);
+            logger.error("Exception during cleanup of FileListFiles", t);
         }
         if( deletedCount > 0 ) {
-            logger.warning("INFO: Finished to delete expired FileListFiles, deleted "+deletedCount+" rows.");
+            logger.info("Finished to delete expired FileListFiles, deleted {} rows.", deletedCount);
         }
     }
 }

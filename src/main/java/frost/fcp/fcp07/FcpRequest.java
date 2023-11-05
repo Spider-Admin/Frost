@@ -21,15 +21,15 @@ package frost.fcp.fcp07;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.DataNotFoundException;
 import frost.fcp.FcpResultGet;
 import frost.fcp.FcpToolsException;
 import frost.fileTransfer.download.FrostDownloadItem;
 import frost.util.FileAccess;
-import frost.util.Logging;
 
 /**
  * Requests a key from freenet
@@ -37,9 +37,9 @@ import frost.util.Logging;
 // while requesting / inserting, show chunks left to try (incl. trying chunks) -> Warte (9) / 18% (9)
 public class FcpRequest {
 
-	final static boolean DEBUG = true;
+	private static final Logger logger = LoggerFactory.getLogger(FcpRequest.class);
 
-	private static final Logger logger = Logger.getLogger(FcpRequest.class.getName());
+	final static boolean DEBUG = true;
 
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or
@@ -82,10 +82,9 @@ public class FcpRequest {
 
             final boolean wasOK = tempFile.renameTo(target);
             if( wasOK == false ) {
-               logger.severe("ERROR: Could not move file '" + tempFile.getPath() + "' to '" + target.getPath() + "'.\n" +
-                			  "Maybe the locations are on different filesystems where a move is not allowed.\n" +
-                  			  "Please try change the location of 'temp.dir' in the frost.ini file,"+
-                              " and copy the file to a save location by yourself.");
+               logger.error("Could not move file '{}' to '{}'.", tempFile.getPath(), target.getPath());
+               logger.error("Maybe the locations are on different filesystems where a move is not allowed.");
+               logger.error("Please try change the location of 'temp.dir' in the frost.ini file, and copy the file to a save location by yourself.");
                return FcpResultGet.RESULT_FAILED;
             }
         } else {
@@ -105,7 +104,7 @@ public class FcpRequest {
             final FrostDownloadItem dlItem)
     {
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
-            System.out.println("FcpRequest(07).getKey(): KEY IS NULL!");
+            logger.error("FcpRequest(07).getKey(): KEY IS NULL!");
             return FcpResultGet.RESULT_FAILED;
         }
 
@@ -130,13 +129,13 @@ public class FcpRequest {
                     continue;
                 } catch( final DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
                     // do nothing, data not found is usual ...
-					logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
+					logger.info("FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
                     break;
                 } catch( final FcpToolsException e ) {
-					logger.log(Level.SEVERE, "FcpRequest.getKey(1): FcpToolsException", e);
+					logger.error("FcpRequest.getKey(1): FcpToolsException", e);
                     break;
                 } catch( final IOException e ) {
-					logger.log(Level.SEVERE, "FcpRequest.getKey(1): IOException", e);
+					logger.error("FcpRequest.getKey(1): IOException", e);
                     break;
                 }
             }
@@ -157,27 +156,17 @@ public class FcpRequest {
                                              .append(keyUrl).toString();
         }
 
-        if (Logging.inst().doLogFcp2Messages()) {
-            System.out.println("getKey: file='"+target.getPath()+"' ; len="+target.length());
-        }
+        logger.debug("getKey: file = '{}' ; len = {}", target.getPath(), target.length());
 
         if( results == null ) {
             // paranoia
             results = FcpResultGet.RESULT_FAILED;
-            if (Logging.inst().doLogFcp2Messages()) {
-                System.out.println("getKey - Failed, result=null");
-            }
+            logger.debug("getKey - Failed, result=null");
         } else if( results.isSuccess() && target.length() > 0 ) {
-            logger.info("getKey - Success: " + printableKey );
-            if (Logging.inst().doLogFcp2Messages()) {
-                System.out.println("getKey - Success: " + printableKey);
-            }
+            logger.debug("getKey - Success: {}", printableKey);
         } else {
             target.delete();
-            logger.info("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal() );
-            if (Logging.inst().doLogFcp2Messages()) {
-                System.out.println("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal());
-            }
+            logger.debug("getKey - Failed: {}; rc = {}; isFatal = {}", printableKey, results.getReturnCode(), results.isFatal());
         }
         return results;
     }

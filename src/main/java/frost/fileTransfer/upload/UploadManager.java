@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -41,7 +43,7 @@ import frost.util.Mixed;
 
 public class UploadManager implements ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(UploadManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(UploadManager.class);
 
     private UploadModel model;
     private UploadPanel panel;
@@ -122,7 +124,7 @@ public class UploadManager implements ExitSavable {
 
         if (result != null && (result.isSuccess() || result.isKeyCollision()) ) {
 
-            logger.info("Upload of " + uploadItem.getFile().getName() + " ("+ uploadItem.getFileName() + ") was successful.");
+            logger.info("Upload of {} ({}) was successful.", uploadItem.getFile().getName(), uploadItem.getFileName());
 
             // upload successful
             uploadItem.setKey(result.getChkKey());
@@ -177,7 +179,7 @@ public class UploadManager implements ExitSavable {
                     try {
                         Runtime.getRuntime().exec(args, newEnv, dir);
                     } catch (Exception e) {
-                        System.out.println("Could not exec " + execProg + ": " + e.getMessage());
+                        logger.error("Could not exec {}:", execProg, e);
                     }
                 }
 
@@ -190,7 +192,7 @@ public class UploadManager implements ExitSavable {
             }
         } else {
             // upload failed
-            logger.warning("Upload of " + uploadItem.getFile().getName() + " was NOT successful.");
+            logger.warn("Upload of {} was NOT successful.", uploadItem.getFile().getName());
 
             if( result != null && result.isFatal() ) {
                 uploadItem.setEnabled(Boolean.FALSE);

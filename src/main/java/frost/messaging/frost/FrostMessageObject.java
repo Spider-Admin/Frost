@@ -32,6 +32,8 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.TimeOfDay;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.gui.model.TableMember;
@@ -48,6 +50,8 @@ import frost.util.DateFun;
  */
 @SuppressWarnings("serial")
 public class FrostMessageObject extends AbstractMessageObject implements TableMember<FrostMessageObject> {
+
+	private static final Logger logger =  LoggerFactory.getLogger(FrostMessageObject.class);
 
     transient private PerstFrostMessageObject perstFrostMessageObject = null;
 
@@ -108,7 +112,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             // never happens, we already called this method
             setDateAndTime(new DateTime(0, DateTimeZone.UTC));
         }
-//        System.out.println("MSG TIME/DATE: time_in="+mof.getTimeStr()+", date_in="+mof.getDateStr()+", out="+getDateAndTime());
+        logger.debug("MSG TIME/DATE: time_in = {}, date_in = {}, out = {}", mof.getTimeStr(), mof.getDateStr(), getDateAndTime());
         // copy values from mof
         setAttachmentList(mof.getAttachmentList());
         setContent(mof.getContent());
@@ -245,7 +249,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 //            try {
 //                MessagesStorage.inst().retrieveSignature(this);
 //            } catch (SQLException e) {
-//                e.printStackTrace();
+//                logger.error("SQLException", e);
 //            }
 //        }
 //        return super.getSignatureV2();

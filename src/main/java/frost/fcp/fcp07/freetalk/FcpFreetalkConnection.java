@@ -23,7 +23,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.fcp.NodeAddress;
@@ -38,7 +40,7 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
     private static long fcpidentifierPart1 = Core.getCrypto().getSecureRandom().nextLong();
     private static long fcpidentifierPart2 = 0L;
 
-    private static final Logger logger = Logger.getLogger(FcpFreetalkConnection.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FcpFreetalkConnection.class);
 
     private final NodeMessageHandler nodeMessageHandler;
 
@@ -210,24 +212,24 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         private final HashMap<String, FreetalkNodeMessageCallback> callbackById = new HashMap<String, FreetalkNodeMessageCallback>();
 
         public void connected() {
-            System.out.println("FcpFreetalkConnection: connected");
+            logger.info("FcpFreetalkConnection: connected");
         }
 
         public void disconnected() {
-            System.out.println("FcpFreetalkConnection: disconnected");
+            logger.info("FcpFreetalkConnection: disconnected");
         }
 
         public void handleNodeMessage(final NodeMessage nm) {
-            System.out.println("------------ FcpFreetalkConnection: nodeMessage w/o ID \"------------");
-            System.out.println(nm.toString());
+            logger.debug("------------ FcpFreetalkConnection: nodeMessage w/o ID ------------");
+            logger.debug("{}", nm);
         }
 
         public void handleNodeMessage(final String id, final NodeMessage nm) {
-            System.out.println("------------ FcpFreetalkConnection: nodeMessage w/ ID \"------------");
-            System.out.println(nm.toString());
+            logger.debug("------------ FcpFreetalkConnection: nodeMessage w/ ID ------------");
+            logger.debug("{}", nm);
             final FreetalkNodeMessageCallback cb = callbackById.get(id);
             if (cb == null) {
-                logger.severe("No callback for ID registered");
+                logger.error("No callback for ID registered");
             } else {
                 cb.handleNodeMessage(id, nm);
             }

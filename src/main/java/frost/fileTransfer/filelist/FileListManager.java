@@ -23,8 +23,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -40,7 +41,7 @@ import frost.storage.perst.identities.IdentitiesStorage;
 
 public class FileListManager {
 
-    private static final Logger logger = Logger.getLogger(FileListManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileListManager.class);
 
     public static final int MAX_FILES_PER_FILE = 250; // TODO: count utf-8 size of sharedxmlfiles, not more than 512kb!
 
@@ -235,7 +236,7 @@ public class FileListManager {
                     localOwner = content.getReceivedOwner();
                     localOwner.setLastSeenTimestampWithoutUpdate(content.getTimestamp());
                     if( !Core.getIdentitiesManager().addIdentity(content.getReceivedOwner()) ) {
-                        logger.severe("Core.getIdentitiesManager().addIdentity() returned false for identity: "+content.getReceivedOwner());
+                        logger.error("Core.getIdentitiesManager().addIdentity() returned false for identity: {}", content.getReceivedOwner());
                         return false;
                     }
                 } else {
@@ -247,7 +248,7 @@ public class FileListManager {
         }
 
         if (localOwner.isBAD() && Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD)) {
-            logger.info("Skipped index file from BAD user " + localOwner.getUniqueName());
+            logger.info("Skipped index file from BAD user {}", localOwner.getUniqueName());
             return true;
         }
 
@@ -259,7 +260,7 @@ public class FileListManager {
         boolean errorOccured = false;
 
         if( !FileListStorage.inst().beginExclusiveThreadTransaction() ) {
-            logger.severe("Failed to begin an EXCLUSIVE thread transaction, aborting.");
+            logger.error("Failed to begin an EXCLUSIVE thread transaction, aborting.");
             return false;
         }
 
@@ -315,7 +316,7 @@ public class FileListManager {
                 }
             }
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
+            logger.error("Exception during insertOrUpdateFrostSharedFileObject", t);
             errorOccured = true;
         }
 
@@ -345,7 +346,7 @@ public class FileListManager {
 
                     FrostFileListFileObject updatedSfo = null;
                     if( !FileListStorage.inst().beginCooperativeThreadTransaction() ) {
-                        logger.severe("Failed to begin a COOPERATIVE thread transaction.");
+                        logger.error("Failed to begin a COOPERATIVE thread transaction.");
                     } else {
                         updatedSfo = FileListStorage.inst().getFileBySha(sfx.getSha());
                         FileListStorage.inst().endThreadTransaction();
@@ -353,7 +354,7 @@ public class FileListManager {
                     if( updatedSfo != null ) {
                         dlItem.setFileListFileObject(updatedSfo);
                     } else {
-                        System.out.println("no file for sha!");
+                        logger.warn("no file for sha!");
                     }
                     break; // there is only one file in download table with same SHA
                 }

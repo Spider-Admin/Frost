@@ -31,8 +31,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -59,6 +57,8 @@ import javax.swing.table.TableColumn;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -83,6 +83,8 @@ import frost.util.gui.translation.LanguageListener;
  */
 @SuppressWarnings("serial")
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(BoardInfoFrame.class);
 
     private final boolean showColoredLines;
 
@@ -154,8 +156,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private Language language = null;
     private final Listener listener = new Listener();
 
-    private static final Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
-
     private final JPanel mainPanel = new JPanel(new BorderLayout());
     private final JPanel boardTablePanel = new JPanel(new BorderLayout());
 
@@ -212,7 +212,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             Init();
         }
         catch( final Exception e ) {
-            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+            logger.error("Exception thrown in constructor", e);
         }
 
         int width = (int) (mainFrame.getWidth() * 0.75);

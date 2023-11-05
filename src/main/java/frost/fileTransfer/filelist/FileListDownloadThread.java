@@ -21,14 +21,14 @@ package frost.fileTransfer.filelist;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fileTransfer.SharedFilesCHKKeyManager;
 import frost.transferlayer.GlobalFileDownloader;
 import frost.transferlayer.GlobalFileDownloaderResult;
-import frost.util.Logging;
 import frost.util.Mixed;
 
 /**
@@ -39,7 +39,7 @@ import frost.util.Mixed;
  */
 public class FileListDownloadThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(FileListDownloadThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileListDownloadThread.class);
 
     private static final int wait1minute = 1 * 60 * 1000;
 
@@ -78,43 +78,33 @@ public class FileListDownloadThread extends Thread {
 
                 if( chkKey == null ) {
                     // paranoia
-                    if( Logging.inst().doLogFilebaseMessages() ) {
-                        System.out.println("FileListDownloadThread: waiting 1 minute, chkKey=null");
-                    }
+                    logger.debug("FileListDownloadThread: waiting 1 minute, chkKey=null");
                     Mixed.wait(wait1minute);
                     continue;
                 } else if( previousKey != null && previousKey.equals(chkKey) ) {
                     // same key as before, so no more keys else in queue. wait some time longer...
-                    if( Logging.inst().doLogFilebaseMessages() ) {
-                        System.out.println("FileListDownloadThread: waiting 1 minute, same key as before");
-                    }
+                    logger.debug("FileListDownloadThread: waiting 1 minute, same key as before");
                     Mixed.wait(wait1minute);
                 } else {
                     // short wait to not to hurt node
                     Mixed.waitRandom(1000);
                     previousKey = chkKey; // different key as before, remember
                 }
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
-                }
+                logger.info("FileListDownloadThread: starting download of key: {}", chkKey);
 
                 final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_FILELIST_SIZE_07, -1);
 
                 if( result == null || result.getResultFile() == null ) {
                     // download failed
                     final boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
-                    if( Logging.inst().doLogFilebaseMessages() ) {
-                        System.out.println("FileListDownloadThread: download failed, key="+chkKey+"; retry="+retryDownload);
-                    }
+                    logger.warn("FileListDownloadThread: download failed, key = {}; retry = {}", chkKey, retryDownload);
                     if( retryDownload ) {
                         keyQueue.appendKeyToQueue(chkKey);
                     }
                     continue;
                 }
 
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("FileListDownloadThread: download successful, key="+chkKey);
-                }
+                logger.info("FileListDownloadThread: download successful, key = {}", chkKey);
 
                 // download successful, read file and validate
                 final File downloadedFile = result.getResultFile();
@@ -123,14 +113,12 @@ public class FileListDownloadThread extends Thread {
                 try {
                     content = FileListFile.readFileListFile(downloadedFile);
                 } catch (final Exception e) {
-                    logger.log(Level.WARNING, "Invalid XML content: "+e.getMessage());
+                    logger.error("Invalid XML content:", e);
                 }
                 // content==null -> isValid=false
                 final boolean isValid = FileListManager.processReceivedFileList(content);
 
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("FileListDownloadThread: processed results, isValid="+isValid);
-                }
+                logger.debug("FileListDownloadThread: processed results, isValid = {}", isValid);
 
                 final long timestamp;
                 if( content == null ) {
@@ -144,12 +132,12 @@ public class FileListDownloadThread extends Thread {
                 SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, timestamp, isValid);
 
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Exception catched",t);
+                logger.error("Exception catched", t);
                 occuredExceptions++;
             }
 
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping FileListDownloadThread because of too much exceptions");
+                logger.error("Stopping FileListDownloadThread because of too much exceptions");
                 break;
             }
         }
@@ -183,28 +171,20 @@ public class FileListDownloadThread extends Thread {
             try {
                 // let dequeueing threads wait for work
                 while( queue.isEmpty() ) {
-                    if( Logging.inst().doLogFilebaseMessages() ) {
-                        System.out.println("CHKKeyQueue: Waiting for work, queue length="+getQueueSize());
-                    }
+                    logger.debug("CHKKeyQueue: Waiting for work, queue length = {}", getQueueSize());
                     wait();
                 }
             } catch (final InterruptedException e) {
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("CHKKeyQueue: NO key returned(1), queue length="+getQueueSize());
-                }
+                logger.debug("CHKKeyQueue: NO key returned(1), queue length = {}", getQueueSize());
                 return null; // waiting abandoned
             }
 
             if( queue.isEmpty() == false ) {
                 final String key = queue.removeFirst();
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("CHKKeyQueue: Key returned, new queue length="+getQueueSize());
-                }
+                logger.debug("CHKKeyQueue: Key returned, new queue length = {}", getQueueSize());
                 return key;
             }
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("CHKKeyQueue: NO key returned(2), queue length="+getQueueSize());
-            }
+            logger.debug("CHKKeyQueue: NO key returned(2), queue length = {}", getQueueSize());
             return null;
         }
 
@@ -215,9 +195,7 @@ public class FileListDownloadThread extends Thread {
 
         public synchronized void appendKeyToQueue(final String key) {
             queue.addLast(key);
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("CHKKeyQueue: Key appended, new queue length="+getQueueSize());
-            }
+            logger.debug("CHKKeyQueue: Key appended, new queue length = {}", getQueueSize());
             notifyAll(); // notify all waiters (if any) of new record
         }
 

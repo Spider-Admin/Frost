@@ -18,8 +18,8 @@
 */
 package frost.fileTransfer.upload;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fcp.FcpResultPut;
@@ -27,7 +27,7 @@ import frost.fileTransfer.FileTransferManager;
 
 class UploadThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(UploadThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(UploadThread.class);
 
     private final UploadTicker ticker;
     private final FrostUploadItem uploadItem;
@@ -45,14 +45,14 @@ class UploadThread extends Thread {
         try {
             upload();
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Exception thrown in run()", e);
+            logger.error("Exception thrown in run()", e);
         }
         ticker.uploadThreadFinished();
     }
 
     private void upload() { // real upload
 
-        logger.info("Upload of " + uploadItem.getFile().getName() + " ("+ uploadItem.getFileName() + ") started.");
+        logger.info("Upload of {} ({}) started.", uploadItem.getFile().getName(), uploadItem.getFileName());
 
         FcpResultPut result = null;
         try {
@@ -63,7 +63,7 @@ class UploadThread extends Thread {
                     doMime,
                     uploadItem); // provide the uploadItem to indicate that this upload is contained in table
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception thrown in putFile()", t);
+            logger.error("Exception thrown in putFile()", t);
         }
 
         FileTransferManager.inst().getUploadManager().notifyUploadFinished(uploadItem, result);

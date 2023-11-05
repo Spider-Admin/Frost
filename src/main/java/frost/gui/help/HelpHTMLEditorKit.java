@@ -28,8 +28,6 @@ import javax.swing.text.html.StyleSheet;
 @SuppressWarnings("serial")
 public class HelpHTMLEditorKit extends HTMLEditorKit {
 
-//    private static final Logger logger = Logger.getLogger(HelpHTMLEditorKit.class.getName());
-    
     private String url_prefix;
     
     private HelpHTMLDocument helpHTMLDocument = null;

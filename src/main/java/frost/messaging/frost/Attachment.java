@@ -18,9 +18,8 @@
 */
 package frost.messaging.frost;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -29,11 +28,12 @@ import frost.util.XMLizable;
 @SuppressWarnings("serial")
 
 public abstract class Attachment implements XMLizable, Comparable<Attachment> {
+
+	private static final Logger logger = LoggerFactory.getLogger(Attachment.class);
+
 	public static final int FILE = 0;
 	public static final int BOARD = 1;
 	public static final int PERSON = 2;
-
-	private static final Logger logger = Logger.getLogger(Attachment.class.getName());
 
 	/**
 	 * @return the type of this attachment
@@ -55,7 +55,7 @@ public abstract class Attachment implements XMLizable, Comparable<Attachment> {
 				return new PersonAttachment(element);
 			
 		} catch (SAXException ex) {
-			logger.log(Level.SEVERE, "Exception thrown in getInstance(Element e)", ex);
+			logger.error("Exception thrown in getInstance(Element e)", ex);
 			return null;
 		}
 	}

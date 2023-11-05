@@ -22,8 +22,9 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.filelist.FileListUploadThread;
@@ -44,7 +45,7 @@ public class SharedFilesModel extends SortedModel<FrostSharedFileItem> implement
 
     // TODO: for shared directories: add new files to another table, waiting for owner assignment
 
-    private static final Logger logger = Logger.getLogger(SharedFilesModel.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SharedFilesModel.class);
 
     Timer timer;
 
@@ -136,7 +137,7 @@ public class SharedFilesModel extends SortedModel<FrostSharedFileItem> implement
         try {
             uploadItems = FrostFilesStorage.inst().loadSharedFiles();
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Error loading shared file items", e);
+            logger.error("Error loading shared file items", e);
             throw new StorageException("Error loading shared file items");
         }
         for( final FrostSharedFileItem di : uploadItems ) {
@@ -152,7 +153,7 @@ public class SharedFilesModel extends SortedModel<FrostSharedFileItem> implement
         try {
             FrostFilesStorage.inst().saveSharedFiles(itemList);
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Error saving shared file items", e);
+            logger.error("Error saving shared file items", e);
             throw new StorageException("Error saving shared file items");
         }
     }

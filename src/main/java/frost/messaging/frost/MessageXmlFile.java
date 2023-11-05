@@ -23,12 +23,12 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,7 +47,7 @@ import frost.util.XMLizable;
 @SuppressWarnings("serial")
 public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
-    private static final Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MessageXmlFile.class);
 
 //    private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 
@@ -102,7 +102,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
                                          // out the messages containing "Empty", "Invalid", "Double", "Broken"
                                          // (encrypted for someone else OR completely invalid)
             throw new MessageCreationException(
-                            "Info only: Empty input file '" + file.getName() + "' for MessageObject (size < 20).", true);
+                            "Empty input file '" + file.getName() + "' for MessageObject (size < 20).", true);
         }
         this.file = file;
 
@@ -313,48 +313,48 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     private boolean isValid() {
 
         if (getDateStr() == null || getDateStr().length() == 0 || getDateStr().length() > 22 ) {
-            logger.severe("Date validation failed.");
+            logger.error("Date validation failed.");
             return false;
         }
         if (getTimeStr() == null || getTimeStr().length() == 0) {
-            logger.severe("Time validation failed.");
+            logger.error("Time validation failed.");
             return false;
         }
         if (getBoardName() == null || getBoardName().length() == 0 || getBoardName().length() > 256 ) {
-            logger.severe("Board name validation failed.");
+            logger.error("Board name validation failed.");
             return false;
         }
         if (getFromName() == null || getFromName().length() == 0 || getFromName().length() > 256 ) {
-            logger.severe("From name validation failed.");
+            logger.error("From name validation failed.");
             return false;
         }
 
         if (getSubject() == null) {
             setSubject(""); // we accept empty subjects
         } else if ( getSubject().length() > 256 ) {
-            logger.severe("Subject validation failed.");
+            logger.error("Subject validation failed.");
             return false;
         }
 
         if (getContent() == null) {
-            logger.severe("Content validation failed, no content.");
+            logger.error("Content validation failed, no content.");
             return false;
         }
         if (getContent().length() > (64 * 1024)) { // 64k or whatever fits in zipped data
-            logger.severe("Content validation failed, overlength content.");
+            logger.error("Content validation failed, overlength content.");
             return false;
         }
         // don't accept messages with only an id header line, or empty messages
         final String trimmedContent = getContent().trim();
         if( trimmedContent.length() == 0 ) {
-            logger.severe("Content validation failed, empty.");
+            logger.error("Content validation failed, empty.");
             return false;
         }
         if( trimmedContent.indexOf("\n") < 0 ) {
             // only one line
             if( trimmedContent.startsWith("-----") && trimmedContent.endsWith("-----") ) {
                 // only id header line
-                logger.severe("Content validation failed, only id header line.");
+                logger.error("Content validation failed, only id header line.");
                 return false;
             }
         }
@@ -372,12 +372,12 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         } catch(final Exception ex) {  // xml format error
             final File badMessage = new File("badmessage.xml");
             if (file.renameTo(badMessage)) {
-                logger.log(Level.SEVERE, "Error - send the file badmessage.xml to a dev for analysis, more details below:", ex);
+                logger.error("send the file badmessage.xml to a dev for analysis, more details below:", ex);
             }
         }
 
         if( doc == null ) {
-            throw new Exception("Error - MessageObject.loadFile: couldn't parse XML Document - " +
+            throw new Exception("MessageObject.loadFile: couldn't parse XML Document - " +
                                 "File name: '" + file.getName() + "'");
         }
 
@@ -389,18 +389,18 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             setRecipientName(XMLTools.getChildElementsCDATAValue(rootNode, "recipient"));
             if( getRecipientName() == null ) {
                 // no recipient
-                throw new Exception("Error - encrypted message contains no 'recipient' section.");
+                throw new Exception("encrypted message contains no 'recipient' section.");
             }
             final IdentitiesManager identitiesManager = Core.getIdentitiesManager();
             if( !identitiesManager.isMySelf(getRecipientName()) ) {
                 // not for me
-                throw new MessageCreationException("Info: Encrypted message is not for me.",
+                throw new MessageCreationException("Encrypted message is not for me.",
                         MessageCreationException.MSG_NOT_FOR_ME);
             }
             final String base64enc = XMLTools.getChildElementsCDATAValue(rootNode, "content");
             if( base64enc == null ) {
                 // no content
-                throw new Exception("Error - encrypted message contains no 'content' section.");
+                throw new Exception("encrypted message contains no 'content' section.");
             }
             final byte[] base64bytes = base64enc.getBytes("ISO-8859-1");
             final byte[] encBytes = Base64.decode(base64bytes);
@@ -409,8 +409,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             final LocalIdentity receiverId = identitiesManager.getLocalIdentity(getRecipientName());
             final byte[] decContent = Core.getCrypto().decrypt(encBytes, receiverId.getPrivateKey());
             if( decContent == null ) {
-                logger.log(Level.SEVERE, "TOFDN: Encrypted message could not be decrypted!");
-                throw new MessageCreationException("Error: Encrypted message could not be decrypted.",
+                logger.error("TOFDN: Encrypted message could not be decrypted!");
+                throw new MessageCreationException("Encrypted message could not be decrypted.",
                         MessageCreationException.DECRYPT_FAILED);
             }
             // decContent is an complete XML file, save it to file and load it
@@ -421,12 +421,12 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             } catch(final Exception ex) {  // xml format error
                 final File badMessage = new File("badmessage.xml");
                 if (file.renameTo(badMessage)) {
-                    logger.log(Level.SEVERE, "Error - send the file badmessage.xml to a dev for analysis, more details below:", ex);
+                    logger.error("send the file badmessage.xml to a dev for analysis, more details below:", ex);
                 }
             }
 
             if( doc == null ) {
-                throw new Exception("Error - MessageObject.loadFile: couldn't parse XML Document - " +
+                throw new Exception("MessageObject.loadFile: couldn't parse XML Document - " +
                                     "File name: '" + file.getName() + "'");
             }
             rootNode = doc.getDocumentElement();
@@ -434,9 +434,9 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         if( rootNode.getTagName().equals("FrostMessage") == false ) {
             final File badMessage = new File("badmessage.xml");
             if (file.renameTo(badMessage)) {
-                logger.severe("Error - send the file badmessage.xml to a dev for analysis.");
+                logger.error("send the file badmessage.xml to a dev for analysis.");
             }
-            throw new Exception("Error - invalid message: does not contain the root tag 'FrostMessage'");
+            throw new Exception("invalid message: does not contain the root tag 'FrostMessage'");
         }
         // load the message itself
         loadXMLElement(rootNode);
@@ -506,7 +506,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      */
     public boolean save() {
         if( file == null ) {
-            logger.log(Level.SEVERE, "Error: internal File pointer is not set");
+            logger.error("internal File pointer is not set");
             return false;
         }
         return saveToFile(file);
@@ -524,14 +524,14 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             doc.appendChild(getXMLElement(doc));
             success = XMLTools.writeXmlFile(doc, tmpFile.getPath());
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Error while saving message.", e);
+            logger.error("Error while saving message.", e);
         }
         if (success && tmpFile.length() > 0) {
             if( f.isFile() && f.delete() == false ) {
-                logger.log(Level.SEVERE, "Error while saving message, delete failed.");
+                logger.error("Error while saving message, delete failed.");
             }
             if( tmpFile.renameTo(f) == false ) {
-                logger.log(Level.SEVERE, "Error while saving message, renameTo failed.");
+                logger.error("Error while saving message, renameTo failed.");
                 return false;
             }
         } else {
@@ -557,7 +557,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         try {
             base64enc = new String(Base64.encode(encContent), "ISO-8859-1");
         } catch (final UnsupportedEncodingException ex) {
-            logger.log(Level.SEVERE, "ISO-8859-1 encoding is not supported.", ex);
+            logger.error("ISO-8859-1 encoding is not supported.", ex);
             return false;
         }
 
@@ -592,7 +592,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             final MessageXmlFile otherMessage = new MessageXmlFile(otherMsgFile);
             return equals(otherMessage);
         } catch(final Throwable t) {
-            logger.log(Level.WARNING, "Handled Exception in compareTo(File otherMsgFile)", t);
+            logger.error("Handled Exception in compareTo(File otherMsgFile)", t);
             return false; // We assume that the other message is different (it may be corrupted)
         }
     }
@@ -631,7 +631,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             }
             return true;
         } catch (final Throwable t) {
-            logger.log(Level.WARNING, "Handled Exception in compareTo(MessageObject otherMsg)", t);
+            logger.error("Handled Exception in compareTo(MessageObject otherMsg)", t);
             return false; // We assume that the local message is different (it may be corrupted)
         }
     }

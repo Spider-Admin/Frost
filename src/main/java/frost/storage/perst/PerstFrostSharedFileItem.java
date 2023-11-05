@@ -19,11 +19,11 @@
 package frost.storage.perst;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
 import org.garret.perst.Persistent;
+import org.slf4j.Logger;
 
 import frost.Core;
 import frost.MainFrame;
@@ -90,7 +90,7 @@ public class PerstFrostSharedFileItem extends Persistent {
                         JOptionPane.WARNING_MESSAGE,
                         true);
                 MainFrame.enqueueStartupMessage(sm);
-                logger.severe("Shared file does not exist: "+filePath);
+                logger.error("Shared file does not exist: {}", filePath);
                 fileIsOk = false;
             } else if( file.length() != fileSize ) {
                 final String title = language.getString("StartupMessage.sharedFile.sharedFileSizeChanged.title");
@@ -102,7 +102,7 @@ public class PerstFrostSharedFileItem extends Persistent {
                         JOptionPane.WARNING_MESSAGE,
                         true);
                 MainFrame.enqueueStartupMessage(sm);
-                logger.severe("Size of shared file changed: "+filePath);
+                logger.error("Size of shared file changed: {}", filePath);
                 fileIsOk = false;
             } else if( file.lastModified() != lastModified ) {
                 final String title = language.getString("StartupMessage.sharedFile.sharedFileLastModifiedChanged.title");
@@ -114,7 +114,7 @@ public class PerstFrostSharedFileItem extends Persistent {
                         JOptionPane.WARNING_MESSAGE,
                         true);
                 MainFrame.enqueueStartupMessage(sm);
-                logger.severe("Last modified date of shared file changed: "+filePath);
+                logger.error("Last modified date of shared file changed: {}", filePath);
                 fileIsOk = false;
             }
         }

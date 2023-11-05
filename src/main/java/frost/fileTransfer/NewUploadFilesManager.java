@@ -20,8 +20,9 @@ package frost.fileTransfer;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fileTransfer.upload.GenerateShaThread;
 import frost.storage.ExitSavable;
@@ -36,7 +37,7 @@ import frost.storage.perst.NewUploadFile;
  */
 public class NewUploadFilesManager implements ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(NewUploadFilesManager.class);
 
     private LinkedList<NewUploadFile> newUploadFiles;
     private GenerateShaThread generateShaThread;
@@ -55,7 +56,7 @@ public class NewUploadFilesManager implements ExitSavable {
         try {
             newUploadFiles = FrostFilesStorage.inst().loadNewUploadFiles();
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Error loading new upload files", e);
+            logger.error("Error loading new upload files", e);
             throw new StorageException("Error loading new upload files");
         }
         generateShaThread = new GenerateShaThread(this);
@@ -76,7 +77,7 @@ public class NewUploadFilesManager implements ExitSavable {
             try {
                 FrostFilesStorage.inst().saveNewUploadFiles(newUploadFiles);
             } catch (final Throwable e) {
-                logger.log(Level.SEVERE, "Error saving new upload files", e);
+                logger.error("Error saving new upload files", e);
                 throw new StorageException("Error saving new upload files");
             }
         }

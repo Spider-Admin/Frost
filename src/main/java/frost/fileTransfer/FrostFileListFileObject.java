@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.garret.perst.IPersistentList;
 import org.garret.perst.Persistent;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fileTransfer.download.FrostDownloadItem;
 import frost.identities.Identity;
@@ -36,7 +36,7 @@ import frost.util.DateFun;
 
 public class FrostFileListFileObject extends Persistent {
 
-    private static final Logger logger = Logger.getLogger(FrostFileListFileObject.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FrostFileListFileObject.class);
 
     private String sha = null;  // SHA of the file
     private long size = 0;      // Filesize
@@ -117,7 +117,7 @@ public class FrostFileListFileObject extends Persistent {
                     final DateTime dt = DateFun.FORMAT_DATE.parseDateTime(sfo.getLastUploaded());
                     lastUploadDate = dt.getMillis();
                 } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, " error parsing file last uploaded date", t);
+                    logger.error("error parsing file last uploaded date", t);
                 }
             }
         }

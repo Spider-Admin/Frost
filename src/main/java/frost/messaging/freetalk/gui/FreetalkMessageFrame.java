@@ -47,8 +47,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.ComboBoxEditor;
 import javax.swing.ImageIcon;
@@ -76,6 +74,8 @@ import javax.swing.text.PlainDocument;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -108,7 +108,7 @@ import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInterface{
 
-    private static final Logger logger = Logger.getLogger(FreetalkMessageFrame.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageFrame.class);
 
     private final Language language;
 
@@ -173,8 +173,8 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         final int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
         Font tofFont = new Font(fontName, fontStyle, fontSize);
         if (!tofFont.getFamily().equals(fontName)) {
-            logger.severe("The selected font was not found in your system\n"
-                    + "That selection will be changed to \"Monospaced\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"Monospaced\".");
             frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
             tofFont = new Font("Monospaced", fontStyle, fontSize);
         }
@@ -381,7 +381,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         try {
             initialize(newBoard, newSubject);
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in composeMessage(...)", e);
+            logger.error("Exception thrown in composeMessage(...)", e);
         }
 
 //        sign.setEnabled(false);
@@ -857,7 +857,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
                     document.insertString(p0, chosedSmileyText, null);
                 }
             } catch (final Throwable ble) {
-                logger.log(Level.SEVERE, "Problem while pasting text.", ble);
+                logger.error("Problem while pasting text.", ble);
             }
         }
         // finally set focus back to message window
@@ -1044,7 +1044,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             try {
                 messageTextArea.getDocument().insertString(messageTextArea.getText().length(), newSig, null);
             } catch (final BadLocationException e1) {
-                logger.log(Level.SEVERE, "Error while updating the signature ", e1);
+                logger.error("Error while updating the signature ", e1);
             }
         }
         return newSig;
@@ -1058,7 +1058,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             try {
                 messageTextArea.getDocument().remove(messageTextArea.getText().length()-sig.length(), sig.length());
             } catch (final BadLocationException e1) {
-                logger.log(Level.SEVERE, "Error while updating the signature ", e1);
+                logger.error("Error while updating the signature ", e1);
             }
         }
     }
@@ -1087,10 +1087,10 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             headerArea.setEnabled(true);
 //            textHighlighter.highlight(messageTextArea, headerArea.getStartPos(), headerArea.getEndPos()-headerArea.getStartPos(), true);
         } catch (final BadLocationException exception) {
-            logger.log(Level.SEVERE, "Error while updating the message header", exception);
+            logger.error("Error while updating the message header", exception);
         }
-//        String s= messageTextArea.getText().substring(headerArea.getStartPos(), headerArea.getEndPos());
-//        System.out.println("DBG: "+headerArea.getStartPos()+" ; "+headerArea.getEndPos()+": '"+s+"'");
+        String s= messageTextArea.getText().substring(headerArea.getStartPos(), headerArea.getEndPos());
+        logger.debug("{} ; {}: '{}'", headerArea.getStartPos(), headerArea.getEndPos(), s);
 
 // DBG: 0 ; 77: '----- blubb2@xpDZ5ZfXK9wYiHB_hkVGRCwJl54 ----- 2006.10.13 - 18:20:12GMT -----'
 // DBG: 39 ; 119: '----- wegdami t@plewLcBTHKmPwpWakJNpUdvWSR8 ----- 2006.10.13 - 18:20:12GMT -----'
@@ -1238,7 +1238,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             try {
                 sourceTextComponent.getDocument().remove(start, end - start);
             } catch (final BadLocationException ble) {
-                logger.log(Level.SEVERE, "Problem while cutting text.", ble);
+                logger.error("Problem while cutting text.", ble);
             }
         }
 
@@ -1262,11 +1262,11 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
                     document.insertString(p0, text, null);
                 }
             } catch (final IOException ioe) {
-                logger.log(Level.SEVERE, "Problem while pasting text.", ioe);
+                logger.error("Problem while pasting text.", ioe);
             } catch (final UnsupportedFlavorException ufe) {
-                logger.log(Level.SEVERE, "Problem while pasting text.", ufe);
+                logger.error("Problem while pasting text.", ufe);
             } catch (final BadLocationException ble) {
-                logger.log(Level.SEVERE, "Problem while pasting text.", ble);
+                logger.error("Problem while pasting text.", ble);
             }
         }
 

@@ -27,11 +27,13 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
-import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the glass pane class that intercepts screen interactions during system busy states.
@@ -41,12 +43,12 @@ import javax.swing.SwingUtilities;
 
 @SuppressWarnings("serial")
 public class GlassPane extends JComponent implements AWTEventListener {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(GlassPane.class);
+
 	private Window theWindow;
 	private Component activeComponent;
-	
-	private static final Logger logger = Logger.getLogger(GlassPane.class.getName());
-	
+
 	/**
 	 * GlassPane constructor comment.
 	 * @param Container a
@@ -110,7 +112,7 @@ public class GlassPane extends JComponent implements AWTEventListener {
 				GlassPane aGlassPane = new GlassPane(startComponent);
 				aContainer.setGlassPane(aGlassPane);
 
-				logger.fine("GlassPane mounted on " + aContainer.getClass());
+				logger.debug("GlassPane mounted on {}", aContainer.getClass());
 				return aGlassPane;
 			} else {
 				return null;

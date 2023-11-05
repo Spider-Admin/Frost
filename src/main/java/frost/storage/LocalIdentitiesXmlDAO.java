@@ -22,9 +22,9 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -33,7 +33,7 @@ import frost.util.XMLTools;
 
 public class LocalIdentitiesXmlDAO {
 
-    private static final Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(LocalIdentitiesXmlDAO.class);
 
     public static List<LocalIdentity> loadLocalidentities(final File file) {
 
@@ -43,12 +43,12 @@ public class LocalIdentitiesXmlDAO {
             try {
                 doc = XMLTools.parseXmlFile(file);
             } catch (final Exception ex) {
-                logger.log(Level.SEVERE, "Error reading localidentities xml", ex);
+                logger.error("Error reading localidentities xml", ex);
                 return localIdentities;
             }
             final Element rootNode = doc.getDocumentElement();
             if( rootNode.getTagName().equals("FrostLocalIdentities") == false ) {
-                logger.severe("Error - invalid localidentities xml: does not contain the root tag 'FrostLocalIdentities'");
+                logger.error("invalid localidentities xml: does not contain the root tag 'FrostLocalIdentities'");
                 return null;
             }
 
@@ -69,7 +69,7 @@ public class LocalIdentitiesXmlDAO {
     public static boolean saveLocalIdentities(final File file, final List<LocalIdentity> localIdentities) {
         final Document doc = XMLTools.createDomDocument();
         if (doc == null) {
-            logger.severe("Error - saveLocalIdentities: factory couldn't create XML Document.");
+            logger.error("saveLocalIdentities: factory couldn't create XML Document.");
             return false;
         }
 
@@ -87,10 +87,10 @@ public class LocalIdentitiesXmlDAO {
         try {
             writeOK = XMLTools.writeXmlFile(doc, file.getPath());
         } catch (final Throwable ex) {
-            logger.log(Level.SEVERE, "Exception while writing localidentities xml:", ex);
+            logger.error("Exception while writing localidentities xml:", ex);
         }
         if (!writeOK) {
-            logger.severe("Error exporting localidentities, file was not saved");
+            logger.error("Error exporting localidentities, file was not saved");
         }
         return writeOK;
     }

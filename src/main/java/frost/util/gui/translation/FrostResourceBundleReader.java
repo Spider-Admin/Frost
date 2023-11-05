@@ -26,8 +26,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 
@@ -39,7 +40,7 @@ import frost.MainFrame;
  */
 public class FrostResourceBundleReader {
 
-    private static final Logger logger = Logger.getLogger(FrostResourceBundleReader.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FrostResourceBundleReader.class);
 
     /**
      * Loads the properties from a jarResource. Provide resource as '/i18n/langres.properties'.
@@ -49,7 +50,7 @@ public class FrostResourceBundleReader {
         final InputStream input = MainFrame.class.getResourceAsStream(jarResource);
         if( input == null ) {
             // file not found in jar
-            logger.severe("Resource not found in jar file: "+jarResource);
+            logger.error("Resource not found in jar file: {}", jarResource);
             return new HashMap<String,String>();
         }
         return loadBundle(input, jarResource);
@@ -64,7 +65,7 @@ public class FrostResourceBundleReader {
         try {
             input = new FileInputStream(fileResource);
         } catch (final FileNotFoundException e) {
-            logger.log(Level.SEVERE, "Could not open properties file: "+fileResource, e);
+            logger.error("Could not open properties file: {}", fileResource, e);
             return new HashMap<String,String>();
         }
         return loadBundle(input, fileResource.getPath());
@@ -110,21 +111,21 @@ public class FrostResourceBundleReader {
 
                 final int pos = line.indexOf('=');
                 if( pos < 1 ) {
-                    logger.severe("Invalid line in "+resourceName+": "+line);
+                    logger.error("Invalid line in {}: {}", resourceName, line);
                     continue;
                 }
                 String key, value;
                 key = line.substring(0, pos).trim();
                 value = line.substring(pos+1);
                 if( key.length() == 0 ) {
-                    logger.severe("Empty key in "+resourceName+": "+line);
+                    logger.error("Empty key in {}: {}", resourceName, line);
                     continue;
                 }
                 value = loadConvert(value);
                 bundle.put(key, value);
             }
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Error reading resource: "+resourceName, t);
+            logger.error("Error reading resource: {}", resourceName, t);
             return bundle;
         }
         return bundle;

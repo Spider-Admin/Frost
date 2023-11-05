@@ -21,13 +21,13 @@ package frost.storage;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.Frost;
 import frost.SettingsClass;
-import frost.util.Logging;
 
 /**
  * @author $Author: bback $
@@ -35,7 +35,7 @@ import frost.util.Logging;
  */
 public class StorageManager extends Timer {
 
-    private static final Logger logger = Logger.getLogger(StorageManager.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
     private final ShutdownThread shutdownThread = new ShutdownThread();
     private final AutoTask autoTask = new AutoTask();
@@ -54,7 +54,7 @@ public class StorageManager extends Timer {
 					try {
 						savable.autoSave();
 					} catch (final StorageException se) {
-						logger.log(Level.SEVERE, "Error while saving a resource inside the timer.", se);
+						logger.error("Error while saving a resource inside the timer.", se);
 						if (Core.getInstance() != null) {
 						    Core.getInstance().showAutoSaveError(se);
 						}
@@ -81,16 +81,13 @@ public class StorageManager extends Timer {
 					try {
 						savable.exitSave();
 					} catch (final Throwable se) {
-						logger.log(Level.SEVERE, "Error while saving a resource inside the shutdown hook.", se);
+						logger.error("Error while saving a resource inside the shutdown hook.", se);
 					}
 				}
 			}
 
-            final String goodbyeMsg = "Frost shutdown completed.";
-			logger.severe(goodbyeMsg);
-			System.out.println(goodbyeMsg);
+			logger.info("Frost shutdown completed.");
 
-			Logging.inst().shutdownLogging();
             Frost.releaseLockFile();
 		}
 	}

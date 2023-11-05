@@ -21,8 +21,9 @@ package frost.fcp;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -36,11 +37,10 @@ import frost.fcp.fcp07.messagetransfer.MessageTransferTask;
 import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.download.FrostDownloadItem;
 import frost.fileTransfer.upload.FrostUploadItem;
-import frost.util.Logging;
 
 public class FcpHandler07 extends FcpHandler {
 
-    private static final Logger logger = Logger.getLogger(FcpHandler07.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FcpHandler07.class);
 
     private MessageTransferHandler msgTransferConnection = null;
 
@@ -59,7 +59,7 @@ public class FcpHandler07 extends FcpHandler {
                 msgTransferConnection = new MessageTransferHandler();
                 msgTransferConnection.start();
             } catch (final Throwable e) {
-                logger.log(Level.SEVERE, "Initialization of MessageTransferConnection failed", e);
+                logger.error("Initialization of MessageTransferConnection failed", e);
             }
         }
     }
@@ -82,15 +82,12 @@ public class FcpHandler07 extends FcpHandler {
     {
         // unused by 07: htl, doRedirect, fastDownload,
         key = FcpConnection.stripSlashes(key);
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
         final int cnt = count++;
         final long l = System.currentTimeMillis();
         final FcpResultGet result;
         if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
-            if (doLogging) {
-                System.out.println("GET_START(S)("+cnt+"):"+key);
-            }
+            logger.debug("GET_START(S)({}): {}", cnt, key);
             final String id = "get-" + FcpSocket.getNextFcpId();
             final FreenetPriority prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD));
             final MessageTransferTask task = new MessageTransferTask(id, key, targetFile, prio, maxSize, maxRetries);
@@ -102,18 +99,12 @@ public class FcpHandler07 extends FcpHandler {
 
             result = task.getFcpResultGet();
 
-            if (doLogging) {
-                System.out.println("GET_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
-            }
+            logger.debug("GET_END(S)({}): {}, duration = {}", cnt, key, System.currentTimeMillis() - l);
         } else {
             // use a new socket
-            if (doLogging) {
-                System.out.println("GET_START(N)("+cnt+"):"+key);
-            }
+            logger.debug("GET_START(N)({}): {}", cnt, key);
             result = FcpRequest.getFile(type, key, size, targetFile, maxSize, maxRetries, createTempFile, dlItem);
-            if (doLogging) {
-                System.out.println("GET_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
-            }
+            logger.debug("GET_END(N)({}): {}, duration = {}", cnt, key, System.currentTimeMillis() - l);
         }
         return result;
     }
@@ -129,15 +120,12 @@ public class FcpHandler07 extends FcpHandler {
             final FrostUploadItem ulItem)
     {
         key = FcpConnection.stripSlashes(key);
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
         final int cnt = count++;
         final long l = System.currentTimeMillis();
         final FcpResultPut result;
         if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
-            if (doLogging) {
-                System.out.println("PUT_START(S)("+cnt+"):"+key);
-            }
+            logger.debug("PUT_START(S)({}): {}", cnt, key);
             final String id = "get-" + FcpSocket.getNextFcpId();
             final FreenetPriority prio = FreenetPriority.getPriority(Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD));
             final MessageTransferTask task = new MessageTransferTask(id, key, sourceFile, prio);
@@ -149,17 +137,11 @@ public class FcpHandler07 extends FcpHandler {
 
             result = task.getFcpResultPut();
 
-            if (doLogging) {
-                System.out.println("PUT_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
-            }
+            logger.debug("PUT_END(S)({}): {}, duration = {}", cnt, key, System.currentTimeMillis() - l);
         } else {
-            if (doLogging) {
-                System.out.println("PUT_START(N)("+cnt+"):"+key);
-            }
+            logger.debug("PUT_START(N)({}): {}", cnt, key);
             result = FcpInsert.putFile(type, key, sourceFile, doMime, ulItem);
-            if (doLogging) {
-                System.out.println("PUT_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
-            }
+            logger.debug("PUT_END(N)({}): {}, duration = {}", cnt, key, System.currentTimeMillis() - l);
         }
 
         if( result == null ) {

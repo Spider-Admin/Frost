@@ -18,9 +18,10 @@
 */
 package frost.messaging.freetalk.transfer;
 
-import java.util.logging.Logger;
-
 import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.fcp.fcp07.NodeMessage;
@@ -30,7 +31,7 @@ import frost.messaging.freetalk.boards.FreetalkBoard;
 
 public class CreateBoardCallback implements FreetalkNodeMessageCallback {
 
-    private static final Logger logger = Logger.getLogger(PutMessageCallback.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(CreateBoardCallback.class);
 
     private final MainFrame mainFrame;
 
@@ -43,12 +44,12 @@ public class CreateBoardCallback implements FreetalkNodeMessageCallback {
         FreetalkManager.getInstance().getConnection().unregisterCallback(id);
 
         if (!nodeMsg.isMessageName("FCPPluginReply")) {
-            logger.severe("Unexpected NodeMessage received: "+nodeMsg.getMessageName());
+            logger.warn("Unexpected NodeMessage received: {}", nodeMsg.getMessageName());
             return;
         }
 
         if (!"CreateBoardReply".equals(nodeMsg.getStringValue("Replies.Message"))) {
-            logger.severe("Unexpected NodeMessage received: "+nodeMsg.getStringValue("Replies.Message"));
+            logger.warn("Unexpected NodeMessage received: {}", nodeMsg.getStringValue("Replies.Message"));
             return;
         }
 

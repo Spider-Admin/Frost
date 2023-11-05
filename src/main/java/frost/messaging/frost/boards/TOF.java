@@ -29,8 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -39,6 +37,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -62,11 +62,11 @@ import frost.util.gui.translation.Language;
  */
 public class TOF implements PropertyChangeListener {
 
+	private static final Logger logger = LoggerFactory.getLogger(TOF.class);
+
     // ATTN: if a new message arrives during update of a board, the msg cannot be inserted into db because
     //       the methods are synchronized. So the add of msg occurs after the load of the board.
     //       there is no sync problem.
-
-    private static final Logger logger = Logger.getLogger(TOF.class.getName());
 
     private static final Language language = Language.getInstance();
 
@@ -195,7 +195,7 @@ public class TOF implements PropertyChangeListener {
                                 }
                             }
                         } else {
-                        	logger.severe("error: frostMessageObject not of type FrostMessageObject");
+                            logger.error("frostMessageObject not of type FrostMessageObject");
                         }
                     }
                 }
@@ -224,7 +224,7 @@ public class TOF implements PropertyChangeListener {
             MessageStorage.inst().insertMessage(invalidMsg);
         } catch (final Throwable e) {
             // paranoia
-            logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
+            logger.error("Error inserting invalid message into database", e);
         }
     }
 
@@ -247,12 +247,12 @@ public class TOF implements PropertyChangeListener {
                 try {
                     lastSeenMillis = currentMsg.getDateAndTime().getMillis();
                 } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Error updating Identities lastSeenTime", t);
+                    logger.error("Error updating Identities lastSeenTime", t);
                 }
                 if( checkOwner == null ) {
                     owner.setLastSeenTimestampWithoutUpdate(lastSeenMillis);
                     if( !Core.getIdentitiesManager().addIdentity(owner) ) {
-                        logger.severe("Core.getIdentitiesManager().addIdentity(owner) returned false for identy: "+owner.getUniqueName());
+                        logger.error("Core.getIdentitiesManager().addIdentity(owner) returned false for identy: {}", owner.getUniqueName());
                         currentMsg.setPublicKey(null);
                         currentMsg.setSignatureStatusOLD();
                         owner = null;
@@ -293,18 +293,13 @@ public class TOF implements PropertyChangeListener {
             messageInsertedRC = MessageStorage.inst().insertMessage(newMsg);
         } catch (final Throwable e) {
             // paranoia
-            logger.log(
-                    Level.SEVERE,
-                    "Error inserting new message into database. Msgid="+newMsg.getMessageId()+
-                    "; Board="+board.getName()+"; Date="+newMsg.getDateAndTimeString()+"; "+"Index="+index,
-                    e);
+            logger.error("Error inserting new message into database. Msgid = {}; Board = {}; Date = {}; Index = {}", newMsg.getMessageId(), board.getName(), newMsg.getDateAndTimeString(), index, e);
             return;
         }
 
         // don't add msg if it was a duplicate
         if( messageInsertedRC == MessageStorage.INSERT_DUPLICATE ) {
-            logger.severe("Duplicate message, not added to storage. Msgid="+newMsg.getMessageId()+
-                    "; Board="+board.getName()+"; Date="+newMsg.getDateAndTimeString()+"; "+"Index="+index);
+            logger.error("Duplicate message, not added to storage. Msgid = {}; Board = {}; Date = {}; Index = {}", newMsg.getMessageId(), board.getName(), newMsg.getDateAndTimeString(), index);
             return; // not inserted into database, do not add to gui
         }
 
@@ -652,14 +647,14 @@ public class TOF implements PropertyChangeListener {
                         // add to direct parent
                         final String directParentId = l.get(l.size()-1); // getLast
                         if( directParentId == null ) {
-                            logger.log(Level.SEVERE, "Should never happen: directParentId is null; msg="+mo.getMessageId()+"; parentMsg="+directParentId);
+                            logger.error("Should never happen: directParentId is null; msg = {}; parentMsg = {}", mo.getMessageId(), directParentId);
                             continue;
                         }
                         final FrostMessageObject parentMo = messagesTableById.get(directParentId);
                         if( parentMo == null ) {
                             // FIXME: happens if someone sends a faked msg with parentids from 2 different threads.
                             //  gives NPE if one of the messages is already in its own thread
-                            logger.log(Level.SEVERE, "Should never happen: parentMo is null; msg="+mo.getMessageId()+"; parentMsg="+directParentId+"; irtl="+mo.getInReplyTo());
+                            logger.error("Should never happen: parentMo is null; msg = {}; parentMsg = {}; irtl = {}", mo.getMessageId(), directParentId, mo.getInReplyTo());
                             continue;
                         }
                         parentMo.add(mo);
@@ -757,7 +752,7 @@ public class TOF implements PropertyChangeListener {
                     for(int x=l.size()-1; x>=0; x--) {
                         final String anId = l.get(x);
                         if( anId == null ) {
-                            logger.log(Level.SEVERE, "Should never happen: message id is null! msgId="+mo.getMessageId());
+                            logger.error("Should never happen: message id is null! msgId = {}", mo.getMessageId());
                             continue;
                         }
 
@@ -854,8 +849,7 @@ public class TOF implements PropertyChangeListener {
                     final long l2 = System.currentTimeMillis();
                     tmr.buildThreads();
                     final long l3 = System.currentTimeMillis();
-                    // TODO: debug output only!
-                    System.out.println("loading board "+board.getName()+": load="+(l2-l1)+", build+subretrieve="+(l3-l2));
+                    logger.debug("loading board {}: load = {}, build+subretrieve = {}", board.getName(), l2 - l1, l3 - l2);
                 } else {
                     // load flat
                     final FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
@@ -866,7 +860,7 @@ public class TOF implements PropertyChangeListener {
                 MessageStorage.inst().setMessagesRead(board, markAsReadMsgs);
 
             } catch (final Throwable t) {
-                logger.log(Level.SEVERE, "Excpetion during thread load/build", t);
+                logger.error("Exception during thread load/build", t);
             }
 
             if( !isCancel() ) {

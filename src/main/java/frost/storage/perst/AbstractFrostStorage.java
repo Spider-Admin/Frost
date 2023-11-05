@@ -22,18 +22,18 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.text.NumberFormat;
-import java.util.logging.Logger;
 
 import org.garret.perst.Storage;
 import org.garret.perst.StorageFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
 
 public abstract class AbstractFrostStorage {
 
-    private static final Logger logger = Logger.getLogger(AbstractFrostStorage.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(AbstractFrostStorage.class);
 
     private Storage storage = null;
 
@@ -51,7 +51,7 @@ public abstract class AbstractFrostStorage {
             final boolean serializeTransientObjects)
     {
         if( storage != null ) {
-            System.out.println("Storage is already opened!");
+            logger.warn("Storage is already opened!");
             return;
         }
         storage = StorageFactory.getInstance().createStorage();
@@ -70,7 +70,7 @@ public abstract class AbstractFrostStorage {
     public void exportToXml() throws Exception {
         final File xmlFile = new File( buildStoragePath(getStorageFilename()+".xml") );
 
-        logger.warning("Exporting storage file '"+getStorageFilename()+"' to XML...");
+        logger.info("Exporting storage file '{}' to XML...", getStorageFilename());
 
         // open storage
         initStorage();
@@ -93,7 +93,7 @@ public abstract class AbstractFrostStorage {
         // close storage
         close();
 
-        logger.warning("Finished XML export of storage file "+getStorageFilename()+" into "+xmlFile.getPath());
+        logger.info("Finished XML export of storage file {} into {}", getStorageFilename(), xmlFile.getPath());
     }
 
     public long compactStorage() throws Exception {
@@ -101,7 +101,7 @@ public abstract class AbstractFrostStorage {
         final File bakFile = new File( buildStoragePath(getStorageFilename()+".bak") );
         final File oldFile = new File( buildStoragePath(getStorageFilename()+".old") );
 
-        logger.warning("Compacting storage file '"+getStorageFilename()+"'...");
+        logger.info("Compacting storage file '{}'...", getStorageFilename());
 
         final long beforeStorageSize = storageFile.length();
 
@@ -146,8 +146,7 @@ public abstract class AbstractFrostStorage {
 
         final long savedBytes = beforeStorageSize - afterStorageSize;
 
-        final NumberFormat nf = NumberFormat.getInstance();
-        logger.warning("Finished compacting storage file "+getStorageFilename()+", released "+nf.format(savedBytes)+" bytes.");
+        logger.info("Finished compacting storage file {}, released {} bytes.", getStorageFilename(), savedBytes);
 
         return savedBytes;
     }
@@ -208,7 +207,7 @@ public abstract class AbstractFrostStorage {
             storage.close();
             storage = null;
         } else {
-            System.out.println("Storage is already closed!");
+            logger.warn("Storage is already closed!");
         }
     }
 

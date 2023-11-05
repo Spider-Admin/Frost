@@ -30,10 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -62,9 +63,9 @@ import frost.util.model.SortedModelListener;
  */
 public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
-//FIXME    Problem: positiv abgleich klappt, aber woher weiss ich wann LIST durch ist um zu checken ob welche fehlen?
+	private static final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
 
-    private static final Logger logger = Logger.getLogger(PersistenceManager.class.getName());
+	// FIXME Problem: positiv abgleich klappt, aber woher weiss ich wann LIST durch ist um zu checken ob welche fehlen?
 
     // this would belong to the models, but its not needed there without persistence, hence we maintain it here
     private final Hashtable<String,FrostUploadItem> uploadModelItems = new Hashtable<String,FrostUploadItem>();
@@ -264,7 +265,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     public void connected() {
         isConnected = true;
         MainFrame.getInstance().setConnected();
-        logger.severe("now connected");
+        logger.info("now connected");
     }
     public void disconnected() {
         isConnected = false;
@@ -277,7 +278,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 downloadModel.removeExternalDownloads();
             }
         });
-        logger.severe("disconnected!");
+        logger.info("disconnected!");
     }
 
     public boolean isConnected() {
@@ -739,7 +740,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             final FcpResultPut result = new FcpResultPut(FcpResultPut.Error, -1, desc, false);
                             FileTransferManager.inst().getUploadManager().notifyUploadFinished(ulItem, result);
 
-                            logger.severe(desc);
+                            logger.error("{}", desc);
                         } else {
                             // wait for an answer, don't start request again
                             directPUTsWithoutAnswer.add(gqid);
@@ -760,9 +761,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         try {
                             answer = fcpTools.startDirectPersistentGet(gqid, targetFile);
                         } catch (final FileNotFoundException e) {
-                            final String msg = "Could not write to " + dlItem.getDownloadFilename() + ": " + e.getMessage();
-                            System.out.println(msg);
-                            logger.severe(msg);
+                            logger.error("Could not write to {}: ", dlItem.getDownloadFilename(), e);
                         }
 
                         if( answer != null ) {
@@ -770,7 +769,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                             retryNow = false;
                         } else {
-                            logger.severe("Could not open a new fcp socket for direct get!");
+                            logger.error("Could not open a new fcp socket for direct get!");
                             final FcpResultGet result = new FcpResultGet(false);
                             retryNow = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                         }
@@ -783,12 +782,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     }
 
                 } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Exception catched",t);
+                    logger.error("Exception catched", t);
                     catchedExceptions++;
                 }
 
                 if( catchedExceptions > maxAllowedExceptions ) {
-                    logger.log(Level.SEVERE, "Stopping DirectTransferThread because of too much exceptions");
+                    logger.error("Stopping DirectTransferThread because of too much exceptions");
                     break;
                 }
             }
@@ -848,7 +847,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             item.setState(FrostDownloadItem.STATE_FAILED);
             item.setErrorCodeDescription(nm.getStringValue("CodeDescription"));
         } else {
-            System.out.println("persistentRequestError: ID not in any model: "+id);
+            logger.warn("persistentRequestError: ID not in any model: {}", id);
         }
     }
 

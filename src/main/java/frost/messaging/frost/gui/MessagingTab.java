@@ -24,8 +24,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.Box;
@@ -44,6 +42,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeNode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -76,9 +77,9 @@ import frost.util.gui.translation.LanguageListener;
  */
 public class MessagingTab extends JPanel implements LanguageListener {
 
-    private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(MessagingTab.class);
 
-    private static final Logger logger = Logger.getLogger(MessagingTab.class.getName());
+	private static final long serialVersionUID = 1L;
 
     private JSplitPane treeAndTabbedPaneSplitpane = null;
 
@@ -362,8 +363,7 @@ public class MessagingTab extends JPanel implements LanguageListener {
             try {
                 searchMessagesDialog = new SearchMessagesDialog();
             } catch(Throwable t) {
-                logger.log(Level.SEVERE, "SearchMessagesDialog could not be created.", t);
-                t.printStackTrace();
+                logger.error("SearchMessagesDialog could not be created.", t);
             }
         }
         return searchMessagesDialog;
@@ -660,7 +660,7 @@ public class MessagingTab extends JPanel implements LanguageListener {
         final Board nextBoard = BoardUpdateBoardSelector.selectNextBoard(getTofTreeModel());
         if (nextBoard != null) {
             getTofTree().updateBoard(nextBoard);
-            logger.info("*** Automatic board update started for: " + nextBoard.getName());
+            logger.info("*** Automatic board update started for: {}", nextBoard.getName());
         } else {
             logger.info("*** Automatic board update - min update interval not reached.  waiting...");
         }

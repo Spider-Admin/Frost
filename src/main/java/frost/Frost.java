@@ -26,13 +26,16 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.StringJoiner;
 
 import javax.swing.JOptionPane;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import frost.util.FileAccess;
 import frost.util.gui.MiscToolkit;
@@ -40,7 +43,8 @@ import frost.util.gui.translation.Language;
 
 public class Frost {
 
-    private static final Logger logger = Logger.getLogger(Frost.class.getName());
+	private static final Logger logger =  LoggerFactory.getLogger(Frost.class);
+
     private static String lookAndFeel = null;
 
     private static String cmdLineLocaleName = null;
@@ -53,15 +57,20 @@ public class Frost {
      * @param args command line arguments
      */
     public static void main(final String[] args) {
-        System.out.println();
-        System.out.println("Frost, Copyright (C) 2001,2011 Frost Project");
-        System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
-        System.out.println("This is free software, and you are welcome to");
-        System.out.println("redistribute it under the GPL conditions.");
-        System.out.println("Frost uses code from bouncycastle.org (BSD license),");
-        System.out.println("Kai Toedter (LGPL license), Volker H. Simonis (GPL v2 license)");
-        System.out.println("and McObject LLC (GPL v2 license).");
-        System.out.println();
+		// Redirect java.util.logging (JUL) to SL4J
+		// -> Required for Bouncy Castle Crypto API
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+
+        logger.info("");
+        logger.info("Frost, Copyright (C) 2001,2011 Frost Project");
+        logger.info("Frost comes with ABSOLUTELY NO WARRANTY!");
+        logger.info("This is free software, and you are welcome to");
+        logger.info("redistribute it under the GPL conditions.");
+        logger.info("Frost uses code from bouncycastle.org (BSD license),");
+        logger.info("Kai Toedter (LGPL license), Volker H. Simonis (GPL v2 license)");
+        logger.info("and McObject LLC (GPL v2 license).");
+        logger.info("");
 
         parseCommandLine(args);
 
@@ -79,7 +88,9 @@ public class Frost {
             if (lookAndFeel != null) {
                 try {
                     laf = (LookAndFeel) Class.forName(lookAndFeel).newInstance();
-                } catch(final Throwable t) {t.printStackTrace();}
+                } catch(final Throwable t) {
+                    logger.error("Exception", t);
+                }
                 if (laf == null || !laf.isSupportedLookAndFeel()) {
                     laf = null;
                 }
@@ -91,7 +102,9 @@ public class Frost {
                 if( landf != null && landf.length() > 0 ) {
                     try {
                         laf = (LookAndFeel) Class.forName(landf).newInstance();
-                    } catch(final Throwable t) {t.printStackTrace();}
+                    } catch(final Throwable t) {
+                        logger.error("Exception", t);
+                    }
                     if (laf == null || !laf.isSupportedLookAndFeel()) {
                         laf = null;
                     }
@@ -115,8 +128,8 @@ public class Frost {
                 UIManager.setLookAndFeel(laf);
             }
         } catch (final Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("Using the default");
+            logger.error("Unable to initialize LookAndFeel", e);
+            logger.error("Using the default");
         }
     }
 
@@ -161,39 +174,52 @@ public class Frost {
      * This method shows a help message on the standard output and exits the program.
      */
     private static void showHelp() {
-        System.out.println("java -jar frost.jar [-lf lookAndFeel] [-locale languageCode]\n");
+        StringJoiner helpPage = new StringJoiner(System.lineSeparator());
 
-        System.out.println("-lf     Sets the 'Look and Feel' Frost will use.");
-        System.out.println("        (overriden by the skins preferences)\n");
-        System.out.println("        These ones are currently available:");
+        helpPage.add("java -jar frost.jar [-lf lookAndFeel] [-locale languageCode]");
+        helpPage.add("");
+        helpPage.add("-lf     Sets the 'Look and Feel' Frost will use.");
+        helpPage.add("        (overriden by the skins preferences)");
+        helpPage.add("");
+        helpPage.add("        These ones are currently available:");
 //        String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
         final LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
         for( final LookAndFeelInfo element : feels ) {
-            System.out.println("           " + element.getClassName());
+            helpPage.add("           " + element.getClassName());
         }
-        System.out.println("\n         And this one is used by default:");
-        System.out.println("           " + lookAndFeel + "\n");
+        helpPage.add("");
+        helpPage.add("         And this one is used by default:");
+        helpPage.add("           " + lookAndFeel);
+        helpPage.add("");
+        helpPage.add("-locale  Sets the language Frost will use, if available.");
+        helpPage.add("         (overrides the setting in the preferences)");
+        helpPage.add("");
+        helpPage.add("-localefile  Sets the language file.");
+        helpPage.add("             (allows tests of own language files)");
+        helpPage.add("             (if set the -locale setting is ignored)");
+        helpPage.add("");
+        helpPage.add("-offline     Startup in offline mode.");
+        helpPage.add("");
+        helpPage.add("Example:");
 
-        System.out.println("-locale  Sets the language Frost will use, if available.");
-        System.out.println("         (overrides the setting in the preferences)\n");
-
-        System.out.println("-localefile  Sets the language file.");
-        System.out.println("             (allows tests of own language files)");
-        System.out.println("             (if set the -locale setting is ignored)\n");
-
-        System.out.println("-offline     Startup in offline mode.");
-
-        System.out.println("Example:\n");
-        System.out.print("java -jar frost.jar ");
+        StringJoiner exampleCmd = new StringJoiner("");
+        exampleCmd.add("java -jar frost.jar ");
         if (feels.length > 0) {
-            System.out.print("-lf " + feels[0].getClassName() + " ");
+            exampleCmd.add("-lf " + feels[0].getClassName() + " ");
         }
-        System.out.println("-locale es\n");
-        System.out.println("That command line will instruct Frost to use the");
+        exampleCmd.add("-locale es");
+
+        helpPage.add(exampleCmd.toString());
+        helpPage.add("");
+
+        StringJoiner exampleDesc = new StringJoiner(""); 
+        exampleDesc.add("That command line will instruct Frost to use the ");
         if (feels.length > 0) {
-            System.out.println(feels[0].getClassName() + " look and feel and the");
+            exampleDesc.add(feels[0].getClassName() + " look and feel and the ");
         }
-        System.out.println("Spanish language.");
+        exampleDesc.add("Spanish language.");
+        helpPage.add(exampleDesc.toString());
+        System.out.println(helpPage);
         System.exit(0);
     }
 
@@ -201,12 +227,12 @@ public class Frost {
      * Constructor
      */
     public Frost() {
-        System.out.println("Starting Frost "+getClass().getPackage().getSpecificationVersion());
-        System.out.println();
+        logger.info("Starting Frost {}", getClass().getPackage().getSpecificationVersion());
+        logger.info("");
         for( final String s : getEnvironmentInformation() ) {
-            System.out.println(s);
+            logger.info(s);
         }
-        System.out.println();
+        logger.info("");
 
         final Core core = Core.getInstance();
 
@@ -239,7 +265,7 @@ public class Frost {
             Core.frostSettings.setValue("lastUsedJvm.vendor", jvmVendor);
             Core.frostSettings.setValue("lastUsedJvm.version", jvmVersion);
         } else {
-            System.out.println("Error: JVM vendor or version property is not set!");
+            logger.error("JVM vendor or version property is not set!");
         }
 
         initializeLookAndFeel();
@@ -255,8 +281,7 @@ public class Frost {
         try {
             core.initialize();
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "There was a problem while initializing Frost.", e);
-            e.printStackTrace();
+            logger.error("There was a problem while initializing Frost.", e);
             System.exit(3);
         }
     }

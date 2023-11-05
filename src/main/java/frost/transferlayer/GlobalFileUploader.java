@@ -19,8 +19,9 @@
 package frost.transferlayer;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fcp.FcpResultPut;
@@ -31,7 +32,7 @@ import frost.storage.perst.IndexSlot;
  */
 public class GlobalFileUploader {
 
-    private static final Logger logger = Logger.getLogger(GlobalFileUploader.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(GlobalFileUploader.class);
 
     public static boolean uploadFile(
             final IndexSlot gis,
@@ -48,7 +49,7 @@ public class GlobalFileUploader {
             // get first index and lock it
             int index = gis.findFirstUploadSlot();
             while( !success && !error) {
-                logger.info("Trying file upload to index "+index);
+                logger.info("Trying file upload to index {}", index);
 
                 final FcpResultPut result = FcpHandler.inst().putFile(
                         FcpHandler.TYPE_MESSAGE,
@@ -72,17 +73,17 @@ public class GlobalFileUploader {
                     }
                     tries++;
                     if( tries < maxTries ) {
-                        logger.info("FILEDN: Upload error (try #" + tries + "), retrying index "+index);
+                        logger.error("FILEDN: Upload error (try #{}), retrying index {}", tries, index);
                     } else {
-                        logger.info("FILEDN: Upload error (try #" + tries + "), giving up on index "+index);
+                        logger.error("FILEDN: Upload error (try #{}), giving up on index {}", tries, index);
                         error = true;
                     }
                 }
             }
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Exception in uploadFile", e);
+            logger.error("Exception in uploadFile", e);
         }
-        logger.info("FILEDN: File upload finished, file uploaded state is: "+success);
+        logger.info("FILEDN: File upload finished, file uploaded state is: {}", success);
         return success;
     }
 }

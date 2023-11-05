@@ -20,10 +20,11 @@ package frost.fileTransfer.download;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -45,7 +46,7 @@ import frost.util.model.SortedTableFormat;
  */
 public class DownloadModel extends SortedModel<FrostDownloadItem> implements ExitSavable {
 
-	private static final Logger logger = Logger.getLogger(DownloadModel.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(DownloadModel.class);
 
 	public DownloadModel(final SortedTableFormat<FrostDownloadItem> f) {
 		super(f);
@@ -255,7 +256,7 @@ public class DownloadModel extends SortedModel<FrostDownloadItem> implements Exi
 		try {
 			FrostFilesStorage.inst().saveDownloadFiles(itemList);
 		} catch (final Throwable e) {
-			logger.log(Level.SEVERE, "Error saving download items", e);
+			logger.error("Error saving download items", e);
 			throw new StorageException("Error saving download items", e);
 		}
 	}
@@ -269,7 +270,7 @@ public class DownloadModel extends SortedModel<FrostDownloadItem> implements Exi
 		try {
 			downloadItems = FrostFilesStorage.inst().loadDownloadFiles();
 		} catch (final Throwable e) {
-			logger.log(Level.SEVERE, "Error loading download items", e);
+			logger.error("Error loading download items", e);
 			throw new StorageException("Error loading download items", e);
 		}
 		for (final FrostDownloadItem di : downloadItems) {

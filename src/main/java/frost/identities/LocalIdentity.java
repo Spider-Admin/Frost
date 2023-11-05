@@ -135,7 +135,7 @@ public class LocalIdentity extends Identity {
 //                board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
 //
 //            } catch (IOException ex) {
-//                logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
+//                logger.error("Exception thrown in constructor", ex);
 //                board = null;
 //            }
 //        }

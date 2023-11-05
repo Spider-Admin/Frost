@@ -40,6 +40,7 @@ import frost.util.gui.MiscToolkit;
  */
 @SuppressWarnings("serial")
 class SortedTableHeader extends ModelTableHeader {
+
 	/**
 	 * This inner class paints an arrow on the header of the column the model
 	 * table is sorted by. The arrow will point upwards or downwards depending
@@ -83,8 +84,6 @@ class SortedTableHeader extends ModelTableHeader {
 		}
 
 	}
-
-//	private static final Logger logger = Logger.getLogger(SortedTableHeader.class.getName());
 
 	private static Icon ascendingIcon = MiscToolkit.loadImageIcon("/data/SortedTable_ascending.png");
 	private static Icon descendingIcon = MiscToolkit.loadImageIcon("/data/SortedTable_descending.png");

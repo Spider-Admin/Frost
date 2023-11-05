@@ -83,6 +83,9 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.SettingsClass;
 import frost.fileTransfer.common.TableBackgroundColors;
@@ -103,7 +106,7 @@ import frost.util.gui.MiscToolkit;
 @SuppressWarnings("serial")
 public class FreetalkMessageTreeTable extends JTable implements PropertyChangeListener {
 
-//    private static final Logger logger = Logger.getLogger(FreetalkMessageTreeTable.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageTreeTable.class);
 
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
@@ -421,8 +424,8 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
 
             if( getUI() instanceof BasicTreeUI ) {
                 final BasicTreeUI treeUI = (BasicTreeUI)getUI();
-//                System.out.println("1:"+treeUI.getLeftChildIndent()); // default 7
-//                System.out.println("2:"+treeUI.getRightChildIndent());// default 13
+                logger.debug("1: {}", treeUI.getLeftChildIndent()); // default 7
+                logger.debug("2: {}", treeUI.getRightChildIndent());// default 13
                 treeUI.setLeftChildIndent(6);
                 treeUI.setRightChildIndent(10);
             }
@@ -910,9 +913,7 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
 //                    if( msg.isSignatureStatusVERIFIED() ) {
 //                        final Identity id = msg.getFromIdentity();
 //                        if( id == null ) {
-//                            logger.severe("getFromidentity() is null for fromName: '"+msg.getFromName()+"', "+
-//                                    "board="+msg.getBoard().getName()+", msgDate="+msg.getDateAndTimeString()+
-//                                    ", index="+msg.getIndex());
+//                            logger.error("getFromidentity() is null for fromName: '{}', board = {}, msgDate = {}, index = {}", msg.getAuthor(), msg.getBoard().getName(), msg.getDateAndTimeString(), msg.getIndex());
 //                            setToolTipText((String)value);
 //                        } else {
 //                            // build informative tooltip

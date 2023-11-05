@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -74,6 +73,9 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 import javax.swing.tree.TreePath;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -101,11 +103,11 @@ import frost.util.model.SortedModelTable;
 @SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements SettingsUpdater {
 
+	private static final Logger logger = LoggerFactory.getLogger(DownloadPanel.class);
+
 	private PopupMenuDownload popupMenuDownload = null;
 
 	private final Listener listener = new Listener();
-
-	private static final Logger logger = Logger.getLogger(DownloadPanel.class.getName());
 
 	private DownloadModel model = null;
 
@@ -568,8 +570,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		final int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
 		Font font = new Font(fontName, fontStyle, fontSize);
 		if (!font.getFamily().equals(fontName)) {
-			logger.severe("The selected font was not found in your system\n"
-					+ "That selection will be changed to \"SansSerif\".");
+			logger.error("The selected font was not found in your system.");
+			logger.error("That selection will be changed to \"SansSerif\".");
 			Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
 			font = new Font("SansSerif", fontStyle, fontSize);
 		}
@@ -637,10 +639,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		final File targetFile = new File(dlItem.getDownloadFilename());
 		if (!targetFile.isFile()) {
-			logger.info("Executing: File not found: " + targetFile.getAbsolutePath());
+			logger.error("Executing: File not found: {}", targetFile.getAbsolutePath());
 			return;
 		}
-		logger.info("Executing: " + targetFile.getAbsolutePath());
+		logger.info("Executing: {}", targetFile.getAbsolutePath());
 		try {
 			ExecuteDocument.openDocument(targetFile);
 		} catch (final Throwable t) {

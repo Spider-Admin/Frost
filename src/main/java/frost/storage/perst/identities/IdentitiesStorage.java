@@ -22,9 +22,10 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import org.garret.perst.IPersistentList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -38,7 +39,7 @@ import frost.storage.perst.messages.MessageStorage;
 
 public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(IdentitiesStorage.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(IdentitiesStorage.class);
 
     private static final String STORAGE_FILENAME = "identities.dbs";
 
@@ -79,7 +80,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
     public void exitSave() throws StorageException {
         close();
         storageRoot = null;
-        System.out.println("INFO: IdentitiesStorage closed.");
+        logger.info("IdentitiesStorage closed.");
     }
 
     public void importLocalIdentities(final List<LocalIdentity> lids, final Hashtable<String,Integer> msgCounts) {
@@ -115,7 +116,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
                 storageRoot.getIdentities().add(li);
                 cnt++;
                 if( cnt % 100 == 0 ) {
-                    System.out.println("Committing after " + cnt + " identities");
+                    logger.debug("Committing after {} identities", cnt);
                     endThreadTransaction();
                     beginExclusiveThreadTransaction();
                 }
@@ -143,12 +144,12 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             for( final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext();  ) {
                 final Identity id = i.next();
                 if( id == null ) {
-                    logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
+                    logger.error("Retrieved a null id !!! Please repair identities.dbs.");
                 } else {
                     // one-time migration, remove all ids that have a '_' instead of an '@'
                     if( migrateIdStorage && !Core.getIdentitiesManager().isIdentityValid(id) ) {
                         i.remove();
-                        logger.severe("Dropped an invalid identity: "+id.getUniqueName());
+                        logger.error("Dropped an invalid identity: {}", id.getUniqueName());
                     } else {
                         result.put(id.getUniqueName(), id);
                     }
@@ -166,7 +167,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public boolean insertIdentity(final Identity id) {
         if( id == null ) {
-            logger.severe("Rejecting to insert a null id!");
+            logger.error("Rejecting to insert a null id!");
             return false;
         }
         storageRoot.getIdentities().add( id );
@@ -175,7 +176,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public boolean removeIdentity(final Identity id) {
         if( id.getStorage() == null ) {
-            logger.severe("id not in store");
+            logger.error("id not in store");
             return false;
         }
         final boolean isRemoved = storageRoot.getIdentities().remove(id);
@@ -195,7 +196,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         try {
             for( final LocalIdentity id : storageRoot.getLocalIdentities() ) {
                 if( id == null ) {
-                    logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
+                    logger.error("Retrieved a null id !!! Please repair identities.dbs.");
                 } else {
                     result.put(id.getUniqueName(), id);
                 }
@@ -208,7 +209,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public boolean insertLocalIdentity(final LocalIdentity id) {
         if( id == null ) {
-            logger.severe("Rejecting to insert a null id!");
+            logger.error("Rejecting to insert a null id!");
             return false;
         }
         storageRoot.getLocalIdentities().add(id);
@@ -217,7 +218,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public boolean removeLocalIdentity(final LocalIdentity lid) {
         if( lid.getStorage() == null ) {
-            logger.severe("lid not in store");
+            logger.error("lid not in store");
             return false;
         }
         final boolean isRemoved = storageRoot.getLocalIdentities().remove(lid);
@@ -269,7 +270,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public void repairStorage() {
 
-        System.out.println("Repairing identities.dbs (may take some time!)...");
+        logger.info("Repairing identities.dbs (may take some time!)...");
 
         final String databaseFilePath = buildStoragePath("identities.dbs"); // path to the database file
         final long pagePoolSize = 2L*1024L*1024L;
@@ -279,7 +280,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         storageRoot = (IdentitiesStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
             // Storage was not initialized yet
-            System.out.println("No identities.dbs found");
+            logger.warn("No identities.dbs found");
             return;
         }
 
@@ -295,7 +296,6 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
         for( int x=0; x < numIdentities; x++ ) {
             if( x > progress ) {
-                System.out.print('.');
                 progress += progressSteps;
             }
             Identity sfk;
@@ -324,7 +324,6 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         close();
         storageRoot = null;
 
-        System.out.println();
-        System.out.println("Repair finished, brokenEntries="+brokenEntries+"; validEntries="+validEntries);
+        logger.info("Repair finished, brokenEntries = {}; validEntries = {}", brokenEntries, validEntries);
     }
 }

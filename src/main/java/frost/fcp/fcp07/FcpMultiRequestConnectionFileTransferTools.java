@@ -26,7 +26,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -36,7 +38,7 @@ import frost.fileTransfer.upload.FreenetCompatibilityMode;
 
 public class FcpMultiRequestConnectionFileTransferTools {
 
-    private static final Logger logger = Logger.getLogger(FcpMultiRequestConnectionFileTransferTools.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FcpMultiRequestConnectionFileTransferTools.class);
 
     private final FcpListenThreadConnection fcpPersistentConnection;
 
@@ -252,10 +254,10 @@ public class FcpMultiRequestConnectionFileTransferTools {
         // wait for a message from node
         // good: PersistentPut
         // -> IdentifierCollision {Global=true, Identifier=myid1} EndMessage
-        //final NodeMessage nodeMsg = NodeMessage.readMessageDebug(newSocket.getFcpIn());
+        final NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());
 
-        //System.out.println("*PPUT** INFO - NodeMessage:");
-        //System.out.println((nodeMsg==null)?"(null)":nodeMsg.toString());
+        logger.debug("*PPUT** NodeMessage:");
+        logger.debug("{}", nodeMsg);
 
         dataOutput.close();
 
@@ -289,13 +291,13 @@ public class FcpMultiRequestConnectionFileTransferTools {
             return null;
         }
 
-        System.out.println("*PGET** INFO - NodeMessage:");
-        System.out.println(nodeMsg.toString());
+        logger.debug("*PGET** NodeMessage:");
+        logger.debug("{}", nodeMsg);
 
         final String endMarker = nodeMsg.getMessageEnd();
         if( endMarker == null ) {
             // should never happen
-            logger.severe("*PGET** ENDMARKER is NULL! "+nodeMsg.toString());
+            logger.error("*PGET** ENDMARKER is NULL! {}", nodeMsg);
             return null;
         }
 
@@ -318,7 +320,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
                 bytesWritten += count;
             }
             fileOut.close();
-            System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
+            logger.debug("*GET** Wrote {} of {} bytes to file.", bytesWritten, dataLength);
 
             newSocket.close();
 
@@ -328,7 +330,7 @@ public class FcpMultiRequestConnectionFileTransferTools {
                 return null;
             }
         } else {
-            logger.severe("Invalid node answer, expected AllData: "+nodeMsg);
+            logger.error("Invalid node answer, expected AllData: {}", nodeMsg);
             newSocket.close();
             return null;
         }

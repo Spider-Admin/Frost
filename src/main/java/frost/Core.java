@@ -26,11 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fcp.fcp07.FcpConnection;
@@ -59,7 +60,6 @@ import frost.storage.perst.messages.MessageContentStorage;
 import frost.storage.perst.messages.MessageStorage;
 import frost.util.CleanUp;
 import frost.util.FrostCrypt;
-import frost.util.Logging;
 import frost.util.Mixed;
 import frost.util.gui.JDialogWithDetails;
 import frost.util.gui.MiscToolkit;
@@ -73,7 +73,7 @@ import frost.util.gui.translation.Language;
  */
 public class Core {
 
-    private static final Logger logger = Logger.getLogger(Core.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(Core.class);
 
     // Core instanciates itself, frostSettings must be created before instance=Core() !
     public static final SettingsClass frostSettings = new SettingsClass();
@@ -196,15 +196,15 @@ public class Core {
             setFreetalkTalkable (freetalkTalkable);
 
             if (freetalkTalkable) {
-                System.out.println("**** Freetalk is Talkable. ****");
+                logger.info("**** Freetalk is Talkable. ****");
             } else {
-                System.out.println("**** Freetalk is NOT Talkable. ****");
+                logger.warn("**** Freetalk is NOT Talkable. ****");
             }
 
             fcpConn.close();
 
         } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
+            logger.error("Exception thrown in initializeConnectivity", e);
         }
 
         if (runningOnTestnet) {
@@ -312,10 +312,9 @@ public class Core {
             savedBytes += compactStorage(splashscreen, ArchiveMessageStorage.inst());
 
             final NumberFormat nf = NumberFormat.getInstance();
-            logger.warning("Finished compact of storages, released "+nf.format(savedBytes)+" bytes.");
+            logger.info("Finished compact of storages, released {} bytes.", nf.format(savedBytes));
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error compacting perst storages", ex);
-            ex.printStackTrace();
+            logger.error("Error compacting perst storages", ex);
             MiscToolkit.showMessage(
                     "Error compacting perst storages, compact did not complete: "+ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
@@ -339,10 +338,9 @@ public class Core {
             exportStorage(splashscreen, MessageContentStorage.inst());
             exportStorage(splashscreen, FileListStorage.inst());
             exportStorage(splashscreen, ArchiveMessageStorage.inst());
-            logger.warning("Finished export to XML");
+            logger.info("Finished export to XML");
         } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error exporting perst storages", ex);
-            ex.printStackTrace();
+            logger.error("Error exporting perst storages", ex);
             MiscToolkit.showMessage(
                     "Error exporting perst storages, export did not complete: "+ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
@@ -367,19 +365,6 @@ public class Core {
         splashscreen.setText(language.getString("Splashscreen.message.1"));
         splashscreen.setProgress(20);
 
-        //Initializes the logging and skins
-        new Logging(frostSettings);
-
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append("***** Starting Frost "+getClass().getPackage().getSpecificationVersion()+" *****\n");
-            for( final String s : Frost.getEnvironmentInformation() ) {
-                sb.append(s).append("\n");
-            }
-            logger.severe(sb.toString());
-            sb = null;
-        }
-
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
         Startup.startupCheck(frostSettings);
 
@@ -390,9 +375,7 @@ public class Core {
 
         // we must be at migration level 2 (no mckoi)!!!
         if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 2 ) {
-            final String errText = "Error: You must update this Frost version from version 11-Dec-2007 !!!";
-            logger.log(Level.SEVERE, errText);
-            System.out.println(errText);
+            logger.error("You must update this Frost version from version 11-Dec-2007 !!!");
             System.exit(8);
         }
 
@@ -477,10 +460,10 @@ public class Core {
         if ((frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) && SystraySupport.isSupported()) {
             try {
                 if (!SystraySupport.initialize(title)) {
-                    logger.log(Level.SEVERE, "Could not create systray icon.");
+                    logger.error("Could not create systray icon.");
                 }
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Could not create systray icon.", t);
+                logger.error("Could not create systray icon.", t);
             }
         }
 

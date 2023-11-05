@@ -37,8 +37,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
@@ -52,6 +50,9 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Utilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -79,8 +80,9 @@ import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageTextPane extends JPanel {
 
+	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageTextPane.class);
+
     private final Language language = Language.getInstance();
-    private final Logger logger = Logger.getLogger(FreetalkMessageTextPane.class.getName());
 
     private AntialiasedTextPane messageTextArea = null;
     private JSplitPane messageSplitPane = null;
@@ -318,7 +320,7 @@ public class FreetalkMessageTextPane extends JPanel {
         messageTextArea.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(final HyperlinkEvent evt) {
                 if( !(evt instanceof MouseHyperlinkEvent) ) {
-                    logger.severe("INTERNAL ERROR, hyperlinkevent is wrong object!");
+                    logger.error("hyperlinkevent is wrong object!");
                     return;
                 }
                 final MouseHyperlinkEvent e = (MouseHyperlinkEvent) evt;
@@ -393,9 +395,8 @@ public class FreetalkMessageTextPane extends JPanel {
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-            logger.severe(
-                "The selected font was not found in your system\n"
-                    + "That selection will be changed to \"Monospaced\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"Monospaced\".");
             Core.frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
             font = new Font("Monospaced", fontStyle, fontSize);
         }
@@ -528,7 +529,7 @@ public class FreetalkMessageTextPane extends JPanel {
                     try {
                         filename = java.net.URLDecoder.decode(filename, "UTF-8");
                     } catch (final java.io.UnsupportedEncodingException ex) {
-                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                        logger.error("Decode of HTML code failed", ex);
                     }
                 }
                 final FrostDownloadItem dlItem = new FrostDownloadItem(
@@ -684,7 +685,7 @@ public class FreetalkMessageTextPane extends JPanel {
                     try {
                         name = java.net.URLDecoder.decode(name, "UTF-8");
                     } catch (final java.io.UnsupportedEncodingException ex) {
-                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                        logger.error("Decode of HTML code failed", ex);
                     }
                 }
                 final FrostDownloadItem dlItem = new FrostDownloadItem(name, key);

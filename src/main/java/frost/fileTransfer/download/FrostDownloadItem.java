@@ -31,8 +31,6 @@ import frost.util.model.ModelItem;
 
 public class FrostDownloadItem extends ModelItem<FrostDownloadItem> implements CopyToClipboardItem {
 
-//    private transient static final Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
-
     // the constants representing download states
     public transient final static int STATE_WAITING    = 1; // wait for start
     public transient final static int STATE_TRYING     = 2; // download running

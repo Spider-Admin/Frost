@@ -38,7 +38,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -53,6 +52,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -74,11 +76,11 @@ import frost.util.model.SortedModelTable;
 @SuppressWarnings("serial")
 public class UploadPanel extends JPanel {
 
+	private static final Logger logger = LoggerFactory.getLogger(UploadPanel.class);
+
     private PopupMenuUpload popupMenuUpload = null;
 
     private final Listener listener = new Listener();
-
-    private static final Logger logger = Logger.getLogger(UploadPanel.class.getName());
 
     private UploadModel model = null;
 
@@ -248,10 +250,10 @@ public class UploadPanel extends JPanel {
 		
 		final File targetFile = ulItem.getFile();
 		if (targetFile == null || !targetFile.isFile()) {
-			logger.info("Executing: File not found: " + targetFile.getAbsolutePath());
+			logger.error("Executing: File not found: {}", targetFile.getAbsolutePath());
 			return;
 		}
-		logger.info("Executing: " + targetFile.getAbsolutePath());
+		logger.info("Executing: {}", targetFile.getAbsolutePath());
 		try {
 			ExecuteDocument.openDocument(targetFile);
 		} catch (final Throwable t) {
@@ -266,8 +268,8 @@ public class UploadPanel extends JPanel {
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-            logger.severe("The selected font was not found in your system\n" +
-                           "That selection will be changed to \"SansSerif\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"SansSerif\".");
             Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
             font = new Font("SansSerif", fontStyle, fontSize);
         }

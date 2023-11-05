@@ -18,9 +18,10 @@
 */
 package frost.messaging.frost;
 
-import java.util.logging.Logger;
-
 import javax.swing.tree.DefaultMutableTreeNode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -30,7 +31,7 @@ import frost.identities.LocalIdentity;
 @SuppressWarnings("serial")
 public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNode {
 
-    private static final Logger logger = Logger.getLogger(AbstractMessageStatusProvider.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMessageStatusProvider.class);
 
     // the message states
     private static final int xGOOD     = 1;
@@ -83,7 +84,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
                     if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
                         final Identity newFromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
                         if( !Core.getIdentitiesManager().addIdentity(newFromIdentity) ) {
-                            logger.severe("Core.getIdentitiesManager().addIdentity(owner) returned false for identy: "+newFromIdentity.getUniqueName());
+                            logger.error("Core.getIdentitiesManager().addIdentity(owner) returned false for identy: {}", newFromIdentity.getUniqueName());
                             setSignatureStatusOLD();
                         } else {
                             fromIdentity = newFromIdentity;
@@ -98,7 +99,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
 
     public void setFromIdentity(final Identity id) {
         if( isFromIdentityInitialized ) {
-            logger.severe("Already initialized, old="+fromIdentity+"; new="+id);
+            logger.error("Already initialized, old = {}; new = {}", fromIdentity, id);
         } else {
             fromIdentity = id;
             isFromIdentityInitialized = true;

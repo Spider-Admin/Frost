@@ -35,8 +35,6 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -62,6 +60,8 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fileTransfer.FileTransferInformation;
 import frost.gui.AboutBox;
@@ -114,7 +114,7 @@ import frost.util.translate.TranslationStartDialog;
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
 
-    private static final Logger logger = Logger.getLogger(MainFrame.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
 
     private final ImageIcon frameIconDefault = MiscToolkit.loadImageIcon("/data/jtc.jpg");
     private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
@@ -458,7 +458,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                     UIManager.setLookAndFeel(lfName);
                     updateComponentTreesUI();
                 } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Exception changing l&f", t);
+                    logger.error("Exception changing l&f", t);
                 }
             }
         };
@@ -478,7 +478,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 }
             }
             catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Exception adding l&f menu", t);
+                logger.error("Exception adding l&f menu", t);
             }
         }
         return lfMenu;
@@ -719,7 +719,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         try {
             frostSettings.exitSave();
         } catch (final StorageException se) {
-            logger.log(Level.SEVERE, "Error while saving the settings.", se);
+            logger.error("Error while saving the settings.", se);
         }
 
         final OptionsFrame optionsDlg = new OptionsFrame(this, frostSettings);
@@ -744,7 +744,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                         try {
                             FileListStorage.inst().resetLastDownloaded();
                         } catch(final Throwable tt) {
-                            logger.log(Level.SEVERE, "Exception during resetLastDownloaded", tt);
+                            logger.error("Exception during resetLastDownloaded", tt);
                         }
                     }
                 };

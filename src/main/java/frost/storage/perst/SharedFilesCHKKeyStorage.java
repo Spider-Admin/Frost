@@ -26,6 +26,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.garret.perst.Key;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.SettingsClass;
 import frost.storage.ExitSavable;
@@ -33,6 +35,8 @@ import frost.storage.StorageException;
 import frost.util.Mixed;
 
 public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements ExitSavable {
+
+	private static final Logger logger =  LoggerFactory.getLogger(SharedFilesCHKKeyStorage.class);
 
     private SharedFilesCHKKeyStorageRoot storageRoot = null;
 
@@ -67,7 +71,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
     public void exitSave() throws StorageException {
         close();
         storageRoot = null;
-        System.out.println("INFO: SharedFilesCHKKeyStorage closed.");
+        logger.info("SharedFilesCHKKeyStorage closed.");
     }
 
     @Override
@@ -304,58 +308,56 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         return deletedCount;
     }
 
-//    public static void main(String[] args) {
-//
-//        System.out.println("a="+(int) (Math.random() * 5));
-//
-//        SharedFilesCHKKeyStorage s = new SharedFilesCHKKeyStorage();
-//        s.initStorage();
-//
-//        // find:
-////      String sql = "SELECT chkkey FROM SHAREDFILESCHK WHERE isdownloaded=FALSE AND downloadretries<? " +
-////      "ORDER BY lastdownloadtrystop ASC";
-//
-//        long t1 = System.currentTimeMillis();
-//
-//        SharedFilesCHKKeyStorageRoot root = (SharedFilesCHKKeyStorageRoot)s.getStorage().getRoot();
-//
-//        ArrayList foundItems = new ArrayList();
-//        Iterator i = root.chkKeys.iterator();
-//        int count = 0;
-//        while(i.hasNext()) {
-//            SharedFilesCHKKey sfk = (SharedFilesCHKKey)i.next();
-//
-//            if(!sfk.isDownloaded() && sfk.getDownloadRetries() < 50) {
-//                count++;
-////                System.out.println("Found #"+count);
-//                foundItems.add(sfk);
-//                sfk.modify();
-//            }
-//        }
-//
-//        System.out.println("found: "+count);
-//
-////        for(Iterator j=foundItems.iterator(); j.hasNext(); ) {
-////            SharedFilesCHKKey k1 = (SharedFilesCHKKey)j.next();
-////            System.out.println("->"+k1.getLastDownloadTryStopTime());
-////        }
-//        System.out.println("sorting!");
-//        Collections.sort(foundItems, lastDownloadTryStopTimeComparator);
-////        for(Iterator j=foundItems.iterator(); j.hasNext(); ) {
-////            SharedFilesCHKKey k1 = (SharedFilesCHKKey)j.next();
-////            System.out.println("->"+k1.getLastDownloadTryStopTime());
-////        }
-//
-//        System.out.println("duration="+(System.currentTimeMillis()-t1));
-//
-//        System.out.println("ready");
-//
-//        s.getStorage().commit();
-//        s.getStorage().close();
-//
-//    }
+	public static void main(String[] args) {
 
-    
+		logger.info("a = {}", Math.random() * 5);
+
+		SharedFilesCHKKeyStorage s = new SharedFilesCHKKeyStorage();
+		s.initStorage();
+
+		// find:
+//      String sql = "SELECT chkkey FROM SHAREDFILESCHK WHERE isdownloaded=FALSE AND downloadretries<? " +
+//      "ORDER BY lastdownloadtrystop ASC";
+
+		long t1 = System.currentTimeMillis();
+
+		SharedFilesCHKKeyStorageRoot root = (SharedFilesCHKKeyStorageRoot) s.getStorage().getRoot();
+
+		ArrayList foundItems = new ArrayList();
+		Iterator i = root.chkKeys.iterator();
+		int count = 0;
+		while (i.hasNext()) {
+			SharedFilesCHKKey sfk = (SharedFilesCHKKey) i.next();
+
+			if (!sfk.isDownloaded() && sfk.getDownloadRetries() < 50) {
+				count++;
+				logger.info("Found #{}", count);
+				foundItems.add(sfk);
+				sfk.modify();
+			}
+		}
+
+		logger.info("found: {}", count);
+
+		for (Iterator j = foundItems.iterator(); j.hasNext();) {
+			SharedFilesCHKKey k1 = (SharedFilesCHKKey) j.next();
+			logger.info("-> {}", k1.getLastDownloadTryStopTime());
+		}
+		logger.info("sorting!");
+		Collections.sort(foundItems, lastDownloadTryStopTimeComparator);
+		for (Iterator j = foundItems.iterator(); j.hasNext();) {
+			SharedFilesCHKKey k1 = (SharedFilesCHKKey) j.next();
+			logger.info("-> {}", k1.getLastDownloadTryStopTime());
+		}
+
+		logger.info("duration = {}", System.currentTimeMillis() - t1);
+
+		logger.info("ready");
+
+		s.getStorage().commit();
+		s.getStorage().close();
+	}
+
     protected static class LastDownloadTryStopTimeComparator implements Comparator<SharedFilesCHKKey> {
         public int compare(final SharedFilesCHKKey arg0, final SharedFilesCHKKey arg1) {
             return Mixed.compareLong(arg0.getLastDownloadTryStopTime(), arg1.getLastDownloadTryStopTime());

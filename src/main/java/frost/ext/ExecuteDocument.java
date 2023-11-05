@@ -21,6 +21,9 @@ package frost.ext;
 import java.io.File;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author saces
  *
@@ -34,6 +37,8 @@ import java.io.IOException;
  * thanks slinky for the mac/gnustep hints.
  */
 public class ExecuteDocument {
+
+	private static final Logger logger =  LoggerFactory.getLogger(ExecuteDocument.class);
 
 	/**
 	 * opens a document with the assigned app on many plattforms
@@ -97,21 +102,18 @@ public class ExecuteDocument {
 		
 	}
 
-//	/**
-//	 * right klick and run as app should open the help index
-//	 * @param args
-//	 */
-//	public static void main(String[] args) {
-//		String osn = System.getProperty("os.name");
-//		System.out.println(osn);
-//		
-//		try {
-//			ExecuteDocument.openDocument("./help/index.html");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//	}
-	
+	/**
+	 * right klick and run as app should open the help index
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		String osn = System.getProperty("os.name");
+		logger.info("{}", osn);
+		
+		try {
+			ExecuteDocument.openDocument("./help/index.html");
+		} catch (IOException e) {
+			logger.error("Error", e);
+		}
+	}
 }

@@ -30,8 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -41,11 +39,14 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.util.gui.translation.Language;
 
 public class TextComponentClipboardMenu extends MouseAdapter implements ClipboardOwner, ActionListener {
 
-	private static final Logger logger = Logger.getLogger(TextComponentClipboardMenu.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(TextComponentClipboardMenu.class);
 	
 	private Language language;
 	private JTextComponent textComponent;
@@ -148,11 +149,11 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 				document.insertString(p0, text, null);
 			}
 		} catch (IOException ioe) {
-			logger.log(Level.SEVERE, "Problem while pasting text.", ioe);
+			logger.error("Problem while pasting text.", ioe);
 		} catch (UnsupportedFlavorException ufe) {
-			logger.log(Level.SEVERE, "Problem while pasting text.", ufe);
+			logger.error("Problem while pasting text.", ufe);
 		} catch (BadLocationException ble) {
-			logger.log(Level.SEVERE, "Problem while pasting text.", ble);
+			logger.error("Problem while pasting text.", ble);
 		}		
 	}
 	
@@ -185,7 +186,7 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 
 	private void copySelectedText() {
 		StringSelection selection = new StringSelection(textComponent.getSelectedText());
-		clipboard.setContents(selection, this);		
+		clipboard.setContents(selection, this);
 	}
 
 	private void cutSelectedText() {
@@ -197,8 +198,8 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 		try {
 			textComponent.getDocument().remove(start, end - start);
 		} catch (BadLocationException ble) {
-			logger.log(Level.SEVERE, "Problem while cutting text.", ble);
-		}		
+			logger.error("Problem while cutting text.", ble);
+		}
 	}
 
 	public JPopupMenu getPopupMenu() {

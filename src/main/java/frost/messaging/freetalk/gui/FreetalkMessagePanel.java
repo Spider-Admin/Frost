@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -65,6 +64,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.MainFrame;
 import frost.SettingsClass;
@@ -90,6 +92,8 @@ import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class FreetalkMessagePanel extends JPanel implements PropertyChangeListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessagePanel.class);
 
     private FreetalkMessageTreeTable messageTable = null;
     private FreetalkMessageTextPane messageTextPane = null;
@@ -456,7 +460,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 //                    } else if (selectedMessage.isMessageStatusTAMPERED()) {
 //                        // keep all buttons disabled
 //                    } else {
-//                        logger.warning("invalid message state");
+//                        logger.warn("invalid message state");
 //                    }
 //                }
 
@@ -477,8 +481,6 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             }
         }
     }
-
-    private final Logger logger = Logger.getLogger(FreetalkMessagePanel.class.getName());
 
     private final SettingsClass settings;
     private final Language language  = Language.getInstance();
@@ -881,9 +883,8 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         final int fontSize = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-            logger.severe(
-                "The selected font was not found in your system\n"
-                    + "That selection will be changed to \"SansSerif\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"SansSerif\".");
             settings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
             font = new Font("SansSerif", fontStyle, fontSize);
         }
@@ -1576,7 +1577,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         }
         final Identity ident = msg.getFromIdentity();
         if(ident == null ) {
-            logger.severe("no identity in list for from: "+msg.getFromName());
+            logger.error("no identity in list for from: {}", msg.getFromName());
             return null;
         }
         if( ident instanceof LocalIdentity ) {
@@ -1608,7 +1609,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         while( freetalkMessageEnumeration.hasMoreElements() ) {
             final FreetalkMessage freetalkMessage = freetalkMessageEnumeration.nextElement();
             if( !(freetalkMessage instanceof FreetalkMessage) ) {
-            	logger.severe("freetalkMessage nor of type FreetalkMessage");
+                logger.error("freetalkMessage nor of type FreetalkMessage");
                 continue;
             }
             final int row = MainFrame.getInstance().getFreetalkMessageTab().getMessagePanel().getMessageTable().getRowForNode(freetalkMessage);
@@ -1809,7 +1810,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             @Override
             public void run() {
                 if( !MessageStorage.inst().beginExclusiveThreadTransaction() ) {
-                    logger.severe("Failed to start EXCLUSIVE transaction in MessageStore!");
+                    logger.error("Failed to start EXCLUSIVE transaction in MessageStore!");
                     return;
                 }
                 try {

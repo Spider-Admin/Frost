@@ -64,6 +64,8 @@ import javax.swing.table.TableColumn;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -87,6 +89,8 @@ import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class IdentitiesBrowser extends JDialog {
+
+	private static final Logger logger =  LoggerFactory.getLogger(IdentitiesBrowser.class);
 
 	private Language language = null;
 
@@ -674,11 +678,11 @@ public class IdentitiesBrowser extends JDialog {
 
 		private String buildHtmlName(final String n) {
 			// TODO: html mode wraps words with blanks, maybe replace blanks by &nbsp;
-			//            String a = n.substring(0, n.indexOf("@"));
-			//            String b = n.substring(n.indexOf("@"));
-			//            String r = "<html><b>"+a+"</b>"+b+"</html>";
-			//            System.out.println("r="+r);
-			//            return r;
+			String a = n.substring(0, n.indexOf("@"));
+			String b = n.substring(n.indexOf("@"));
+			String r = "<html><b>" + a + "</b>" + b + "</html>";
+			logger.debug("r = {}", r);
+			// return r;
 			return n;
 		}
 

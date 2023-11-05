@@ -34,7 +34,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -54,6 +53,8 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -76,6 +77,8 @@ import frost.util.gui.translation.LanguageListener;
 
 @SuppressWarnings("serial")
 public class TofTree extends JDragTree implements AutoSavable, ExitSavable, PropertyChangeListener {
+
+	private static final Logger logger = LoggerFactory.getLogger(TofTree.class);
 
     private static final String FROST_ANNOUNCE_NAME = "frost-announce";
     private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE";
@@ -691,8 +694,6 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
     private final CellRenderer cellRenderer = new CellRenderer();
 
-    private static final Logger logger = Logger.getLogger(TofTree.class.getName());
-
     private final TofTreeModel model;
 
     private final JMenuItem configBoardMenuItem = new JMenuItem();
@@ -868,7 +869,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         // the call changes the toftree and loads nodes into it
         final File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false ) {
-            logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
+            logger.warn("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
             final String defaultBoardsFile = "boards.xml.default07";
             boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + defaultBoardsFile;
         }
@@ -923,7 +924,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                         JOptionPane.ERROR_MESSAGE,
                         true);
                 MainFrame.enqueueStartupMessage(sm);
-                logger.severe("Board with obsolete public key found: "+boardName);
+                logger.error("Board with obsolete public key found: {}", boardName);
             }
         }
 
@@ -1209,7 +1210,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 board,
                 settings,
                 listener);
-            logger.info("Starting update (MSG_TODAY) of " + board.getName());
+            logger.info("Starting update (MSG_TODAY) of {}", board.getName());
             threadStarted = true;
         }
 
@@ -1230,7 +1231,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             }
 
             getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener, downloadCompleteBackload);
-            logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
+            logger.info("Starting update (MSG_BACKLOAD) of {}", board.getName());
             threadStarted = true;
         }
 
@@ -1307,9 +1308,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-//            logger.severe(
-//                "The selected font was not found in your system\n"
-//                    + "That selection will be changed to \"Monospaced\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"Tahoma\".");
             Core.frostSettings.setValue(SettingsClass.BOARD_TREE_FONT_NAME, "Tahoma");
             font = new Font("Tahoma", fontStyle, fontSize);
         }

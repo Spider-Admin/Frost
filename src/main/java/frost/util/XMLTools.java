@@ -23,8 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,6 +34,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
  */
 public class XMLTools {
 
-    private static final Logger logger = Logger.getLogger(XMLTools.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(XMLTools.class);
 
     // FIXME: maybe use JDK JAXP parser and drop xerces?
 
@@ -102,25 +102,13 @@ public class XMLTools {
             return builder.parse(file);
         } catch (final SAXException e) {
             // A parsing error occurred; the xml input is not valid
-            logger.log(
-                Level.SEVERE,
-                "Parsing of xml file failed (send badfile.xml to a dev for analysis) - " +
-                "File name: '" + file.getName() + "'",
-                e);
+            logger.error("Parsing of xml file failed (send badfile.xml to a dev for analysis) - File name: '{}'", file.getName(), e);
             file.renameTo(new File("badfile.xml"));
             throw new IllegalArgumentException();
         } catch (final ParserConfigurationException e) {
-            logger.log(
-                Level.SEVERE,
-                "Exception thrown in parseXmlFile(File file, boolean validating) - " +
-                "File name: '" + file.getName() + "'",
-                e);
+            logger.error("Exception thrown in parseXmlFile(File file, boolean validating) - File name: '{}'", file.getName(), e);
         } catch (final IOException e) {
-            logger.log(
-                Level.SEVERE,
-                "Exception thrown in parseXmlFile(File file, boolean validating) - " +
-                "File name: '" + file.getName() + "'",
-                e);
+            logger.error("Exception thrown in parseXmlFile(File file, boolean validating) - File name: '{}'", file.getName(), e);
         }
         return null;
     }
@@ -148,7 +136,7 @@ public class XMLTools {
             fileout.close();
             return true;
         } catch (final Exception ex) {
-            logger.log(Level.SEVERE, "Exception thrown in writeXmlFile(Document doc, String filename)", ex);
+            logger.error("Exception thrown in writeXmlFile(Document doc, String filename)", ex);
         }
         return false;
     }
@@ -163,7 +151,7 @@ public class XMLTools {
             final Document doc = builder.newDocument();
             return doc;
         } catch (final ParserConfigurationException e) {
-            logger.log(Level.SEVERE, "Exception thrown in createDomDocument()", e);
+            logger.error("Exception thrown in createDomDocument()", e);
         }
         return null;
     }
@@ -252,28 +240,28 @@ public class XMLTools {
         return sb.toString();
     }
 
-//    public static void main(String[] args) {
-//
-//        Document d = createDomDocument();
-//        Element el = d.createElement("FrostMessage");
-//
-//        CDATASection cdata;
-//        Element current;
-//
-//        current = d.createElement("MessageId");
-//        cdata = d.createCDATASection("<![CDATA[\\</MessageId>]]> <helpme />");
-//        current.appendChild(cdata);
-//
-//        el.appendChild(current);
-//
-//        d.appendChild(el);
-//
-//        boolean ok = writeXmlFile(d, "d:\\AAAAA.xml");
-//        System.out.println("ok="+ok);
-//
-//        Document dd = parseXmlFile("d:\\AAAAA.xml", false);
-//        Element root = dd.getDocumentElement();
-//        String s = XMLTools.getChildElementsCDATAValue(root, "MessageId");
-//        System.out.println("s="+s);
-//    }
+	public static void main(String[] args) {
+
+		Document d = createDomDocument();
+		Element el = d.createElement("FrostMessage");
+
+		CDATASection cdata;
+		Element current;
+
+		current = d.createElement("MessageId");
+		cdata = d.createCDATASection("<![CDATA[\\</MessageId>]]> <helpme />");
+		current.appendChild(cdata);
+
+		el.appendChild(current);
+
+		d.appendChild(el);
+
+		boolean ok = writeXmlFile(d, "d:\\AAAAA.xml");
+		logger.info("ok = {}", ok);
+
+		Document dd = parseXmlFile("d:\\AAAAA.xml");
+		Element root = dd.getDocumentElement();
+		String s = XMLTools.getChildElementsCDATAValue(root, "MessageId");
+		logger.info("s = {}", s);
+	}
 }

@@ -19,15 +19,15 @@
 package frost.fileTransfer.filelist;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fcp.FcpResultPut;
 import frost.fileTransfer.SharedFilesCHKKeyManager;
 import frost.storage.perst.SharedFilesCHKKey;
 import frost.util.FileAccess;
-import frost.util.Logging;
 import frost.util.Mixed;
 
 /**
@@ -36,7 +36,7 @@ import frost.util.Mixed;
  */
 public class FileListUploadThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(FileListUploadThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileListUploadThread.class);
 
     private final int minutes6 = 6 * 60 * 1000;
 
@@ -103,12 +103,10 @@ public class FileListUploadThread extends Thread {
                             fileInfo.getFiles());
 
                     if( !FileListFile.writeFileListFile(content, targetFile) ) {
-                        logger.log(Level.SEVERE, "Could'nt write the filelist xml file");
+                        logger.error("Could'nt write the filelist xml file");
                     } else {
                         // upload file
-                        if( Logging.inst().doLogFilebaseMessages() ) {
-                            System.out.println("FileListUploadThread: starting upload of files: "+fileInfo.getFiles().size());
-                        }
+                        logger.info("FileListUploadThread: starting upload of files: {}", fileInfo.getFiles().size());
                         String chkKey = null;
                         try {
                             final FcpResultPut result = FcpHandler.inst().putFile(
@@ -121,11 +119,9 @@ public class FileListUploadThread extends Thread {
                                 chkKey = result.getChkKey();
                             }
                         } catch (final Exception ex) {
-                            logger.log(Level.WARNING, "Exception catched",ex);
+                            logger.error("Exception catched", ex);
                         }
-                        if( Logging.inst().doLogFilebaseMessages() ) {
-                            System.out.println("FileListUploadThread: upload finished, key: "+chkKey);
-                        }
+                        logger.info("FileListUploadThread: upload finished, key: {}", chkKey);
                         if( chkKey != null ) {
                             // add chk to chklist so the PointerThread can find it
                             final SharedFilesCHKKey key = new SharedFilesCHKKey(chkKey);
@@ -145,11 +141,11 @@ public class FileListUploadThread extends Thread {
                 nextStartTime = System.currentTimeMillis() + sleepTime;
 
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Exception catched",t);
+                logger.error("Exception catched", t);
                 occuredExceptions++;
             }
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping FileListUploadThread because of too much exceptions");
+                logger.error("Stopping FileListUploadThread because of too much exceptions");
                 break;
             }
         }

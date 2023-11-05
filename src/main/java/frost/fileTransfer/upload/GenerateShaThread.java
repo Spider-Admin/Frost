@@ -20,8 +20,9 @@ package frost.fileTransfer.upload;
 
 import java.io.File;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.fileTransfer.FileTransferManager;
@@ -35,7 +36,7 @@ import frost.util.Mixed;
  */
 public class GenerateShaThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(GenerateShaThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(GenerateShaThread.class);
 
     private NewUploadFilesManager newUploadFilesManager;
     
@@ -105,12 +106,12 @@ public class GenerateShaThread extends Thread {
                 }
 
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Exception catched",t);
+                logger.error("Exception catched", t);
                 occuredExceptions++;
             }
 
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping GenerateShaThread because of too much exceptions");
+                logger.error("Stopping GenerateShaThread because of too much exceptions");
                 break;
             }
         }

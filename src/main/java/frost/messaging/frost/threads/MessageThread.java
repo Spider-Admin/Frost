@@ -20,13 +20,13 @@
 package frost.messaging.frost.threads;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -59,11 +59,11 @@ import frost.util.Mixed;
  */
 public class MessageThread extends BoardUpdateThreadObject implements BoardUpdateThread, MessageUploaderCallback {
 
+	private static final Logger logger = LoggerFactory.getLogger(MessageThread.class);
+
     private final Board board;
     private final int maxMessageDownload;
     private final boolean downloadToday;
-
-    private static final Logger logger = Logger.getLogger(MessageThread.class.getName());
 
     public MessageThread(final boolean downloadToday, final Board boa, final int maxmsgdays) {
         super(boa);
@@ -96,7 +96,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             // wait a max. of 5 seconds between start of threads
             Mixed.waitRandom(5000);
 
-            logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
+            logger.info("TOFDN: {} Thread started for board {}", tofType, board.getName());
 
             if (isInterrupted()) {
                 notifyThreadFinished(this);
@@ -134,9 +134,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     }
                 }
             }
-            logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
+            logger.info("TOFDN: {} Thread stopped for board {}", tofType, board.getName());
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
+            logger.error("{}: Oo. Exception in MessageDownloadThread:", Thread.currentThread().getName(), t);
         }
         notifyThreadFinished(this);
     }
@@ -254,12 +254,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 {
                     boardUpdateInformation.incCountADNF(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     if( quicklyFailOnAdnf ) {
-                        System.out.println("TOFDN: Index "+index+" got ADNF, will never try this index again.");
+                        logger.warn("TOFDN: Index {} got ADNF, will never try this index again.", index);
                         gis.setDownloadSlotUsed(index);
                         IndexSlotsStorage.inst().storeSlot(gis); // remember each progress
                     } else {
                         // don't set slot used, try to retrieve the file again
-                        System.out.println("TOFDN: Skipping index "+index+" for now, will try again later.");
+                        logger.warn("TOFDN: Skipping index {} for now, will try again later.", index);
                     }
                     continue;
                 }
@@ -287,7 +287,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                         notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     } else {
                         receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);
-                        logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);
+                        logger.warn("TOFDN: Message was dropped, format validation failed: {}", logInfo);
                         boardUpdateInformation.incCountInvalid(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     }
                 }
@@ -295,7 +295,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 IndexSlotsStorage.inst().storeSlot(gis); // remember each progress
 
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate: "+logInfo, t);
+                logger.error("TOFDN: Exception thrown in downloadDate: {}", logInfo, t);
                 // download failed, try next file
             }
         } // end-of: while
@@ -333,13 +333,13 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             try {
                 dateTime = mo.getDateAndTime();
             } catch(final Throwable ex) {
-                logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping message.", ex);
+                logger.error("Exception in isValidFormat() - skipping message.", ex);
                 return false;
             }
 
             // e.g. "E6936D085FC1AE75D43275161B50B0CEDB43716C1CE54E420F3C6FEB9352B462" (len=64)
             if( mo.getMessageId() == null || mo.getMessageId().length() < 60 || mo.getMessageId().length() > 68 ) {
-                logger.log(Level.SEVERE, "Message has no unique message id - skipping Message: "+dirDate+";"+dateTime);
+                logger.error("Message has no unique message id - skipping Message: {}; {}", dirDate, dateTime);
                 return false;
             }
 
@@ -348,24 +348,24 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             if( dm.isAfter(dirDate.plusDays(1).toDateMidnight(DateTimeZone.UTC))
                     || dm.isBefore(dirDate.minusDays(1).toDateMidnight(DateTimeZone.UTC)) )
             {
-                logger.log(Level.SEVERE, "Invalid date - skipping Message: "+dirDate+";"+dateTime);
+                logger.error("Invalid date - skipping Message: {}; {}", dirDate, dateTime);
                 return false;
             }
 
             // ensure that board inside xml message is the board we currently download
             if( mo.getBoardName() == null ) {
-                logger.log(Level.SEVERE, "No boardname in message - skipping message: (null)");
+                logger.error("No boardname in message - skipping message: (null)");
                 return false;
             }
             final String boardNameInMsg = mo.getBoardName().toLowerCase();
             final String downloadingBoardName = b.getName().toLowerCase();
             if( boardNameInMsg.equals(downloadingBoardName) == false ) {
-                logger.log(Level.SEVERE, "Different boardnames - skipping message: "+mo.getBoardName().toLowerCase()+";"+b.getName().toLowerCase());
+                logger.error("Different boardnames - skipping message: {}; {}", mo.getBoardName().toLowerCase(), b.getName().toLowerCase());
                 return false;
             }
 
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping message.", t);
+            logger.error("Exception in isValidFormat() - skipping message.", t);
             return false;
         }
         return true;
@@ -391,7 +391,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             if( unsendMsg.getRecipientName() != null && unsendMsg.getRecipientName().length() > 0) {
                 recipient = Core.getIdentitiesManager().getIdentity(unsendMsg.getRecipientName());
                 if( recipient == null ) {
-                    logger.severe("Can't send Message '" + unsendMsg.getSubject() + "', the recipient is not longer in your identites list!");
+                    logger.error("Can't send Message '{}', the recipient is not longer in your identites list!", unsendMsg.getSubject());
                     UnsentMessagesManager.deleteMessage(unsendMsg);
                     continue;
                 }
@@ -412,7 +412,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
     private void uploadMessage(final FrostUnsentMessageObject mo, final Identity recipient, final IndexSlot gis) {
 
-        logger.info("Preparing upload of message to board '" + board.getName() + "'");
+        logger.info("Preparing upload of message to board '{}'", board.getName());
 
         mo.setCurrentUploadThread(this);
 
@@ -426,7 +426,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     senderId = (LocalIdentity) mo.getFromIdentity();
                 } else {
                     // apparently the LocalIdentity used to write the msg was deleted
-                    logger.severe("The LocalIdentity used to write this unsent msg was deleted: "+mo.getFromName());
+                    logger.error("The LocalIdentity used to write this unsent msg was deleted: {}", mo.getFromName());
                     mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!
                     UnsentMessagesManager.deleteMessage(mo);
                     return;
@@ -441,7 +441,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             final File unsentMessageFile = FileAccess.createTempFile("unsendMsg", ".xml");
             message.setFile(unsentMessageFile);
             if (!message.save()) {
-                logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
+                logger.error("This was a HARD error and the file to upload is lost, please report to a dev!");
                 mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!
                 return;
             }
@@ -507,7 +507,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             UnsentMessagesManager.deleteMessage(mo);
 
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Catched exception", t);
+            logger.error("Catched exception", t);
         }
         mo.setCurrentUploadThread(null); // paranoia
 

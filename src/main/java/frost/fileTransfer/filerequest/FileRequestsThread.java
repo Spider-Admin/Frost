@@ -20,16 +20,15 @@ package frost.fileTransfer.filerequest;
 
 import java.io.File;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
 import frost.fcp.FcpHandler;
-import frost.fileTransfer.filelist.FilePointersThread;
 import frost.storage.perst.IndexSlot;
 import frost.storage.perst.IndexSlotsStorage;
 import frost.transferlayer.GlobalFileDownloader;
@@ -37,7 +36,6 @@ import frost.transferlayer.GlobalFileDownloaderResult;
 import frost.transferlayer.GlobalFileUploader;
 import frost.util.DateFun;
 import frost.util.FileAccess;
-import frost.util.Logging;
 import frost.util.Mixed;
 
 /**
@@ -46,7 +44,7 @@ import frost.util.Mixed;
  */
 public class FileRequestsThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(FilePointersThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileRequestsThread.class);
 
     // sleeptime between request loops
     private static final int sleepTime = 10 * 60 * 1000;
@@ -80,33 +78,26 @@ public class FileRequestsThread extends Thread {
             logger.info("No requests to send.");
             return true;
         }
-        if( Logging.inst().doLogFilebaseMessages() ) {
-            System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size());
-        }
+        logger.debug("uploadRequestFile: fileRequests to send: {}", fileRequests.size());
 
         final FileRequestFileContent content = new FileRequestFileContent(System.currentTimeMillis(), fileRequests);
 
         // write a file with requests to a tempfile
         final File tmpRequestFile = FileAccess.createTempFile("filereq_", ".xml");
         if( !FileRequestFile.writeRequestFile(content, tmpRequestFile) ) {
-            logger.severe("Error writing the file requests file.");
+            logger.error("Error writing the file requests file.");
             return false;
         }
 
         // Wait some random time to not to flood the node
         Mixed.waitRandom(2000);
 
-        logger.info("Starting upload of request file containing "+fileRequests.size()+" SHAs");
-        if( Logging.inst().doLogFilebaseMessages() ) {
-            System.out.println("uploadRequestFile: Starting upload of request file containing "+fileRequests.size()+" SHAs");
-        }
+        logger.info("Starting upload of request file containing {} SHAs", fileRequests.size());
 
         final String insertKey = keyPrefix + dateStr + "-";
         final boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpRequestFile, insertKey, ".xml", true);
         tmpRequestFile.delete();
-        if( Logging.inst().doLogFilebaseMessages() ) {
-            System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
-        }
+        logger.debug("uploadRequestFile: upload finished, wasOk = {}", wasOk);
         if( wasOk ) {
             FileRequestsManager.updateRequestsWereSuccessfullySent(fileRequests);
         }
@@ -135,7 +126,7 @@ public class FileRequestsThread extends Thread {
             // Wait some random time to not to flood the node
             Mixed.waitRandom(2500);
 
-            logger.info("Requesting index " + index + " for date " + dateStr);
+            logger.info("Requesting index {} for date {}", index, dateStr);
 
             final boolean quicklyFailOnAdnf;
             final int maxRetries;
@@ -165,12 +156,10 @@ public class FileRequestsThread extends Thread {
             failures = 0;
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    if( quicklyFailOnAdnf ) {
-                        System.out.println("FileRequestsThread.downloadDate: Index "+index+" got ADNF, will never try index again.");
-                    } else {
-                        System.out.println("FileRequestsThread.downloadDate: Skipping index "+index+" for now, will try again later.");
-                    }
+                if( quicklyFailOnAdnf ) {
+                    logger.debug("FileRequestsThread.downloadDate: Index {} got ADNF, will never try index again.", index);
+                } else {
+                    logger.debug("FileRequestsThread.downloadDate: Skipping index {} for now, will try again later.", index);
                 }
                 if( quicklyFailOnAdnf ) {
                     // don't try again
@@ -188,7 +177,7 @@ public class FileRequestsThread extends Thread {
             index = gis.findNextDownloadSlot(index);
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
-                logger.severe("FileRequestsThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
+                logger.error("FileRequestsThread.downloadDate: Dropping index {}, FILE_TOO_BIG.", index);
             } else {
                 // process results
                 final File downloadedFile = result.getResultFile();
@@ -240,9 +229,7 @@ public class FileRequestsThread extends Thread {
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.REQUESTS, date);
 
-                    if( Logging.inst().doLogFilebaseMessages() ) {
-                        System.out.println("FileRequestsThread: starting download for "+dateStr);
-                    }
+                    logger.debug("FileRequestsThread: starting download for {}", dateStr);
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
                         downloadDate(dateStr, gis, isForToday);
@@ -251,12 +238,10 @@ public class FileRequestsThread extends Thread {
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
-                            if( Logging.inst().doLogFilebaseMessages() ) {
-                                System.out.println("FileRequestsThread: starting upload for "+dateStr);
-                            }
+                            logger.debug("FileRequestsThread: starting upload for {}", dateStr);
                             uploadRequestFile(dateStr, gis);
                         } catch(final Throwable t) {
-                            logger.log(Level.SEVERE, "Exception catched during uploadRequestFile()", t);
+                            logger.error("Exception catched during uploadRequestFile()", t);
                         }
                     }
 
@@ -265,21 +250,19 @@ public class FileRequestsThread extends Thread {
                     }
                 }
             } catch (final Throwable e) {
-                logger.log(Level.SEVERE, "Exception catched", e);
+                logger.error("Exception catched", e);
                 occuredExceptions++;
             }
 
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping FileRequestsThread because of too much exceptions");
+                logger.error("Stopping FileRequestsThread because of too much exceptions");
                 break;
             }
             if( isInterrupted() ) {
                 break;
             }
 
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("FileRequestsThread: sleeping 10 minutes");
-            }
+            logger.debug("FileRequestsThread: sleeping 10 minutes");
             Mixed.wait(sleepTime); // sleep 10 minutes
         }
     }

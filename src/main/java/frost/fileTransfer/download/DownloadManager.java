@@ -25,8 +25,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -46,8 +47,7 @@ import frost.util.Mixed;
 
 public class DownloadManager implements ExitSavable {
 
-	private static final Logger logger = Logger.getLogger(DownloadManager.class
-			.getName());
+	private static final Logger logger = LoggerFactory.getLogger(DownloadManager.class);
 
 	private DownloadModel model;
 	private DownloadPanel panel;
@@ -285,7 +285,7 @@ public class DownloadManager implements ExitSavable {
 				try {
 					key = java.net.URLDecoder.decode(key, "UTF-8");
 				} catch (final java.io.UnsupportedEncodingException ex) {
-					logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+					logger.error("Decode of HTML code failed", ex);
 				}
 			}
 
@@ -378,8 +378,7 @@ public class DownloadManager implements ExitSavable {
 				downloadItem.setInternalRemoveExpected(true);
 				retryImmediately = true;
 
-				logger.warning("Removed all path levels from key: " + key
-						+ " ; " + newKey);
+				logger.warn("Removed all path levels from key: {} ; {}",  key, newKey);
 
 			} else if (result != null && result.getReturnCode() == 11
 					&& key.startsWith("CHK@") && key.indexOf("/") > 0) {
@@ -392,8 +391,7 @@ public class DownloadManager implements ExitSavable {
 				downloadItem.setInternalRemoveExpected(true);
 				retryImmediately = true;
 
-				logger.warning("Removed one path level from key: " + key
-						+ " ; " + newKey);
+				logger.warn("Removed one path level from key: {} ; {}", key, newKey);
 
 			} else if (result != null && result.getReturnCode() == 27
 					&& result.getRedirectURI() != null) {
@@ -403,19 +401,18 @@ public class DownloadManager implements ExitSavable {
 				downloadItem.setInternalRemoveExpected(true);
 				retryImmediately = true;
 
-				logger.warning("Redirected to URI: " + result.getRedirectURI());
+				logger.warn("Redirected to URI: {}", result.getRedirectURI());
 
 			} else if (result != null && result.isFatal()) {
 				// fatal, don't retry
 				// downloadItem.setEnabled(Boolean.FALSE); // keep enabled to
 				// allow sending of requests for shared files
 				downloadItem.setState(FrostDownloadItem.STATE_FAILED);
-				logger.warning("FILEDN: Download of " + filename
-						+ " failed FATALLY.");
+				logger.warn("FILEDN: Download of {} failed FATALLY.", filename);
 			} else {
 				downloadItem.setRetries(downloadItem.getRetries() + 1);
 
-				logger.warning("FILEDN: Download of " + filename + " failed.");
+				logger.warn("FILEDN: Download of {} failed.", filename);
 				// set new state -> failed or waiting for another try
 				if (downloadItem.getRetries() > Core.frostSettings
 						.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
@@ -428,7 +425,7 @@ public class DownloadManager implements ExitSavable {
 			}
 		} else {
 
-			logger.info("FILEDN: Download of " + filename + " was successful.");
+			logger.info("FILEDN: Download of {} was successful.", filename);
 
 			// download successful
 			downloadItem.setFileSize(new Long(targetFile.length()));
@@ -513,8 +510,7 @@ public class DownloadManager implements ExitSavable {
 				try {
 					Runtime.getRuntime().exec(args, newEnv, dir);
 				} catch (final Exception e) {
-					System.out.println("Could not exec " + execProg + ": "
-							+ e.getMessage());
+					logger.error("Could not exec {}", execProg, e);
 				}
 			}
 

@@ -22,10 +22,15 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.text.Position;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 //@author Santhosh Kumar T - santhosh@in.fiorano.com 
 @SuppressWarnings("serial")
 public class TableFindAction extends FindAction{ 
- 
+
+	private static final Logger logger =  LoggerFactory.getLogger(TableFindAction.class);
+
     @Override
     protected boolean changed(JComponent comp2, String searchString, Position.Bias bias){ 
         JTable table = (JTable)comp2; 
@@ -90,7 +95,7 @@ public class TableFindAction extends FindAction{
                 String text = item.toString(); 
                 if(ignoreCase) 
                     text = text.toUpperCase(); 
-//System.out.println("comp:"+prefix+","+text+","+item);
+                logger.debug("comp: {}, {}, {}", prefix, text, item);
                 // we search for any occurence
                 if(text!=null && text.indexOf(prefix) > -1){ 
                     return index; 

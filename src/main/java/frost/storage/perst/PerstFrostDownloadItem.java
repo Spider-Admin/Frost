@@ -18,9 +18,8 @@
 */
 package frost.storage.perst;
 
-import java.util.logging.Logger;
-
 import org.garret.perst.Persistent;
+import org.slf4j.Logger;
 
 import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.FrostFileListFileObject;
@@ -95,8 +94,7 @@ public class PerstFrostDownloadItem extends Persistent {
             sharedFileObject = FileListStorage.inst().getFileBySha(fileListFileSha);
             if( sharedFileObject == null && key == null ) {
                 // no fileobject and no key -> we can't continue to download this file
-                logger.warning("Download items file list file object does not exist, and there is no key. " +
-                               "Removed from download files: "+fileName);
+                logger.warn("Download items file list file object does not exist, and there is no key. Removed from download files: {}", fileName);
                 return null;
             }
         }

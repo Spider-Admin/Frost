@@ -20,7 +20,9 @@ package frost.identities;
 
 import java.io.File;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -34,7 +36,7 @@ import frost.storage.StorageException;
  */
 public class IdentityAutoBackupTask implements AutoSavable, ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(IdentityAutoBackupTask.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(IdentityAutoBackupTask.class);
 
     public void exitSave() throws StorageException {
         backupLocalIdentities();
@@ -66,7 +68,7 @@ public class IdentityAutoBackupTask implements AutoSavable, ExitSavable {
         final List<LocalIdentity> lIds = Core.getIdentitiesManager().getLocalIdentities();
         final boolean wasOk = LocalIdentitiesXmlDAO.saveLocalIdentities(newFile, lIds);
         if( !wasOk ) {
-            logger.severe("Failed to backup the local identities!");
+            logger.error("Failed to backup the local identities!");
             return;
         }
 

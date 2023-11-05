@@ -18,13 +18,19 @@
 */
 package frost.util;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
+import org.joda.time.TimeOfDay;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DateFun {
 
-//    private static final Logger logger = Logger.getLogger(DateFun.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(DateFun.class);
 
 //    private static long GMTOffset = -1;
 
@@ -87,58 +93,58 @@ public class DateFun {
 //        return new java.sql.Date( c.getTime().getTime() );
 //    }
 
-//    public static void main(String[] args) {
-//
-//        String date = "2006.10.14";
-//        String time = "12:13:14GMT";
-//
-//        DateTimeFormatter fmtd = DateTimeFormat.forPattern("yyyy.MM.dd");
-//        DateTimeFormatter fmtt = DateTimeFormat.forPattern("HH:mm:ss'GMT'");
-//
-//        DateTime dtd = fmtd.withZone(DateTimeZone.UTC).parseDateTime(date);
-//        DateTime dtt = fmtt.withZone(DateTimeZone.UTC).parseDateTime(time);
-//
-//        System.out.println("dtd="+dtd+", millis="+dtd.getMillis());
-//        System.out.println("dtt="+dtt+", millis="+dtt.getMillis());
-//
-//        long allMillis = dtd.getMillis() + dtt.getMillis();
-//        DateTime adt = new DateTime(allMillis).withZone(DateTimeZone.UTC);
-//        System.out.println("ADT="+adt);
-//
-//        DateTime nd = new DateTime(new Long(dtd.getMillis())).withZone(DateTimeZone.UTC);
-//        System.out.println("nd="+nd);
-//        DateTime nt = new DateTime(new Long(dtt.getMillis())).withZone(DateTimeZone.UTC);
-//        System.out.println("nt="+nt);
-//
-//        System.out.println("txt="+fmtd.print(nd));
-//        System.out.println("txt="+fmtt.print(nt));
-//
-//        DateTime n1 = new DateTime(DateTimeZone.UTC).minusDays(3);
-//        System.out.println("n1="+n1);
-//
-//        LocalDate ld = new LocalDate();
-//        System.out.println("ld="+ld);
-//        DateTime x = ld.toDateTimeAtMidnight(DateTimeZone.UTC);
-//        System.out.println("  ="+x+" ; "+x.getMillis());
-//
-//        DateTime now = new DateTime(DateTimeZone.UTC);
-//        System.out.println("now="+now);
-//        DateMidnight nowDate = now.toDateMidnight();
-//        System.out.println("nowDate="+nowDate+" ; "+nowDate.getMillis());
-//        TimeOfDay nowTime = now.toTimeOfDay();
-//        System.out.println("nowTime="+nowTime);
-//        System.out.println("nowTime="+fmtt.print(nowTime));
-//        System.out.println("nowTime="+fmtt.print(now));
-//
-//        LocalDate localDate = new LocalDate(2006, 8, 1).minusDays(0);
-//        String s2 = DateFun.FORMAT_DATE.print(localDate);
-//        System.out.println("s2="+s2);
-//
-//        System.out.println("s1="+new LocalDate());
-//        System.out.println("s2="+new LocalDate(DateTimeZone.UTC).toDateMidnight());
-//        System.out.println("s3="+new LocalDate().toDateMidnight(DateTimeZone.UTC));
-//        System.out.println("s4="+new LocalDate(DateTimeZone.UTC).toDateMidnight(DateTimeZone.UTC));
-//    }
+	public static void main(String[] args) {
+
+		String date = "2006.10.14";
+		String time = "12:13:14GMT";
+
+		DateTimeFormatter fmtd = DateTimeFormat.forPattern("yyyy.MM.dd");
+		DateTimeFormatter fmtt = DateTimeFormat.forPattern("HH:mm:ss'GMT'");
+
+		DateTime dtd = fmtd.withZone(DateTimeZone.UTC).parseDateTime(date);
+		DateTime dtt = fmtt.withZone(DateTimeZone.UTC).parseDateTime(time);
+
+		logger.info("dtd = {}, millis = {}", dtd, dtd.getMillis());
+		logger.info("dtt = {}, millis = {}", dtt, dtt.getMillis());
+
+		long allMillis = dtd.getMillis() + dtt.getMillis();
+		DateTime adt = new DateTime(allMillis).withZone(DateTimeZone.UTC);
+		logger.info("ADT = {}", adt);
+
+		DateTime nd = new DateTime(new Long(dtd.getMillis())).withZone(DateTimeZone.UTC);
+		logger.info("nd = {}", nd);
+		DateTime nt = new DateTime(new Long(dtt.getMillis())).withZone(DateTimeZone.UTC);
+		logger.info("nt = {}", nt);
+
+		logger.info("txt = {}", fmtd.print(nd));
+		logger.info("txt = {}", fmtt.print(nt));
+
+		DateTime n1 = new DateTime(DateTimeZone.UTC).minusDays(3);
+		logger.info("n1 = {}", n1);
+
+		LocalDate ld = new LocalDate();
+		logger.info("ld = {}", ld);
+		DateTime x = ld.toDateTimeAtMidnight(DateTimeZone.UTC);
+		logger.info("   = {} ; {}", x, x.getMillis());
+
+		DateTime now = new DateTime(DateTimeZone.UTC);
+		logger.info("now = {}", now);
+		DateMidnight nowDate = now.toDateMidnight();
+		logger.info("nowDate = {} ; {}", nowDate, nowDate.getMillis());
+		TimeOfDay nowTime = now.toTimeOfDay();
+		logger.info("nowTime = {}", nowTime);
+		logger.info("nowTime = {}", fmtt.print(nowTime));
+		logger.info("nowTime = {}", fmtt.print(now));
+
+		LocalDate localDate = new LocalDate(2006, 8, 1).minusDays(0);
+		String s2 = DateFun.FORMAT_DATE.print(localDate);
+		logger.info("s2 = {}", s2);
+
+		logger.info("s1 = {}", new LocalDate());
+		logger.info("s2 = {}", new LocalDate(DateTimeZone.UTC).toDateMidnight());
+		logger.info("s3 = {}", new LocalDate().toDateMidnight(DateTimeZone.UTC));
+		logger.info("s4 = {}", new LocalDate(DateTimeZone.UTC).toDateMidnight(DateTimeZone.UTC));
+	}
 
     /**
      * Creates a java.sql.Time object from provided string in format "hh:mm:ssGMT".
@@ -155,14 +161,14 @@ public class DateFun {
 //            iminutes = Integer.parseInt( minutes );
 //            iseconds = Integer.parseInt( seconds );
 //        } catch(Exception ex) {
-//            logger.warning("Could not parse the time");
+//            logger.warn("Could not parse the time");
 //            return null;
 //        }
 //        if( ihours < 0 || ihours > 23 ||
 //            iminutes < 0 || iminutes > 59 ||
 //            iseconds < 0 || iseconds > 59 )
 //        {
-//            logger.warning("Time is invalid");
+//            logger.warn("Time is invalid");
 //            return null;
 //        }
 //        Calendar cal = Calendar.getInstance();
@@ -370,7 +376,7 @@ public class DateFun {
 //                cal.set(Calendar.YEAR, year);
 //                cal.set(Calendar.MONTH, month - 1);
 //                cal.set(Calendar.DATE, day);
-//                logger.fine("TOF Date: " + year + "." + month + "." + day);
+//                logger.debug("TOF Date: {}.{}.{}", year, month, day);
 //            }
 //        }
 //        return cal;

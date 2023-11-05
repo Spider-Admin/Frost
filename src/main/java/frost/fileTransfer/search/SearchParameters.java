@@ -23,16 +23,21 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.util.TextSearchFun;
 
 public class SearchParameters {
 
-//    public static void main(String[] args) {
-//        SearchParameters s = new SearchParameters();
-//        s.setNameString("hello not world \"und so weiter\" aber NOT dieses hier \"und so\"");
-//        System.out.println(s.getName());
-//        System.out.println(s.getNotName());
-//    }
+	private static final Logger logger =  LoggerFactory.getLogger(SearchParameters.class);
+
+	public static void main(String[] args) {
+		SearchParameters s = new SearchParameters(true);
+		s.setNameString("hello not world \"und so weiter\" aber NOT dieses hier \"und so\"");
+		logger.info("{}", s.getName());
+		logger.info("{}", s.getNotName());
+	}
 
     private final boolean isSimpleSearch;
 

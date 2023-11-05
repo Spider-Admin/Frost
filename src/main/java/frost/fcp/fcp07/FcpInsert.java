@@ -25,10 +25,11 @@ package frost.fcp.fcp07;
 import java.io.File;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.MainFrame;
 import frost.fcp.FcpResultPut;
@@ -39,7 +40,7 @@ import frost.fileTransfer.upload.FrostUploadItem;
  */
 public class FcpInsert {
 
-	private static final Logger logger = Logger.getLogger(FcpInsert.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FcpInsert.class);
 
     /**
      * Inserts a file into freenet.
@@ -56,7 +57,7 @@ public class FcpInsert {
             final FrostUploadItem ulItem)
     {
         if (file.length() == 0) {
-            logger.log(Level.SEVERE, "Error: Can't upload empty file: "+file.getPath());
+            logger.warn("Can't upload empty file: {}", file.getPath());
 			JOptionPane.showMessageDialog(MainFrame.getInstance(),
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning",
@@ -79,9 +80,9 @@ public class FcpInsert {
             return result;
 
         } catch( final UnknownHostException e ) {
-			logger.log(Level.SEVERE, "UnknownHostException", e);
+			logger.error("UnknownHostException", e);
         } catch( final Throwable e ) {
-        	logger.log(Level.SEVERE, "Throwable", e);
+        	logger.error("Throwable", e);
         }
         return FcpResultPut.ERROR_RESULT;
     }
@@ -89,7 +90,7 @@ public class FcpInsert {
     public static String generateCHK(final File file) {
 
     	if (file.length() == 0) {
-            logger.log(Level.SEVERE, "Error: Can't generate CHK for empty file: "+file.getPath());
+            logger.error("Can't generate CHK for empty file: {}", file.getPath());
 			JOptionPane.showMessageDialog(MainFrame.getInstance(),
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning",
@@ -111,9 +112,9 @@ public class FcpInsert {
             return generatedCHK;
 
         } catch( final UnknownHostException e ) {
-			logger.log(Level.SEVERE, "UnknownHostException", e);
+			logger.error("UnknownHostException", e);
         } catch( final Throwable e ) {
-        	logger.log(Level.SEVERE, "Throwable", e);
+        	logger.error("Throwable", e);
         }
         return null;
     }

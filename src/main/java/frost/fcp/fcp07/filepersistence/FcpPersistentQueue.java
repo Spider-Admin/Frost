@@ -21,15 +21,17 @@ package frost.fcp.fcp07.filepersistence;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.fcp.fcp07.FcpMultiRequestConnectionFileTransferTools;
 import frost.fcp.fcp07.NodeMessage;
 import frost.fcp.fcp07.NodeMessageListener;
 import frost.fileTransfer.FreenetPriority;
-import frost.util.Logging;
 
 public class FcpPersistentQueue implements NodeMessageListener {
 
-//    private static final Logger logger = Logger.getLogger(FcpPersistentQueue.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FcpPersistentQueue.class);
 
     final private FcpMultiRequestConnectionFileTransferTools fcpTools;
     final private IFcpPersistentRequestsHandler persistenceHandler;
@@ -96,11 +98,9 @@ public class FcpPersistentQueue implements NodeMessageListener {
 
     public void handleNodeMessage(final String id, final NodeMessage nm) {
 
-        if(Logging.inst().doLogFcp2Messages()) {
-            System.out.println(">>>RCV>>>>");
-            System.out.println("MSG="+nm);
-            System.out.println("<<<<<<<<<<");
-        }
+        logger.debug(">>>RCV>>>>");
+        logger.debug("MSG = {}", nm);
+        logger.debug("<<<<<<<<<<");
 
         if( nm.isMessageName("PersistentGet") ) {
             onPersistentGet(id, nm);
@@ -136,7 +136,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
             
         } else {
             // unhandled msg
-            System.out.println("### INFO - Unhandled msg: "+nm);
+            logger.warn("Unhandled msg: {}", nm);
         }
     }
 
@@ -154,7 +154,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
     }
     protected void onDataFound(final String id, final NodeMessage nm) {
         if( !downloadRequests.containsKey(id) ) {
-            System.out.println("No item in download queue: "+nm);
+            logger.warn("No item in download queue: {}", nm);
         } else {
             final FcpPersistentGet pg = downloadRequests.get(id);
             pg.setSuccess(nm);
@@ -163,7 +163,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
     }
     protected void onGetFailed(final String id, final NodeMessage nm) {
         if( !downloadRequests.containsKey(id) ) {
-            System.out.println("No item in download queue: "+nm);
+            logger.warn("No item in download queue: {}", nm);
         } else {
             final FcpPersistentGet pg = downloadRequests.get(id);
             pg.setFailed(nm);
@@ -183,7 +183,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
     }
     protected void onPutSuccessful(final String id, final NodeMessage nm) {
         if( !uploadRequests.containsKey(id) ) {
-            System.out.println("No item in upload queue: "+nm);
+            logger.warn("No item in upload queue: {}", nm);
             return;
         } else {
             final FcpPersistentPut pg = uploadRequests.get(id);
@@ -193,7 +193,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
     }
     protected void onPutFailed(final String id, final NodeMessage nm) {
         if( !uploadRequests.containsKey(id) ) {
-            System.out.println("No item in upload queue: "+nm);
+            logger.warn("No item in upload queue: {}", nm);
             return;
         } else {
             final FcpPersistentPut pp = uploadRequests.get(id);
@@ -211,7 +211,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
             pg.setProgress(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else {
-            System.out.println("No item in queue: "+nm);
+            logger.warn("No item in queue: {}", nm);
             return;
         }
     }
@@ -223,7 +223,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
             final FcpPersistentPut pg = uploadRequests.remove(id);
             persistenceHandler.persistentRequestRemoved(pg);
         } else {
-            System.out.println("No item in queue: "+nm);
+            logger.warn("No item in queue: {}", nm);
             return;
         }
     }
@@ -240,7 +240,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
                 pg.setPriority(newPriorityClass);
                 persistenceHandler.persistentRequestModified(pg);
             } else {
-                System.out.println("No item in queue: "+nm);
+                logger.warn("No item in queue: {}", nm);
                 return;
             }
         }
@@ -255,12 +255,12 @@ public class FcpPersistentQueue implements NodeMessageListener {
             pg.setFailed(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else {
-            System.out.println("No item in queue, calling error handler: "+nm);
+            logger.warn("No item in queue, calling error handler: {}", nm);
             persistenceHandler.persistentRequestError(id, nm);
         }
     }
     protected void onIdentifierCollision(final String id, final NodeMessage nm) {
         // since we use the same unique gqid, most likly this request already runs!
-        System.out.println("### ATTENTION ###: "+nm);
+        logger.warn("### ATTENTION ###: {}", nm);
     }
 }

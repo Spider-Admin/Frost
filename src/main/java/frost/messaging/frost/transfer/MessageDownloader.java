@@ -19,8 +19,9 @@
 package frost.messaging.frost.transfer;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.fcp.FcpHandler;
@@ -32,7 +33,7 @@ import frost.util.FileAccess;
 
 public class MessageDownloader {
 
-    private static final Logger logger = Logger.getLogger(MessageDownloader.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(MessageDownloader.class);
 
     /**
      * Process the downloaded file, decrypt, check sign.
@@ -45,7 +46,7 @@ public class MessageDownloader {
         try {
             return processDownloadedFile07(tmpFile, results, logInfo);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Error processing downloaded message", t);
+            logger.error("Error processing downloaded message", t);
             final MessageDownloaderResult mdResult = new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             return mdResult;
         }
@@ -74,7 +75,7 @@ public class MessageDownloader {
                     FcpHandler.MAX_MESSAGE_SIZE_07,
                     maxRetries);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 1."+logInfo, t);
+            logger.error("TOFDN: Exception thrown in downloadDate part 1. {}", logInfo, t);
             // download failed
             tmpFile.delete();
             return null;
@@ -83,12 +84,10 @@ public class MessageDownloader {
         if( results == null || results.isSuccess() == false ) {
         	tmpFile.delete();
         	if(results != null && results.getReturnCode() == 28) {
-     	    	logger.warning("TOFDN: All data not found."+logInfo);
-     	    	System.out.println("TOFDN: ADNF - Contents of message key partially missing.");
+     	    	logger.warn("TOFDN: All data not found. {} - Contents of message key partially missing.", logInfo);
      	    	return new MessageDownloaderResult(MessageDownloaderResult.ALLDATANOTFOUND);
             } else if(results != null && results.getReturnCode() == 21) {
-                    logger.severe("TOFDN: Message file too big."+logInfo);
-                    System.out.println("TOFDN: Message file too big.");
+                    logger.error("TOFDN: Message file too big. {}", logInfo);
                     return new MessageDownloaderResult(MessageDownloaderResult.MSG_TOO_BIG);
         	} else {
         		return null;
@@ -119,26 +118,26 @@ public class MessageDownloader {
             } catch (final MessageCreationException ex) {
                 final String errorMessage;
                 if( ex.getMessageNo() == MessageCreationException.MSG_NOT_FOR_ME ) {
-                    logger.warning("Info: Encrypted message is not for me. "+logInfo);
+                    logger.info("Encrypted message is not for me. {}", logInfo);
                     errorMessage = MessageDownloaderResult.MSG_NOT_FOR_ME;
 
                 } else if( ex.getMessageNo() == MessageCreationException.DECRYPT_FAILED ) {
-                    logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
+                    logger.error("TOFDN: Exception catched. {}", logInfo, ex);
                     errorMessage = MessageDownloaderResult.DECRYPT_FAILED;
 
                 } else if( ex.getMessageNo() == MessageCreationException.INVALID_FORMAT ) {
-                    logger.warning("Error: Message validation failed. "+logInfo);
+                    logger.error("Message validation failed. {}", logInfo, ex);
                     errorMessage = MessageDownloaderResult.INVALID_MSG;
 
                 } else {
-                    logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
+                    logger.error("TOFDN: Exception catched. {}", logInfo, ex);
                     errorMessage = MessageDownloaderResult.BROKEN_MSG;
                 }
                 tmpFile.delete();
                 return new MessageDownloaderResult(errorMessage);
 
             } catch (final Throwable ex) {
-                logger.log(Level.SEVERE, "TOFDN: Exception catched."+logInfo, ex);
+                logger.error("TOFDN: Exception catched. {}", logInfo, ex);
                 // file could not be read, mark it invalid not to confuse gui
                 tmpFile.delete();
                 return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
@@ -156,8 +155,7 @@ public class MessageDownloader {
                 // fromName must not contain an '@'
                 if( currentMsg.getFromName().indexOf('@') > -1) {
                     // invalid, drop message
-                    logger.severe("TOFDN: unsigned message has an invalid fromName (contains an @: '"+
-                            currentMsg.getFromName()+"'), message dropped."+logInfo);
+                    logger.error("TOFDN: unsigned message has an invalid fromName (contains an @: '{}'), message dropped. {}", currentMsg.getFromName(), logInfo);
                     tmpFile.delete();
                     return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
                 }
@@ -171,18 +169,18 @@ public class MessageDownloader {
             final Identity owner = Identity.createIdentityFromExactStrings(currentMsg.getFromName(), currentMsg.getPublicKey());
             if( !Core.getIdentitiesManager().isNewIdentityValid(owner) ) {
                 // hash of public key does not match the unique name
-                logger.severe("TOFDN: identity failed verification, message dropped." + logInfo);
+                logger.error("TOFDN: identity failed verification, message dropped. {}", logInfo);
                 tmpFile.delete();
                 return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
 
             // now verify signed content
             final boolean sigIsValid = currentMsg.verifyMessageSignatureV2(owner.getPublicKey());
-            logger.info("TOFDN: verification of V2 signature: "+sigIsValid+"."+logInfo);
+            logger.info("TOFDN: verification of V2 signature: {}.{}", sigIsValid, logInfo);
 
             // then check if the signature was ok
             if (!sigIsValid) {
-                logger.severe("TOFDN: message failed verification, message dropped."+logInfo);
+                logger.error("TOFDN: message failed verification, message dropped. {}", logInfo);
                 tmpFile.delete();
                 return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
@@ -196,7 +194,7 @@ public class MessageDownloader {
             return new MessageDownloaderResult(currentMsg, owner);
 
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "TOFDN: Exception catched."+logInfo, t);
+            logger.error("TOFDN: Exception catched. {}", logInfo, t);
             // index is already increased for next try
         }
         tmpFile.delete();

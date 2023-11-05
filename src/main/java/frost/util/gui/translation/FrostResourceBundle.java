@@ -30,8 +30,6 @@ import java.util.MissingResourceException;
  */
 public class FrostResourceBundle {
 
-//    private static final Logger logger = Logger.getLogger(FrostResourceBundle.class.getName());
-
     private static final String BUILDIN_BUNDLE_NAME = "/i18n/langres"; // base name in jar file
     protected static final String EXTERNAL_BUNDLE_DIR = "localdata/i18n/"; // base name in jar file
 

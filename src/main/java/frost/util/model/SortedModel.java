@@ -24,6 +24,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class is a Model that stores ModelItems in a certain order. That does not
  * mean that it is sorted.
@@ -31,6 +34,8 @@ import java.util.List;
  * Its implementation is thread-safe
  */
 abstract public class SortedModel<T extends ModelItem<T>> {
+
+	private static final Logger logger = LoggerFactory.getLogger(SortedModel.class);
 
 	protected List<T> data;
 
@@ -202,8 +207,7 @@ abstract public class SortedModel<T extends ModelItem<T>> {
 
 	public T getItemAt(final int position) {
         if( position >= data.size() ) {
-            System.out.println("SortedModel.getItemAt: position="+position+", but size="+data.size());
-            new Exception().printStackTrace(System.out);
+            logger.error("SortedModel.getItemAt: position = {}, but size = {}", position, data.size());
             return null;
         }
 		return data.get(position);

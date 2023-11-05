@@ -44,8 +44,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
@@ -62,6 +60,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Utilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -96,8 +97,9 @@ import frost.util.gui.translation.LanguageListener;
 @SuppressWarnings("serial")
 public class MessageTextPane extends JPanel {
 
+	private static final Logger logger = LoggerFactory.getLogger(MessageTextPane.class);
+
     private final Language language = Language.getInstance();
-    private final Logger logger = Logger.getLogger(MessageTextPane.class.getName());
 
     private AntialiasedTextPane messageTextArea = null;
     private JSplitPane messageSplitPane = null;
@@ -397,7 +399,7 @@ public class MessageTextPane extends JPanel {
         messageTextArea.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(final HyperlinkEvent evt) {
                 if( !(evt instanceof MouseHyperlinkEvent) ) {
-                    logger.severe("INTERNAL ERROR, hyperlinkevent is wrong object!");
+                    logger.error("hyperlinkevent is wrong object!");
                     return;
                 }
                 final MouseHyperlinkEvent e = (MouseHyperlinkEvent) evt;
@@ -486,9 +488,8 @@ public class MessageTextPane extends JPanel {
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
-            logger.severe(
-                "The selected font was not found in your system\n"
-                    + "That selection will be changed to \"Monospaced\".");
+            logger.error("The selected font was not found in your system");
+            logger.error("That selection will be changed to \"Monospaced\".");
             Core.frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
             font = new Font("Monospaced", fontStyle, fontSize);
         }
@@ -865,7 +866,7 @@ public class MessageTextPane extends JPanel {
                     try {
                         filename = java.net.URLDecoder.decode(filename, "UTF-8");
                     } catch (final java.io.UnsupportedEncodingException ex) {
-                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                        logger.error("Decode of HTML code failed", ex);
                     }
                 }
                 if( frostDownloadItemNameMap.containsKey(filename)) {
@@ -1086,7 +1087,7 @@ public class MessageTextPane extends JPanel {
                     try {
                         name = java.net.URLDecoder.decode(name, "UTF-8");
                     } catch (final java.io.UnsupportedEncodingException ex) {
-                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                        logger.error("Decode of HTML code failed", ex);
                     }
                 }
                 if( frostDownloadItemNameMap.containsKey(name)) {
@@ -1160,7 +1161,7 @@ public class MessageTextPane extends JPanel {
 		final String browserAddress = Core.frostSettings
 				.getValue(SettingsClass.BROWSER_ADDRESS);
 		if (browserAddress.length() == 0) {
-			System.out.println("DEBUG - Borser address not configured");
+			logger.warn("Browser address not configured");
 			return;
 		}
 		if ((items == null) || (items.size() < 1)) {
@@ -1175,9 +1176,9 @@ public class MessageTextPane extends JPanel {
 						+ key, null);
 				Desktop.getDesktop().browse(uri);
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				logger.error("IOException", ex);
 			} catch (URISyntaxException e) {
-				e.printStackTrace();
+				logger.error("URISyntaxException", e);
 			}
 		}
 	}

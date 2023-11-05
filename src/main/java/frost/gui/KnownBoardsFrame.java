@@ -35,8 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -63,6 +61,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.MainFrame;
 import frost.SettingsClass;
@@ -81,7 +82,7 @@ import frost.util.gui.translation.Language;
 @SuppressWarnings("serial")
 public class KnownBoardsFrame extends JDialog {
 
-    private static final Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(KnownBoardsFrame.class);
 
     private final Language language;
 
@@ -121,7 +122,7 @@ public class KnownBoardsFrame extends JDialog {
             initialize();
         }
         catch( final Exception e ) {
-            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+            logger.error("Exception thrown in constructor", e);
         }
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setSize((int) (parent.getWidth() * 0.75),

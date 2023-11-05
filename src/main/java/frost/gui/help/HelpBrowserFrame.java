@@ -24,10 +24,11 @@ import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.MainFrame;
@@ -36,7 +37,7 @@ import frost.util.gui.MiscToolkit;
 @SuppressWarnings("serial")
 public class HelpBrowserFrame extends JFrame {
 
-  private static final Logger logger = Logger.getLogger(HelpBrowserFrame.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(HelpBrowserFrame.class);
 
   boolean plugin;
   HelpBrowser browser;
@@ -95,7 +96,7 @@ public class HelpBrowserFrame extends JFrame {
                 loadWindowState();
             }
     	} catch(final Throwable e) {
-    		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+    		logger.error("Exception thrown in constructor", e);
     	}
     }
 

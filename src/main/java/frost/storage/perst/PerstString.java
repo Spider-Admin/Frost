@@ -19,8 +19,12 @@
 package frost.storage.perst;
 
 import org.garret.perst.Persistent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PerstString extends Persistent {
+
+	private static final Logger logger =  LoggerFactory.getLogger(PerstString.class);
 
     private String value;
 
@@ -34,9 +38,9 @@ public class PerstString extends Persistent {
         return value;
     }
 
-//    public void onLoad() {
-//        System.out.println("loaded!");
-//    }
+	public void onLoad() {
+		logger.debug("loaded!");
+	}
 
     @Override
     public boolean recursiveLoading() {

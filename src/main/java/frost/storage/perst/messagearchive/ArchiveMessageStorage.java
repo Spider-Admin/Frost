@@ -19,9 +19,10 @@
 package frost.storage.perst.messagearchive;
 
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import org.garret.perst.GenericIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.SettingsClass;
 import frost.messaging.frost.FrostMessageObject;
@@ -32,7 +33,7 @@ import frost.storage.perst.AbstractFrostStorage;
 
 public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitSavable {
 
-    private static final Logger logger = Logger.getLogger(ArchiveMessageStorage.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(ArchiveMessageStorage.class);
 
     private static final String STORAGE_FILENAME = "messageArchive.dbs";
 
@@ -77,7 +78,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
     public void exitSave() {
         close();
         storageRoot = null;
-        System.out.println("INFO: MessageArchiveStorage closed.");
+        logger.info("MessageArchiveStorage closed.");
     }
 
     public void silentClose() {
@@ -109,7 +110,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
         final PerstFrostArchiveBoardObject pfbo = new PerstFrostArchiveBoardObject(getStorage(), boardName);
         storageRoot.getBoardsByName().put(boardName, pfbo);
 
-        logger.severe("Added archive board: "+boardName);
+        logger.info("Added archive board: {}", boardName);
 
         commit();
     }
@@ -120,7 +121,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
     public synchronized int insertMessage(final FrostMessageObject mo) {
         final Board targetBoard = mo.getBoard();
         if( targetBoard == null ) {
-            logger.severe("msgInsertError: no board in msg");
+            logger.error("msgInsertError: no board in msg");
             return INSERT_ERROR; // skip msg
         }
         return insertMessage(mo, targetBoard.getNameLowerCase());
@@ -154,7 +155,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
             addBoard(boardName);
             bo = storageRoot.getBoardsByName().get(boardName);
             if( bo == null ) {
-                logger.severe("Error: still no board???");
+                logger.error("still no board???");
                 return INSERT_ERROR;
             }
         }

@@ -21,7 +21,9 @@ package frost.fileTransfer.search;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -34,7 +36,7 @@ import frost.util.TextSearchFun;
 
 class SearchThread extends Thread implements FileListCallback {
 
-    private static final Logger logger = Logger.getLogger(SearchThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(SearchThread.class);
 
     private SearchParameters searchParams;
 
@@ -382,7 +384,7 @@ class SearchThread extends Thread implements FileListCallback {
 //            try {
 //                age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos));
 //            } catch (NumberFormatException e) {
-//                logger.warning("Did not recognice age, using default 1.");
+//                logger.warn("Did not recognice age, using default 1.");
 //            }
 //
 //            long diffMillis = (long)age * 24L * 60L * 60L * 1000L;
@@ -402,7 +404,7 @@ class SearchThread extends Thread implements FileListCallback {
         allFileCount++;
 
         if (allFileCount > this.maxSearchResults) {
-            logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
+            logger.info("maxSearchResults reached ()!", maxSearchResults);
             maximumSearchResultsReached();
             return;
         }
@@ -425,8 +427,7 @@ class SearchThread extends Thread implements FileListCallback {
     public void run() {
 
         allFileCount = 0;
-//        long start = System.currentTimeMillis();
-//        System.out.println(">>> Filesearch started...");
+        logger.info(">>> Filesearch started...");
 
         // check file extension. if extension of ONE file is ok the file matches
         String[] searchForExtensions = null;
@@ -463,9 +464,7 @@ class SearchThread extends Thread implements FileListCallback {
                     searchParams.getOwner(),
                     searchForExtensions);
         }
-
-//        long duration = System.currentTimeMillis() - start;
-//        System.out.println("<<< Filesearch finished, duration="+duration);
+        logger.info("<<< Filesearch finished");
 
         if( isCancelRequested() ) {
             searchTable.searchCancelled();

@@ -21,11 +21,11 @@ package frost.fileTransfer.filelist;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -39,7 +39,6 @@ import frost.transferlayer.GlobalFileDownloaderResult;
 import frost.transferlayer.GlobalFileUploader;
 import frost.util.DateFun;
 import frost.util.FileAccess;
-import frost.util.Logging;
 import frost.util.Mixed;
 
 /**
@@ -52,7 +51,7 @@ import frost.util.Mixed;
  */
 public class FilePointersThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(FilePointersThread.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FilePointersThread.class);
 
     private static final int baseSleepTime = 15 * 60 * 1000;
 
@@ -97,7 +96,7 @@ public class FilePointersThread extends Thread {
         final File tmpPointerFile = FileAccess.createTempFile("kskptr_", ".xml");
         tmpPointerFile.deleteOnExit();
         if( !FilePointerFile.writePointerFile(content, tmpPointerFile) ) {
-            logger.severe("FILEDN: Error writing the KSK pointer file.");
+            logger.error("FILEDN: Error writing the KSK pointer file.");
             return false;
         }
 
@@ -107,16 +106,12 @@ public class FilePointersThread extends Thread {
         // Wait some random time to not to flood the node
         Mixed.waitRandom(2000);
 
-        logger.info("FILEDN: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys");
+        logger.info("FILEDN: Starting upload of pointer file containing {} CHK keys", sharedFileCHKkeys.size());
 
         final String insertKey = keyPrefix + dateStr + "-";
-        if( Logging.inst().doLogFilebaseMessages() ) {
-            System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey+"...");
-        }
+        logger.info("uploadIndexFile: Starting upload of pointer file containing {} CHK keys to {}...", sharedFileCHKkeys.size(), insertKey);
         final boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpPointerFile, insertKey, ".xml", true);
-        if( Logging.inst().doLogFilebaseMessages() ) {
-            System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
-        }
+        logger.info("uploadIndexFile: upload finished, wasOk = {}", wasOk);
         tmpPointerFile.delete();
         if( wasOk ) {
             SharedFilesCHKKeyManager.updateCHKKeysWereSuccessfullySent(sharedFileCHKkeys);
@@ -145,12 +140,10 @@ public class FilePointersThread extends Thread {
             // Wait some random time to not to flood the node
             Mixed.waitRandom(3000);
 
-            logger.info("FILEDN: Requesting index " + index + " for date " + dateStr);
+            logger.info("FILEDN: Requesting index {} for date {}", index, dateStr);
 
             final String downKey = requestKey + index + ".xml";
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);
-            }
+            logger.debug("FilePointersThread.downloadDate: requesting: {}", downKey);
 
             final boolean quicklyFailOnAdnf;
             final int maxRetries;
@@ -166,9 +159,7 @@ public class FilePointersThread extends Thread {
             final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07, maxRetries);
 
             if(  result == null ) {
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("FilePointersThread.downloadDate: failure");
-                }
+                logger.warn("FilePointersThread.downloadDate: failure");
                 // download failed.
                 if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
                     // we stop if we tried maxFailures indices behind the last known index
@@ -182,12 +173,10 @@ public class FilePointersThread extends Thread {
             failures = 0;
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    if( quicklyFailOnAdnf ) {
-                        System.out.println("FilePointersThread.downloadDate: Index "+index+" got ADNF, will never try index again.");
-                    } else {
-                        System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
-                    }
+                if( quicklyFailOnAdnf ) {
+                    logger.warn("FilePointersThread.downloadDate: Index {} got ADNF, will never try index again.", index);
+                } else {
+                    logger.warn("FilePointersThread.downloadDate: Skipping index {} for now, will try again later.", index);
                 }
                 if( quicklyFailOnAdnf ) {
                     // don't try again
@@ -205,12 +194,10 @@ public class FilePointersThread extends Thread {
             index = gis.findNextDownloadSlot(index);
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
-                logger.severe("FilePointersThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
+                logger.error("FilePointersThread.downloadDate: Dropping index , FILE_TOO_BIG.", index);
             } else {
                 // process received data
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("FilePointersThread.downloadDate: success");
-                }
+                logger.debug("FilePointersThread.downloadDate: success");
 
                 final File downloadedFile = result.getResultFile();
 
@@ -218,21 +205,17 @@ public class FilePointersThread extends Thread {
                 try {
                     content = FilePointerFile.readPointerFile(downloadedFile);
                 } catch (final Exception e) {
-                    logger.log(Level.WARNING, "Invalid XML content: "+e.getMessage());
+                    logger.error("Invalid XML content: ", e);
                 }
 
-                if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("readPointerFile: result: "+content);
-                }
+                logger.debug("readPointerFile: result: {}", content);
                 downloadedFile.delete();
                 SharedFilesCHKKeyManager.processReceivedCHKKeys(content);
             }
 
             IndexSlotsStorage.inst().storeSlot(gis); // remember each progress
         }
-        if( Logging.inst().doLogFilebaseMessages() ) {
-            System.out.println("FilePointersThread.downloadDate: finished");
-        }
+        logger.info("FilePointersThread.downloadDate: finished");
     }
 
     @Override
@@ -272,9 +255,7 @@ public class FilePointersThread extends Thread {
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.FILELISTS, date);
 
-                    if( Logging.inst().doLogFilebaseMessages() ) {
-                        System.out.println("FilePointersThread: download for "+dateStr);
-                    }
+                    logger.debug("FilePointersThread: download for {}", dateStr);
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
                         downloadDate(dateStr, gis, isForToday);
@@ -283,12 +264,10 @@ public class FilePointersThread extends Thread {
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
-                            if( Logging.inst().doLogFilebaseMessages() ) {
-                                System.out.println("FilePointersThread: upload for "+dateStr);
-                            }
+                            logger.debug("FilePointersThread: upload for {}", dateStr);
                             uploadIndexFile(dateStr, gis);
                         } catch(final Throwable t) {
-                            logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
+                            logger.error("Exception during uploadIndexFile()", t);
                         }
                     }
 
@@ -297,12 +276,12 @@ public class FilePointersThread extends Thread {
                     }
                 }
             } catch (final Throwable e) {
-                logger.log(Level.SEVERE, "Exception catched", e);
+                logger.error("Exception catched", e);
                 occuredExceptions++;
             }
 
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping FilePointersThread because of too much exceptions");
+                logger.error("Stopping FilePointersThread because of too much exceptions");
                 break;
             }
             if( isInterrupted() ) {

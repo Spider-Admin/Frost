@@ -56,8 +56,6 @@ import frost.util.gui.translation.Language;
 @SuppressWarnings("serial")
 public class BoardSettingsFrame extends JDialog {
 
-//  private static final Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
-
     private class Listener implements ActionListener {
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == publicBoardRadioButton) { // Public board radio button

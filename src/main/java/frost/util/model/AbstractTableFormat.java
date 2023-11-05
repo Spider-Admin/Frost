@@ -22,16 +22,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelItemType>> implements ModelTableFormat<ModelItemType> {
 
-	private static final Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(AbstractTableFormat.class);
 
 	private Map<Integer,String> columnNames;
 	private Map<Integer,Boolean> columnEditable;
@@ -127,7 +129,7 @@ public abstract class AbstractTableFormat<ModelItemType extends ModelItem<ModelI
 	 * @see frost.util.model.gui.ModelTableFormat#setCellValue(java.lang.Object, frost.util.model.ModelItem, int)
 	 */
 	public void setCellValue(Object value, ModelItemType item, int columnIndex) {
-		logger.warning("The column number " + columnIndex + "is not editable.");
+		logger.warn("The column number {} is not editable.", columnIndex);
 		throw new RuntimeException("Method setCellValue not implemented, needs to be deined by subclass if it has editable columns");
 	}
 

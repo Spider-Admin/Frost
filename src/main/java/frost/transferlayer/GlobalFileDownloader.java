@@ -19,8 +19,9 @@
 package frost.transferlayer;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.FcpHandler;
 import frost.fcp.FcpResultGet;
@@ -28,7 +29,7 @@ import frost.util.FileAccess;
 
 public class GlobalFileDownloader {
 
-    private static final Logger logger = Logger.getLogger(GlobalFileDownloader.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(GlobalFileDownloader.class);
 
     /**
      * Returns null if file not found.
@@ -68,7 +69,7 @@ public class GlobalFileDownloader {
             return new GlobalFileDownloaderResult(tmpFile);
 
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Error in downloadFile", t);
+            logger.error("Error in downloadFile", t);
         }
         return null;
     }

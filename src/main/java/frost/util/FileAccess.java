@@ -42,8 +42,6 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -52,13 +50,16 @@ import java.util.zip.ZipOutputStream;
 
 import javax.swing.JFileChooser;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import frost.Core;
 import frost.MainFrame;
 import frost.SettingsClass;
 
 public class FileAccess {
 
-    private static final Logger logger = Logger.getLogger(FileAccess.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FileAccess.class);
 
     public static File createTempFile(final String prefix, final String suffix) {
         File tmpFile = null;
@@ -123,7 +124,7 @@ public class FileAccess {
             fileIn.close();
             return data;
         } catch( final IOException e ) {
-            logger.log(Level.SEVERE, "Exception thrown in readByteArray(File file)", e);
+            logger.error("Exception thrown in readByteArray(File file)", e);
         }
         return null;
     }
@@ -184,7 +185,7 @@ public class FileAccess {
             out.close();
             return true;
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception catched", t);
+            logger.error("Exception catched", t);
             try { if( in != null) {
                 in.close();
             } } catch(final Throwable tt) { }
@@ -222,7 +223,7 @@ public class FileAccess {
             out.close();
             return true;
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception catched", t);
+            logger.error("Exception catched", t);
             try { if( in != null) {
                 in.close();
             } } catch(final Throwable tt) { }
@@ -240,8 +241,7 @@ public class FileAccess {
         if (content == null || content.length == 0) {
             final Exception e = new Exception();
             e.fillInStackTrace();
-            logger.log(Level.SEVERE, "Tried to zip an empty file!  Send this output to a dev"+
-                                        " and describe what you were doing.", e);
+            logger.error("Tried to zip an empty file! Send this output to a dev and describe what you were doing.", e);
             return false;
         }
         try {
@@ -256,7 +256,7 @@ public class FileAccess {
             zos.close();
             return true;
         } catch( final Throwable e ) {
-            logger.log(Level.SEVERE, "Exception thrown in writeZipFile(byte[] content, String entry, File file)", e);
+            logger.error("Exception thrown in writeZipFile(byte[] content, String entry, File file)", e);
             return false;
         }
     }
@@ -289,7 +289,7 @@ public class FileAccess {
             return out.toByteArray();
 
         } catch( final FileNotFoundException e ) {
-            logger.log(Level.SEVERE, "Exception catched", e);
+            logger.error("Exception catched", e);
         } catch( final IOException e ) {
             try { if( zis != null) {
                 zis.close();
@@ -297,8 +297,7 @@ public class FileAccess {
             try { if( out != null) {
                 out.close();
             } } catch(final Throwable t) { }
-            logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" +
-                                     "Offending file saved as badfile.zip, send to a dev for analysis", e);
+            logger.error("Exception thrown in readZipFile(String path). Offending file saved as badfile.zip, send to a dev for analysis", e);
             copyFile(file.getPath(), "badfile.zip");
         }
         return null;
@@ -321,7 +320,7 @@ public class FileAccess {
             result = readLines(fis, encoding);
             fis.close();
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Exception thrown in readLines(File file, String encoding)", e);
+            logger.error("Exception thrown in readLines(File file, String encoding)", e);
         }
         return result;
     }
@@ -340,7 +339,7 @@ public class FileAccess {
             }
             reader.close();
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Exception thrown in readLines(InputStream is, String encoding)", e);
+            logger.error("Exception thrown in readLines(InputStream is, String encoding)", e);
         }
         return data;
     }
@@ -359,7 +358,7 @@ public class FileAccess {
             }
             f.close();
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Exception thrown in readFile(String path)", e);
+            logger.error("Exception thrown in readFile(String path)", e);
         }
         return sb.toString();
     }
@@ -382,7 +381,7 @@ public class FileAccess {
             }
             reader.close();
         } catch (final IOException e) {
-            logger.log(Level.SEVERE, "Exception thrown in readFile(String path, String encoding)", e);
+            logger.error("Exception thrown in readFile(String path, String encoding)", e);
         }
         return sb.toString();
     }
@@ -417,7 +416,7 @@ public class FileAccess {
             out.close();
             return true;
         } catch( final Throwable e ) {
-            logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
+            logger.error("Exception thrown in writeFile(String content, File file)", e);
             try { if( out != null) {
                 out.close();
             } } catch(final Throwable tt) { }
@@ -433,7 +432,7 @@ public class FileAccess {
             out.close();
             return true;
         } catch( final Throwable e ) {
-            logger.log(Level.SEVERE, "Exception thrown in writeFile(byte[] content, File file)", e);
+            logger.error("Exception thrown in writeFile(byte[] content, File file)", e);
             try { if( out != null) {
                 out.close();
             } } catch(final Throwable tt) { }
@@ -463,7 +462,7 @@ public class FileAccess {
             inputReader.close();
             return true;
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
+            logger.error("Exception thrown in writeFile(String content, File file, String encoding)", e);
             try { if( inputReader != null) {
                 inputReader.close();
             } } catch(final Throwable tt) { }
@@ -528,7 +527,7 @@ public class FileAccess {
             destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
             wasOk = true;
         } catch (final Throwable exception) {
-            logger.log(Level.SEVERE, "Exception in copyFile", exception);
+            logger.error("Exception in copyFile", exception);
         } finally {
             try { if( sourceChannel != null) {
                 sourceChannel.close();
@@ -609,7 +608,7 @@ public class FileAccess {
             out.write("\n");
             wasOk = true;
         } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Exception catched", e);
+            logger.error("Exception catched", e);
         } finally {
             try { if( out != null) {
                 out.close();

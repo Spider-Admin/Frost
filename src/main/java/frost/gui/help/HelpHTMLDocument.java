@@ -26,12 +26,17 @@ import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author notitaccu
  */
 @SuppressWarnings("serial")
 public class HelpHTMLDocument extends HTMLDocument {
+
+	private static final Logger logger =  LoggerFactory.getLogger(HelpHTMLDocument.class);
 
 //    private String url_prefix;
 
@@ -128,9 +133,8 @@ public class HelpHTMLDocument extends HTMLDocument {
 //                    a.addAttribute(attName, attVal.substring("http://".length()));
 //                }
 //            }
-            
-            
-            // System.out.println("noti's parserhook touched");
+
+            logger.debug("noti's parserhook touched");
             if( t == HTML.Tag.IMG ) {
 
                 String src = (String) a.getAttribute(HTML.Attribute.SRC);
@@ -163,11 +167,11 @@ public class HelpHTMLDocument extends HTMLDocument {
                 a.addAttribute(HTML.Attribute.SRC, src);
 
                 // a.addAttribute(HTML.Attribute.SRC, "die_url_ist_wirklich_ungueltig_mfg_notitaccu.gif");
-                // System.out.println("BrumBrumIMG-2 fertig:" + a); */
+                logger.debug("BrumBrumIMG-2 fertig: {}", a);
                 // return;
             }
 
-            // System.out.println("BummiGummi" + a);
+            logger.debug("BummiGummi {}", a);
             super.handleSimpleTag(t, a, pos);
 
             //super(t, a, pos); 

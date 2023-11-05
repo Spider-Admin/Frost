@@ -24,17 +24,18 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.fcp.NodeAddress;
 import frost.util.Mixed;
 
 public class FcpListenThreadConnection extends AbstractBasicConnection {
 
-    private static final Logger logger = Logger.getLogger(FcpListenThreadConnection.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(FcpListenThreadConnection.class);
 
     private ReceiveThread receiveThread;
 
@@ -80,18 +81,18 @@ public class FcpListenThreadConnection extends AbstractBasicConnection {
 
         int count = 0;
         while(true) {
-            logger.severe("reconnect try no. "+count);
+            logger.warn("reconnect try no. {}", count);
             try {
                 fcpSocket = new FcpSocket(nodeAddress, true);
                 break;
             } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "reconnect failed, exception catched: "+t.getMessage());
+                logger.error("reconnect failed, exception catched:", t);
             }
-            logger.severe("waiting 30 seconds before next reconnect try");
+            logger.warn("waiting 30 seconds before next reconnect try");
             Mixed.wait(30000);
             count++;
         }
-        logger.severe("reconnect was successful, restarting ReceiveThread now");
+        logger.warn("reconnect was successful, restarting ReceiveThread now");
 
         notifyConnected();
 
@@ -170,8 +171,7 @@ public class FcpListenThreadConnection extends AbstractBasicConnection {
                 }
             }
 
-            logger.severe("Socket closed, ReceiveThread ended, trying to reconnect");
-            System.out.println("ReceiveThread ended, trying to reconnect");
+            logger.error("Socket closed, ReceiveThread ended, trying to reconnect");
 
             reconnect();
         }
