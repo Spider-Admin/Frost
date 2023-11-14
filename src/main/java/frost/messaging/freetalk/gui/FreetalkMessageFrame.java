@@ -1427,7 +1427,6 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             return c1.compareTo( c2 );
         }
 
-        @SuppressWarnings("unchecked")
 		public Comparable getValueAt(final int column)  {
             switch(column) {
                 case 0: return aFile.getName();
