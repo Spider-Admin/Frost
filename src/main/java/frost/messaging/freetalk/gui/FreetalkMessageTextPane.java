@@ -80,6 +80,8 @@ import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageTextPane extends JPanel {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageTextPane.class);
 
     private final Language language = Language.getInstance();
@@ -451,9 +453,9 @@ public class FreetalkMessageTextPane extends JPanel {
         popupMenuTofText.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    private class PopupMenuAttachmentFile
-        extends JSkinnablePopupMenu
-        implements ActionListener, LanguageListener {
+    private class PopupMenuAttachmentFile extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+
+		private static final long serialVersionUID = 1L;
 
 //        private JMenuItem cancelItem = new JMenuItem();
         private final JMenuItem saveAttachmentItem = new JMenuItem();
@@ -561,9 +563,9 @@ public class FreetalkMessageTextPane extends JPanel {
         }
     }
 
-    private class PopupMenuHyperLink
-    extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener {
+    private class PopupMenuHyperLink extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+
+		private static final long serialVersionUID = 1L;
 
         private final JMenuItem cancelItem = new JMenuItem();
 
@@ -731,9 +733,9 @@ public class FreetalkMessageTextPane extends JPanel {
         }
     }
 
-    private class PopupMenuTofText
-    extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener {
+    private class PopupMenuTofText extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+
+		private static final long serialVersionUID = 1L;
 
         private final JTextComponent sourceTextComponent;
 

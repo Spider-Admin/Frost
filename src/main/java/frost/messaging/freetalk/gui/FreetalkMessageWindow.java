@@ -49,6 +49,8 @@ import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageWindow extends JFrame {
 
+	private static final long serialVersionUID = 1L;
+
     private final FreetalkMessage message;
     private final Window parentWindow;
 
@@ -153,6 +155,8 @@ public class FreetalkMessageWindow extends JFrame {
     }
 
     class MessageWindowTopPanel extends JPanel implements LanguageListener {
+
+		private static final long serialVersionUID = 1L;
 
         private JLabel Lsubject = null;
         private JLabel Lfrom = null;

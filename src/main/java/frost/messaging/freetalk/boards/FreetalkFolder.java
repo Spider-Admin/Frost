@@ -25,6 +25,8 @@ import java.util.Collections;
  */
 public class FreetalkFolder extends AbstractFreetalkNode {
 
+	private static final long serialVersionUID = 1L;
+
     public FreetalkFolder(final String newName) {
         super(newName);
     }

@@ -68,6 +68,8 @@ import frost.MainFrame;
  */
 public class FreetalkTreeTableModelAdapter extends AbstractTableModel {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger =  LoggerFactory.getLogger(FreetalkTreeTableModelAdapter.class);
 
     final JTree tree;

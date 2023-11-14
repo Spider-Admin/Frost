@@ -36,6 +36,8 @@ import frost.util.gui.MiscToolkit;
 
 public class FreetalkMessageTreeTableHeader extends JTableHeader {
 
+	private static final long serialVersionUID = 1L;
+
     private final FreetalkMessageTreeTable messageTreeTable;
 
     private static Icon ascendingIcon = MiscToolkit.loadImageIcon("/data/SortedTable_ascending.png");

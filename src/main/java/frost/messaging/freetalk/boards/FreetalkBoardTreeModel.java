@@ -35,6 +35,8 @@ import javax.swing.tree.TreeSelectionModel;
  */
 public class FreetalkBoardTreeModel extends DefaultTreeModel {
 
+	private static final long serialVersionUID = 1L;
+
     private final DefaultTreeSelectionModel selectionModel;
 
     /**

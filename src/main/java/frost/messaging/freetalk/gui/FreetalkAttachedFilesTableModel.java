@@ -37,7 +37,9 @@ import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkAttachedFilesTableModel extends DefaultTableModel implements LanguageListener {
 
-    private Language language = null;
+	private static final long serialVersionUID = 1L;
+
+	private Language language = null;
     NumberFormat numberFormat = NumberFormat.getInstance();
 
     protected final static String columnNames[] = new String[3];
@@ -130,6 +132,9 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
     }
 
     private class NumberRightRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
         public NumberRightRenderer() {
             super();
         }

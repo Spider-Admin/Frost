@@ -108,6 +108,8 @@ import frost.util.gui.translation.LanguageListener;
 
 public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInterface{
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageFrame.class);
 
     private final Language language;
@@ -1097,6 +1099,9 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     }
 
     class TextComboBoxEditor extends JTextField implements ComboBoxEditor {
+
+		private static final long serialVersionUID = 1L;
+
         public TextComboBoxEditor() {
             super();
         }
@@ -1193,9 +1198,9 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    private class MessageBodyPopupMenu
-        extends JSkinnablePopupMenu
-        implements ActionListener, ClipboardOwner {
+    private class MessageBodyPopupMenu extends JSkinnablePopupMenu implements ActionListener, ClipboardOwner {
+
+		private static final long serialVersionUID = 1L;
 
         private Clipboard clipboard;
 
@@ -1345,6 +1350,9 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     }
 
     private class MFAttachedBoardsTable extends SortedTable {
+
+		private static final long serialVersionUID = 1L;
+
         public MFAttachedBoardsTable(final MFAttachedBoardsTableModel m) {
             super(m);
             // set column sizes
@@ -1360,6 +1368,9 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     }
 
     private class MFAttachedBoardsTableModel extends SortedTableModel {
+
+		private static final long serialVersionUID = 1L;
+
         protected final Class<?> columnClasses[] = {
             String.class,
             String.class,
@@ -1443,6 +1454,8 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     }
 
     private class MFAttachedFilesTableModel extends SortedTableModel {
+
+		private static final long serialVersionUID = 1L;
 
         protected final Class<?> columnClasses[] = {
             String.class,

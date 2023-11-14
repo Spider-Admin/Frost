@@ -66,6 +66,8 @@ import frost.util.gui.translation.LanguageListener;
  */
 public class FreetalkMessageTreeTableModel extends DefaultTreeModel implements FreetalkTreeTableModel, LanguageListener {
 
+	private static final long serialVersionUID = 1L;
+
     private Language language = null;
 
     public final static int COLUMN_INDEX_FLAGGED = 0;
