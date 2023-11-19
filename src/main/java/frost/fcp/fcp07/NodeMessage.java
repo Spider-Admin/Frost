@@ -117,7 +117,6 @@ public class NodeMessage {
         final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         final byte[] b = new byte[4096];
         long bytesLeft = datalen;
-        long bytesWritten = 0;
         while( bytesLeft > 0 ) {
             final int count = fcpInStream.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
             if( count < 0 ) {
@@ -126,7 +125,6 @@ public class NodeMessage {
                 bytesLeft -= count;
             }
             byteOut.write(b, 0, count);
-            bytesWritten += count;
         }
         byteOut.close();
 

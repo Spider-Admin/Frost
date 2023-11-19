@@ -409,10 +409,6 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 	// The type of DnD object being dragged...
 	public final static DataFlavor TREEPATH_FLAVOR = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType, "TreePath");
 	private DataFlavor[]    _flavors = { TREEPATH_FLAVOR };
-	
-	private DragSource dragSource = null;
-	private DragGestureRecognizer dgRecognizer = null;
-	private DropTarget dropTarget = null;
 
 	public JDragTree(TreeNode root) {
 		super(root);
@@ -426,13 +422,13 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 	
 	private void initialize() {
 		// install drag n drop support
-		dragSource = DragSource.getDefaultDragSource();
-		dgRecognizer = dragSource.createDefaultDragGestureRecognizer(this,
+		DragSource dragSource = DragSource.getDefaultDragSource();
+		DragGestureRecognizer dgRecognizer = dragSource.createDefaultDragGestureRecognizer(this,
 																	 DnDConstants.ACTION_MOVE,
 																	 this);
 		// don't act on right mouse button
 		dgRecognizer.setSourceActions(dgRecognizer.getSourceActions() & ~InputEvent.BUTTON3_MASK & ~InputEvent.BUTTON2_MASK);
-		dropTarget = new DropTarget(this, new CDropTargetListener());
+		new DropTarget(this, new CDropTargetListener());
 	}
 	
 	private boolean isRootPath(TreePath path)

@@ -637,9 +637,6 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 
 	private final Language language;
 
-    // with persistence we have 2 additional columns: priority and isDDA
-    private final static int COLUMN_COUNT = ( PersistenceManager.isPersistenceEnabled() ? 14 : 12 );
-
     private String stateWaiting;
     private String stateTrying;
     private String stateFailed;

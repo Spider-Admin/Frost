@@ -54,7 +54,6 @@ import java.util.EventObject;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -1104,30 +1103,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 final Object value,
                 final boolean isSelected,
                 final int r, final int c) {
-            final Component component = super.getTableCellEditorComponent(table, value, isSelected, r, c);
-            final JTree t = getTree();
-            final boolean rv = t.isRootVisible();
-            final int offsetRow = rv ? r : r - 1;
-            final Rectangle bounds = t.getRowBounds(offsetRow);
-            int offset = bounds.x;
-            final TreeCellRenderer tcr = t.getCellRenderer();
-            if (tcr instanceof DefaultTreeCellRenderer) {
-            final Object node = t.getPathForRow(offsetRow).getLastPathComponent();
-            Icon icon;
-            if (t.getModel().isLeaf(node)) {
-                icon = ((DefaultTreeCellRenderer)tcr).getLeafIcon();
-            } else if (tree.isExpanded(offsetRow)) {
-                icon = ((DefaultTreeCellRenderer)tcr).getOpenIcon();
-            } else {
-                icon = ((DefaultTreeCellRenderer)tcr).getClosedIcon();
-            }
-            if (icon != null) {
-                offset += ((DefaultTreeCellRenderer)tcr).getIconTextGap() +
-                      icon.getIconWidth();
-            }
-            }
-//            ((TreeTableTextField)getComponent()).offset = offset;
-            return component;
+            return super.getTableCellEditorComponent(table, value, isSelected, r, c);
         }
 
         /**
