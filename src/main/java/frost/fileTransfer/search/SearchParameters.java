@@ -19,6 +19,7 @@
 package frost.fileTransfer.search;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import frost.util.TextSearchFun;
+import frost.util.TextSearchFun.SPLIT;
 
 public class SearchParameters {
 
@@ -35,6 +37,7 @@ public class SearchParameters {
 	public static void main(String[] args) {
 		SearchParameters s = new SearchParameters(true);
 		s.setNameString("hello not world \"und so weiter\" aber NOT dieses hier \"und so\"");
+
 		logger.info("{}", s.getName());
 		logger.info("{}", s.getNotName());
 	}
@@ -151,32 +154,35 @@ public class SearchParameters {
         return extensions;
     }
 
-    public void setSimpleSearchString(final String simpleSearchStr) {
-        final List<String>[] res = TextSearchFun.splitStrings(simpleSearchStr, true);
-        simpleSearchStrings = res[0];
-        simpleSearchNotStrings = res[1];
-    }
+	public void setSimpleSearchString(final String simpleSearchStr) {
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(simpleSearchStr, true);
+		simpleSearchStrings = res.get(SPLIT.SEARCH);
+		simpleSearchNotStrings = res.get(SPLIT.NOT_SEARCH);
+	}
 
-    public void setCommentString(final String commentStr) {
-        final List<String>[] res = TextSearchFun.splitStrings(commentStr, true);
-        comment = res[0];
-        notComment = res[1];
-    }
-    public void setKeywordString(final String keywordStr) {
-        final List<String>[] res = TextSearchFun.splitStrings(keywordStr, true);
-        keyword = res[0];
-        notKeyword = res[1];
-    }
-    public void setNameString(final String nameStr) {
-        final List<String>[] res = TextSearchFun.splitStrings(nameStr, true);
-        name = res[0];
-        notName = res[1];
-    }
-    public void setOwnerString(final String ownerStr) {
-        final List<String>[] res = TextSearchFun.splitStrings(ownerStr, true);
-        owner = res[0];
-        notOwner = res[1];
-    }
+	public void setCommentString(final String commentStr) {
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(commentStr, true);
+		comment = res.get(SPLIT.SEARCH);
+		notComment = res.get(SPLIT.NOT_SEARCH);
+	}
+
+	public void setKeywordString(final String keywordStr) {
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(keywordStr, true);
+		keyword = res.get(SPLIT.SEARCH);
+		notKeyword = res.get(SPLIT.NOT_SEARCH);
+	}
+
+	public void setNameString(final String nameStr) {
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(nameStr, true);
+		name = res.get(SPLIT.SEARCH);
+		notName = res.get(SPLIT.NOT_SEARCH);
+	}
+
+	public void setOwnerString(final String ownerStr) {
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(ownerStr, true);
+		owner = res.get(SPLIT.SEARCH);
+		notOwner = res.get(SPLIT.NOT_SEARCH);
+	}
 
     public List<String> getComment() {
         if( comment == null ) {

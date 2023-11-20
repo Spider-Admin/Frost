@@ -18,11 +18,14 @@
 */
 package frost.gui;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 
 import frost.messaging.frost.boards.Board;
 import frost.util.TextSearchFun;
+import frost.util.TextSearchFun.SPLIT;
 
 /**
  * This class contains all configured search options.
@@ -79,22 +82,24 @@ public class SearchMessagesConfig {
     public boolean msgMustContainBoards = false;
     public boolean msgMustContainFiles = false;
 
-    public void setSenderString(final String s, final boolean makeLowerCase) {
-        senderMakeLowercase = makeLowerCase;
-        final List<String>[] res = TextSearchFun.splitStrings(s, makeLowerCase);
-        sender = res[0];
-        notSender = res[1];
-    }
-    public void setSubjectString(final String s, final boolean makeLowerCase) {
-        subjectMakeLowercase = makeLowerCase;
-        final List<String>[] res = TextSearchFun.splitStrings(s, makeLowerCase);
-        subject = res[0];
-        notSubject = res[1];
-    }
-    public void setContentString(final String s, final boolean makeLowerCase) {
-        contentMakeLowercase = makeLowerCase;
-        final List<String>[] res = TextSearchFun.splitStrings(s, makeLowerCase);
-        content = res[0];
-        notContent = res[1];
-    }
+	public void setSenderString(final String s, final boolean makeLowerCase) {
+		senderMakeLowercase = makeLowerCase;
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(s, makeLowerCase);
+		sender = res.get(SPLIT.SEARCH);
+		notSender = res.get(SPLIT.NOT_SEARCH);
+	}
+
+	public void setSubjectString(final String s, final boolean makeLowerCase) {
+		subjectMakeLowercase = makeLowerCase;
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(s, makeLowerCase);
+		subject = res.get(SPLIT.SEARCH);
+		notSubject = res.get(SPLIT.NOT_SEARCH);
+	}
+
+	public void setContentString(final String s, final boolean makeLowerCase) {
+		contentMakeLowercase = makeLowerCase;
+		final EnumMap<SPLIT, ArrayList<String>> res = TextSearchFun.splitStrings(s, makeLowerCase);
+		content = res.get(SPLIT.SEARCH);
+		notContent = res.get(SPLIT.NOT_SEARCH);
+	}
 }

@@ -19,6 +19,7 @@
 package frost.util;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +35,10 @@ public class TextSearchFun {
     private static final String NOT_IDENT = ">?*NOT*?<";
     
     private static List<String> emptyList = new LinkedList<String>();
+
+	public enum SPLIT {
+		SEARCH, NOT_SEARCH
+	};
 
     /**
      * Searches text for occurence of any of the provided strings.
@@ -73,7 +78,7 @@ public class TextSearchFun {
      * Splits an input search string into search words and NOT search words.
      * @return  List[2] where List[0] is a list of search string and List[1] is a List of NOT search strings
      */
-    public static List<String>[] splitStrings(String input, boolean makeLowerCase) {
+	public static EnumMap<SPLIT, ArrayList<String>> splitStrings(String input, boolean makeLowerCase) {
         
         List<String> strList;
 
@@ -82,12 +87,12 @@ public class TextSearchFun {
             strList = searchStringParser.parseSearchText(input);
         }
 
-        List<String>[] retVal = new List[2];
-        List<String> searchStrings = new ArrayList<String>();
-        List<String> notSearchStrings = new ArrayList<String>();
-        retVal[0] = searchStrings;
-        retVal[1] = notSearchStrings;
-        
+		EnumMap<SPLIT, ArrayList<String>> retVal = new EnumMap<>(SPLIT.class);
+		ArrayList<String> searchStrings = new ArrayList<>();
+		ArrayList<String> notSearchStrings = new ArrayList<>();
+		retVal.put(SPLIT.SEARCH, searchStrings);
+		retVal.put(SPLIT.NOT_SEARCH, notSearchStrings);
+
         // all strings until SearchStringParser.NOT_IDENT are ANDed, all after NOT are the notStrings
         boolean collectNotStrings = false;
         for(Iterator<String> i=strList.iterator(); i.hasNext(); ) {
