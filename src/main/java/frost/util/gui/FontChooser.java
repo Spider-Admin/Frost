@@ -97,16 +97,16 @@ public class FontChooser extends JDialog {
 
 	private Language language = null;
 
-	private final DefaultListModel fontNamesModel = new DefaultListModel();
-	private final JList fontNamesList = new JList(fontNamesModel);
+	private final DefaultListModel<String> fontNamesModel = new DefaultListModel<>();
+	private final JList<String> fontNamesList = new JList<>(fontNamesModel);
 	private final JTextField selectedNameTextField = new JTextField();
 
 	private TranslatableListModel fontStylesModel = null;
-	private final JList fontStylesList = new JList();
+	private final JList<String> fontStylesList = new JList<>();
 	private final JTextField selectedStyleTextField = new JTextField();
 
-	private final DefaultListModel fontSizesModel = new DefaultListModel();
-	private final JList fontSizesList = new JList(fontSizesModel);
+	private final DefaultListModel<String> fontSizesModel = new DefaultListModel<>();
+	private final JList<String> fontSizesList = new JList<>(fontSizesModel);
 	private final JTextField selectedSizeTextField = new JTextField();
 
 	private final JLabel sampleLabel = new JLabel();

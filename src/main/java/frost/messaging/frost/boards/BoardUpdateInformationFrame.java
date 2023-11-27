@@ -71,11 +71,11 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
 
 	private static final Logger logger = LoggerFactory.getLogger(BoardUpdateInformationFrame.class);
 
-    private JComboBox cbBoards;
+	private JComboBox<Board> cbBoards;
     private JLabel lBoards;
     private JTextArea taContent;
     private JLabel lDates;
-    private JComboBox cbDates;
+	private JComboBox<BoardUpdateInformation> cbDates;
 
     private static boolean isShowing = false; // flag, is true if frame is shown
     private final TofTree tofTree;
@@ -112,8 +112,8 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
             final GridBagLayout boardUpdateInfoPanelLayout = new GridBagLayout();
             final JPanel boardUpdateInfoPanel = new JPanel(boardUpdateInfoPanelLayout);
             {
-                final ComboBoxModel cbBoardsModel = new DefaultComboBoxModel();
-                cbBoards = new JComboBox();
+				final ComboBoxModel<Board> cbBoardsModel = new DefaultComboBoxModel<>();
+				cbBoards = new JComboBox<>();
                 boardUpdateInfoPanel.add(cbBoards, new GridBagConstraints(1, 0, 1, 1, 0.4, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 0), 0, 0));
                 cbBoards.setModel(cbBoardsModel);
                 cbBoards.addActionListener(new ActionListener() {
@@ -123,8 +123,8 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
                 });
             }
             {
-                final ComboBoxModel cbDatesModel = new DefaultComboBoxModel();
-                cbDates = new JComboBox();
+				final ComboBoxModel<BoardUpdateInformation> cbDatesModel = new DefaultComboBoxModel<>();
+				cbDates = new JComboBox<>();
                 boardUpdateInfoPanel.add(cbDates, new GridBagConstraints(3, 0, 1, 1, 0.4, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
                 cbDates.setModel(cbDatesModel);
                 cbDates.addActionListener(new ActionListener() {
@@ -219,7 +219,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
      * @param evt
      */
     private void cbBoardsActionPerformed(final ActionEvent evt) {
-        final JComboBox cb = (JComboBox)evt.getSource();
+		final JComboBox<Board> cb = (JComboBox<Board>) evt.getSource();
         final Board selectedBoard = (Board)cb.getSelectedItem();
         if( selectedBoard == null ) {
             clearTaContent();
@@ -243,7 +243,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
      * @param evt
      */
     private void cbDatesActionPerformed(final ActionEvent evt) {
-        final JComboBox cb = (JComboBox)evt.getSource();
+		final JComboBox<BoardUpdateInformation> cb = (JComboBox<BoardUpdateInformation>) evt.getSource();
         final BoardUpdateInformation selectedItem = (BoardUpdateInformation)cb.getSelectedItem();
         if( selectedItem == null ) {
             clearTaContent();
@@ -264,7 +264,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
                 items.add(b);
             }
         }
-        final ComboBoxModel cbBoardsModel = new DefaultComboBoxModel(items);
+		final ComboBoxModel<Board> cbBoardsModel = new DefaultComboBoxModel<>(items);
         cbBoards.setModel(cbBoardsModel);
 
         if( cbBoards.getItemCount() > 0 ) {

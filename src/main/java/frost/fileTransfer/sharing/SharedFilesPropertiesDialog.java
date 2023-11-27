@@ -53,7 +53,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
     private JLabel Lcomment = null;
     private JLabel Lkeywords = null;
     private JLabel Lrating = null;
-    private JComboBox CBrating = null;
+	private JComboBox<String> CBrating = null;
     private JTextField TFcomment = null;
     private JTextField TFkeywords = null;
     
@@ -249,9 +249,9 @@ public class SharedFilesPropertiesDialog extends JDialog {
      * 	
      * @return javax.swing.JComboBox	
      */
-    private JComboBox getCBrating() {
+	private JComboBox<String> getCBrating() {
         if( CBrating == null ) {
-            CBrating = new JComboBox();
+			CBrating = new JComboBox<>();
             for( int x=0; x < RatingStringProvider.ratingStrings.length; x++ ) {
                 CBrating.addItem(RatingStringProvider.ratingStrings[x]);
             }

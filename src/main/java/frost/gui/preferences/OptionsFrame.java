@@ -608,8 +608,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             return;
         }
 
-        final JList theList = (JList) e.getSource();
-        final Object Olbdata = theList.getSelectedValue();
+		final JList<ListBoxData> theList = (JList<ListBoxData>) e.getSource();
+		final ListBoxData Olbdata = theList.getSelectedValue();
 
         lastSelectedPanelIndex = theList.getSelectedIndex();
 

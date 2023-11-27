@@ -154,7 +154,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 
     private final JCheckBox sign = new JCheckBox();
     private final JCheckBox encrypt = new JCheckBox();
-    private JComboBox buddies;
+	private JComboBox<Identity> buddies;
 
     private final JLabel Lboard = new JLabel();
     private final JLabel Lfrom = new JLabel();
@@ -171,7 +171,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 
     private FrostMessageObject repliedMessage = null;
 
-    private JComboBox ownIdentitiesComboBox = null;
+	private JComboBox<Identity> ownIdentitiesComboBox = null;
 
     private static int openInstanceCount = 0;
 
@@ -646,10 +646,10 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
                     // add id to top of list in case the user enables 'encrypt'
                     budList.add(0, id);
                 }
-                buddies = new JComboBox(new Vector<Identity>(budList));
+				buddies = new JComboBox<>(new Vector<Identity>(budList));
                 buddies.setSelectedItem(budList.get(0));
             } else {
-                buddies = new JComboBox();
+				buddies = new JComboBox<>();
             }
             buddies.setMaximumSize(new Dimension(300, 25)); // dirty fix for overlength combobox on linux
 
@@ -1254,17 +1254,16 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private JComboBox getOwnIdentitiesComboBox() {
+	private JComboBox<Identity> getOwnIdentitiesComboBox() {
         if( ownIdentitiesComboBox == null ) {
-            ownIdentitiesComboBox = new JComboBox();
-            ownIdentitiesComboBox.addItem("Anonymous");
+			ownIdentitiesComboBox = new JComboBox<>();
+			ownIdentitiesComboBox.addItem(Identity.createIdentityFromExactStrings("Anonymous", ""));
             // sort own unique names
             final TreeMap<String,LocalIdentity> sortedIds = new TreeMap<String,LocalIdentity>();
-            for( final Object element : Core.getIdentitiesManager().getLocalIdentities() ) {
-                final LocalIdentity li = (LocalIdentity)element;
+			for (final LocalIdentity li : Core.getIdentitiesManager().getLocalIdentities()) {
                 sortedIds.put(li.getUniqueName(), li);
             }
-            for( final Object element : sortedIds.values() ) {
+			for (final LocalIdentity element : sortedIds.values()) {
                 ownIdentitiesComboBox.addItem(element);
             }
 

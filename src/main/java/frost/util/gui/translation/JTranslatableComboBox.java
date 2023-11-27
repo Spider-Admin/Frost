@@ -25,46 +25,8 @@ import javax.swing.JComboBox;
  * @version $Revision: 3244 $
  */
 @SuppressWarnings("serial")
-public class JTranslatableComboBox extends JComboBox implements LanguageListener {
+public class JTranslatableComboBox extends JComboBox<CheckBoxItem> implements LanguageListener {
 
-	private class CheckBoxItem {
-
-		private String key = null;
-		private String value = null;
-
-		/**
-		 * @param key
-		 * @param value
-		 */
-		public CheckBoxItem(String key, String value) {
-			super();
-			this.key = key;
-			this.value = value;
-		}
-		
-		/**
-		 * @return
-		 */
-		public String getKey() {
-			return key;
-		}
-		
-		/**
-		 * @param value
-		 */
-		public void setValue(String value) {
-			this.value = value;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-        public String toString() {
-			return value;
-		}
-
-	}
 	private Language language = null;
 	private String[] keys;
 

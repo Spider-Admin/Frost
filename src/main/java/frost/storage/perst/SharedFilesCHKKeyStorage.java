@@ -323,8 +323,8 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
 		SharedFilesCHKKeyStorageRoot root = (SharedFilesCHKKeyStorageRoot) s.getStorage().getRoot();
 
-		ArrayList foundItems = new ArrayList();
-		Iterator i = root.chkKeys.iterator();
+		ArrayList<SharedFilesCHKKey> foundItems = new ArrayList<>();
+		Iterator<SharedFilesCHKKey> i = root.chkKeys.iterator();
 		int count = 0;
 		while (i.hasNext()) {
 			SharedFilesCHKKey sfk = (SharedFilesCHKKey) i.next();
@@ -339,13 +339,13 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
 		logger.info("found: {}", count);
 
-		for (Iterator j = foundItems.iterator(); j.hasNext();) {
+		for (Iterator<SharedFilesCHKKey> j = foundItems.iterator(); j.hasNext();) {
 			SharedFilesCHKKey k1 = (SharedFilesCHKKey) j.next();
 			logger.info("-> {}", k1.getLastDownloadTryStopTime());
 		}
 		logger.info("sorting!");
 		Collections.sort(foundItems, lastDownloadTryStopTimeComparator);
-		for (Iterator j = foundItems.iterator(); j.hasNext();) {
+		for (Iterator<SharedFilesCHKKey> j = foundItems.iterator(); j.hasNext();) {
 			SharedFilesCHKKey k1 = (SharedFilesCHKKey) j.next();
 			logger.info("-> {}", k1.getLastDownloadTryStopTime());
 		}

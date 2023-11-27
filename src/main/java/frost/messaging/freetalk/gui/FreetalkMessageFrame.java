@@ -158,7 +158,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 
     private FreetalkMessage repliedMessage = null;
 
-    private JComboBox ownIdentitiesComboBox = null;
+	private JComboBox<FreetalkOwnIdentity> ownIdentitiesComboBox = null;
 
     private static int openInstanceCount = 0;
 
@@ -1116,16 +1116,15 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    private JComboBox getOwnIdentitiesComboBox() {
+	private JComboBox<FreetalkOwnIdentity> getOwnIdentitiesComboBox() {
         if( ownIdentitiesComboBox == null ) {
-            ownIdentitiesComboBox = new JComboBox();
+			ownIdentitiesComboBox = new JComboBox<>();
             // sort own unique names
             final TreeMap<String,FreetalkOwnIdentity> sortedIds = new TreeMap<String,FreetalkOwnIdentity>();
-            for (final Object element : FreetalkManager.getInstance().getOwnIdentities()) {
-                final FreetalkOwnIdentity li = (FreetalkOwnIdentity)element;
+			for (final FreetalkOwnIdentity li : FreetalkManager.getInstance().getOwnIdentities()) {
                 sortedIds.put(li.getFreetalkAddress(), li);
             }
-            for( final Object element : sortedIds.values() ) {
+			for (final FreetalkOwnIdentity element : sortedIds.values()) {
                 ownIdentitiesComboBox.addItem(element);
             }
 

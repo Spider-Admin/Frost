@@ -45,9 +45,9 @@ public class TranslationStartDialog extends JFrame {
 
     private JPanel jContentPane = null;
     private JLabel jLabel = null;
-    private JComboBox comboBoxTargetLanguage = null;
+	private JComboBox<ComboBoxEntry> comboBoxTargetLanguage = null;
     private JLabel jLabel1 = null;
-    private JComboBox comboBoxSourceLanguage = null;
+	private JComboBox<ComboBoxEntry> comboBoxSourceLanguage = null;
     private JPanel jPanel = null;
     private JButton Bok = null;
     private JButton Bcancel = null;
@@ -138,9 +138,9 @@ public class TranslationStartDialog extends JFrame {
      *
      * @return javax.swing.JComboBox
      */
-    private JComboBox getCBoxTargetLanguage() {
+	private JComboBox<ComboBoxEntry> getCBoxTargetLanguage() {
         if( comboBoxTargetLanguage == null ) {
-            comboBoxTargetLanguage = new JComboBox();
+			comboBoxTargetLanguage = new JComboBox<>();
             
             final Locale availableLocales[] = Locale.getAvailableLocales();
             final List<Locale> buildIns = LanguageGuiSupport.getBuildInLocales();
@@ -183,7 +183,7 @@ public class TranslationStartDialog extends JFrame {
                 }
             }
             // get sorted
-            for( final Object element : tm.keySet() ) {
+			for (final ComboBoxEntry element : tm.keySet()) {
                 comboBoxTargetLanguage.addItem(element);
             }
             
@@ -200,9 +200,9 @@ public class TranslationStartDialog extends JFrame {
      *
      * @return javax.swing.JComboBox
      */
-    private JComboBox getCBoxSourceLanguage() {
+	private JComboBox<ComboBoxEntry> getCBoxSourceLanguage() {
         if( comboBoxSourceLanguage == null ) {
-            comboBoxSourceLanguage = new JComboBox();
+			comboBoxSourceLanguage = new JComboBox<>();
 
             ComboBoxEntry defaultEntry = null;
 
@@ -231,7 +231,7 @@ public class TranslationStartDialog extends JFrame {
                 tm_external.put(cbe, cbe);
             }
             // get sorted
-            for( final Object element : tm_external.keySet() ) {
+			for (final ComboBoxEntry element : tm_external.keySet()) {
                 comboBoxSourceLanguage.addItem(element);
             }
 

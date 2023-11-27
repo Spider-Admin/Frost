@@ -28,7 +28,7 @@ import javax.swing.DefaultListModel;
  * @version $Revision: 3244 $
  */
 @SuppressWarnings("serial")
-public class TranslatableListModel extends DefaultListModel implements LanguageListener {
+public class TranslatableListModel extends DefaultListModel<String> implements LanguageListener {
 
 	private Language language = null;
 
@@ -53,7 +53,7 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 	 * @see javax.swing.ListModel#getElementAt(int)
 	 */
 	@Override
-    public Object getElementAt(int index) {
+	public String getElementAt(int index) {
 		String key = super.getElementAt(index).toString();
 		return language.getString(key);
 	}
