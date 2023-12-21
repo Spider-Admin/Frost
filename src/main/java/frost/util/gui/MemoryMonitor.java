@@ -67,10 +67,10 @@ public class MemoryMonitor extends JPanel {
     JFrame dialog = null;
     boolean isShown = false;
 
-//    public static void main(String[] args) {
-//        MemoryMonitor mem = new MemoryMonitor();
-//        mem.showDialog();
-//    }
+	public static void main(String[] args) {
+		MemoryMonitor mem = new MemoryMonitor();
+		mem.showDialog();
+	}
 
     private JFrame getDialog() {
         if( dialog == null ) {
