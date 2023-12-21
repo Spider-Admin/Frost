@@ -323,7 +323,8 @@ public class TOF implements PropertyChangeListener {
     private void processNewMessage(final FrostMessageObject currentMsg, final Board board, final boolean isBlocked) {
 
         // check if msg would be displayed (maxMessageDays)
-        final DateTime min = new LocalDate(DateTimeZone.UTC).minusDays(board.getMaxMessageDisplay()).toDateTimeAtMidnight();
+		final DateTime min = new LocalDate(DateTimeZone.UTC).minusDays(board.getMaxMessageDisplay())
+				.toDateTimeAtStartOfDay();
         final DateTime msgDate = new DateTime(currentMsg.getDateAndTime(), DateTimeZone.UTC);
 
         if( msgDate.getMillis() > min.getMillis() ) {

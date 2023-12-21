@@ -250,7 +250,7 @@ public class FilePointersThread extends Thread {
 
                     final LocalDate localDate = nowDate.minusDays(i);
                     final String dateStr = DateFun.FORMAT_DATE.print(localDate);
-                    final long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+					final long date = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
 
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.FILELISTS, date);

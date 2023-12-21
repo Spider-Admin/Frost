@@ -824,7 +824,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
         // check all 60 seconds if the day changed
         if( (getTodaysDateMillis() == 0) || ((counter % 60) == 0) ) {
-            final long millis = now.toDateMidnight().getMillis();
+			final long millis = now.withTimeAtStartOfDay().getMillis();
             if( getTodaysDateMillis() != millis ) {
                 setTodaysDateMillis(millis);
             }

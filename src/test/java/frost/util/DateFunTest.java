@@ -20,11 +20,10 @@ package frost.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
-import org.joda.time.TimeOfDay;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
@@ -68,7 +67,7 @@ public class DateFunTest {
 		LocalDate ld = new LocalDate(adt);
 		assertEquals("2006-10-14", ld.toString());
 
-		DateTime x = ld.toDateTimeAtMidnight(DateTimeZone.UTC);
+		DateTime x = ld.toDateTimeAtStartOfDay(DateTimeZone.UTC);
 		assertEquals("2006-10-14T00:00:00.000Z", x.toString());
 		assertEquals(1160784000000L, x.getMillis());
 
@@ -76,20 +75,22 @@ public class DateFunTest {
 		assertEquals("2006-10-14T12:13:14.000Z", now.toString());
 		assertEquals("12:13:14GMT", fmtt.print(now));
 
-		DateMidnight nowDate = now.toDateMidnight();
+		DateTime nowDate = now.withTimeAtStartOfDay();
 		assertEquals("2006-10-14T00:00:00.000Z", nowDate.toString());
 		assertEquals(1160784000000L, nowDate.getMillis());
 
-		TimeOfDay nowTime = now.toTimeOfDay();
-		assertEquals("T12:13:14.000", nowTime.toString());
+		LocalTime nowTime = now.toLocalTime();
+		assertEquals("12:13:14.000", nowTime.toString());
 		assertEquals("12:13:14GMT", fmtt.print(nowTime));
 
 		LocalDate localDate = new LocalDate(adt).minusDays(0);
 		assertEquals("2006.10.14", DateFun.FORMAT_DATE.print(localDate));
 		assertEquals("2006-10-14", new LocalDate(adt).toString());
-		assertEquals("2006-10-14T00:00:00.000+02:00", new LocalDate(adt, DateTimeZone.UTC).toDateMidnight().toString());
-		assertEquals("2006-10-14T00:00:00.000Z", new LocalDate(adt).toDateMidnight(DateTimeZone.UTC).toString());
+		assertEquals("2006-10-14T00:00:00.000+02:00",
+				new LocalDate(adt, DateTimeZone.UTC).toDateTimeAtStartOfDay().toString());
 		assertEquals("2006-10-14T00:00:00.000Z",
-				new LocalDate(adt, DateTimeZone.UTC).toDateMidnight(DateTimeZone.UTC).toString());
+				new LocalDate(adt).toDateTimeAtStartOfDay(DateTimeZone.UTC).toString());
+		assertEquals("2006-10-14T00:00:00.000Z",
+				new LocalDate(adt, DateTimeZone.UTC).toDateTimeAtStartOfDay(DateTimeZone.UTC).toString());
 	}
 }

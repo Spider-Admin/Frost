@@ -340,7 +340,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             }
 
             final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-            final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
             // normal messages in date range
             final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
             // unread messages in range
@@ -568,7 +568,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final MessageArchivingCallback mc)
     {
         final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
-        final long maxDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+		final long maxDateTime = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
 
         final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
@@ -719,7 +719,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final MessageCallback mc)
     {
         final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-        final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+		final long minDateTime = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
 
         if( !beginCooperativeThreadTransaction() ) {
             return;

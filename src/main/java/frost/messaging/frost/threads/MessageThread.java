@@ -21,7 +21,6 @@ package frost.messaging.frost.threads;
 
 import java.io.File;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
@@ -107,7 +106,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             final int boardId = board.getPerstFrostBoardObject().getBoardId();
             // start a thread if allowed,
             if (this.downloadToday) {
-                final long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+				final long dateMillis = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
                 // get IndexSlot for today
                 final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
                 // download only current date
@@ -124,7 +123,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 while (!isInterrupted() && daysBack < maxMessageDownload) {
                     daysBack++;
                     localDate = localDate.minusDays(1);
-                    final long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+					final long dateMillis = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
                     downloadDate(localDate, gis, dateMillis);
                     // Only after a complete backload run, remember finish time.
@@ -308,7 +307,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     }
 
     private void receivedInvalidMessage(final Board b, final LocalDate calDL, final int index, final String reason) {
-        TOF.getInstance().receivedInvalidMessage(b, calDL.toDateTimeAtMidnight(), index, reason);
+		TOF.getInstance().receivedInvalidMessage(b, calDL.toDateTimeAtStartOfDay(), index, reason);
     }
 
     private void receivedValidMessage(
@@ -344,9 +343,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             }
 
             // ensure that time/date of msg is max. 1 day before/after dirDate
-            final DateMidnight dm = dateTime.toDateMidnight();
-            if( dm.isAfter(dirDate.plusDays(1).toDateMidnight(DateTimeZone.UTC))
-                    || dm.isBefore(dirDate.minusDays(1).toDateMidnight(DateTimeZone.UTC)) )
+			final DateTime dm = dateTime.withTimeAtStartOfDay();
+			if (dm.isAfter(dirDate.plusDays(1).toDateTimeAtStartOfDay(DateTimeZone.UTC))
+					|| dm.isBefore(dirDate.minusDays(1).toDateTimeAtStartOfDay(DateTimeZone.UTC)))
             {
                 logger.error("Invalid date - skipping Message: {}; {}", dirDate, dateTime);
                 return false;

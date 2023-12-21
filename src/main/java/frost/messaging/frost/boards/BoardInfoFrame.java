@@ -55,7 +55,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -550,7 +549,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         final DateTime dateTime = MessageStorage.inst().getDateTimeOfLatestMessage(board);
         final String dateStr;
         if (dateTime != null) {
-            final DateMidnight date = dateTime.toDateMidnight();
+			final DateTime date = dateTime.withTimeAtStartOfDay();
             dateStr = DateFun.FORMAT_DATE_EXT.print(date);
         } else {
             dateStr = "---";

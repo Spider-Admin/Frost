@@ -102,7 +102,8 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     public int cleanup(final int maxDaysOld) {
 
         // millis before maxDaysOld days
-        final long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtMidnight(DateTimeZone.UTC).getMillis();
+		final long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtStartOfDay(DateTimeZone.UTC)
+				.getMillis();
         final Long dateObj = new Long(date);
 
         // delete all items with msgDate < maxDaysOld

@@ -450,7 +450,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             // only respect days that would be updated
             final int maxDaysBack = board.getMaxMessageDownload();
             final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-            final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
             final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
 
@@ -1297,7 +1297,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         for( final Board board : model.getAllBoards() ) {
             final int maxDaysBack = board.getMaxMessageDownload();
             final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-            final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
         }
     }
