@@ -239,29 +239,4 @@ public class XMLTools {
         }
         return sb.toString();
     }
-
-	public static void main(String[] args) {
-
-		Document d = createDomDocument();
-		Element el = d.createElement("FrostMessage");
-
-		CDATASection cdata;
-		Element current;
-
-		current = d.createElement("MessageId");
-		cdata = d.createCDATASection("<![CDATA[\\</MessageId>]]> <helpme />");
-		current.appendChild(cdata);
-
-		el.appendChild(current);
-
-		d.appendChild(el);
-
-		boolean ok = writeXmlFile(d, "d:\\AAAAA.xml");
-		logger.info("ok = {}", ok);
-
-		Document dd = parseXmlFile("d:\\AAAAA.xml");
-		Element root = dd.getDocumentElement();
-		String s = XMLTools.getChildElementsCDATAValue(root, "MessageId");
-		logger.info("s = {}", s);
-	}
 }

@@ -125,22 +125,4 @@ public class IndexSlot extends Persistent {
 		logger.debug("{}", this);
 		logger.debug("<<<<<<<<<<LOAD<<<");
 	}
-
-	// testcase
-	public static void main(String[] args) {
-		IndexSlot gis = new IndexSlot(1, 123L);
-		gis.setDownloadSlotUsed(1);
-		gis.setDownloadSlotUsed(2);
-		gis.setDownloadSlotUsed(4);
-		gis.setUploadSlotUsed(3);
-
-		logger.info("{}", gis);
-		logger.info("findFirstDownloadSlot: {}", gis.findFirstDownloadSlot());
-		logger.info("findNextDownloadSlot(0): {}", gis.findNextDownloadSlot(0));
-		logger.info("findFirstUploadSlot: {}", gis.findFirstUploadSlot());
-		logger.info("findNextUploadSlot: {}", gis.findNextUploadSlot(5));
-
-		logger.info("isDownloadIndexBehindLastSetIndex(3): {}", gis.isDownloadIndexBehindLastSetIndex(3));
-		logger.info("isDownloadIndexBehindLastSetIndex(5): {}", gis.isDownloadIndexBehindLastSetIndex(5));
-	}
 }

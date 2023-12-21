@@ -18,19 +18,11 @@
 */
 package frost.util;
 
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDate;
-import org.joda.time.TimeOfDay;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DateFun {
-
-	private static final Logger logger = LoggerFactory.getLogger(DateFun.class);
 
 //    private static long GMTOffset = -1;
 
@@ -92,59 +84,6 @@ public class DateFun {
 //        c.set(year, month, day, 0, 0, 0);
 //        return new java.sql.Date( c.getTime().getTime() );
 //    }
-
-	public static void main(String[] args) {
-
-		String date = "2006.10.14";
-		String time = "12:13:14GMT";
-
-		DateTimeFormatter fmtd = DateTimeFormat.forPattern("yyyy.MM.dd");
-		DateTimeFormatter fmtt = DateTimeFormat.forPattern("HH:mm:ss'GMT'");
-
-		DateTime dtd = fmtd.withZone(DateTimeZone.UTC).parseDateTime(date);
-		DateTime dtt = fmtt.withZone(DateTimeZone.UTC).parseDateTime(time);
-
-		logger.info("dtd = {}, millis = {}", dtd, dtd.getMillis());
-		logger.info("dtt = {}, millis = {}", dtt, dtt.getMillis());
-
-		long allMillis = dtd.getMillis() + dtt.getMillis();
-		DateTime adt = new DateTime(allMillis).withZone(DateTimeZone.UTC);
-		logger.info("ADT = {}", adt);
-
-		DateTime nd = new DateTime(new Long(dtd.getMillis())).withZone(DateTimeZone.UTC);
-		logger.info("nd = {}", nd);
-		DateTime nt = new DateTime(new Long(dtt.getMillis())).withZone(DateTimeZone.UTC);
-		logger.info("nt = {}", nt);
-
-		logger.info("txt = {}", fmtd.print(nd));
-		logger.info("txt = {}", fmtt.print(nt));
-
-		DateTime n1 = new DateTime(DateTimeZone.UTC).minusDays(3);
-		logger.info("n1 = {}", n1);
-
-		LocalDate ld = new LocalDate();
-		logger.info("ld = {}", ld);
-		DateTime x = ld.toDateTimeAtMidnight(DateTimeZone.UTC);
-		logger.info("   = {} ; {}", x, x.getMillis());
-
-		DateTime now = new DateTime(DateTimeZone.UTC);
-		logger.info("now = {}", now);
-		DateMidnight nowDate = now.toDateMidnight();
-		logger.info("nowDate = {} ; {}", nowDate, nowDate.getMillis());
-		TimeOfDay nowTime = now.toTimeOfDay();
-		logger.info("nowTime = {}", nowTime);
-		logger.info("nowTime = {}", fmtt.print(nowTime));
-		logger.info("nowTime = {}", fmtt.print(now));
-
-		LocalDate localDate = new LocalDate(2006, 8, 1).minusDays(0);
-		String s2 = DateFun.FORMAT_DATE.print(localDate);
-		logger.info("s2 = {}", s2);
-
-		logger.info("s1 = {}", new LocalDate());
-		logger.info("s2 = {}", new LocalDate(DateTimeZone.UTC).toDateMidnight());
-		logger.info("s3 = {}", new LocalDate().toDateMidnight(DateTimeZone.UTC));
-		logger.info("s4 = {}", new LocalDate(DateTimeZone.UTC).toDateMidnight(DateTimeZone.UTC));
-	}
 
     /**
      * Creates a java.sql.Time object from provided string in format "hh:mm:ssGMT".
