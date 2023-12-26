@@ -24,16 +24,27 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class DateFun {
 
+	private static DateTimeZone timeZone = DateTimeZone.UTC;
+
 //    private static long GMTOffset = -1;
 
-    public static final DateTimeFormatter FORMAT_DATE = DateTimeFormat.forPattern("yyyy.M.d").withZone(DateTimeZone.UTC);
-    public static final DateTimeFormatter FORMAT_DATE_EXT = DateTimeFormat.forPattern("yyyy.MM.dd").withZone(DateTimeZone.UTC);
-    public static final DateTimeFormatter FORMAT_DATE_VISIBLE = DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.UTC);
+	public static final DateTimeFormatter FORMAT_DATE = DateTimeFormat.forPattern("yyyy.M.d").withZone(getTimeZone());
+	public static final DateTimeFormatter FORMAT_DATE_EXT = DateTimeFormat.forPattern("yyyy.MM.dd")
+			.withZone(getTimeZone());
+	public static final DateTimeFormatter FORMAT_DATE_VISIBLE = DateTimeFormat.forPattern("dd.MM.yyyy")
+			.withZone(getTimeZone());
 
-    public static final DateTimeFormatter FORMAT_TIME_PLAIN = DateTimeFormat.forPattern("HH:mm:ss").withZone(DateTimeZone.UTC);
-    public static final DateTimeFormatter FORMAT_TIME = DateTimeFormat.forPattern("H:m:s'GMT'").withZone(DateTimeZone.UTC);
-    public static final DateTimeFormatter FORMAT_TIME_EXT = DateTimeFormat.forPattern("HH:mm:ss'GMT'").withZone(DateTimeZone.UTC);
-    public static final DateTimeFormatter FORMAT_TIME_VISIBLE = DateTimeFormat.forPattern("HH:mm:ss' GMT'").withZone(DateTimeZone.UTC);
+	public static final DateTimeFormatter FORMAT_TIME_PLAIN = DateTimeFormat.forPattern("HH:mm:ss")
+			.withZone(getTimeZone());
+	public static final DateTimeFormatter FORMAT_TIME = DateTimeFormat.forPattern("H:m:s'GMT'").withZone(getTimeZone());
+	public static final DateTimeFormatter FORMAT_TIME_EXT = DateTimeFormat.forPattern("HH:mm:ss'GMT'")
+			.withZone(getTimeZone());
+	public static final DateTimeFormatter FORMAT_TIME_VISIBLE = DateTimeFormat.forPattern("HH:mm:ss' GMT'")
+			.withZone(getTimeZone());
+
+	public static DateTimeZone getTimeZone() {
+		return timeZone;
+	}
 
 //    private static long getGMTOffset() {
 //        if( GMTOffset < 0 ) {

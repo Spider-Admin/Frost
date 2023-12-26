@@ -63,7 +63,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -427,8 +426,8 @@ public class IdentitiesBrowser extends JDialog {
 			// Cleanup
 			gridBagConstraints5.gridy += 1;
 			gridBagConstraints5.insets = new java.awt.Insets(20,5,0,5);
-			String minDays = Long.toString(((new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay().getMillis()
-					- new DateTime(minCleanupTime, DateTimeZone.UTC).withTimeAtStartOfDay().getMillis())
+			String minDays = Long.toString(((new DateTime(DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis()
+					- new DateTime(minCleanupTime, DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis())
 					/ (1000L * 60L * 60L * 24L)) + 1);
 
 			JLabel clenupLastSeenLabel = new JLabel(language.formatMessage("IdentitiesBrowser.cleanup.lastSeenLabel.text", minDays));
@@ -691,8 +690,8 @@ public class IdentitiesBrowser extends JDialog {
 				return "";
 			}
 			String lsStr = DateFun.FORMAT_DATE_EXT.print(lastSeen);
-			long days = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay().getMillis()
-					- new DateTime(lastSeen, DateTimeZone.UTC).withTimeAtStartOfDay().getMillis();
+			long days = new DateTime(DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis()
+					- new DateTime(lastSeen, DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis();
 			days /= 1000L * 60L * 60L * 24L;
 			lsStr += "  ("+days+")";
 

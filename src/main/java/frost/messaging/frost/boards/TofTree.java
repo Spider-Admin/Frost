@@ -51,7 +51,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +65,7 @@ import frost.messaging.frost.threads.RunningBoardUpdateThreads;
 import frost.storage.AutoSavable;
 import frost.storage.ExitSavable;
 import frost.storage.StorageException;
+import frost.util.DateFun;
 import frost.util.gui.JDragTree;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
@@ -449,8 +449,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             // scan bui for this board, update board status for: dos today / dos for backload, but not all backload days / dos for all (today and all backload)
             // only respect days that would be updated
             final int maxDaysBack = board.getMaxMessageDownload();
-            final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
+			final LocalDate localDate = new LocalDate(DateFun.getTimeZone()).minusDays(maxDaysBack);
+			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
             final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
 
@@ -1296,8 +1296,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
         for( final Board board : model.getAllBoards() ) {
             final int maxDaysBack = board.getMaxMessageDownload();
-            final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
+			final LocalDate localDate = new LocalDate(DateFun.getTimeZone()).minusDays(maxDaysBack);
+			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
         }
     }

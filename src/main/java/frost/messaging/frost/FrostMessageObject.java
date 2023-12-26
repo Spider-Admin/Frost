@@ -29,7 +29,6 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +89,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     public FrostMessageObject(final boolean isRootnode) {
         setDummy(true);
-        setDateAndTime(new DateTime(0, DateTimeZone.UTC));
+		setDateAndTime(new DateTime(0, DateFun.getTimeZone()));
         setSubject("(root)");
         setNew(false);
         setFromName("");
@@ -109,7 +108,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             setDateAndTime(mof.getDateAndTime());
         } catch(final Throwable t) {
             // never happens, we already called this method
-            setDateAndTime(new DateTime(0, DateTimeZone.UTC));
+			setDateAndTime(new DateTime(0, DateFun.getTimeZone()));
         }
         logger.debug("MSG TIME/DATE: time_in = {}, date_in = {}, out = {}", mof.getTimeStr(), mof.getDateStr(), getDateAndTime());
         // copy values from mof
@@ -148,7 +147,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setDummyInReplyToList(ll);
 
         setDummy(true);
-        setDateAndTime(new DateTime(0, DateTimeZone.UTC));
+		setDateAndTime(new DateTime(0, DateFun.getTimeZone()));
         setSubject("");
         setNew(false);
         setFromName("");
@@ -379,7 +378,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     public String getDateAndTimeString() {
         if( dateAndTimeString == null ) {
             // Build a String of format yyyy.mm.dd hh:mm:ssGMT
-            final DateTime dateTime = new DateTime(getDateAndTime(), DateTimeZone.UTC);
+			final DateTime dateTime = new DateTime(getDateAndTime(), DateFun.getTimeZone());
 			final DateTime date = dateTime.withTimeAtStartOfDay();
 			final LocalTime time = dateTime.toLocalTime();
 

@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,7 +238,7 @@ public class FilePointersThread extends Thread {
             }
 
             try {
-                final LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
+				final LocalDate nowDate = new LocalDate(DateFun.getTimeZone());
                 for (int i=0; i < downloadBack; i++) {
                     boolean isForToday;
                     if( i == 0 ) {
@@ -250,7 +249,7 @@ public class FilePointersThread extends Thread {
 
                     final LocalDate localDate = nowDate.minusDays(i);
                     final String dateStr = DateFun.FORMAT_DATE.print(localDate);
-					final long date = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
+					final long date = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
 
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.FILELISTS, date);

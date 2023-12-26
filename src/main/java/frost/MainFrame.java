@@ -59,7 +59,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultTreeModel;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -820,7 +819,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         //////////////////////////////////////////////////
         //   Display time in button bar
         //////////////////////////////////////////////////
-        final DateTime now = new DateTime(DateTimeZone.UTC);
+		final DateTime now = new DateTime(DateFun.getTimeZone());
 
         // check all 60 seconds if the day changed
         if( (getTodaysDateMillis() == 0) || ((counter % 60) == 0) ) {

@@ -21,13 +21,13 @@ package frost.storage.perst.messages;
 import org.garret.perst.Persistent;
 import org.garret.perst.Storage;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import frost.messaging.frost.AttachmentList;
 import frost.messaging.frost.BoardAttachment;
 import frost.messaging.frost.FileAttachment;
 import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.boards.Board;
+import frost.util.DateFun;
 
 /**
  * Holds all nessecary data for a FrostMessageObject and allows
@@ -177,7 +177,7 @@ public class PerstFrostMessageObject extends Persistent {
     }
 
     public DateTime getDateTime() {
-        return new DateTime(dateAndTime, DateTimeZone.UTC);
+		return new DateTime(dateAndTime, DateFun.getTimeZone());
     }
 
     public FrostMessageObject toFrostMessageObject(

@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
@@ -654,7 +653,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         if( dateAndTime == null ) {
             final long millis = DateFun.FORMAT_DATE.parseDateTime(getDateStr()).getMillis()
                           + DateFun.FORMAT_TIME.parseDateTime(getTimeStr()).getMillis();
-            dateAndTime = new DateTime(millis, DateTimeZone.UTC);
+			dateAndTime = new DateTime(millis, DateFun.getTimeZone());
         }
         return dateAndTime;
     }

@@ -79,7 +79,6 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -339,7 +338,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             to.senderId = senderId;
             // create a temporary editText that is show in alternate editor
             // the editor will return only new text to us
-            final DateTime now = new DateTime(DateTimeZone.UTC);
+			final DateTime now = new DateTime(DateFun.getTimeZone());
             final String date = DateFun.FORMAT_DATE_EXT.print(now)
             + " - "
             + DateFun.FORMAT_TIME_EXT.print(now);
@@ -513,7 +512,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         updateSignToolTip();
 
         // prepare message text
-        final DateTime now = new DateTime(DateTimeZone.UTC);
+		final DateTime now = new DateTime(DateFun.getTimeZone());
         final String date = DateFun.FORMAT_DATE_EXT.print(now)
                         + " - "
                         + DateFun.FORMAT_TIME_EXT.print(now);

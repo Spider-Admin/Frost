@@ -35,7 +35,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +52,7 @@ import frost.messaging.frost.gui.messagetreetable.MessageTreeTable;
 import frost.messaging.frost.gui.messagetreetable.MessageTreeTableSortStateBean;
 import frost.storage.MessageCallback;
 import frost.storage.perst.messages.MessageStorage;
+import frost.util.DateFun;
 import frost.util.Mixed;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
@@ -323,9 +323,9 @@ public class TOF implements PropertyChangeListener {
     private void processNewMessage(final FrostMessageObject currentMsg, final Board board, final boolean isBlocked) {
 
         // check if msg would be displayed (maxMessageDays)
-		final DateTime min = new LocalDate(DateTimeZone.UTC).minusDays(board.getMaxMessageDisplay())
+		final DateTime min = new LocalDate(DateFun.getTimeZone()).minusDays(board.getMaxMessageDisplay())
 				.toDateTimeAtStartOfDay();
-        final DateTime msgDate = new DateTime(currentMsg.getDateAndTime(), DateTimeZone.UTC);
+		final DateTime msgDate = new DateTime(currentMsg.getDateAndTime(), DateFun.getTimeZone());
 
         if( msgDate.getMillis() > min.getMillis() ) {
             // add new message or notify of arrival

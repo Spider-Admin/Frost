@@ -22,7 +22,6 @@ import java.util.Iterator;
 
 import org.garret.perst.GenericIndex;
 import org.garret.perst.Key;
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import frost.SettingsClass;
 import frost.storage.ExitSavable;
 import frost.storage.StorageException;
+import frost.util.DateFun;
 
 /**
  * Storage with an compound index of indexName and msgDate (int/long)
@@ -102,7 +102,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     public int cleanup(final int maxDaysOld) {
 
         // millis before maxDaysOld days
-		final long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtStartOfDay(DateTimeZone.UTC)
+		final long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtStartOfDay(DateFun.getTimeZone())
 				.getMillis();
         final Long dateObj = new Long(date);
 

@@ -24,13 +24,13 @@ import org.garret.perst.Link;
 import org.garret.perst.Persistent;
 import org.garret.perst.Storage;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import frost.messaging.frost.AttachmentList;
 import frost.messaging.frost.BoardAttachment;
 import frost.messaging.frost.FileAttachment;
 import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.boards.Board;
+import frost.util.DateFun;
 
 public class PerstFrostArchiveMessageObject extends Persistent {
 
@@ -151,7 +151,7 @@ public class PerstFrostArchiveMessageObject extends Persistent {
 
         mo.setMessageId(messageId);
         mo.setInReplyTo(inReplyTo);
-        mo.setDateAndTime(new DateTime(dateAndTime, DateTimeZone.UTC));
+		mo.setDateAndTime(new DateTime(dateAndTime, DateFun.getTimeZone()));
         mo.setIndex(msgIndex);
         mo.setFromName(fromName);
         mo.setSubject(subject);

@@ -20,7 +20,6 @@ package frost.messaging.frost.boards;
 
 import java.util.List;
 
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 
 import frost.MainFrame;
@@ -156,8 +155,8 @@ public class BoardUpdateInformation {
     }
 
     public static String getSummaryInfoString(final List<Board> boardList) {
-        final LocalDate localDate = new LocalDate(DateTimeZone.UTC);
-		final long dateMillis = localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
+		final LocalDate localDate = new LocalDate(DateFun.getTimeZone());
+		final long dateMillis = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
         final String dirDateString = DateFun.FORMAT_DATE.print(localDate);
 
         long sumNodeTimeToday = 0;

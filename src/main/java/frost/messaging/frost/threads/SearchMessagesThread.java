@@ -21,7 +21,6 @@ package frost.messaging.frost.threads;
 import java.util.Collections;
 import java.util.List;
 
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import frost.messaging.frost.boards.Board;
 import frost.storage.MessageCallback;
 import frost.storage.perst.messagearchive.ArchiveMessageStorage;
 import frost.storage.perst.messages.MessageStorage;
+import frost.util.DateFun;
 import frost.util.TextSearchFun;
 
 public class SearchMessagesThread extends Thread implements MessageCallback {
@@ -275,19 +275,20 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
     }
 
     private void updateDateRangeForBoard(final Board b, final DateRange dr) {
-        final LocalDate nowLocalDate = new LocalDate(DateTimeZone.UTC);
-		final long todayMillis = nowLocalDate.plusDays(1).toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
+		final LocalDate nowLocalDate = new LocalDate(DateFun.getTimeZone());
+		final long todayMillis = nowLocalDate.plusDays(1).toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
         if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
-			dr.startDate = nowLocalDate.minusDays(b.getMaxMessageDisplay()).toDateTimeAtStartOfDay(DateTimeZone.UTC)
-					.getMillis();
+			dr.startDate = nowLocalDate.minusDays(b.getMaxMessageDisplay())
+					.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
             dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_DAYS_BACKWARD ) {
-			dr.startDate = nowLocalDate.minusDays(searchConfig.daysBackward).toDateTimeAtStartOfDay(DateTimeZone.UTC)
-					.getMillis();
+			dr.startDate = nowLocalDate.minusDays(searchConfig.daysBackward)
+					.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
             dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
-			dr.startDate = new LocalDate(searchConfig.startDate).toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
-			dr.endDate = new LocalDate(searchConfig.endDate).plusDays(1).toDateTimeAtStartOfDay(DateTimeZone.UTC)
+			dr.startDate = new LocalDate(searchConfig.startDate).toDateTimeAtStartOfDay(DateFun.getTimeZone())
+					.getMillis();
+			dr.endDate = new LocalDate(searchConfig.endDate).plusDays(1).toDateTimeAtStartOfDay(DateFun.getTimeZone())
 					.getMillis();
         } else {
             // all dates
