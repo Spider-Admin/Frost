@@ -27,7 +27,6 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,11 +159,9 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
         if (dateAndTimeString == null) {
             // Build a String of format yyyy.mm.dd hh:mm:ssGMT
 			final DateTime dateTime = new DateTime(getDateMillis(), DateFun.getTimeZone());
-			final DateTime date = dateTime.withTimeAtStartOfDay();
-			final LocalTime time = dateTime.toLocalTime();
 
-            final String dateStr = DateFun.FORMAT_DATE_EXT.print(date);
-            final String timeStr = DateFun.FORMAT_TIME_EXT.print(time);
+			final String dateStr = DateFun.FORMAT_DATE_EXT.print(dateTime);
+			final String timeStr = DateFun.FORMAT_TIME_EXT.print(dateTime);
 
             final StringBuilder sb = new StringBuilder(29);
             sb.append(dateStr).append(" ").append(timeStr);
