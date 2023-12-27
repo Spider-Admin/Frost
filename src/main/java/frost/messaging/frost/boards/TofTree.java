@@ -51,7 +51,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -449,8 +449,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             // scan bui for this board, update board status for: dos today / dos for backload, but not all backload days / dos for all (today and all backload)
             // only respect days that would be updated
             final int maxDaysBack = board.getMaxMessageDownload();
-			final LocalDate localDate = new LocalDate(DateFun.getTimeZone()).minusDays(maxDaysBack);
-			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+			final DateTime localDate = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysBack);
+			final long minDateTime = localDate.withTimeAtStartOfDay().getMillis();
             final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
 
@@ -1296,8 +1296,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
         for( final Board board : model.getAllBoards() ) {
             final int maxDaysBack = board.getMaxMessageDownload();
-			final LocalDate localDate = new LocalDate(DateFun.getTimeZone()).minusDays(maxDaysBack);
-			final long minDateTime = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+			final DateTime localDate = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysBack);
+			final long minDateTime = localDate.withTimeAtStartOfDay().getMillis();
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
         }
     }

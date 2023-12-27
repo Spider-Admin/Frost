@@ -21,7 +21,6 @@ package frost.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -50,27 +49,20 @@ public class DateFunTest {
 		assertEquals("2006-10-14T12:13:14.000Z", adt.toString());
 		assertEquals(1160827994000L, adt.getMillis());
 
-		DateTime nd = new DateTime(dtd, DateFun.getTimeZone());
+		DateTime nd = new DateTime(dtd);
 		assertEquals("2006-10-14T00:00:00.000Z", nd.toString());
 		assertEquals(dtd.getMillis(), nd.getMillis());
 		assertEquals("2006.10.14", fmtd.print(nd));
 
-		DateTime nt = new DateTime(dtt, DateFun.getTimeZone());
+		DateTime nt = new DateTime(dtt);
 		assertEquals("1970-01-01T12:13:14.000Z", nt.toString());
 		assertEquals(dtt.getMillis(), nt.getMillis());
 		assertEquals("12:13:14GMT", fmtt.print(nt));
 
-		DateTime n1 = new DateTime(adt, DateFun.getTimeZone()).minusDays(3);
+		DateTime n1 = new DateTime(adt).minusDays(3);
 		assertEquals("2006-10-11T12:13:14.000Z", n1.toString());
 
-		LocalDate ld = new LocalDate(adt);
-		assertEquals("2006-10-14", ld.toString());
-
-		DateTime x = ld.toDateTimeAtStartOfDay(DateFun.getTimeZone());
-		assertEquals("2006-10-14T00:00:00.000Z", x.toString());
-		assertEquals(1160784000000L, x.getMillis());
-
-		DateTime now = new DateTime(adt, DateFun.getTimeZone());
+		DateTime now = new DateTime(adt);
 		assertEquals("2006-10-14T12:13:14.000Z", now.toString());
 		assertEquals("12:13:14GMT", fmtt.print(now));
 
@@ -82,14 +74,7 @@ public class DateFunTest {
 		assertEquals("12:13:14.000", nowTime.toString());
 		assertEquals("12:13:14GMT", fmtt.print(nowTime));
 
-		LocalDate localDate = new LocalDate(adt).minusDays(0);
+		DateTime localDate = new DateTime(adt).minusDays(0);
 		assertEquals("2006.10.14", DateFun.FORMAT_DATE.print(localDate));
-		assertEquals("2006-10-14", new LocalDate(adt).toString());
-		assertEquals("2006-10-14T00:00:00.000+02:00",
-				new LocalDate(adt, DateFun.getTimeZone()).toDateTimeAtStartOfDay().toString());
-		assertEquals("2006-10-14T00:00:00.000Z",
-				new LocalDate(adt).toDateTimeAtStartOfDay(DateFun.getTimeZone()).toString());
-		assertEquals("2006-10-14T00:00:00.000Z",
-				new LocalDate(adt, DateFun.getTimeZone()).toDateTimeAtStartOfDay(DateFun.getTimeZone()).toString());
 	}
 }

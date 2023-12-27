@@ -22,7 +22,6 @@ package frost.messaging.frost.threads;
 import java.io.File;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,11 +100,11 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 return;
             }
 
-			LocalDate localDate = new LocalDate(DateFun.getTimeZone());
+			DateTime localDate = new DateTime(DateFun.getTimeZone());
             final int boardId = board.getPerstFrostBoardObject().getBoardId();
             // start a thread if allowed,
             if (this.downloadToday) {
-				final long dateMillis = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+				final long dateMillis = localDate.withTimeAtStartOfDay().getMillis();
                 // get IndexSlot for today
                 final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
                 // download only current date
@@ -122,7 +121,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 while (!isInterrupted() && daysBack < maxMessageDownload) {
                     daysBack++;
                     localDate = localDate.minusDays(1);
-					final long dateMillis = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+					final long dateMillis = localDate.withTimeAtStartOfDay().getMillis();
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
                     downloadDate(localDate, gis, dateMillis);
                     // Only after a complete backload run, remember finish time.
@@ -169,7 +168,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         return downKey;
     }
 
-    protected BoardUpdateInformation downloadDate(final LocalDate localDate, final IndexSlot gis, final long dateMillis) {
+	protected BoardUpdateInformation downloadDate(final DateTime localDate, final IndexSlot gis,
+			final long dateMillis) {
 
         final String dirDateString = DateFun.FORMAT_DATE.print(localDate);
 
@@ -305,9 +305,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         return boardUpdateInformation;
     }
 
-    private void receivedInvalidMessage(final Board b, final LocalDate calDL, final int index, final String reason) {
-		TOF.getInstance().receivedInvalidMessage(b, calDL.toDateTimeAtStartOfDay(), index, reason);
-    }
+	private void receivedInvalidMessage(final Board b, final DateTime calDL, final int index, final String reason) {
+		TOF.getInstance().receivedInvalidMessage(b, calDL.withTimeAtStartOfDay(), index, reason);
+	}
 
     private void receivedValidMessage(
             final MessageXmlFile mo,
@@ -325,7 +325,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     /**
      * First time verify.
      */
-    public boolean isValidFormat(final MessageXmlFile mo, final LocalDate dirDate, final Board b) {
+	public boolean isValidFormat(final MessageXmlFile mo, final DateTime dirDate, final Board b) {
         try {
             final DateTime dateTime;
             try {
@@ -343,9 +343,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             // ensure that time/date of msg is max. 1 day before/after dirDate
 			final DateTime dm = dateTime.withTimeAtStartOfDay();
-			if (dm.isAfter(dirDate.plusDays(1).toDateTimeAtStartOfDay(DateFun.getTimeZone()))
-					|| dm.isBefore(dirDate.minusDays(1).toDateTimeAtStartOfDay(DateFun.getTimeZone())))
-            {
+			if (dm.isAfter(dirDate.plusDays(1).withTimeAtStartOfDay())
+					|| dm.isBefore(dirDate.minusDays(1).withTimeAtStartOfDay())) {
                 logger.error("Invalid date - skipping Message: {}; {}", dirDate, dateTime);
                 return false;
             }

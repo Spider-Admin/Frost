@@ -21,7 +21,7 @@ package frost.messaging.frost.threads;
 import java.util.Collections;
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,20 +275,18 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
     }
 
     private void updateDateRangeForBoard(final Board b, final DateRange dr) {
-		final LocalDate nowLocalDate = new LocalDate(DateFun.getTimeZone());
-		final long todayMillis = nowLocalDate.plusDays(1).toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+		final DateTime nowLocalDate = new DateTime(DateFun.getTimeZone());
+		final long todayMillis = nowLocalDate.plusDays(1).withTimeAtStartOfDay().getMillis();
         if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
-			dr.startDate = nowLocalDate.minusDays(b.getMaxMessageDisplay())
-					.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+			dr.startDate = nowLocalDate.minusDays(b.getMaxMessageDisplay()).withTimeAtStartOfDay().getMillis();
             dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_DAYS_BACKWARD ) {
-			dr.startDate = nowLocalDate.minusDays(searchConfig.daysBackward)
-					.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+			dr.startDate = nowLocalDate.minusDays(searchConfig.daysBackward).withTimeAtStartOfDay().getMillis();
             dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
-			dr.startDate = new LocalDate(searchConfig.startDate).toDateTimeAtStartOfDay(DateFun.getTimeZone())
+			dr.startDate = new DateTime(searchConfig.startDate, DateFun.getTimeZone()).withTimeAtStartOfDay()
 					.getMillis();
-			dr.endDate = new LocalDate(searchConfig.endDate).plusDays(1).toDateTimeAtStartOfDay(DateFun.getTimeZone())
+			dr.endDate = new DateTime(searchConfig.endDate, DateFun.getTimeZone()).plusDays(1).withTimeAtStartOfDay()
 					.getMillis();
         } else {
             // all dates

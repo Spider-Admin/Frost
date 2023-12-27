@@ -22,7 +22,7 @@ import java.util.Iterator;
 
 import org.garret.perst.GenericIndex;
 import org.garret.perst.Key;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +102,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     public int cleanup(final int maxDaysOld) {
 
         // millis before maxDaysOld days
-		final long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtStartOfDay(DateFun.getTimeZone())
+		final long date = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysOld + 1).withTimeAtStartOfDay()
 				.getMillis();
         final Long dateObj = new Long(date);
 

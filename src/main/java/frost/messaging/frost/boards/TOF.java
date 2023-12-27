@@ -35,7 +35,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -323,8 +322,8 @@ public class TOF implements PropertyChangeListener {
     private void processNewMessage(final FrostMessageObject currentMsg, final Board board, final boolean isBlocked) {
 
         // check if msg would be displayed (maxMessageDays)
-		final DateTime min = new LocalDate(DateFun.getTimeZone()).minusDays(board.getMaxMessageDisplay())
-				.toDateTimeAtStartOfDay();
+		final DateTime min = new DateTime(DateFun.getTimeZone()).minusDays(board.getMaxMessageDisplay())
+				.withTimeAtStartOfDay();
 		final DateTime msgDate = new DateTime(currentMsg.getDateAndTime(), DateFun.getTimeZone());
 
         if( msgDate.getMillis() > min.getMillis() ) {

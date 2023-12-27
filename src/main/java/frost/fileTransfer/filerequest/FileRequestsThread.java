@@ -21,7 +21,7 @@ package frost.fileTransfer.filerequest;
 import java.io.File;
 import java.util.List;
 
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,7 +212,7 @@ public class FileRequestsThread extends Thread {
             }
 
             try {
-				final LocalDate nowDate = new LocalDate(DateFun.getTimeZone());
+				final DateTime nowDate = new DateTime(DateFun.getTimeZone());
                 for (int i=0; i < downloadBack; i++) {
                     boolean isForToday;
                     if( i == 0 ) {
@@ -221,9 +221,9 @@ public class FileRequestsThread extends Thread {
                         isForToday = false;
                     }
 
-                    final LocalDate localDate = nowDate.minusDays(i);
+					final DateTime localDate = nowDate.minusDays(i);
                     final String dateStr = DateFun.FORMAT_DATE.print(localDate);
-					final long date = localDate.toDateTimeAtStartOfDay(DateFun.getTimeZone()).getMillis();
+					final long date = localDate.withTimeAtStartOfDay().getMillis();
 
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.REQUESTS, date);
