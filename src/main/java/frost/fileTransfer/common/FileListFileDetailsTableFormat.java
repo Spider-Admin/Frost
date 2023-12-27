@@ -291,17 +291,17 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
 
     private class IdentityStateComparator implements Comparator<FileListFileDetailsItem> {
         public int compare(final FileListFileDetailsItem item1, final FileListFileDetailsItem item2) {
-            final Integer i1 = new Integer(item1.getOwnerIdentity().getState());
-            final Integer i2 = new Integer(item2.getOwnerIdentity().getState());
+			final Integer i1 = item1.getOwnerIdentity().getState();
+			final Integer i2 = item2.getOwnerIdentity().getState();
             return i1.compareTo(i2);
         }
     }
 
     private class RatingComparator implements Comparator<FileListFileDetailsItem> {
         public int compare(final FileListFileDetailsItem o1, final FileListFileDetailsItem o2) {
-            final int val1 = o1.getFileOwner().getRating();
-            final int val2 = o2.getFileOwner().getRating();
-            return new Long(val1).compareTo(new Long(val2));
+			final Integer val1 = o1.getFileOwner().getRating();
+			final Integer val2 = o2.getFileOwner().getRating();
+			return val1.compareTo(val2);
         }
     }
 
@@ -319,17 +319,17 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
 
     private class LastUploadedComparator implements Comparator<FileListFileDetailsItem> {
         public int compare(final FileListFileDetailsItem o1, final FileListFileDetailsItem o2) {
-            final long val1 = o1.getFileOwner().getLastUploaded();
-            final long val2 = o2.getFileOwner().getLastUploaded();
-            return new Long(val1).compareTo(new Long(val2));
+			final Long val1 = o1.getFileOwner().getLastUploaded();
+			final Long val2 = o2.getFileOwner().getLastUploaded();
+			return val1.compareTo(val2);
         }
     }
 
     private class LastReceivedComparator implements Comparator<FileListFileDetailsItem> {
         public int compare(final FileListFileDetailsItem o1, final FileListFileDetailsItem o2) {
-            final long val1 = o1.getFileOwner().getLastReceived();
-            final long val2 = o2.getFileOwner().getLastReceived();
-            return new Long(val1).compareTo(new Long(val2));
+			final Long val1 = o1.getFileOwner().getLastReceived();
+			final Long val2 = o2.getFileOwner().getLastReceived();
+			return val1.compareTo(val2);
         }
     }
     private class KeyComparator implements Comparator<FileListFileDetailsItem> {

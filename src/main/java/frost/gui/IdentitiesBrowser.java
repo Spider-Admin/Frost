@@ -637,15 +637,15 @@ public class IdentitiesBrowser extends JDialog {
 
 			final IdentitiesStorage.IdentityMsgAndFileCount data = idDatas.get(identity.getUniqueName());
 			if( data != null ) {
-				msgCount = new Integer(data.getMessageCount());
-				fileCount = new Integer(data.getFileCount());
+				msgCount = data.getMessageCount();
+				fileCount = data.getFileCount();
 			} else {
 				// error
-				msgCount = new Integer(-1);
-				fileCount = new Integer(-1);
+				msgCount = -1;
+				fileCount = -1;
 			}
 			lastSeenStr = buildLastSeenString(identity.getLastSeenTimestamp());
-			receivedMsgs = new Integer(identity.getReceivedMessageCount());
+			receivedMsgs = identity.getReceivedMessageCount();
 			htmlName = buildHtmlName(i.getUniqueName());
 		}
 		public Identity getIdentity() {
@@ -983,7 +983,7 @@ public class IdentitiesBrowser extends JDialog {
 						final InnerTableMember m = identitiesTableModel.getRow(i);
 						final Identity id = m.getIdentity();
 						if( m.isCleanupable() && (id.getReceivedMessageCount() <= minReceivedMessageCount) && (id.getLastSeenTimestamp() < minLastSeenTimestamp) ) {
-							li.add(new Integer(i));
+							li.add(i);
 						}
 					}
 					if( li.size() == 0 ) {

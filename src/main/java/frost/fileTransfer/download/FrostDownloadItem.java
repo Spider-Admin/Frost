@@ -274,8 +274,7 @@ public class FrostDownloadItem extends ModelItem<FrostDownloadItem> implements C
 	public void setEnabled(Boolean newEnabled) {
 		if (newEnabled == null && enabled != null) {
 			//Invert the enable status
-			final boolean enable = enabled.booleanValue();
-			newEnabled = new Boolean(!enable);
+			newEnabled = !enabled;
 		}
 		enabled = newEnabled;
         fireChange();

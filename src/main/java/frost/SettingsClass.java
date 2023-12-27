@@ -1009,16 +1009,16 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MAINFRAME_LAST_MAXIMIZED, "false"); // "lastFrameMaximized"
 
         defaults.put(BOARD_TREE_FONT_NAME, "Tahoma");
-        defaults.put(BOARD_TREE_FONT_STYLE, new Integer(Font.PLAIN).toString());
+		defaults.put(BOARD_TREE_FONT_STYLE, Integer.valueOf(Font.PLAIN).toString());
         defaults.put(BOARD_TREE_FONT_SIZE, "11");
         defaults.put(MESSAGE_BODY_FONT_NAME, "Monospaced");
-        defaults.put(MESSAGE_BODY_FONT_STYLE, new Integer(Font.PLAIN).toString());
+		defaults.put(MESSAGE_BODY_FONT_STYLE, Integer.valueOf(Font.PLAIN).toString());
         defaults.put(MESSAGE_BODY_FONT_SIZE, "12");
         defaults.put(MESSAGE_LIST_FONT_NAME, "SansSerif");
-        defaults.put(MESSAGE_LIST_FONT_STYLE, new Integer(Font.PLAIN).toString());
+		defaults.put(MESSAGE_LIST_FONT_STYLE, Integer.valueOf(Font.PLAIN).toString());
         defaults.put(MESSAGE_LIST_FONT_SIZE, "11");
         defaults.put(FILE_LIST_FONT_NAME, "SansSerif");
-        defaults.put(FILE_LIST_FONT_STYLE, new Integer(Font.PLAIN).toString());
+		defaults.put(FILE_LIST_FONT_STYLE, Integer.valueOf(Font.PLAIN).toString());
         defaults.put(FILE_LIST_FONT_SIZE, "11");
 
         defaults.put(MESSAGE_BODY_ANTIALIAS, "false");

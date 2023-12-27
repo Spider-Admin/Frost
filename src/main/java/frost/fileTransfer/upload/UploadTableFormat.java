@@ -575,7 +575,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 return getUploadProgress(uploadItem);
 
             case 7 :    //Tries
-                return new Integer(uploadItem.getRetries());
+				return uploadItem.getRetries();
 
             case 8 :    //Key
                 if (uploadItem.getKey() == null) {
@@ -590,7 +590,7 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 if( value < 0 ) {
                     return "-";
                 } else {
-                    return new Integer(value);
+					return value;
                 }
 
             default:

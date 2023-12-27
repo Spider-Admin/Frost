@@ -220,14 +220,14 @@ public class TofTreeXmlIO {
         if( val.length() == 0 ) {
             board.setMaxMessageDays( null );
         } else {
-            board.setMaxMessageDays( new Integer(val) );
+			board.setMaxMessageDays(Integer.valueOf(val));
         }
 
         val = element.getAttribute("maxMessageDownload");
         if( val.length() == 0 ) {
             board.setMaxMessageDownload( null );
         } else {
-            board.setMaxMessageDownload( new Integer(val) );
+			board.setMaxMessageDownload(Integer.valueOf(val));
         }
 
         val = element.getAttribute("showSignedOnly");

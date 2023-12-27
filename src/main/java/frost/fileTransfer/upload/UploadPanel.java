@@ -313,7 +313,7 @@ public class UploadPanel extends JPanel {
     	// assign keys 1-6 - set priority of selected items
     	final Action setPriorityAction = new AbstractAction() {
     		public void actionPerformed(final ActionEvent event) {
-    			final FreenetPriority prio = FreenetPriority.getPriority( new Integer(event.getActionCommand()));
+				final FreenetPriority prio = FreenetPriority.getPriority(Integer.parseInt(event.getActionCommand()));
     			final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
     			changeItemPriorites(selectedItems, prio);
     		}

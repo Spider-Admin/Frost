@@ -236,10 +236,10 @@ public class FontChooser extends JDialog {
 		final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		final String[] names = environment.getAvailableFontFamilyNames();
 		final String[] sizes = { "8", "9", "10", "11", "12", "14", "16", "18", "22", "26", "30", "36", "48", "64" };
-		styles.put(language.getString("Options.display.fontChooser.plain"), new Integer(Font.PLAIN));
-		styles.put(language.getString("Options.display.fontChooser.italic"), new Integer(Font.ITALIC));
-		styles.put(language.getString("Options.display.fontChooser.bold"), new Integer(Font.BOLD));
-		styles.put(language.getString("Options.display.fontChooser.boldItalic"), new Integer(Font.ITALIC | Font.BOLD));
+		styles.put(language.getString("Options.display.fontChooser.plain"), Font.PLAIN);
+		styles.put(language.getString("Options.display.fontChooser.italic"), Font.ITALIC);
+		styles.put(language.getString("Options.display.fontChooser.bold"), Font.BOLD);
+		styles.put(language.getString("Options.display.fontChooser.boldItalic"), Font.ITALIC | Font.BOLD);
 
 		for( final String element : names ) {
 			fontNamesModel.addElement(element);
@@ -301,7 +301,7 @@ public class FontChooser extends JDialog {
 
 	private void fontSizeValueChanged() {
 		if (fontSizesList.getSelectedIndex() != -1) {
-			selectedSize = new Integer(fontSizesList.getSelectedValue().toString());
+			selectedSize = Integer.parseInt(fontSizesList.getSelectedValue());
 			selectedSizeTextField.setText(selectedSize.toString());
 			refreshFont();
 		}
@@ -319,7 +319,7 @@ public class FontChooser extends JDialog {
 			fontNamesList.setSelectedValue(familyName, true);
 		}
 		//Size
-		selectedSize = new Integer(font.getSize());
+		selectedSize = font.getSize();
 		if (fontSizesModel.contains(selectedSize)) {
 			fontSizesList.setSelectedValue(selectedSize, true);
 		} else {
@@ -329,7 +329,7 @@ public class FontChooser extends JDialog {
 		}
 		//Style
 		int stylePos = -1;
-		final Integer style = new Integer(font.getStyle());
+		final Integer style = font.getStyle();
 		final Iterator<Map.Entry<String,Integer>> styleEntries = styles.entrySet().iterator();
 		while (styleEntries.hasNext() && stylePos == -1) {
 			final Map.Entry<String,Integer> entry = styleEntries.next();
@@ -343,7 +343,7 @@ public class FontChooser extends JDialog {
 	private void sizeTyped() {
 		final String size = selectedSizeTextField.getText();
 		try {
-			selectedSize = new Integer(size);
+			selectedSize = Integer.parseInt(size);
 			if (fontSizesModel.contains(size)) {
 				fontSizesList.setSelectedValue(size, true);
 			} else {

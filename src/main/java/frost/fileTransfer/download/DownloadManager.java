@@ -428,7 +428,7 @@ public class DownloadManager implements ExitSavable {
 			logger.info("FILEDN: Download of {} was successful.", filename);
 
 			// download successful
-			downloadItem.setFileSize(new Long(targetFile.length()));
+			downloadItem.setFileSize(targetFile.length());
 			downloadItem.setState(FrostDownloadItem.STATE_DONE);
 			downloadItem.setEnabled(Boolean.valueOf(false));
 

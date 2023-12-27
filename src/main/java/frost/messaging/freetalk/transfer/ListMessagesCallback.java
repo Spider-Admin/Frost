@@ -83,11 +83,11 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
         }
 
         final String msgId = nodeMsg.getStringValue("Replies.ID");
-        final int msgIndex = new Integer(nodeMsg.getStringValue("Replies.MessageIndex")).intValue();
+		final int msgIndex = Integer.parseInt(nodeMsg.getStringValue("Replies.MessageIndex"));
         final String title = nodeMsg.getStringValue("Replies.Title");
         final String author = nodeMsg.getStringValue("Replies.Author");
-        final long dateMillis = new Long(nodeMsg.getStringValue("Replies.Date")).longValue();
-        final long fetchDateMillis = new Long(nodeMsg.getStringValue("Replies.FetchDate")).longValue();
+		final long dateMillis = Long.parseLong(nodeMsg.getStringValue("Replies.Date"));
+		final long fetchDateMillis = Long.parseLong(nodeMsg.getStringValue("Replies.FetchDate"));
         final String parentMsgID = nodeMsg.getStringValue("Replies.ParentID");
         final String threadRootMsgID = nodeMsg.getStringValue("Replies.ThreadID");
         int attachmentCount = 0;
@@ -101,7 +101,7 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
                 final String uriString = nodeMsg.getStringValue("FileAttachmentURI."+x);
                 final String sizeString = nodeMsg.getStringValue("FileAttachmentSize."+x);
 
-                final FreetalkFileAttachment att = new FreetalkFileAttachment(uriString, new Long(sizeString).longValue());
+				final FreetalkFileAttachment att = new FreetalkFileAttachment(uriString, Long.parseLong(sizeString));
                 fileAttachments.add(att);
             }
         }

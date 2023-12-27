@@ -189,7 +189,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
                         if( FreenetKeys.isValidKey(aFileLink) ) {
                             // we add all file links (last char of link must not be a '/' or similar) to list of links;
                             // file links and freesite links will be hyperlinked
-                            targetElements.add(new MessageElement(new Integer(pos),FREENETKEY, i, length));
+							targetElements.add(new MessageElement(pos, FREENETKEY, i, length));
 
                             if( Character.isLetterOrDigit(message.charAt((pos+length)-1)) ) {
                                 // file link must contain at least one '/'
@@ -227,7 +227,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 					final int pos = message.indexOf(SMILEYS[i][j], offset);
 					if(pos > -1) {
                         if (isSmiley(pos, message, SMILEYS[i][j])) {
-                            targetElements.add(new MessageElement(new Integer(pos),SMILEY, i, SMILEYS[i][j].length()));
+							targetElements.add(new MessageElement(pos, SMILEY, i, SMILEYS[i][j].length()));
                         }
                         offset = pos + SMILEYS[i][j].length();
 					} else {

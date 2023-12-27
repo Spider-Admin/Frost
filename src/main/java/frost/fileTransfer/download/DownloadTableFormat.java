@@ -100,7 +100,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
     	static {
     		numMap = new TreeMap<Integer, Columns>();
     		for (final Columns column: Columns.values()) {
-    			numMap.put(new Integer(column.ordinal()), column);
+				numMap.put(column.ordinal(), column);
     		}
     	}
     	
@@ -542,9 +542,9 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 	}
 
 	private class SizeComparator implements Comparator<FrostDownloadItem> {
-		
-        private final Long unknownSize = new Long(-1);
-        
+
+		private final Long unknownSize = -1L;
+
 		public int compare(final FrostDownloadItem dli1, final FrostDownloadItem dli2) {
 			Long size1 = dli1.getFileSize();
 			Long size2 = dli2.getFileSize();
@@ -556,8 +556,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                            && dli1.isFinalized().booleanValue() == true )
             {
                 // on 0.7, compute appr. size out of finalized block count
-                final long apprSize = dli1.getTotalBlocks() * CONST_32k;
-                size1 = new Long(apprSize);
+				size1 = dli1.getTotalBlocks() * CONST_32k;
             } else {
                 size1 = unknownSize;
             }
@@ -569,8 +568,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                            && dli2.isFinalized().booleanValue() == true )
             {
                 // on 0.7, compute appr. size out of finalized block count
-                final long apprSize = dli2.getTotalBlocks() * CONST_32k;
-                size2 = new Long(apprSize);
+				size2 = dli2.getTotalBlocks() * CONST_32k;
             } else {
                 size2 = unknownSize;
             }
@@ -784,7 +782,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 				return getBlocksAsString(downloadItem);
 
 			case TRIES : // Tries
-				return new Integer(downloadItem.getRetries());
+				return downloadItem.getRetries();
 
 			case KEY : // Key
 				if (downloadItem.getKey() == null) {
@@ -800,8 +798,7 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 return Boolean.valueOf(!downloadItem.isDirect());
 
             case PRIORITY : // Priority
-                final int value = downloadItem.getPriority().getNumber();
-                return new Integer(value);
+				return downloadItem.getPriority().getNumber();
 
 			default :
 				return "**ERROR**";

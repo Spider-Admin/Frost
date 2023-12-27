@@ -643,21 +643,24 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
 
         public void setAllMessageCount(final int i) {
-            allMsgCount = new Integer(i);
+			allMsgCount = i;
         }
 
         public void setTodaysMessageCount(final int i) {
-            todaysMsgCount = new Integer(i);
+			todaysMsgCount = i;
         }
+
         public void setFlaggedMessageCount(final int i) {
-            flaggedMsgCount = new Integer(i);
+			flaggedMsgCount = i;
         }
         public void setStarredMessageCount(final int i) {
-            starredMsgCount = new Integer(i);
+			starredMsgCount = i;
         }
+
         public void setUnreadMessageCount(final int i) {
-            unreadMsgCount = new Integer(i);
+			unreadMsgCount = i;
         }
+
         public void setDateOfLastMsg(final String s) {
             dateOfLastMsg = s;
         }

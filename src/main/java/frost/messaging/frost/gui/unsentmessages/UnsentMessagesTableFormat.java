@@ -255,7 +255,7 @@ public class UnsentMessagesTableFormat extends SortedTableFormat<UnsentMessagesT
 
     private class StateComparator implements Comparator<UnsentMessagesTableItem> {
     	public int compare(UnsentMessagesTableItem left, UnsentMessagesTableItem right) {
-    		return new Integer(left.getState()).compareTo(new Integer(right.getState()));
+			return Integer.valueOf(left.getState()).compareTo(Integer.valueOf(right.getState()));
     	}
     }
 

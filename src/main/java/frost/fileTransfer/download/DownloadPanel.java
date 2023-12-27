@@ -681,7 +681,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		// assign keys 1-6 - set priority of selected items
 		final Action setPriorityAction = new AbstractAction() {
 			public void actionPerformed(final ActionEvent event) {
-				final FreenetPriority prio = FreenetPriority.getPriority(new Integer(event.getActionCommand()).intValue());
+				final FreenetPriority prio = FreenetPriority.getPriority(Integer.parseInt(event.getActionCommand()));
 				final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
 				changeItemPriorites(selectedItems, prio);
 

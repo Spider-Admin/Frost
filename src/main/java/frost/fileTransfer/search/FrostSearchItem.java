@@ -101,14 +101,14 @@ public class FrostSearchItem extends ModelItem<FrostSearchItem> implements CopyT
 
     public Integer getRating() {
         if( rating == null ) {
-            rating = new Integer(fo.getDisplayRating());
+			rating = fo.getDisplayRating();
         }
         return rating;
     }
 
     public Long getSize() {
         if( sizeLong == null ) {
-            sizeLong = new Long(fo.getSize());
+			sizeLong = fo.getSize();
         }
         return sizeLong;
     }
@@ -158,7 +158,7 @@ public class FrostSearchItem extends ModelItem<FrostSearchItem> implements CopyT
 
     public Integer getSourceCount() {
         if( sourceCount == null ) {
-            sourceCount = new Integer(fo.getFrostFileListFileObjectOwnerListSize());
+			sourceCount = fo.getFrostFileListFileObjectOwnerListSize();
         }
         return sourceCount;
     }

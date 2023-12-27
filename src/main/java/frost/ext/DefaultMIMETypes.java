@@ -34,7 +34,7 @@ public class DefaultMIMETypes {
          * @param type The actual MIME type string. Do not include ;charset= etc; these are
          * parameters and there is a separate mechanism for them.
          */
-        protected static synchronized void addMIMEType(final short number, final String type) {
+		protected static synchronized void addMIMEType(final Short number, final String type) {
                 if(mimeTypesByNumber.size() > number) {
                         final String s = (mimeTypesByNumber.get(number));
                         if(s != null) {
@@ -44,7 +44,7 @@ public class DefaultMIMETypes {
                         mimeTypesByNumber.add(number, null);
                 }
                 mimeTypesByNumber.set(number, type);
-                mimeTypesByName.put(type, new Short(number));
+				mimeTypesByName.put(type, number);
         }
 
         /**
@@ -57,9 +57,9 @@ public class DefaultMIMETypes {
          * @param extensions An array of common extensions for files of this type. Must be
          * unique for the type.
          */
-        protected static synchronized void addMIMEType(final short number, final String type, final String[] extensions, final String outExtension) {
+		protected static synchronized void addMIMEType(final Short number, final String type, final String[] extensions,
+				final String outExtension) {
                 addMIMEType(number, type);
-                final Short t = new Short(number);
                 if(extensions != null) {
                         for( final String element : extensions ) {
                                 final String ext = element.toLowerCase();
@@ -69,14 +69,14 @@ public class DefaultMIMETypes {
                                 } else {
                                         // If only one, make it primary
                                         if(outExtension == null && extensions.length == 1) {
-                                            primaryExtensionByMimeNumber.put(t, ext);
+											primaryExtensionByMimeNumber.put(number, ext);
                                         }
-                                        mimeTypesByExtension.put(ext, t);
+										mimeTypesByExtension.put(ext, number);
                                 }
                         }
                 }
                 if(outExtension != null) {
-                    primaryExtensionByMimeNumber.put(t, outExtension);
+					primaryExtensionByMimeNumber.put(number, outExtension);
                 }
 
         }
@@ -111,10 +111,10 @@ public class DefaultMIMETypes {
          * Get the number of a MIME type, or -1 if it is not in the table of known MIME
          * types, in which case it will have to be sent uncompressed.
          */
-        public static short byName(final String s) {
-                final Short x = (mimeTypesByName.get(s));
+		public static Short byName(final String s) {
+			final Short x = mimeTypesByName.get(s);
                 if(x != null) {
-                    return x.shortValue();
+					return x;
                 }
                 return -1;
         }
@@ -831,11 +831,11 @@ public class DefaultMIMETypes {
         }
 
         public static String getExtension(final String type) {
-                final short typeNumber = byName(type);
+			final Short typeNumber = byName(type);
                 if(typeNumber < 0) {
                     return null;
                 }
-                return (primaryExtensionByMimeNumber.get(new Short(typeNumber)));
+				return primaryExtensionByMimeNumber.get(typeNumber);
         }
 
         public static String[] getAllMIMETypes() {

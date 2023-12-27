@@ -189,7 +189,7 @@ abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableMo
 	protected void initialize() {
 		final int columnCount = tableFormat.getColumnCount();
 		for (int i = 0; i < columnCount; i++) {
-			visibleColumns.add(new Integer(i));
+			visibleColumns.add(i);
 		}
 
 		table = new JTable(this);
@@ -348,14 +348,14 @@ abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableMo
 
 		if (visible) {
 			if (position == -1) {
-				visibleColumns.add(new Integer(index));
+				visibleColumns.add(index);
 				final TableColumn column = columns.get(index);
 				column.setModelIndex(visibleColumns.size() - 1);
 				columnModel.addColumn(column);
 			}
 		} else {
 			if (position != -1) {
-				visibleColumns.remove(new Integer(index));
+				visibleColumns.remove(Integer.valueOf(index));
 				columnModel.removeColumn(columns.get(index));
 				//Here we have to decrease the model index of all the columns
 				//that were to the right of the one we have removed.
@@ -410,7 +410,7 @@ abstract public class ModelTable<T extends ModelItem<T>> extends AbstractTableMo
 	 * @return the index that column has in this ModelTable
 	 */
 	protected int convertColumnIndexToModel(final int formatColumnIndex) {
-		return visibleColumns.indexOf(new Integer(formatColumnIndex));
+		return visibleColumns.indexOf(formatColumnIndex);
 	}
 
 	/**

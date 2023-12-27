@@ -83,7 +83,7 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
 
         filename = XMLTools.getChildElementsCDATAValue(_file, "name");
         key = XMLTools.getChildElementsTextValue(_file, "key");
-        size = new Long(XMLTools.getChildElementsTextValue(_file, "size")).longValue();
+		size = Long.parseLong(XMLTools.getChildElementsTextValue(_file, "size"));
 	}
 
 	/**

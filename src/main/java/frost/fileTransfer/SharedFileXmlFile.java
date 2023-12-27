@@ -41,7 +41,7 @@ public class SharedFileXmlFile implements XMLizable {
 
     // following fields must be unique in the FILELIST
     private String sha = null;  // SHA of the file
-    private Long size = new Long(0); // Filesize
+	private Long size = 0L; // Filesize
     private String key = null; // Name of this key
 
     // following fields can be different in a FrostSharedFileObject
@@ -142,7 +142,7 @@ public class SharedFileXmlFile implements XMLizable {
     /** Set size */
     public void setSize(final String size) {
         try {
-            this.size = new Long(size);
+			this.size = Long.parseLong(size);
         } catch (final NumberFormatException ex) {
             this.size = null;
         }
@@ -150,7 +150,7 @@ public class SharedFileXmlFile implements XMLizable {
 
     /** Set size */
     public void setSize(final long size) {
-        this.size = new Long(size);
+		this.size = size;
     }
 
     /** Get size */

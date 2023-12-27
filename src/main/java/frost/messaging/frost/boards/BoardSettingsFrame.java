@@ -723,14 +723,14 @@ public class BoardSettingsFrame extends JDialog {
 
             if( maxMessageDisplay_default.isSelected() || maxMessageDisplay_set.isSelected() ) {
                 if (maxMessageDisplay_default.isSelected() == false) {
-                    board.setMaxMessageDays(new Integer(maxMessageDisplay_value.getText()));
+					board.setMaxMessageDays(Integer.parseInt(maxMessageDisplay_value.getText()));
                 } else {
                     board.setMaxMessageDays(null);
                 }
             }
             if( maxMessageDownload_default.isSelected() || maxMessageDownload_set.isSelected() ) {
                 if (maxMessageDownload_default.isSelected() == false) {
-                    board.setMaxMessageDownload(new Integer(maxMessageDownload_value.getText()));
+					board.setMaxMessageDownload(Integer.parseInt(maxMessageDownload_value.getText()));
                 } else {
                     board.setMaxMessageDownload(null);
                 }
@@ -765,7 +765,7 @@ public class BoardSettingsFrame extends JDialog {
             }
             if( hideMessageCount_default.isSelected() || hideMessageCount_set.isSelected() ) {
                 if (hideMessageCount_default.isSelected() == false) {
-                    board.setHideMessageCount(new Integer(hideMessageCount_value.getText()));
+					board.setHideMessageCount(Integer.parseInt(hideMessageCount_value.getText()));
                 } else {
                     board.setHideMessageCount(null);
                 }
@@ -812,12 +812,12 @@ public class BoardSettingsFrame extends JDialog {
             board.setConfigured(true);
             board.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
             if (maxMessageDisplay_default.isSelected() == false) {
-                board.setMaxMessageDays(new Integer(maxMessageDisplay_value.getText()));
+				board.setMaxMessageDays(Integer.parseInt(maxMessageDisplay_value.getText()));
             } else {
                 board.setMaxMessageDays(null);
             }
             if (maxMessageDownload_default.isSelected() == false) {
-                board.setMaxMessageDownload(new Integer(maxMessageDownload_value.getText()));
+				board.setMaxMessageDownload(Integer.parseInt(maxMessageDownload_value.getText()));
             } else {
                 board.setMaxMessageDownload(null);
             }
@@ -842,7 +842,7 @@ public class BoardSettingsFrame extends JDialog {
                 board.setHideObserve(null);
             }
             if (hideMessageCount_default.isSelected() == false) {
-                board.setHideMessageCount(new Integer(hideMessageCount_value.getText()));
+				board.setHideMessageCount(Integer.parseInt(hideMessageCount_value.getText()));
             } else {
                 board.setHideMessageCount(null);
             }
