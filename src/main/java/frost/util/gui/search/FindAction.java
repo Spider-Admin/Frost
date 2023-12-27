@@ -155,12 +155,17 @@ public abstract class FindAction extends AbstractAction implements DocumentListe
 
     /*-------------------------------------------------[ Installation ]---------------------------------------------------*/
 
-    public void install(JComponent comp2){
-        comp2.registerKeyboardAction(this, KeyStroke.getKeyStroke('I', InputEvent.CTRL_MASK), JComponent.WHEN_FOCUSED);
-        comp2.registerKeyboardAction(this, KeyStroke.getKeyStroke('I', InputEvent.CTRL_MASK|InputEvent.SHIFT_MASK), JComponent.WHEN_FOCUSED);
-    }
-    public void deinstall(JComponent comp2){
-        comp2.unregisterKeyboardAction(KeyStroke.getKeyStroke('I', InputEvent.CTRL_MASK));
-        comp2.unregisterKeyboardAction(KeyStroke.getKeyStroke('I', InputEvent.CTRL_MASK|InputEvent.SHIFT_MASK));
-    }
+	public void install(JComponent comp2) {
+		comp2.registerKeyboardAction(this, KeyStroke.getKeyStroke('I', InputEvent.CTRL_DOWN_MASK),
+				JComponent.WHEN_FOCUSED);
+		comp2.registerKeyboardAction(this,
+				KeyStroke.getKeyStroke('I', InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK),
+				JComponent.WHEN_FOCUSED);
+	}
+
+	public void deinstall(JComponent comp2) {
+		comp2.unregisterKeyboardAction(KeyStroke.getKeyStroke('I', InputEvent.CTRL_DOWN_MASK));
+		comp2.unregisterKeyboardAction(
+				KeyStroke.getKeyStroke('I', InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+	}
 }
