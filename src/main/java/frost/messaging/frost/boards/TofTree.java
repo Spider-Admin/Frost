@@ -1248,7 +1248,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
      */
     public void updateTree() {
         // fire update for node
-        final Enumeration<AbstractNode> e = (model.getRoot()).depthFirstEnumeration();
+		final Enumeration<AbstractNode> e = model.getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
             model.nodeChanged(e.nextElement());
         }

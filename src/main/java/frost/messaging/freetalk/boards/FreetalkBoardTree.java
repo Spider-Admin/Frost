@@ -1070,7 +1070,7 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
      */
     public void updateTree() {
         // fire update for node
-        final Enumeration<AbstractFreetalkNode> e = (model.getRoot()).depthFirstEnumeration();
+		final Enumeration<AbstractFreetalkNode> e = model.getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
             model.nodeChanged(e.nextElement());
         }
