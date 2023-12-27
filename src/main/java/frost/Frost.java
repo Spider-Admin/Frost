@@ -87,7 +87,7 @@ public class Frost {
             // use cmd line setting
             if (lookAndFeel != null) {
                 try {
-                    laf = (LookAndFeel) Class.forName(lookAndFeel).newInstance();
+					laf = (LookAndFeel) Class.forName(lookAndFeel).getDeclaredConstructor().newInstance();
                 } catch(final Throwable t) {
                     logger.error("Exception", t);
                 }
@@ -101,7 +101,7 @@ public class Frost {
                 final String landf = Core.frostSettings.getValue(SettingsClass.LOOK_AND_FEEL);
                 if( landf != null && landf.length() > 0 ) {
                     try {
-                        laf = (LookAndFeel) Class.forName(landf).newInstance();
+						laf = (LookAndFeel) Class.forName(landf).getDeclaredConstructor().newInstance();
                     } catch(final Throwable t) {
                         logger.error("Exception", t);
                     }
@@ -116,7 +116,7 @@ public class Frost {
                 final String landf = UIManager.getSystemLookAndFeelClassName();
                 if( landf != null && landf.length() > 0 ) {
                     try {
-                        laf = (LookAndFeel) Class.forName(landf).newInstance();
+						laf = (LookAndFeel) Class.forName(landf).getDeclaredConstructor().newInstance();
                     } catch(final Throwable t) {}
                     if (laf == null || !laf.isSupportedLookAndFeel()) {
                         laf = null;

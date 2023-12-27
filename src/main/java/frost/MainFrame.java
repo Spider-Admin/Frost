@@ -465,7 +465,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         for( final LookAndFeelInfo element : info ) {
             final String lfClassName = element.getClassName();
             try {
-                final LookAndFeel laf = (LookAndFeel) Class.forName(lfClassName).newInstance();
+				final LookAndFeel laf = (LookAndFeel) Class.forName(lfClassName).getDeclaredConstructor().newInstance();
                 if (laf.isSupportedLookAndFeel()) {
                     final JRadioButtonMenuItem rmItem = new JRadioButtonMenuItem(laf.getName()+"  ["+lfClassName+"]");
                     rmItem.setActionCommand(lfClassName);
