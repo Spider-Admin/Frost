@@ -219,7 +219,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
      * @param evt
      */
     private void cbBoardsActionPerformed(final ActionEvent evt) {
-		final JComboBox<Board> cb = (JComboBox<Board>) evt.getSource();
+		JComboBox<?> cb = (JComboBox<?>) evt.getSource();
         final Board selectedBoard = (Board)cb.getSelectedItem();
         if( selectedBoard == null ) {
             clearTaContent();
@@ -243,7 +243,7 @@ public class BoardUpdateInformationFrame extends JFrame implements BoardUpdateTh
      * @param evt
      */
     private void cbDatesActionPerformed(final ActionEvent evt) {
-		final JComboBox<BoardUpdateInformation> cb = (JComboBox<BoardUpdateInformation>) evt.getSource();
+		JComboBox<?> cb = (JComboBox<?>) evt.getSource();
         final BoardUpdateInformation selectedItem = (BoardUpdateInformation)cb.getSelectedItem();
         if( selectedItem == null ) {
             clearTaContent();
