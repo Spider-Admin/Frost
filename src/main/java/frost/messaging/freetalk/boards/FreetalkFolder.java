@@ -19,6 +19,9 @@
 package frost.messaging.freetalk.boards;
 
 import java.util.Collections;
+import java.util.Vector;
+
+import javax.swing.tree.TreeNode;
 
 /**
  * Represents a folder in the board tree.
@@ -36,9 +39,15 @@ public class FreetalkFolder extends AbstractFreetalkNode {
         nameLowerCase = name.toLowerCase();
     }
 
-    public void sortChildren() {
-        Collections.sort(children);
-    }
+	public void sortChildren() {
+		Vector<? extends TreeNode> rawChildren = children;
+
+		@SuppressWarnings("unchecked")
+		// Only AbstractFreetalkNode implements the interface Comparable.
+		Vector<AbstractFreetalkNode> childNodes = (Vector<AbstractFreetalkNode>) rawChildren;
+
+		Collections.sort(childNodes);
+	}
 
     @Override
     public boolean containsUnreadMessages() {

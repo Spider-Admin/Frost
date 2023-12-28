@@ -19,6 +19,9 @@
 package frost.messaging.frost.boards;
 
 import java.util.Collections;
+import java.util.Vector;
+
+import javax.swing.tree.TreeNode;
 
 /**
  * Represents a folder in the board tree.
@@ -35,9 +38,15 @@ public class Folder extends AbstractNode {
         nameLowerCase = name.toLowerCase();
     }
 
-    public void sortChildren() {
-        Collections.sort(children);
-    }
+	public void sortChildren() {
+		Vector<? extends TreeNode> rawChildren = children;
+
+		@SuppressWarnings("unchecked")
+		// Only AbstractNode implements the interface Comparable.
+		Vector<AbstractNode> childNodes = (Vector<AbstractNode>) rawChildren;
+
+		Collections.sort(childNodes);
+	}
 
     @Override
     public boolean containsUnreadMessages() {
