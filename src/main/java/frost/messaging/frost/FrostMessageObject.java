@@ -617,11 +617,12 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             }
         }
     }
-    
-    @SuppressWarnings("unchecked")
+
+	@SuppressWarnings("unchecked")
 	protected List<FrostMessageObject> getChildren() {
-    	return (List<FrostMessageObject>) children;
-    }
+		Vector<? extends TreeNode> rawChildren = children;
+		return (List<FrostMessageObject>) rawChildren;
+	}
 
     @Override
     public String toString() {

@@ -21,9 +21,11 @@ package frost.messaging.freetalk;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.joda.time.DateTime;
@@ -255,9 +257,10 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
             }
         }
     }
-    
-    @SuppressWarnings("unchecked")
+
+	@SuppressWarnings("unchecked")
 	protected List<FreetalkMessage> getChildren() {
-    	return (List<FreetalkMessage>) children;
-    }
+		Vector<? extends TreeNode> rawChildren = children;
+		return (List<FreetalkMessage>) rawChildren;
+	}
 }
