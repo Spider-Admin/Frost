@@ -1526,9 +1526,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         final Board board = (Board) node;
         final LinkedList<FrostMessageObject> msgList = new LinkedList<FrostMessageObject>();
 
-        final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = levelOneMsg.depthFirstEnumeration();
+		final Enumeration<TreeNode> frostMessageObjectEnumeration = levelOneMsg.depthFirstEnumeration();
         while( frostMessageObjectEnumeration.hasMoreElements() ) {
-            final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+			final FrostMessageObject frostMessageObject = (FrostMessageObject) frostMessageObjectEnumeration
+					.nextElement();
 
             if( frostMessageObject.isNew() ) {
                 msgList.add(frostMessageObject);
@@ -1685,9 +1686,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             int allMessages = 0;
             final FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
 
-            final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
+			final Enumeration<TreeNode> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
             while( frostMessageObjectEnumeration.hasMoreElements() ) {
-                if( !frostMessageObjectEnumeration.nextElement().isDummy() ) {
+				FrostMessageObject frostMessageObject = (FrostMessageObject) frostMessageObjectEnumeration
+						.nextElement();
+				if (!frostMessageObject.isDummy()) {
                     allMessages++;
                 }
             }
@@ -1741,8 +1744,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         final DefaultTreeModel model = getMessageTreeModel();
         final DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
 
-        for(final Enumeration<FrostMessageObject> e = rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            final FrostMessageObject frostMessageObject = e.nextElement();
+		for (final Enumeration<TreeNode> e = rootnode.depthFirstEnumeration(); e.hasMoreElements();) {
+			final FrostMessageObject frostMessageObject = (FrostMessageObject) e.nextElement();
             if( !(frostMessageObject instanceof FrostMessageObject) ) {
                 logger.error("frostMessageObject not of type FrostMessageObject");
                 continue;
@@ -1784,9 +1787,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             				break;
             			}
 
-            			final Enumeration<FrostMessageObject> children = message.children();
+						final Enumeration<TreeNode> children = message.children();
             			while( children.hasMoreElements() ) {
-                            final FrostMessageObject frostMessageObject = children.nextElement();
+							final FrostMessageObject frostMessageObject = (FrostMessageObject) children.nextElement();
             				if( !path_list.contains(frostMessageObject) ) {
             					queue.add(frostMessageObject);
             				}
@@ -1796,9 +1799,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
         if( nextMessage == null ) {
-        	final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = ((DefaultMutableTreeNode) tableModel.getRoot()).depthFirstEnumeration();
+			final Enumeration<TreeNode> frostMessageObjectEnumeration = ((DefaultMutableTreeNode) tableModel.getRoot())
+					.depthFirstEnumeration();
             while( frostMessageObjectEnumeration.hasMoreElements() ) {
-                final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+				final FrostMessageObject frostMessageObject = (FrostMessageObject) frostMessageObjectEnumeration
+						.nextElement();
                 if( frostMessageObject.isNew() ) {
                     if( nextMessage == null ) {
                         nextMessage = frostMessageObject;
@@ -1901,10 +1906,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             boolean hasFlaggedWork = false;
 
             final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)firstMessage.getRoot();
-            final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
+			final Enumeration<TreeNode> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration();
             while( frostMessageObjectEnumeration.hasMoreElements()) {
 
-                final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+				final FrostMessageObject frostMessageObject = (FrostMessageObject) frostMessageObjectEnumeration
+						.nextElement();
                 if( !hasStarredWork && frostMessageObject.isStarred() ) {
                     hasStarredWork = true;
                 }

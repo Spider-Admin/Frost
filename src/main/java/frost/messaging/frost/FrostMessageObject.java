@@ -24,8 +24,10 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.joda.time.DateTime;
@@ -197,9 +199,10 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             return result;
         }
         breadthFirstEnumeration();
-        final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = breadthFirstEnumeration();
+		final Enumeration<TreeNode> frostMessageObjectEnumeration = breadthFirstEnumeration();
         while(frostMessageObjectEnumeration.hasMoreElements()) {
-            final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+			final FrostMessageObject frostMessageObject = (FrostMessageObject) frostMessageObjectEnumeration
+					.nextElement();
             if( frostMessageObject.isNew() ) {
                 result[0] = true;
                 // both true? finished.

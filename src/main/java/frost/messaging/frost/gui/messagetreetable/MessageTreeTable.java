@@ -281,9 +281,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     public void expandFirework(final DefaultMutableTreeNode node) {
 		if( SwingUtilities.isEventDispatchThread() ) {
 			// Expand all child nodes
-			final Enumeration<DefaultMutableTreeNode> defaultMutableTreeNodeEnumeration = node.depthFirstEnumeration();
+			final Enumeration<TreeNode> defaultMutableTreeNodeEnumeration = node.depthFirstEnumeration();
             while( defaultMutableTreeNodeEnumeration.hasMoreElements() ) {
-                DefaultMutableTreeNode defaultMutableTreeNode = defaultMutableTreeNodeEnumeration.nextElement();
+				DefaultMutableTreeNode defaultMutableTreeNode = (DefaultMutableTreeNode) defaultMutableTreeNodeEnumeration
+						.nextElement();
 
             	if (!defaultMutableTreeNode.isLeaf()) {
             		continue;
@@ -317,7 +318,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         // Traverse children
         final TreeNode node = (TreeNode)parent.getLastPathComponent();
         if (node.getChildCount() >= 0) {
-        	final Enumeration<TreeNode> textNodeEnumeration = node.children();
+			final Enumeration<? extends TreeNode> textNodeEnumeration = node.children();
             while( textNodeEnumeration.hasMoreElements() ) {
                 expandAll(parent.pathByAddingChild(textNodeEnumeration.nextElement()), expand);
             }
@@ -345,9 +346,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     		return;
 		}
 
-    	final Enumeration<DefaultMutableTreeNode> e = root.children();
+		final Enumeration<TreeNode> e = root.children();
 		while( e.hasMoreElements() ) {
-			final TreePath path = new TreePath(e.nextElement().getPath());
+			final TreePath path = new TreePath(((DefaultMutableTreeNode) e.nextElement()).getPath());
 
 			expandAll(path, true);
 			tree.collapsePath(path);

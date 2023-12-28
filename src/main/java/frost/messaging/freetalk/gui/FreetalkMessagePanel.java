@@ -1400,8 +1400,10 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         final FreetalkBoard board = (FreetalkBoard) node;
         final LinkedList<FrostMessageObject> msgList = new LinkedList<FrostMessageObject>();
 
-        for(final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = levelOneMsg.depthFirstEnumeration(); frostMessageObjectEnumeration.hasMoreElements(); ) {
-            final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+		for (final Enumeration<TreeNode> frostMessageObjectEnumeration = levelOneMsg
+				.depthFirstEnumeration(); frostMessageObjectEnumeration.hasMoreElements();) {
+			final FrostMessageObject frostMessageObject = (FrostMessageObject) frostMessageObjectEnumeration
+					.nextElement();
             if( frostMessageObject.isNew() ) {
                 msgList.add(frostMessageObject);
                 frostMessageObject.setNew(false);
@@ -1605,9 +1607,9 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         final DefaultTreeModel model = getMessageTreeModel();
         final DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
 
-        final Enumeration<FreetalkMessage> freetalkMessageEnumeration = rootnode.depthFirstEnumeration();
+		final Enumeration<TreeNode> freetalkMessageEnumeration = rootnode.depthFirstEnumeration();
         while( freetalkMessageEnumeration.hasMoreElements() ) {
-            final FreetalkMessage freetalkMessage = freetalkMessageEnumeration.nextElement();
+			final FreetalkMessage freetalkMessage = (FreetalkMessage) freetalkMessageEnumeration.nextElement();
             if( !(freetalkMessage instanceof FreetalkMessage) ) {
                 logger.error("freetalkMessage nor of type FreetalkMessage");
                 continue;
@@ -1766,8 +1768,10 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             boolean hasStarredWork = false;
             boolean hasFlaggedWork = false;
             final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)firstMessage.getRoot();
-            for(final Enumeration<FrostMessageObject> frostMessageObjectEnumeration = rootNode.depthFirstEnumeration(); frostMessageObjectEnumeration.hasMoreElements(); ) {
-                final FrostMessageObject frostMessageObject = frostMessageObjectEnumeration.nextElement();
+			for (final Enumeration<TreeNode> frostMessageObjectEnumeration = rootNode
+					.depthFirstEnumeration(); frostMessageObjectEnumeration.hasMoreElements();) {
+				final FrostMessageObject frostMessageObject = (FrostMessageObject) frostMessageObjectEnumeration
+						.nextElement();
                 if( !hasStarredWork && frostMessageObject.isStarred() ) {
                     hasStarredWork = true;
                 }

@@ -18,8 +18,6 @@
 */
 package frost.messaging.frost.boards;
 
-import java.util.Enumeration;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -49,24 +47,6 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
             nameLowerCase = getName().toLowerCase();
         }
         return nameLowerCase;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration<AbstractNode> depthFirstEnumeration() {
-        return super.depthFirstEnumeration();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration<AbstractNode> breadthFirstEnumeration() {
-        return super.breadthFirstEnumeration();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration<AbstractNode> children() {
-        return super.children();
     }
 
     /* (non-Javadoc)

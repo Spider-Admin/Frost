@@ -44,6 +44,7 @@ import javax.swing.border.Border;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -1070,7 +1071,7 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
      */
     public void updateTree() {
         // fire update for node
-		final Enumeration<AbstractFreetalkNode> e = model.getRoot().depthFirstEnumeration();
+		final Enumeration<TreeNode> e = model.getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
             model.nodeChanged(e.nextElement());
         }

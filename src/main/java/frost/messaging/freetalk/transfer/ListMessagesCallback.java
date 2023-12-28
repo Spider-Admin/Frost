@@ -24,6 +24,8 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.tree.TreeNode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,10 +177,9 @@ public class ListMessagesCallback implements FreetalkNodeMessageCallback {
                 final FreetalkMessage newMsg = freetalkMessageIterator.next();
                 final String parentMsgIdString = newMsg.getParentMsgID();
                 // find parent
-                final Enumeration<FreetalkMessage> e = rootNode.breadthFirstEnumeration();
+				final Enumeration<TreeNode> e = rootNode.breadthFirstEnumeration();
                 while (e.hasMoreElements()) {
-                	
-                    final FreetalkMessage freetalkMessage =  e.nextElement();
+					final FreetalkMessage freetalkMessage = (FreetalkMessage) e.nextElement();
                     if (parentMsgIdString.equals(freetalkMessage.getMsgId())) {
                         freetalkMessageIterator.remove();
                         freetalkMessage.add(newMsg, false);

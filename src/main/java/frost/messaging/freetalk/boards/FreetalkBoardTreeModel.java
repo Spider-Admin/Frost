@@ -99,8 +99,8 @@ public class FreetalkBoardTreeModel extends DefaultTreeModel {
             final List<FreetalkBoard> boardsToDelete = new LinkedList<FreetalkBoard>();
             if( removeFromDatabase ) {
                 if( node.isFolder() ) {
-                    for(final Enumeration<AbstractFreetalkNode> e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
-                        final AbstractFreetalkNode b = e.nextElement();
+					for (final Enumeration<TreeNode> e = node.breadthFirstEnumeration(); e.hasMoreElements();) {
+						final AbstractFreetalkNode b = (AbstractFreetalkNode) e.nextElement();
                         if( !b.isFolder() ) {
                             boardsToDelete.add((FreetalkBoard)b);
                         }
@@ -151,9 +151,9 @@ public class FreetalkBoardTreeModel extends DefaultTreeModel {
      */
     public LinkedList<FreetalkBoard> getAllBoards() {
         final LinkedList<FreetalkBoard> boards = new LinkedList<FreetalkBoard>();
-        final Enumeration<AbstractFreetalkNode> e = getRoot().depthFirstEnumeration();
+		final Enumeration<TreeNode> e = getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            final AbstractFreetalkNode child = e.nextElement();
+			final AbstractFreetalkNode child = (AbstractFreetalkNode) e.nextElement();
             if (child.isBoard()) {
                 boards.add((FreetalkBoard)child);
             }
@@ -176,9 +176,9 @@ public class FreetalkBoardTreeModel extends DefaultTreeModel {
         if( boardName == null ) {
             return null;
         }
-        final Enumeration<AbstractFreetalkNode> e = getRoot().depthFirstEnumeration();
+		final Enumeration<TreeNode> e = getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            final AbstractFreetalkNode child = e.nextElement();
+			final AbstractFreetalkNode child = (AbstractFreetalkNode) e.nextElement();
             if (child.isBoard()
                     && child.getName().compareToIgnoreCase(boardName) == 0)
             {

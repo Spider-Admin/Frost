@@ -18,8 +18,6 @@
 */
 package frost.messaging.freetalk.boards;
 
-import java.util.Enumeration;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -49,24 +47,6 @@ public abstract class AbstractFreetalkNode extends DefaultMutableTreeNode implem
             nameLowerCase = getName().toLowerCase();
         }
         return nameLowerCase;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration<AbstractFreetalkNode> depthFirstEnumeration() {
-        return super.depthFirstEnumeration();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration<AbstractFreetalkNode> breadthFirstEnumeration() {
-        return super.breadthFirstEnumeration();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Enumeration<AbstractFreetalkNode> children() {
-        return super.children();
     }
 
     /* (non-Javadoc)

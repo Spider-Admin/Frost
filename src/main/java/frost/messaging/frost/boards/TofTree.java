@@ -48,6 +48,7 @@ import javax.swing.border.Border;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -271,9 +272,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 boardsToSearch.add((Board)selectedTreeNode);
             } else {
                 // folder, add all child boards
-                final Enumeration<AbstractNode> e = selectedTreeNode.breadthFirstEnumeration();
+				final Enumeration<TreeNode> e = selectedTreeNode.breadthFirstEnumeration();
                 while(e.hasMoreElements() ) {
-                    final AbstractNode n = e.nextElement();
+					final AbstractNode n = (AbstractNode) e.nextElement();
                     if( n.isBoard() ) {
                         boardsToSearch.add((Board)n);
                     }
@@ -1163,9 +1164,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             }
         } else if (node.isFolder()) {
             // update all childs recursiv
-            final Enumeration<AbstractNode> leafs = node.children();
+			final Enumeration<TreeNode> leafs = node.children();
             while (leafs.hasMoreElements()) {
-                refreshNode(leafs.nextElement());
+				refreshNode((AbstractNode) leafs.nextElement());
             }
         }
     }
@@ -1248,7 +1249,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
      */
     public void updateTree() {
         // fire update for node
-		final Enumeration<AbstractNode> e = model.getRoot().depthFirstEnumeration();
+		final Enumeration<TreeNode> e = model.getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
             model.nodeChanged(e.nextElement());
         }
