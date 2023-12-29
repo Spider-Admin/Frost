@@ -1115,18 +1115,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         public boolean isCellEditable(final EventObject e) {
             if (e instanceof MouseEvent) {
                 final MouseEvent me = (MouseEvent)e;
-                if ((me.getModifiers() == 0) || (me.getModifiers() == InputEvent.BUTTON1_MASK)) {
+				if ((me.getModifiersEx() == 0) || (me.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK)) {
                     for (int counter = getColumnCount() - 1; counter >= 0; counter--) {
                         if (getColumnClass(counter) == TreeTableModel.class) {
-                            final MouseEvent newME = new MouseEvent(
-                                    MessageTreeTable.this.tree,
-                                    me.getID(),
-                                    me.getWhen(),
-                                    me.getModifiers(),
-                                    me.getX() - getCellRect(0, counter, true).x,
-                                    me.getY(),
-                                    me.getClickCount(),
-                                    me.isPopupTrigger());
+							final MouseEvent newME = new MouseEvent(MessageTreeTable.this.tree, me.getID(),
+									me.getWhen(), me.getModifiersEx(), me.getX() - getCellRect(0, counter, true).x,
+									me.getY(), me.getClickCount(), me.isPopupTrigger());
                             MessageTreeTable.this.tree.dispatchEvent(newME);
                             break;
                         }

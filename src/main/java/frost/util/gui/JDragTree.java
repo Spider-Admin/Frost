@@ -427,7 +427,8 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 																	 DnDConstants.ACTION_MOVE,
 																	 this);
 		// don't act on right mouse button
-		dgRecognizer.setSourceActions(dgRecognizer.getSourceActions() & ~InputEvent.BUTTON3_MASK & ~InputEvent.BUTTON2_MASK);
+		dgRecognizer.setSourceActions(
+				dgRecognizer.getSourceActions() & ~InputEvent.BUTTON3_DOWN_MASK & ~InputEvent.BUTTON2_DOWN_MASK);
 		new DropTarget(this, new CDropTargetListener());
 	}
 	
@@ -460,8 +461,7 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		{
 			//even though I tell dgRecognizer to ignore the the right mouse button,
 			// it thinks the RMB starts a drag event...argh
-			if( (((MouseEvent)ievent).getModifiers() & InputEvent.BUTTON3_MASK) != 0 )
-			{
+			if ((((MouseEvent) ievent).getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) != 0) {
 				return;
 			}
 		}
