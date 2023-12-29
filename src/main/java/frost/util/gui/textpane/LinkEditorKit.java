@@ -81,7 +81,7 @@ public class LinkEditorKit extends StyledEditorKit {
 		private Element characterElementAt(MouseEvent e) {
 			JEditorPane p = (JEditorPane)e.getComponent();
 			Position.Bias[] bias = new Position.Bias[1];
-			int position = p.getUI().viewToModel(p, e.getPoint(), bias);
+			int position = p.getUI().viewToModel2D(p, e.getPoint(), bias);
 			if (bias[0] == Position.Bias.Backward && position != 0)
 			--position;
 			Element c = ((StyledDocument)p.getDocument()).getCharacterElement(position);
