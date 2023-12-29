@@ -1319,16 +1319,16 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    private class MFAttachedBoard implements TableMember {
+	private class MFAttachedBoard implements TableMember<MFAttachedBoard> {
         Board aBoard;
 
         public MFAttachedBoard(final Board ab) {
             aBoard = ab;
         }
 
-        public int compareTo( final TableMember anOther, final int tableColumIndex ) {
-            final Comparable c1 = getValueAt(tableColumIndex);
-            final Comparable c2 = anOther.getValueAt(tableColumIndex);
+		public int compareTo(final MFAttachedBoard anOther, final int tableColumIndex) {
+			final String c1 = getValueAt(tableColumIndex);
+			final String c2 = anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
 
@@ -1336,7 +1336,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             return aBoard;
         }
 
-        public Comparable getValueAt(final int column) {
+		public String getValueAt(final int column) {
             switch (column) {
                 case 0 : return aBoard.getName();
                 case 1 : return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();
@@ -1411,21 +1411,20 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         public void setValueAt(final Object aValue, final int row, final int column) {}
     }
 
-    private class MFAttachedFile implements TableMember {
+	private class MFAttachedFile implements TableMember<MFAttachedFile> {
         File aFile;
 
         public MFAttachedFile(final File af) {
             aFile = af;
         }
 
-        @SuppressWarnings("unchecked")
-		public int compareTo( final TableMember anOther, final int tableColumIndex ) {
-            final Comparable c1 = getValueAt(tableColumIndex);
-            final Comparable c2 = anOther.getValueAt(tableColumIndex);
+		public int compareTo(final MFAttachedFile anOther, final int tableColumIndex) {
+			final String c1 = getValueAt(tableColumIndex);
+			final String c2 = anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
 
-		public Comparable getValueAt(final int column)  {
+		public String getValueAt(final int column) {
             switch(column) {
                 case 0: return aFile.getName();
                 case 1: return Long.toString(aFile.length());
