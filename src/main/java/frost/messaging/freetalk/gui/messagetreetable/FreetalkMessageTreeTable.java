@@ -267,7 +267,7 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
         // Traverse children
         final TreeNode node = (TreeNode)parent.getLastPathComponent();
         if (node.getChildCount() >= 0) {
-            for (final Enumeration e=node.children(); e.hasMoreElements(); ) {
+			for (final Enumeration<? extends TreeNode> e = node.children(); e.hasMoreElements();) {
                 final TreeNode n = (TreeNode)e.nextElement();
                 final TreePath path = parent.pathByAddingChild(n);
                 expandAll(path, expand);
