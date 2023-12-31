@@ -825,7 +825,10 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 //    }
 
     protected void removeSelectedItemsFromTable( final JTable tbl ) {
-        final SortedTableModel m = (SortedTableModel)tbl.getModel();
+		@SuppressWarnings("unchecked")
+		final SortedTableModel<? extends TableMember<?>> m = (SortedTableModel<? extends TableMember<?>>) tbl
+				.getModel();
+
         final int[] sel = tbl.getSelectedRows();
         for(int x=sel.length-1; x>=0; x--)
         {

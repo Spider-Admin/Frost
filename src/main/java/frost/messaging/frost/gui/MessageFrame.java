@@ -930,7 +930,10 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     }
 
     protected void removeSelectedItemsFromTable( final JTable tbl ) {
-    	final SortedTableModel<? extends TableMember<?>> m = (SortedTableModel<? extends TableMember<?>>)tbl.getModel();
+		@SuppressWarnings("unchecked")
+		final SortedTableModel<? extends TableMember<?>> m = (SortedTableModel<? extends TableMember<?>>) tbl
+				.getModel();
+
         final int[] sel = tbl.getSelectedRows();
         for(int x=sel.length-1; x>=0; x--)
         {
