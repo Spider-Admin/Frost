@@ -134,9 +134,7 @@ public class SetIdentityCommentDialog extends javax.swing.JFrame {
 		// labelLastSeenTimestamp
 		headerPanel.add(new JLabel(
 				"Last seen: " 
-				+ DateFun.FORMAT_DATE_VISIBLE.print(identity.getLastSeenTimestamp())
-				+ " " 
-				+ DateFun.FORMAT_TIME_VISIBLE.print(identity.getLastSeenTimestamp())
+						+ DateFun.FORMAT_DATE_TIME_VISIBLE.print(identity.getLastSeenTimestamp())
 		), constraints);
 
 		constraints.gridy++;

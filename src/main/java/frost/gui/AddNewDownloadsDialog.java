@@ -672,9 +672,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				downloadedTooltip = new StringBuilder("<html>")
 						.append(language.getString("ManageDownloadTrackingDialog.table.finished"))
 						.append(": ")
-						.append(DateFun.FORMAT_DATE_VISIBLE.print(date))
-						.append(" ")
-						.append(DateFun.FORMAT_TIME_VISIBLE.print(date))
+						.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(date))
 						.append("<br />\n")
 						.append(language.getString("ManageDownloadTrackingDialog.table.board"))
 						.append(": ")
@@ -719,16 +717,14 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			if( exists) {
 				final long date = existingFile.lastModified();
 				existsTooltip = new StringBuilder("<html>")
-				.append(language.getString("AddNewDownloadsDialog.table.lastModifiedTooltip"))
-				.append(": ")
-				.append(DateFun.FORMAT_DATE_VISIBLE.print(date))
-				.append(" ")
-				.append(DateFun.FORMAT_TIME_VISIBLE.print(date))
-				.append("<br />\n")
-				.append(language.getString("AddNewDownloadsDialog.table.fileSizeTooltip"))
-				.append(": ")
-				.append(FormatterUtils.formatSize(existingFile.length()))
-				.append("</html>")
+						.append(language.getString("AddNewDownloadsDialog.table.lastModifiedTooltip"))
+						.append(": ")
+						.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(date))
+						.append("<br />\n")
+						.append(language.getString("AddNewDownloadsDialog.table.fileSizeTooltip"))
+						.append(": ")
+						.append(FormatterUtils.formatSize(existingFile.length()))
+						.append("</html>")
 				.toString();
 			} else {
 				existsTooltip = "";

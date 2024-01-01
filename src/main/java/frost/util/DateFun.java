@@ -42,6 +42,9 @@ public class DateFun {
 	public static final DateTimeFormatter FORMAT_TIME_VISIBLE = DateTimeFormat.forPattern("HH:mm:ss' GMT'")
 			.withZone(getTimeZone());
 
+	public static final DateTimeFormatter FORMAT_DATE_TIME_VISIBLE = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss' GMT'")
+			.withZone(getTimeZone());
+
 	public static DateTimeZone getTimeZone() {
 		return timeZone;
 	}

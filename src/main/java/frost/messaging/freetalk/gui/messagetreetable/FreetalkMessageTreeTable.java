@@ -921,9 +921,7 @@ public class FreetalkMessageTreeTable extends JTable implements PropertyChangeLi
 //                            sb.append("<html>");
 //                            sb.append((String)value);
 //                            sb.append("<br>Last seen: ");
-//                            sb.append(DateFun.FORMAT_DATE_VISIBLE.print(id.getLastSeenTimestamp()));
-//                            sb.append("  ");
-//                            sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
+//                            sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
 //                            sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
 //                            sb.append("</html>");
 //                            setToolTipText(sb.toString());

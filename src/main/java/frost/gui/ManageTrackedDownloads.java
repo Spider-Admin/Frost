@@ -447,11 +447,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 					return FormatterUtils.formatSize(trackDownloadKey.getFileSize());
 				case 4:
 					final long date = trackDownloadKey.getDownloadFinishedTime();
-					return new StringBuilder()
-					.append(DateFun.FORMAT_DATE_VISIBLE.print(date))
-					.append(" ")
-					.append(DateFun.FORMAT_TIME_VISIBLE.print(date))
-					.toString();
+					return DateFun.FORMAT_DATE_TIME_VISIBLE.print(date);
 				default :
 					throw new RuntimeException("Unknown Column pos");
 			}

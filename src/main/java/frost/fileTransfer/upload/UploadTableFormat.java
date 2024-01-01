@@ -196,21 +196,15 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 sb.append("<html>").append(uploadItem.getFileName());
                 if( uploadItem.getUploadAddedMillis() > 0 ) {
                     sb.append("<br>Added: ");
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadAddedMillis()));
-                    sb.append("  ");
-                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadAddedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(uploadItem.getUploadAddedMillis()));
                 }
                 if( uploadItem.getUploadStartedMillis() > 0 ) {
                     sb.append("<br>Started: ");
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadStartedMillis()));
-                    sb.append("  ");
-                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadStartedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(uploadItem.getUploadStartedMillis()));
                 }
                 if( uploadItem.getUploadFinishedMillis() > 0 ) {
                     sb.append("<br>Finished: ");
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadFinishedMillis()));
-                    sb.append("  ");
-                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadFinishedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(uploadItem.getUploadFinishedMillis()));
                 }
                 sb.append("</html>");
                 tooltip = sb.toString();

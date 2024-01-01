@@ -272,21 +272,15 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 sb.append("<html>").append(downloadItem.getFileName());
                 if( downloadItem.getDownloadAddedMillis() > 0 ) {
                     sb.append("<br>Added: ");
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(downloadItem.getDownloadAddedMillis()));
-                    sb.append("  ");
-                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(downloadItem.getDownloadAddedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(downloadItem.getDownloadAddedMillis()));
                 }
                 if( downloadItem.getDownloadStartedMillis() > 0 ) {
                     sb.append("<br>Started: ");
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(downloadItem.getDownloadStartedMillis()));
-                    sb.append("  ");
-                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(downloadItem.getDownloadStartedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(downloadItem.getDownloadStartedMillis()));
                 }
                 if( downloadItem.getDownloadFinishedMillis() > 0 ) {
                     sb.append("<br>Finished: ");
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(downloadItem.getDownloadFinishedMillis()));
-                    sb.append("  ");
-                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(downloadItem.getDownloadFinishedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(downloadItem.getDownloadFinishedMillis()));
                 }
                 sb.append("</html>");
                 tooltip = sb.toString();
