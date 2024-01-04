@@ -21,60 +21,65 @@ package frost.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.Duration;
 import org.junit.jupiter.api.Test;
 
 public class DateFunTest {
 
 	@Test
-	public void printDates() {
-		String date = "2006.10.14";
-		String time = "12:13:14GMT";
+	public void testDateTime() {
+		// Original object
+		DateTime dateTimeOrg = new DateTime(2006, 1, 2, 3, 4, 5, 6, DateFun.getTimeZone());
+		assertEquals("2006-01-02T03:04:05.006Z", dateTimeOrg.toString());
+		assertEquals(1136171045006L, dateTimeOrg.getMillis());
 
-		DateTimeFormatter fmtd = DateTimeFormat.forPattern("yyyy.MM.dd");
-		DateTimeFormatter fmtt = DateTimeFormat.forPattern("HH:mm:ss'GMT'");
+		// Copy using original object
+		DateTime dateTimeCopyObj = new DateTime(dateTimeOrg);
+		assertEquals(dateTimeOrg.toString(), dateTimeCopyObj.toString());
+		assertEquals(dateTimeOrg.getMillis(), dateTimeCopyObj.getMillis());
 
-		DateTime dtd = fmtd.withZone(DateFun.getTimeZone()).parseDateTime(date);
-		assertEquals("2006-10-14T00:00:00.000Z", dtd.toString());
-		assertEquals(1160784000000L, dtd.getMillis());
+		// Copy using timestamp + timezone
+		DateTime dateTimeCopyMillis = new DateTime(dateTimeOrg.getMillis(), DateFun.getTimeZone());
+		assertEquals(dateTimeOrg.toString(), dateTimeCopyMillis.toString());
+		assertEquals(dateTimeOrg.getMillis(), dateTimeCopyMillis.getMillis());
 
-		DateTime dtt = fmtt.withZone(DateFun.getTimeZone()).parseDateTime(time);
-		assertEquals("1970-01-01T12:13:14.000Z", dtt.toString());
-		assertEquals(43994000L, dtt.getMillis());
+		// Plus days
+		DateTime dateTimePlusDays = dateTimeOrg.plusDays(35);
+		assertEquals("2006-02-06T03:04:05.006Z", dateTimePlusDays.toString());
+		assertEquals(dateTimeOrg.getMillis() + Duration.standardDays(35).getMillis(), dateTimePlusDays.getMillis());
 
-		Long allMillis = dtd.getMillis() + dtt.getMillis();
-		DateTime adt = new DateTime(allMillis, DateFun.getTimeZone());
-		assertEquals("2006-10-14T12:13:14.000Z", adt.toString());
-		assertEquals(1160827994000L, adt.getMillis());
+		// Minus days
+		DateTime dateTimeMinusDays = dateTimePlusDays.minusDays(35);
+		assertEquals(dateTimeOrg.toString(), dateTimeMinusDays.toString());
+		assertEquals(dateTimePlusDays.getMillis() - Duration.standardDays(35).getMillis(),
+				dateTimeMinusDays.getMillis());
 
-		DateTime nd = new DateTime(dtd);
-		assertEquals("2006-10-14T00:00:00.000Z", nd.toString());
-		assertEquals(dtd.getMillis(), nd.getMillis());
-		assertEquals("2006.10.14", fmtd.print(nd));
+		// Without time
+		DateTime dateTimeWithoutTime = dateTimeOrg.withTimeAtStartOfDay();
+		assertEquals("2006-01-02T00:00:00.000Z", dateTimeWithoutTime.toString());
+		assertEquals(
+				dateTimeOrg.getMillis() - Duration.standardHours(3).getMillis()
+						- Duration.standardMinutes(4).getMillis() - Duration.standardSeconds(5).getMillis() - 6,
+				dateTimeWithoutTime.getMillis());
 
-		DateTime nt = new DateTime(dtt);
-		assertEquals("1970-01-01T12:13:14.000Z", nt.toString());
-		assertEquals(dtt.getMillis(), nt.getMillis());
-		assertEquals("12:13:14GMT", fmtt.print(nt));
+		// Format
+		assertEquals("2006.1.2", DateFun.FORMAT_DATE.print(dateTimeOrg));
+		assertEquals("2006.01.02", DateFun.FORMAT_DATE_EXT.print(dateTimeOrg));
+		assertEquals("02.01.2006", DateFun.FORMAT_DATE_VISIBLE.print(dateTimeOrg));
+		assertEquals("03:04:05", DateFun.FORMAT_TIME_PLAIN.print(dateTimeOrg));
+		assertEquals("3:4:5GMT", DateFun.FORMAT_TIME.print(dateTimeOrg));
+		assertEquals("03:04:05GMT", DateFun.FORMAT_TIME_EXT.print(dateTimeOrg));
+		assertEquals("03:04:05 GMT", DateFun.FORMAT_TIME_VISIBLE.print(dateTimeOrg));
+		assertEquals("02.01.2006 03:04:05 GMT", DateFun.FORMAT_DATE_TIME_VISIBLE.print(dateTimeOrg));
 
-		DateTime n1 = new DateTime(adt).minusDays(3);
-		assertEquals("2006-10-11T12:13:14.000Z", n1.toString());
+		// Parse date
+		DateTime dateTimeParsedDate = DateFun.FORMAT_DATE.parseDateTime("2006.1.2");
+		assertEquals("2006-01-02T00:00:00.000Z", dateTimeParsedDate.toString());
+		assertEquals(dateTimeWithoutTime.getMillis(), dateTimeParsedDate.getMillis());
 
-		DateTime now = new DateTime(adt);
-		assertEquals("2006-10-14T12:13:14.000Z", now.toString());
-		assertEquals("12:13:14GMT", fmtt.print(now));
-
-		DateTime nowDate = now.withTimeAtStartOfDay();
-		assertEquals("2006-10-14T00:00:00.000Z", nowDate.toString());
-		assertEquals(1160784000000L, nowDate.getMillis());
-
-		LocalTime nowTime = now.toLocalTime();
-		assertEquals("12:13:14.000", nowTime.toString());
-		assertEquals("12:13:14GMT", fmtt.print(nowTime));
-
-		DateTime localDate = new DateTime(adt).minusDays(0);
-		assertEquals("2006.10.14", DateFun.FORMAT_DATE.print(localDate));
+		// Parse time
+		DateTime dateTimeParsedTime = DateFun.FORMAT_TIME.parseDateTime("03:04:05GMT");
+		assertEquals("1970-01-01T03:04:05.000Z", dateTimeParsedTime.toString());
+		assertEquals(dateTimeOrg.getMillis() - dateTimeWithoutTime.getMillis() - 6, dateTimeParsedTime.getMillis());
 	}
 }
