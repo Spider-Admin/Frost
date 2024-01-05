@@ -37,7 +37,12 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.Core;
 import frost.util.gui.translation.Language;
@@ -48,6 +53,8 @@ import frost.util.gui.translation.Language;
  * @version $Revision: 3317 $
  */
 public class MiscToolkit {
+
+	private static final Logger logger = LoggerFactory.getLogger(MiscToolkit.class);
 
 	/**
 	 * Prevent instances of this class from being created.
@@ -361,4 +368,23 @@ public class MiscToolkit {
         }
         return JOptionPane.CLOSED_OPTION;
     }
+
+	/**
+	 * Tries to set the LookAndFeel
+	 * 
+	 * @param className Class name of the LookAndFeel
+	 * @return True, if LookAndFeel could be set, else false
+	 */
+	public static Boolean setLookAndFeel(String className) {
+		Boolean isSet = false;
+		logger.info("Try to set {} as LookAndFeel", className);
+		try {
+			UIManager.setLookAndFeel(className);
+			isSet = true;
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			logger.error("Unable to set LookAndFeel!", e);
+		}
+		return isSet;
+	}
 }

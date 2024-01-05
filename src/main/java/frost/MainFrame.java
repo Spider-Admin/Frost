@@ -38,7 +38,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.Box;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -50,7 +49,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
-import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -443,45 +441,31 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         return menuBar;
     }
 
-    private JMenu getLookAndFeelMenu() {
-        // init look and feel menu
-        final UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
-        final JMenu lfMenu = new JMenu("Look and feel");
+	private JMenu getLookAndFeelMenu() {
+		// init look and feel menu
+		final UIManager.LookAndFeelInfo[] lookAndFeelList = UIManager.getInstalledLookAndFeels();
+		final JMenu lfMenu = new JMenu("Look and feel");
 
-        final ButtonGroup group = new ButtonGroup();
+		final ActionListener al = new ActionListener() {
+			public void actionPerformed(final ActionEvent event) {
+				final String lfName = event.getActionCommand();
+				MiscToolkit.setLookAndFeel(lfName);
+				updateComponentTreesUI();
+			}
+		};
 
-        final ActionListener al = new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                final String lfName = e.getActionCommand();
-                try {
-                    UIManager.setLookAndFeel(lfName);
-                    updateComponentTreesUI();
-                } catch(final Throwable t) {
-                    logger.error("Exception changing l&f", t);
-                }
-            }
-        };
-
-        for( final LookAndFeelInfo element : info ) {
-            final String lfClassName = element.getClassName();
-            try {
-				final LookAndFeel laf = (LookAndFeel) Class.forName(lfClassName).getDeclaredConstructor().newInstance();
-                if (laf.isSupportedLookAndFeel()) {
-                    final JRadioButtonMenuItem rmItem = new JRadioButtonMenuItem(laf.getName()+"  ["+lfClassName+"]");
-                    rmItem.setActionCommand(lfClassName);
-                    rmItem.setSelected(UIManager.getLookAndFeel().getClass().getName().equals(lfClassName));
-                    group.add(rmItem);
-                    rmItem.addActionListener(al);
-                    lfMenu.add(rmItem);
-                    lookAndFeels.add(rmItem);
-                }
-            }
-            catch(final Throwable t) {
-                logger.error("Exception adding l&f menu", t);
-            }
-        }
-        return lfMenu;
-    }
+		for (final LookAndFeelInfo lookAndFeel : lookAndFeelList) {
+			final String className = lookAndFeel.getClassName();
+			final JRadioButtonMenuItem rmItem = new JRadioButtonMenuItem(
+					lookAndFeel.getName() + "  [" + className + "]");
+			rmItem.setActionCommand(className);
+			rmItem.setSelected(UIManager.getLookAndFeel().getClass().getName().equals(className));
+			rmItem.addActionListener(al);
+			lfMenu.add(rmItem);
+			lookAndFeels.add(rmItem);
+		}
+		return lfMenu;
+	}
 
     private MainFrameStatusBar getStatusBar() {
         if( statusBar == null ) {

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import javax.swing.JOptionPane;
-import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -77,61 +76,32 @@ public class Frost {
         new Frost();
     }
 
-    /**
-     * This method sets the look and feel specified in the command line arguments.
-     * If none was specified, the System Look and Feel is set.
-     */
-    private void initializeLookAndFeel() {
-        LookAndFeel laf = null;
-        try {
-            // use cmd line setting
-            if (lookAndFeel != null) {
-                try {
-					laf = (LookAndFeel) Class.forName(lookAndFeel).getDeclaredConstructor().newInstance();
-                } catch(final Throwable t) {
-                    logger.error("Exception", t);
-                }
-                if (laf == null || !laf.isSupportedLookAndFeel()) {
-                    laf = null;
-                }
-            }
+	/**
+	 * This method sets the look and feel specified in the command line arguments.
+	 * If none was specified, the System Look and Feel is set.
+	 */
+	private void initializeLookAndFeel() {
+		Boolean isSet = false;
+		// use cmd line setting
+		if (lookAndFeel != null) {
+			logger.info("Set LookAndFeel from command line");
+			isSet = MiscToolkit.setLookAndFeel(lookAndFeel);
+		}
 
-            // still not set? use config file setting
-            if( laf == null ) {
-                final String landf = Core.frostSettings.getValue(SettingsClass.LOOK_AND_FEEL);
-                if( landf != null && landf.length() > 0 ) {
-                    try {
-						laf = (LookAndFeel) Class.forName(landf).getDeclaredConstructor().newInstance();
-                    } catch(final Throwable t) {
-                        logger.error("Exception", t);
-                    }
-                    if (laf == null || !laf.isSupportedLookAndFeel()) {
-                        laf = null;
-                    }
-                }
-            }
+		// still not set? use config file setting
+		if (!isSet) {
+			final String landf = Core.frostSettings.getValue(SettingsClass.LOOK_AND_FEEL);
+			if (landf != null && landf.length() > 0) {
+				logger.info("Set LookAndFeel from settings");
+				isSet = MiscToolkit.setLookAndFeel(landf);
+			}
+		}
 
-            // still not set? use system default
-            if( laf == null ) {
-                final String landf = UIManager.getSystemLookAndFeelClassName();
-                if( landf != null && landf.length() > 0 ) {
-                    try {
-						laf = (LookAndFeel) Class.forName(landf).getDeclaredConstructor().newInstance();
-                    } catch(final Throwable t) {}
-                    if (laf == null || !laf.isSupportedLookAndFeel()) {
-                        laf = null;
-                    }
-                }
-            }
-
-            if (laf != null) {
-                UIManager.setLookAndFeel(laf);
-            }
-        } catch (final Exception e) {
-            logger.error("Unable to initialize LookAndFeel", e);
-            logger.error("Using the default");
-        }
-    }
+		// still not set? use system default
+		if (!isSet) {
+			logger.info("Use default LookAndFeel");
+		}
+	}
 
     /**
      * This method parses the command line arguments
