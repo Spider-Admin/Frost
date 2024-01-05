@@ -18,6 +18,7 @@
 */
 package frost.messaging.freetalk;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -28,7 +29,6 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,10 +160,10 @@ public class FreetalkMessage extends DefaultMutableTreeNode {
     public String getDateAndTimeString() {
         if (dateAndTimeString == null) {
             // Build a String of format yyyy.mm.dd hh:mm:ssGMT
-			final DateTime dateTime = new DateTime(getDateMillis(), DateFun.getTimeZone());
+			final OffsetDateTime dateTime = DateFun.toOffsetDateTime(getDateMillis(), DateFun.getTimeZone());
 
-			final String dateStr = DateFun.FORMAT_DATE_EXT.print(dateTime);
-			final String timeStr = DateFun.FORMAT_TIME_EXT.print(dateTime);
+			final String dateStr = DateFun.FORMAT_DATE_EXT.format(dateTime);
+			final String timeStr = DateFun.FORMAT_TIME_EXT.format(dateTime);
 
             final StringBuilder sb = new StringBuilder(29);
             sb.append(dateStr).append(" ").append(timeStr);

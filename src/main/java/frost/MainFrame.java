@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,7 +59,6 @@ import javax.swing.WindowConstants;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultTreeModel;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -819,11 +819,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         //////////////////////////////////////////////////
         //   Display time in button bar
         //////////////////////////////////////////////////
-		final DateTime now = new DateTime(DateFun.getTimeZone());
+		final OffsetDateTime now = OffsetDateTime.now(DateFun.getTimeZone());
 
         // check all 60 seconds if the day changed
         if( (getTodaysDateMillis() == 0) || ((counter % 60) == 0) ) {
-			final long millis = now.withTimeAtStartOfDay().getMillis();
+			final long millis = DateFun.toStartOfDayInMilli(now);
             if( getTodaysDateMillis() != millis ) {
                 setTodaysDateMillis(millis);
             }
@@ -831,9 +831,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
         timeLabel.setText(
             new StringBuilder()
-                .append(DateFun.FORMAT_DATE_VISIBLE.print(now))
-                .append(" - ")
-                .append(DateFun.FORMAT_TIME_VISIBLE.print(now))
+						.append(DateFun.FORMAT_DATE_VISIBLE.format(now)).append(" - ")
+						.append(DateFun.FORMAT_TIME_VISIBLE.format(now))
                 .toString());
 
         /////////////////////////////////////////////////

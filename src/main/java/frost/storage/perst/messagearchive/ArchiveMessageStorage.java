@@ -30,6 +30,7 @@ import frost.messaging.frost.boards.Board;
 import frost.storage.ExitSavable;
 import frost.storage.MessageCallback;
 import frost.storage.perst.AbstractFrostStorage;
+import frost.util.DateFun;
 
 public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitSavable {
 
@@ -169,7 +170,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
             }
         }
 
-        bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+		bo.getMessageIndex().put(DateFun.toMilli(mo.getDateAndTime()), pmo);
 
         return INSERT_OK;
     }

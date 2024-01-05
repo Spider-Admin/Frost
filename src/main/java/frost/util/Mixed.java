@@ -18,7 +18,8 @@
 */
 package frost.util;
 
-import org.joda.time.DateTime;
+import java.time.OffsetDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +38,9 @@ public final class Mixed {
 
         final StringBuilder idStrSb = new StringBuilder();
         idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
-        idStrSb.append(DateFun.FORMAT_DATE_EXT.print(new DateTime()));
+		idStrSb.append(DateFun.FORMAT_DATE_EXT.format(OffsetDateTime.now(DateFun.getTimeZone())));
         idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
-        idStrSb.append(DateFun.FORMAT_TIME_EXT.print(new DateTime()));
+		idStrSb.append(DateFun.FORMAT_TIME_EXT.format(OffsetDateTime.now(DateFun.getTimeZone())));
         final byte[] idStrPart = idStrSb.toString().getBytes();
 
         // finally add some random bytes

@@ -315,9 +315,6 @@ public class Frost {
             // check for jcalendar.jar
             jarFileName = "jcalendar.jar";
             Class.forName("com.toedter.calendar.JDateChooser");
-            // check for joda-time.jar
-            jarFileName = "joda-time.jar";
-            Class.forName("org.joda.time.DateTime");
             // check for perst15.jar
             jarFileName = "perst15.jar";
             Class.forName("org.garret.perst.Persistent");

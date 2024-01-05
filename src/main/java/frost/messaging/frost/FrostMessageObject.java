@@ -18,6 +18,7 @@
 */
 package frost.messaging.frost;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,7 +31,6 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     private int index = -1;
     private Board board = null;
-    private DateTime dateAndTime = null;
+	private OffsetDateTime dateAndTime = null;
 
     private boolean isDeleted = false;
     private boolean isNew = false;
@@ -90,7 +90,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     public FrostMessageObject(final boolean isRootnode) {
         setDummy(true);
-		setDateAndTime(new DateTime(0, DateFun.getTimeZone()));
+		setDateAndTime(DateFun.toOffsetDateTime(0, DateFun.getTimeZone()));
         setSubject("(root)");
         setNew(false);
         setFromName("");
@@ -109,7 +109,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             setDateAndTime(mof.getDateAndTime());
         } catch(final Throwable t) {
             // never happens, we already called this method
-			setDateAndTime(new DateTime(0, DateFun.getTimeZone()));
+			setDateAndTime(DateFun.toOffsetDateTime(0, DateFun.getTimeZone()));
         }
         logger.debug("MSG TIME/DATE: time_in = {}, date_in = {}, out = {}", mof.getTimeStr(), mof.getDateStr(), getDateAndTime());
         // copy values from mof
@@ -133,7 +133,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Construct a new FrostMessageObject for an invalid message (broken, encrypted for someone else, ...).
      */
-    public FrostMessageObject(final Board b, final DateTime dt, final int msgIndex, final String reason) {
+	public FrostMessageObject(final Board b, final OffsetDateTime dt, final int msgIndex, final String reason) {
         setValid( false );
         setInvalidReason(reason);
         setBoard(b);
@@ -148,7 +148,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setDummyInReplyToList(ll);
 
         setDummy(true);
-		setDateAndTime(new DateTime(0, DateFun.getTimeZone()));
+		setDateAndTime(DateFun.toOffsetDateTime(0, DateFun.getTimeZone()));
         setSubject("");
         setNew(false);
         setFromName("");
@@ -380,10 +380,10 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     public String getDateAndTimeString() {
         if( dateAndTimeString == null ) {
             // Build a String of format yyyy.mm.dd hh:mm:ssGMT
-			final DateTime dateTime = new DateTime(getDateAndTime(), DateFun.getTimeZone());
+			final OffsetDateTime dateTime = getDateAndTime();
 
-			final String dateStr = DateFun.FORMAT_DATE_EXT.print(dateTime);
-			final String timeStr = DateFun.FORMAT_TIME_EXT.print(dateTime);
+			final String dateStr = DateFun.FORMAT_DATE_EXT.format(dateTime);
+			final String timeStr = DateFun.FORMAT_TIME_EXT.format(dateTime);
 
             final StringBuilder sb = new StringBuilder(29);
             sb.append(dateStr).append(" ").append(timeStr);
@@ -497,11 +497,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         this.isValid = isValid;
     }
 
-    public void setDateAndTime(final DateTime dt) {
+	public void setDateAndTime(final OffsetDateTime dt) {
         dateAndTime = dt;
     }
 
-    public DateTime getDateAndTime() {
+	public OffsetDateTime getDateAndTime() {
         return dateAndTime;
     }
 

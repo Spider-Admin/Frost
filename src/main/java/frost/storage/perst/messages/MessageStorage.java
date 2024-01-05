@@ -18,6 +18,7 @@
 */
 package frost.storage.perst.messages;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -27,7 +28,6 @@ import org.garret.perst.GenericIndex;
 import org.garret.perst.Index;
 import org.garret.perst.Persistent;
 import org.garret.perst.PersistentIterator;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,8 +338,8 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 return bo.getMessageIndex().size();
             }
 
-			final DateTime localDate = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysBack);
-			final long minDateTime = localDate.withTimeAtStartOfDay().getMillis();
+			final OffsetDateTime localDate = OffsetDateTime.now(DateFun.getTimeZone()).minusDays(maxDaysBack);
+			final long minDateTime = DateFun.toStartOfDayInMilli(localDate);
             // normal messages in date range
             final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
             // unread messages in range
@@ -462,7 +462,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, getStorage(), useTransaction);
             if( !mo.isValid() ) {
                 // invalid message
-                bo.getInvalidMessagesIndex().put(mo.getDateAndTime().getMillis(), pmo);
+				bo.getInvalidMessagesIndex().put(DateFun.toMilli(mo.getDateAndTime()), pmo);
             } else {
                 if( mo.getMessageId() != null ) {
                     if( !bo.getMessageIdIndex().put(mo.getMessageId(), pmo) ) {
@@ -473,15 +473,15 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
                 mo.setPerstFrostMessageObject(pmo);
 
-                bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+				bo.getMessageIndex().put(DateFun.toMilli(mo.getDateAndTime()), pmo);
                 if( pmo.isNew ) {
-                    bo.getUnreadMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+					bo.getUnreadMessageIndex().put(DateFun.toMilli(mo.getDateAndTime()), pmo);
                 }
                 if( pmo.isFlagged ) {
-                    bo.getFlaggedMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+					bo.getFlaggedMessageIndex().put(DateFun.toMilli(mo.getDateAndTime()), pmo);
                 }
                 if( pmo.isStarred ) {
-                    bo.getStarredMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+					bo.getStarredMessageIndex().put(DateFun.toMilli(mo.getDateAndTime()), pmo);
                 }
 
                 // add to id, maybe create id for this msg
@@ -566,8 +566,8 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final boolean archiveKeepFlaggedAndStarred,
             final MessageArchivingCallback mc)
     {
-		final DateTime localDate = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysOld);
-		final long maxDateTime = localDate.withTimeAtStartOfDay().getMillis();
+		final OffsetDateTime localDate = OffsetDateTime.now(DateFun.getTimeZone()).minusDays(maxDaysOld);
+		final long maxDateTime = DateFun.toStartOfDayInMilli(localDate);
 
         final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
@@ -685,7 +685,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
-    public DateTime getDateTimeOfLatestMessage(final Board board) {
+	public OffsetDateTime getDateTimeOfLatestMessage(final Board board) {
         if( !beginCooperativeThreadTransaction() ) {
             return null;
         }
@@ -717,8 +717,8 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final int whatToShow,
             final MessageCallback mc)
     {
-		final DateTime localDate = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysBack);
-		final long minDateTime = localDate.withTimeAtStartOfDay().getMillis();
+		final OffsetDateTime localDate = OffsetDateTime.now(DateFun.getTimeZone()).minusDays(maxDaysBack);
+		final long minDateTime = DateFun.toStartOfDayInMilli(localDate);
 
         if( !beginCooperativeThreadTransaction() ) {
             return;

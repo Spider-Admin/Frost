@@ -29,6 +29,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +56,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -546,11 +546,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         final int countFlaggedMessages = MessageStorage.inst().getFlaggedMessageCount(board);
         final int countStarredMessages = MessageStorage.inst().getStarredMessageCount(board);
         final int countUnreadMessages  = MessageStorage.inst().getUnreadMessageCount(board);
-        final DateTime dateTime = MessageStorage.inst().getDateTimeOfLatestMessage(board);
+		final OffsetDateTime dateTime = MessageStorage.inst().getDateTimeOfLatestMessage(board);
         final String dateStr;
         if (dateTime != null) {
-			final DateTime date = dateTime.withTimeAtStartOfDay();
-            dateStr = DateFun.FORMAT_DATE_EXT.print(date);
+			final OffsetDateTime date = DateFun.toStartOfDay(dateTime);
+			dateStr = DateFun.FORMAT_DATE_EXT.format(date);
         } else {
             dateStr = "---";
         }

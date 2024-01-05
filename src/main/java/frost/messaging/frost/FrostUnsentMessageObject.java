@@ -18,6 +18,8 @@
 */
 package frost.messaging.frost;
 
+import java.time.Instant;
+
 import frost.MainFrame;
 import frost.messaging.frost.threads.MessageThread;
 import frost.storage.perst.messages.PerstFrostUnsentMessageObject;
@@ -50,7 +52,8 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
     }
     public String getTimeAddedString() {
         if( timeAddedString == null ) {
-            timeAddedString = DateFun.FORMAT_DATE_EXT.print(timeAdded) + " " + DateFun.FORMAT_TIME_EXT.print(timeAdded);
+			timeAddedString = DateFun.FORMAT_DATE_EXT.format(Instant.ofEpochMilli(timeAdded)) + " "
+					+ DateFun.FORMAT_TIME_EXT.format(Instant.ofEpochMilli(timeAdded));
         }
         return timeAddedString;
     }

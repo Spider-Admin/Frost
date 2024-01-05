@@ -49,6 +49,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.Enumeration;
 import java.util.EventObject;
 
@@ -917,7 +918,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 sb.append("<html>");
                 sb.append(toolTipValue.toString());
                 sb.append("<br>Last seen: ");
-				sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(toolTipId.getLastSeenTimestamp()));
+				sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE
+						.format(Instant.ofEpochMilli(toolTipId.getLastSeenTimestamp())));
                 sb.append("<br>Received messages: ").append(toolTipId.getReceivedMessageCount());
                 sb.append("<br>Comment: <br>").append(toolTipId.getComment().replace("\n", "<br/>"));
                 sb.append("</html>");

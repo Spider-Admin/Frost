@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -447,7 +448,7 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 					return FormatterUtils.formatSize(trackDownloadKey.getFileSize());
 				case 4:
 					final long date = trackDownloadKey.getDownloadFinishedTime();
-					return DateFun.FORMAT_DATE_TIME_VISIBLE.print(date);
+					return DateFun.FORMAT_DATE_TIME_VISIBLE.format(Instant.ofEpochMilli(date));
 				default :
 					throw new RuntimeException("Unknown Column pos");
 			}

@@ -18,10 +18,10 @@
 */
 package frost.messaging.frost.threads;
 
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,19 +275,19 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
     }
 
     private void updateDateRangeForBoard(final Board b, final DateRange dr) {
-		final DateTime nowLocalDate = new DateTime(DateFun.getTimeZone());
-		final long todayMillis = nowLocalDate.plusDays(1).withTimeAtStartOfDay().getMillis();
+		final OffsetDateTime nowLocalDate = OffsetDateTime.now(DateFun.getTimeZone());
+		final long todayMillis = DateFun.toStartOfDayInMilli(nowLocalDate.plusDays(1));
         if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
-			dr.startDate = nowLocalDate.minusDays(b.getMaxMessageDisplay()).withTimeAtStartOfDay().getMillis();
+			dr.startDate = DateFun.toStartOfDayInMilli(nowLocalDate.minusDays(b.getMaxMessageDisplay()));
             dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_DAYS_BACKWARD ) {
-			dr.startDate = nowLocalDate.minusDays(searchConfig.daysBackward).withTimeAtStartOfDay().getMillis();
+			dr.startDate = DateFun.toStartOfDayInMilli(nowLocalDate.minusDays(searchConfig.daysBackward));
             dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
-			dr.startDate = new DateTime(searchConfig.startDate, DateFun.getTimeZone()).withTimeAtStartOfDay()
-					.getMillis();
-			dr.endDate = new DateTime(searchConfig.endDate, DateFun.getTimeZone()).plusDays(1).withTimeAtStartOfDay()
-					.getMillis();
+			dr.startDate = DateFun
+					.toStartOfDayInMilli(DateFun.toOffsetDateTime(searchConfig.startDate, DateFun.getTimeZone()));
+			dr.endDate = DateFun.toStartOfDayInMilli(
+					DateFun.toOffsetDateTime(searchConfig.endDate, DateFun.getTimeZone()).plusDays(1));
         } else {
             // all dates
             dr.startDate = 0;

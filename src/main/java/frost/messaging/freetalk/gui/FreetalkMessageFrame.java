@@ -43,6 +43,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -72,7 +73,6 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -313,10 +313,8 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
             to.senderId = senderId;
             // create a temporary editText that is show in alternate editor
             // the editor will return only new text to us
-			final DateTime now = new DateTime(DateFun.getTimeZone());
-            final String date = DateFun.FORMAT_DATE_EXT.print(now)
-            + " - "
-            + DateFun.FORMAT_TIME_EXT.print(now);
+			final OffsetDateTime now = OffsetDateTime.now(DateFun.getTimeZone());
+			final String date = DateFun.FORMAT_DATE_EXT.format(now) + " - " + DateFun.FORMAT_TIME_EXT.format(now);
             final String fromLine = "----- (sender) ----- " + date + " -----";
             final String editText = newText + fromLine + "\n\n";
 
@@ -449,10 +447,8 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 //        updateSignToolTip();
 
         // prepare message text
-		final DateTime now = new DateTime(DateFun.getTimeZone());
-        final String date = DateFun.FORMAT_DATE_EXT.print(now)
-                        + " - "
-                        + DateFun.FORMAT_TIME_EXT.print(now);
+		final OffsetDateTime now = OffsetDateTime.now(DateFun.getTimeZone());
+		final String date = DateFun.FORMAT_DATE_EXT.format(now) + " - " + DateFun.FORMAT_TIME_EXT.format(now);
         final String fromLine = "----- " + from + " ----- " + date + " -----";
 
         final int headerAreaStart = newText.length();// begin of non-modifiable area

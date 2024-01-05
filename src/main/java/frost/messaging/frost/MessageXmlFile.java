@@ -21,11 +21,11 @@ package frost.messaging.frost;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.time.OffsetDateTime;
 import java.util.Iterator;
 import java.util.List;
 
 import org.bouncycastle.util.encoders.Base64;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CDATASection;
@@ -54,7 +54,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     private String dateStr = "";
     private String timeStr = "";
 
-    private DateTime dateAndTime = null;
+	private OffsetDateTime dateAndTime = null;
 
     protected File file;
 
@@ -649,18 +649,19 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         this.boardName = board;
     }
 
-    public DateTime getDateAndTime() throws Throwable {
+	public OffsetDateTime getDateAndTime() throws Throwable {
         if( dateAndTime == null ) {
-            final long millis = DateFun.FORMAT_DATE.parseDateTime(getDateStr()).getMillis()
-                          + DateFun.FORMAT_TIME.parseDateTime(getTimeStr()).getMillis();
-			dateAndTime = new DateTime(millis, DateFun.getTimeZone());
+			final long millis = DateFun
+					.toMilli(DateFun.parseDate(getDateStr(), DateFun.FORMAT_DATE, DateFun.getTimeZone()))
+					+ DateFun.toMilli(DateFun.parseTime(getTimeStr(), DateFun.FORMAT_TIME, DateFun.getTimeZone()));
+			dateAndTime = DateFun.toOffsetDateTime(millis, DateFun.getTimeZone());
         }
         return dateAndTime;
     }
 
-    public void setDateAndTime(final DateTime dt) {
-        dateAndTime = dt;
-        dateStr = DateFun.FORMAT_DATE.print(dt);
-        timeStr = DateFun.FORMAT_TIME_EXT.print(dt);
-    }
+	public void setDateAndTime(final OffsetDateTime dt) {
+		dateAndTime = dt;
+		dateStr = DateFun.FORMAT_DATE.format(dt);
+		timeStr = DateFun.FORMAT_TIME_EXT.format(dt);
+	}
 }

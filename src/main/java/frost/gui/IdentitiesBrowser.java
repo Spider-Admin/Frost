@@ -32,6 +32,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -62,7 +64,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -426,9 +427,8 @@ public class IdentitiesBrowser extends JDialog {
 			// Cleanup
 			gridBagConstraints5.gridy += 1;
 			gridBagConstraints5.insets = new java.awt.Insets(20,5,0,5);
-			String minDays = Long.toString(((new DateTime(DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis()
-					- new DateTime(minCleanupTime, DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis())
-					/ (1000L * 60L * 60L * 24L)) + 1);
+			String minDays = Long.toString((DateFun.toStartOfDayInMilli(OffsetDateTime.now(DateFun.getTimeZone()))
+					- DateFun.toStartOfDayInMilli(minCleanupTime, DateFun.getTimeZone())) / (1000 * 60 * 60 * 24) + 1);
 
 			JLabel clenupLastSeenLabel = new JLabel(language.formatMessage("IdentitiesBrowser.cleanup.lastSeenLabel.text", minDays));
 			clenupLastSeenLabel.setToolTipText(language.getString("IdentitiesBrowser.cleanup.lastSeenLabel.toolTip"));
@@ -689,9 +689,9 @@ public class IdentitiesBrowser extends JDialog {
 				// not set!
 				return "";
 			}
-			String lsStr = DateFun.FORMAT_DATE_EXT.print(lastSeen);
-			long days = new DateTime(DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis()
-					- new DateTime(lastSeen, DateFun.getTimeZone()).withTimeAtStartOfDay().getMillis();
+			String lsStr = DateFun.FORMAT_DATE_EXT.format(Instant.ofEpochMilli(lastSeen));
+			long days = DateFun.toStartOfDayInMilli(OffsetDateTime.now(DateFun.getTimeZone()))
+					- DateFun.toStartOfDayInMilli(lastSeen, DateFun.getTimeZone());
 			days /= 1000L * 60L * 60L * 24L;
 			lsStr += "  ("+days+")";
 

@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -52,7 +53,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -450,8 +450,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             // scan bui for this board, update board status for: dos today / dos for backload, but not all backload days / dos for all (today and all backload)
             // only respect days that would be updated
             final int maxDaysBack = board.getMaxMessageDownload();
-			final DateTime localDate = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysBack);
-			final long minDateTime = localDate.withTimeAtStartOfDay().getMillis();
+			final OffsetDateTime localDate = OffsetDateTime.now(DateFun.getTimeZone()).minusDays(maxDaysBack);
+			final long minDateTime = DateFun.toStartOfDayInMilli(localDate);
             final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
 
@@ -1297,8 +1297,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
         for( final Board board : model.getAllBoards() ) {
             final int maxDaysBack = board.getMaxMessageDownload();
-			final DateTime localDate = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysBack);
-			final long minDateTime = localDate.withTimeAtStartOfDay().getMillis();
+			final OffsetDateTime localDate = OffsetDateTime.now(DateFun.getTimeZone()).minusDays(maxDaysBack);
+			final long minDateTime = DateFun.toStartOfDayInMilli(localDate);
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
         }
     }

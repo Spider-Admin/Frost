@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -25,7 +26,6 @@ import java.util.List;
 
 import org.garret.perst.IPersistentList;
 import org.garret.perst.Persistent;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,8 +114,9 @@ public class FrostFileListFileObject extends Persistent {
         if( sfo.getKey() != null ) {
             if( sfo.getLastUploaded() != null ) {
                 try {
-                    final DateTime dt = DateFun.FORMAT_DATE.parseDateTime(sfo.getLastUploaded());
-                    lastUploadDate = dt.getMillis();
+					final OffsetDateTime dt = DateFun.parseDate(sfo.getLastUploaded(), DateFun.FORMAT_DATE,
+							DateFun.getTimeZone());
+					lastUploadDate = DateFun.toMilli(dt);
                 } catch(final Throwable t) {
                     logger.error("error parsing file last uploaded date", t);
                 }

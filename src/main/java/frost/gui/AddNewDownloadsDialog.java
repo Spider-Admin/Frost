@@ -28,6 +28,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -672,7 +673,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				downloadedTooltip = new StringBuilder("<html>")
 						.append(language.getString("ManageDownloadTrackingDialog.table.finished"))
 						.append(": ")
-						.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(date))
+						.append(DateFun.FORMAT_DATE_TIME_VISIBLE.format(Instant.ofEpochMilli(date)))
 						.append("<br />\n")
 						.append(language.getString("ManageDownloadTrackingDialog.table.board"))
 						.append(": ")
@@ -719,7 +720,7 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 				existsTooltip = new StringBuilder("<html>")
 						.append(language.getString("AddNewDownloadsDialog.table.lastModifiedTooltip"))
 						.append(": ")
-						.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(date))
+						.append(DateFun.FORMAT_DATE_TIME_VISIBLE.format(Instant.ofEpochMilli(date)))
 						.append("<br />\n")
 						.append(language.getString("AddNewDownloadsDialog.table.fileSizeTooltip"))
 						.append(": ")

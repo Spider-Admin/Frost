@@ -18,9 +18,9 @@
 */
 package frost.messaging.frost.boards;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
-
-import org.joda.time.DateTime;
 
 import frost.MainFrame;
 import frost.util.DateFun;
@@ -139,7 +139,9 @@ public class BoardUpdateInformation {
         sb.append("\n");
         sb.append("Informations for current session:").append("\n");
         sb.append("\n");
-        sb.append("nodeTime: ").append(dayCount).append("d ").append(DateFun.FORMAT_TIME_PLAIN.print(nodeTime)).append("  (").append(FormatterUtils.formatFraction((nodeTime/1000L), getCountTriedIndices())).append(" s/req)\n");
+		sb.append("nodeTime: ").append(dayCount).append("d ")
+				.append(DateFun.FORMAT_TIME_PLAIN.format(Instant.ofEpochMilli(nodeTime))).append("  (")
+				.append(FormatterUtils.formatFraction((nodeTime / 1000L), getCountTriedIndices())).append(" s/req)\n");
         sb.append("\n");
         sb.append("countTriedIndices : ").append(getCountTriedIndices()).append("\n");
         sb.append("currentIndex      : ").append(getCurrentIndex()).append("\n");
@@ -155,9 +157,9 @@ public class BoardUpdateInformation {
     }
 
     public static String getSummaryInfoString(final List<Board> boardList) {
-		final DateTime localDate = new DateTime(DateFun.getTimeZone());
-		final long dateMillis = localDate.withTimeAtStartOfDay().getMillis();
-        final String dirDateString = DateFun.FORMAT_DATE.print(localDate);
+		final OffsetDateTime localDate = OffsetDateTime.now(DateFun.getTimeZone());
+		final long dateMillis = DateFun.toStartOfDayInMilli(localDate);
+		final String dirDateString = DateFun.FORMAT_DATE.format(localDate);
 
         long sumNodeTimeToday = 0;
         int sumCountTriedIndicesToday = 0;
@@ -201,7 +203,10 @@ public class BoardUpdateInformation {
             .append("\n")
             .append("*** Today (").append(dirDateString).append(") ***\n")
             .append("\n")
-            .append("nodeTime: ").append(dayCountToday).append("d ").append(DateFun.FORMAT_TIME_PLAIN.print(sumNodeTimeToday)).append("  (").append(FormatterUtils.formatFraction((sumNodeTimeToday/1000L), sumCountTriedIndicesToday)).append(" s/req)\n")
+				.append("nodeTime: ").append(dayCountToday).append("d ")
+				.append(DateFun.FORMAT_TIME_PLAIN.format(Instant.ofEpochMilli(sumNodeTimeToday))).append("  (")
+				.append(FormatterUtils.formatFraction((sumNodeTimeToday / 1000L), sumCountTriedIndicesToday))
+				.append(" s/req)\n")
             .append("countTriedIndices : ").append(sumCountTriedIndicesToday).append("\n")
             .append("countADNF   : ").append(sumCountADNFToday).append("  (").append(FormatterUtils.formatPercent(sumCountADNFToday,sumCountTriedIndicesToday)).append("%)\n")
             .append("countDNF    : ").append(sumCountDNFToday).append("  (").append(FormatterUtils.formatPercent(sumCountDNFToday,sumCountTriedIndicesToday)).append("%)\n")
@@ -210,7 +215,10 @@ public class BoardUpdateInformation {
             .append("\n")
             .append("*** Overall ***\n")
             .append("\n")
-            .append("nodeTime: ").append(dayCountOverall).append("d ").append(DateFun.FORMAT_TIME_PLAIN.print(sumNodeTimeOverall)).append("  (").append(FormatterUtils.formatFraction((sumNodeTimeOverall/1000L), sumCountTriedIndicesOverall)).append(" s/req)\n")
+				.append("nodeTime: ").append(dayCountOverall).append("d ")
+				.append(DateFun.FORMAT_TIME_PLAIN.format(Instant.ofEpochMilli(sumNodeTimeOverall))).append("  (")
+				.append(FormatterUtils.formatFraction((sumNodeTimeOverall / 1000L), sumCountTriedIndicesOverall))
+				.append(" s/req)\n")
             .append("countTriedIndices: ").append(sumCountTriedIndicesOverall).append("\n")
             .append("countValid  : ").append(sumCountValidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountValidOverall,sumCountTriedIndicesOverall)).append("%)\n")
             .append("countInvalid: ").append(sumCountInvalidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountInvalidOverall,sumCountTriedIndicesOverall)).append("%)\n")

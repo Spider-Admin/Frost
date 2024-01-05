@@ -20,6 +20,7 @@ package frost.messaging.frost.boards;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,7 +36,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,7 +215,7 @@ public class TOF implements PropertyChangeListener {
     /**
      * Add new invalid msg to database
      */
-    public void receivedInvalidMessage(final Board b, final DateTime date, final int index, final String reason) {
+	public void receivedInvalidMessage(final Board b, final OffsetDateTime date, final int index, final String reason) {
         // first add to database, then mark slot used. this way its ok if Frost is shut down after add to db but
         // before mark of the slot.
         final FrostMessageObject invalidMsg = new FrostMessageObject(b, date, index, reason);
@@ -245,7 +245,7 @@ public class TOF implements PropertyChangeListener {
                 // if owner is new, add owner to identities list
                 long lastSeenMillis = 0;
                 try {
-                    lastSeenMillis = currentMsg.getDateAndTime().getMillis();
+					lastSeenMillis = DateFun.toMilli(currentMsg.getDateAndTime());
                 } catch(final Throwable t) {
                     logger.error("Error updating Identities lastSeenTime", t);
                 }
@@ -321,13 +321,12 @@ public class TOF implements PropertyChangeListener {
      * Process incoming message.
      */
     private void processNewMessage(final FrostMessageObject currentMsg, final Board board, final boolean isBlocked) {
-
         // check if msg would be displayed (maxMessageDays)
-		final DateTime min = new DateTime(DateFun.getTimeZone()).minusDays(board.getMaxMessageDisplay())
-				.withTimeAtStartOfDay();
-		final DateTime msgDate = new DateTime(currentMsg.getDateAndTime(), DateFun.getTimeZone());
+		final OffsetDateTime min = DateFun
+				.toStartOfDay(OffsetDateTime.now(DateFun.getTimeZone()).minusDays(board.getMaxMessageDisplay()));
+		final OffsetDateTime msgDate = currentMsg.getDateAndTime();
 
-        if( msgDate.getMillis() > min.getMillis() ) {
+		if (DateFun.toMilli(msgDate) > DateFun.toMilli(min)) {
             // add new message or notify of arrival
             addNewMessageToGui(currentMsg, board, isBlocked);
         } // else msg is not displayed due to maxMessageDisplay

@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.Comparator;
 
 import javax.swing.ImageIcon;
@@ -196,15 +197,18 @@ class UploadTableFormat extends SortedTableFormat<FrostUploadItem> implements La
                 sb.append("<html>").append(uploadItem.getFileName());
                 if( uploadItem.getUploadAddedMillis() > 0 ) {
                     sb.append("<br>Added: ");
-					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(uploadItem.getUploadAddedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE
+							.format(Instant.ofEpochMilli(uploadItem.getUploadAddedMillis())));
                 }
                 if( uploadItem.getUploadStartedMillis() > 0 ) {
                     sb.append("<br>Started: ");
-					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(uploadItem.getUploadStartedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE
+							.format(Instant.ofEpochMilli(uploadItem.getUploadStartedMillis())));
                 }
                 if( uploadItem.getUploadFinishedMillis() > 0 ) {
                     sb.append("<br>Finished: ");
-					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(uploadItem.getUploadFinishedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE
+							.format(Instant.ofEpochMilli(uploadItem.getUploadFinishedMillis())));
                 }
                 sb.append("</html>");
                 tooltip = sb.toString();

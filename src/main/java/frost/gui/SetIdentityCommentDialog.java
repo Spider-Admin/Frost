@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.time.Instant;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -132,10 +133,9 @@ public class SetIdentityCommentDialog extends javax.swing.JFrame {
 		constraints.gridy++;
 
 		// labelLastSeenTimestamp
-		headerPanel.add(new JLabel(
-				"Last seen: " 
-						+ DateFun.FORMAT_DATE_TIME_VISIBLE.print(identity.getLastSeenTimestamp())
-		), constraints);
+		headerPanel.add(new JLabel("Last seen: "
+				+ DateFun.FORMAT_DATE_TIME_VISIBLE.format(Instant.ofEpochMilli(identity.getLastSeenTimestamp()))),
+				constraints);
 
 		constraints.gridy++;
 

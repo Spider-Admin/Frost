@@ -18,11 +18,11 @@
 */
 package frost.storage.perst;
 
+import java.time.OffsetDateTime;
 import java.util.Iterator;
 
 import org.garret.perst.GenericIndex;
 import org.garret.perst.Key;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,8 +102,8 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     public int cleanup(final int maxDaysOld) {
 
         // millis before maxDaysOld days
-		final Long date = new DateTime(DateFun.getTimeZone()).minusDays(maxDaysOld + 1).withTimeAtStartOfDay()
-				.getMillis();
+		final Long date = DateFun
+				.toStartOfDayInMilli(OffsetDateTime.now(DateFun.getTimeZone()).minusDays(maxDaysOld + 1));
 
         // delete all items with msgDate < maxDaysOld
         int deletedCount = 0;

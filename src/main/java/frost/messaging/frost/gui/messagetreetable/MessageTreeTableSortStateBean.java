@@ -21,6 +21,7 @@ package frost.messaging.frost.gui.messagetreetable;
 import java.util.Comparator;
 
 import frost.messaging.frost.FrostMessageObject;
+import frost.util.DateFun;
 
 public class MessageTreeTableSortStateBean {
 
@@ -126,8 +127,8 @@ public class MessageTreeTableSortStateBean {
             }
         }
         public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
-            final long l1 = t1.getDateAndTime().getMillis();
-            final long l2 = t2.getDateAndTime().getMillis();
+			final long l1 = DateFun.toMilli(t1.getDateAndTime());
+			final long l2 = DateFun.toMilli(t2.getDateAndTime());
             if( l1 > l2 ) {
                 return retvalGreater;
             }

@@ -26,7 +26,6 @@ dependencies {
 	implementation(files("lib/perst-4.39.jar"))
 	implementation("org.bouncycastle:bcprov-jdk18on:1.76")
 	implementation("com.toedter:jcalendar:1.4")
-	implementation("joda-time:joda-time:2.12.5")
 	testImplementation(platform("org.junit:junit-bom:5.10.1"))
 	testImplementation("org.junit.jupiter:junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")

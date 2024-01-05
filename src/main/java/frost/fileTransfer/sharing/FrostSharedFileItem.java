@@ -19,6 +19,7 @@
 package frost.fileTransfer.sharing;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.List;
 
 import frost.fileTransfer.FileTransferManager;
@@ -118,7 +119,7 @@ public class FrostSharedFileItem extends ModelItem<FrostSharedFileItem> implemen
         sfxf.setKey(getKey());
         sfxf.setFilename(getFile().getName());
         if( getLastUploaded() != 0 ) {
-            sfxf.setLastUploaded(DateFun.FORMAT_DATE_EXT.print(getLastUploaded()));
+			sfxf.setLastUploaded(DateFun.FORMAT_DATE_EXT.format(Instant.ofEpochMilli(getLastUploaded())));
         } else {
             sfxf.setLastUploaded(null);
         }

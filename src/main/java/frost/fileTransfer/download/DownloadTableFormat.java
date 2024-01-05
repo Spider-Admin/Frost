@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -272,15 +273,18 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
                 sb.append("<html>").append(downloadItem.getFileName());
                 if( downloadItem.getDownloadAddedMillis() > 0 ) {
                     sb.append("<br>Added: ");
-					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(downloadItem.getDownloadAddedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE
+							.format(Instant.ofEpochMilli(downloadItem.getDownloadAddedMillis())));
                 }
                 if( downloadItem.getDownloadStartedMillis() > 0 ) {
                     sb.append("<br>Started: ");
-					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(downloadItem.getDownloadStartedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE
+							.format(Instant.ofEpochMilli(downloadItem.getDownloadStartedMillis())));
                 }
                 if( downloadItem.getDownloadFinishedMillis() > 0 ) {
                     sb.append("<br>Finished: ");
-					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE.print(downloadItem.getDownloadFinishedMillis()));
+					sb.append(DateFun.FORMAT_DATE_TIME_VISIBLE
+							.format(Instant.ofEpochMilli(downloadItem.getDownloadFinishedMillis())));
                 }
                 sb.append("</html>");
                 tooltip = sb.toString();

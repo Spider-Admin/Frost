@@ -23,7 +23,6 @@ import java.util.Iterator;
 import org.garret.perst.Link;
 import org.garret.perst.Persistent;
 import org.garret.perst.Storage;
-import org.joda.time.DateTime;
 
 import frost.messaging.frost.AttachmentList;
 import frost.messaging.frost.BoardAttachment;
@@ -73,7 +72,7 @@ public class PerstFrostArchiveMessageObject extends Persistent {
         messageId =  mo.getMessageId();
         inReplyTo = mo.getInReplyTo();
 
-        dateAndTime = mo.getDateAndTime().getMillis();
+		dateAndTime = DateFun.toMilli(mo.getDateAndTime());
         msgIndex = mo.getIndex();
         fromName = mo.getFromName();
         subject = mo.getSubject();
@@ -151,7 +150,7 @@ public class PerstFrostArchiveMessageObject extends Persistent {
 
         mo.setMessageId(messageId);
         mo.setInReplyTo(inReplyTo);
-		mo.setDateAndTime(new DateTime(dateAndTime, DateFun.getTimeZone()));
+		mo.setDateAndTime(DateFun.toOffsetDateTime(dateAndTime, DateFun.getTimeZone()));
         mo.setIndex(msgIndex);
         mo.setFromName(fromName);
         mo.setSubject(subject);

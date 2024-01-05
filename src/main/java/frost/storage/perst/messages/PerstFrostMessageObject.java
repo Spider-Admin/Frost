@@ -18,9 +18,10 @@
 */
 package frost.storage.perst.messages;
 
+import java.time.OffsetDateTime;
+
 import org.garret.perst.Persistent;
 import org.garret.perst.Storage;
-import org.joda.time.DateTime;
 
 import frost.messaging.frost.AttachmentList;
 import frost.messaging.frost.BoardAttachment;
@@ -97,7 +98,7 @@ public class PerstFrostMessageObject extends Persistent {
             } else {
                 invalidReason = null;
             }
-            dateAndTime = mo.getDateAndTime().getMillis();
+			dateAndTime = DateFun.toMilli(mo.getDateAndTime());
             msgIndex = mo.getIndex();
             fromName = mo.getFromName();
             subject = mo.getSubject();
@@ -176,9 +177,9 @@ public class PerstFrostMessageObject extends Persistent {
         }
     }
 
-    public DateTime getDateTime() {
-		return new DateTime(dateAndTime, DateFun.getTimeZone());
-    }
+	public OffsetDateTime getDateTime() {
+		return DateFun.toOffsetDateTime(dateAndTime, DateFun.getTimeZone());
+	}
 
     public FrostMessageObject toFrostMessageObject(
             final Board board,
