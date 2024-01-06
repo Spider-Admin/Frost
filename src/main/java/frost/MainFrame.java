@@ -38,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -445,6 +446,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 		// init look and feel menu
 		final UIManager.LookAndFeelInfo[] lookAndFeelList = UIManager.getInstalledLookAndFeels();
 		final JMenu lfMenu = new JMenu("Look and feel");
+		final ButtonGroup group = new ButtonGroup();
 
 		final ActionListener al = new ActionListener() {
 			public void actionPerformed(final ActionEvent event) {
@@ -461,6 +463,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 			rmItem.setActionCommand(className);
 			rmItem.setSelected(UIManager.getLookAndFeel().getClass().getName().equals(className));
 			rmItem.addActionListener(al);
+			group.add(rmItem);
 			lfMenu.add(rmItem);
 			lookAndFeels.add(rmItem);
 		}
