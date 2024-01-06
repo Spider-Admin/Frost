@@ -18,13 +18,11 @@
 */
 package frost.fcp.fcp07.filepersistence;
 
-import java.util.Observable;
-
 import frost.fcp.fcp07.NodeMessage;
 import frost.fileTransfer.FreenetPriority;
 
 
-public abstract class FcpPersistentRequest extends Observable {
+public abstract class FcpPersistentRequest {
 
     private String identifier = null;
     
