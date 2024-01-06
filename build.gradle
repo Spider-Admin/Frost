@@ -9,7 +9,7 @@ repositories {
 }
 
 tasks.withType(JavaCompile) {
-	targetCompatibility = "1.8"
+	options.release = 11
 	options.encoding = "UTF-8"
 }
 
