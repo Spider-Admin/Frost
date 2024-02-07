@@ -113,23 +113,22 @@ public class NodeMessage {
         return result;
     }
 
-    public byte[] receiveMessageData(final long datalen) throws IOException {
-        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        final byte[] b = new byte[4096];
-        long bytesLeft = datalen;
-        while( bytesLeft > 0 ) {
-            final int count = fcpInStream.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
-            if( count < 0 ) {
-                break;
-            } else {
-                bytesLeft -= count;
-            }
-            byteOut.write(b, 0, count);
-        }
-        byteOut.close();
-
-        return byteOut.toByteArray();
-    }
+	public byte[] receiveMessageData(final long datalen) throws IOException {
+		try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();) {
+			final byte[] b = new byte[4096];
+			long bytesLeft = datalen;
+			while (bytesLeft > 0) {
+				final int count = fcpInStream.read(b, 0, ((bytesLeft > b.length) ? b.length : (int) bytesLeft));
+				if (count < 0) {
+					break;
+				} else {
+					bytesLeft -= count;
+				}
+				byteOut.write(b, 0, count);
+			}
+			return byteOut.toByteArray();
+		}
+	}
 
     private static String readLine(final BufferedInputStream fcpInp, final ByteArrayOutputStream bytes) {
         try {

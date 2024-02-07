@@ -22,6 +22,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import org.garret.perst.Storage;
 import org.garret.perst.StorageFactory;
@@ -67,89 +68,79 @@ public abstract class AbstractFrostStorage {
         storage.open(databaseFilePath, pagePoolSize);
     }
 
-    public void exportToXml() throws Exception {
-        final File xmlFile = new File( buildStoragePath(getStorageFilename()+".xml") );
+	public void exportToXml() throws Exception {
+		final File xmlFile = new File(buildStoragePath(getStorageFilename() + ".xml"));
 
-        logger.info("Exporting storage file '{}' to XML...", getStorageFilename());
+		logger.info("Exporting storage file '{}' to XML...", getStorageFilename());
 
-        // open storage
-        initStorage();
+		// open storage
+		initStorage();
 
-        // backup storage contents (=compact)
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(xmlFile);
-            getStorage().exportXML(writer);
-            writer.close();
-        } catch(final Exception t) {
-            // error occured, delete bakFile
-            if( writer != null ) {
-                try { writer.close(); } catch(final Exception t2) {}
-            }
-            xmlFile.delete();
-            throw t;
-        }
+		// backup storage contents (=compact)
+		try (FileWriter writer = new FileWriter(xmlFile);) {
+			getStorage().exportXML(writer);
+		} catch (IOException e) {
+			// error occured, delete bakFile
+			xmlFile.delete();
+			throw e;
+		}
 
-        // close storage
-        close();
+		// close storage
+		close();
 
-        logger.info("Finished XML export of storage file {} into {}", getStorageFilename(), xmlFile.getPath());
-    }
+		logger.info("Finished XML export of storage file {} into {}", getStorageFilename(), xmlFile.getPath());
+	}
 
-    public long compactStorage() throws Exception {
-        final File storageFile = new File( buildStoragePath(getStorageFilename()) );
-        final File bakFile = new File( buildStoragePath(getStorageFilename()+".bak") );
-        final File oldFile = new File( buildStoragePath(getStorageFilename()+".old") );
+	public long compactStorage() throws IOException {
+		final File storageFile = new File(buildStoragePath(getStorageFilename()));
+		final File bakFile = new File(buildStoragePath(getStorageFilename() + ".bak"));
+		final File oldFile = new File(buildStoragePath(getStorageFilename() + ".old"));
 
-        logger.info("Compacting storage file '{}'...", getStorageFilename());
+		logger.info("Compacting storage file '{}'...", getStorageFilename());
 
-        final long beforeStorageSize = storageFile.length();
+		final long beforeStorageSize = storageFile.length();
 
-        // open storage
-        initStorage();
+		// open storage
+		initStorage();
 
-        // backup storage contents (=compact)
-        BufferedOutputStream bakStream = null;
-        try {
-            bakStream = new BufferedOutputStream(new FileOutputStream(bakFile));
-            getStorage().backup(bakStream);
-            bakStream.close();
-        } catch(final Exception t) {
-            // error occured, delete bakFile
-            if( bakStream != null ) {
-                try { bakStream.close(); } catch(final Exception t2) {}
-            }
-            bakFile.delete();
-            throw t;
-        }
+		// backup storage contents (=compact)
+		try (BufferedOutputStream bakStream = new BufferedOutputStream(new FileOutputStream(bakFile));) {
+			getStorage().backup(bakStream);
+		} catch (IOException e) {
+			// error occured, delete bakFile
+			bakFile.delete();
+			throw e;
+		}
 
-        // close storage
-        close();
+		// close storage
+		close();
 
-        // make backup version to current version, delete old storage
-        if( !storageFile.renameTo(oldFile) ) {
-            throw new Exception("Failed to rename '"+storageFile.getPath()+"' into '"+oldFile.getPath()+"'!");
-        }
-        if( !bakFile.renameTo(storageFile) ) {
-            // try to rename original storage back
-            if( !oldFile.renameTo(storageFile) ) {
-                throw new Exception("URGENT: Failed to rename '"+oldFile.getPath()+"' back into '"+storageFile.getPath()+"'!");
-            } else {
-                throw new Exception("Failed to rename '"+bakFile.getPath()+"' into '"+storageFile.getPath()+"'!");
-            }
-        }
+		// make backup version to current version, delete old storage
+		if (!storageFile.renameTo(oldFile)) {
+			throw new IOException("Failed to rename '" + storageFile.getPath() + "' into '" + oldFile.getPath() + "'!");
+		}
+		if (!bakFile.renameTo(storageFile)) {
+			// try to rename original storage back
+			if (!oldFile.renameTo(storageFile)) {
+				throw new IOException("URGENT: Failed to rename '" + oldFile.getPath() + "' back into '"
+						+ storageFile.getPath() + "'!");
+			} else {
+				throw new IOException(
+						"Failed to rename '" + bakFile.getPath() + "' into '" + storageFile.getPath() + "'!");
+			}
+		}
 
-        final long afterStorageSize = storageFile.length();
+		final long afterStorageSize = storageFile.length();
 
-        // all went well, delete old file
-        oldFile.delete();
+		// all went well, delete old file
+		oldFile.delete();
 
-        final long savedBytes = beforeStorageSize - afterStorageSize;
+		final long savedBytes = beforeStorageSize - afterStorageSize;
 
-        logger.info("Finished compacting storage file {}, released {} bytes.", getStorageFilename(), savedBytes);
+		logger.info("Finished compacting storage file {}, released {} bytes.", getStorageFilename(), savedBytes);
 
-        return savedBytes;
-    }
+		return savedBytes;
+	}
 
     protected Storage getStorage() {
         return storage;

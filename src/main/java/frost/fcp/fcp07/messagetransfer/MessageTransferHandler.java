@@ -21,6 +21,7 @@ package frost.fcp.fcp07.messagetransfer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -168,47 +169,47 @@ public class MessageTransferHandler implements NodeMessageListener {
 //  handleNodeMessage methods //////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void onAllData(final MessageTransferTask task, final NodeMessage nm) {
-        if( nm.getMessageEnd() == null || !nm.getMessageEnd().equals("Data") ) {
-            logger.error("NodeMessage has invalid end marker: {}", nm.getMessageEnd());
-            return;
-        }
-        // data follow, first get datalength
-        final long dataLength = nm.getLongValue("DataLength");
-        long bytesWritten = 0;
+	protected void onAllData(final MessageTransferTask task, final NodeMessage nm) {
+		if (nm.getMessageEnd() == null || !nm.getMessageEnd().equals("Data")) {
+			logger.error("NodeMessage has invalid end marker: {}", nm.getMessageEnd());
+			return;
+		}
 
-        try {
-            final BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(task.getFile()));
-            final byte[] b = new byte[4096];
-            long bytesLeft = dataLength;
-            int count;
-            final BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocketIn();
-            while( bytesLeft > 0 ) {
-                count = fcpIn.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
-                if( count < 0 ) {
-                    break;
-                } else {
-                    bytesLeft -= count;
-                }
-                fileOut.write(b, 0, count);
-                bytesWritten += count;
-            }
-            fileOut.close();
-        } catch (final Throwable e) {
-            logger.error("Catched exception", e);
-        }
+		// data follow, first get datalength
+		final long dataLength = nm.getLongValue("DataLength");
+		long bytesWritten = 0;
 
-        logger.debug("*GET** Wrote {} of {} bytes to file.", bytesWritten, dataLength);
-        final FcpResultGet result;
-        if( bytesWritten == dataLength ) {
-            // success
-            result = new FcpResultGet(true);
-        } else {
-            result = new FcpResultGet(false);
-        }
-        task.setFcpResultGet(result);
-        setTaskFinished(task);
-    }
+		try (BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(task.getFile()));
+				BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocketIn();) {
+			final byte[] b = new byte[4096];
+			long bytesLeft = dataLength;
+			int count;
+
+			while (bytesLeft > 0) {
+				count = fcpIn.read(b, 0, ((bytesLeft > b.length) ? b.length : (int) bytesLeft));
+				if (count < 0) {
+					break;
+				} else {
+					bytesLeft -= count;
+				}
+				fileOut.write(b, 0, count);
+				bytesWritten += count;
+			}
+		} catch (IOException e) {
+			logger.error("Catched exception", e);
+		}
+
+		logger.debug("*GET** Wrote {} of {} bytes to file.", bytesWritten, dataLength);
+		final FcpResultGet result;
+		if (bytesWritten == dataLength) {
+			// success
+			result = new FcpResultGet(true);
+		} else {
+			result = new FcpResultGet(false);
+		}
+		task.setFcpResultGet(result);
+		setTaskFinished(task);
+	}
 
     protected void onGetFailed(final MessageTransferTask task, final NodeMessage nm) {
         final int returnCode = nm.getIntValue("Code");

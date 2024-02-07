@@ -199,22 +199,23 @@ public class FcpConnection {
                 // data follow, first get datalength
                 final long dataLength = nodeMsg.getLongValue("DataLength");
 
-                final BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(targetFile));
-                final byte[] b = new byte[4096];
-                long bytesLeft = dataLength;
-                long bytesWritten = 0;
-                int count;
-                while( bytesLeft > 0 ) {
-                    count = fcpSocket.getFcpIn().read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
-                    if( count < 0 ) {
-                        break;
-                    } else {
-                        bytesLeft -= count;
-                    }
-                    fileOut.write(b, 0, count);
-                    bytesWritten += count;
-                }
-                fileOut.close();
+				long bytesWritten = 0;
+				try (BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(targetFile));) {
+					final byte[] b = new byte[4096];
+					long bytesLeft = dataLength;
+					int count;
+					while (bytesLeft > 0) {
+						count = fcpSocket.getFcpIn().read(b, 0, ((bytesLeft > b.length) ? b.length : (int) bytesLeft));
+						if (count < 0) {
+							break;
+						} else {
+							bytesLeft -= count;
+						}
+						fileOut.write(b, 0, count);
+						bytesWritten += count;
+					}
+				}
+
                 logger.debug("*GET** Wrote {} of {} bytes to file.", bytesWritten, dataLength);
                 if( bytesWritten == dataLength ) {
                     isSuccess = true;
@@ -329,11 +330,6 @@ public class FcpConnection {
             useDDA = TestDDAHelper.isDDAPossibleDirect(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir, fcpSocket);
         }
 
-        BufferedOutputStream dataOutput = null;
-        if( !useDDA ) {
-            dataOutput = new BufferedOutputStream(fcpSocket.getFcpSock().getOutputStream());
-        }
-
         final List<String> msg = new ArrayList<String>(20);
         msg.add("ClientPut");
         msg.add("URI=" + keyString);
@@ -401,16 +397,17 @@ public class FcpConnection {
             sendMessage(msg);
 
 			// write complete file to socket
-            final BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
-			while( true ) {
-				final int d = fileInput.read();
-				if( d < 0 ) {
-					break; // EOF
+			try (BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
+					BufferedOutputStream dataOutput = new BufferedOutputStream(
+							fcpSocket.getFcpSock().getOutputStream());) {
+				while (true) {
+					final int d = fileInput.read();
+					if (d < 0) {
+						break; // EOF
+					}
+					dataOutput.write(d);
 				}
-				dataOutput.write(d);
 			}
-            fileInput.close();
-            dataOutput.flush();
 		}
 
         // receive and process node messages
@@ -482,10 +479,6 @@ public class FcpConnection {
                 }
                 continue;
             }
-        }
-
-        if( dataOutput != null ) {
-            dataOutput.close();
         }
 
         close();

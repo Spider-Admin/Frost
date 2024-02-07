@@ -30,7 +30,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -120,26 +122,26 @@ public class XMLTools {
         return writeXmlFile(doc, new File(filename));
     }
 
-    /**
-     * This method writes a DOM document to a file.
-     */
-    public static boolean writeXmlFile(final Document doc, final File file) {
-        try {
-            final Transformer tr = TransformerFactory.newInstance().newTransformer();
-            tr.setOutputProperty(OutputKeys.INDENT, "no");
-            tr.setOutputProperty(OutputKeys.METHOD, "xml");
-            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            final Source input = new DOMSource(doc);
-            final FileOutputStream fileout = new FileOutputStream(file);
-            final StreamResult output = new StreamResult(fileout);
-            tr.transform(input, output);
-            fileout.close();
-            return true;
-        } catch (final Exception ex) {
-            logger.error("Exception thrown in writeXmlFile(Document doc, String filename)", ex);
-        }
-        return false;
-    }
+	/**
+	 * This method writes a DOM document to a file.
+	 */
+	public static boolean writeXmlFile(final Document doc, final File file) {
+		try (FileOutputStream fileout = new FileOutputStream(file);) {
+			final StreamResult output = new StreamResult(fileout);
+
+			final Transformer tr = TransformerFactory.newInstance().newTransformer();
+			tr.setOutputProperty(OutputKeys.INDENT, "no");
+			tr.setOutputProperty(OutputKeys.METHOD, "xml");
+			tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			final Source input = new DOMSource(doc);
+
+			tr.transform(input, output);
+			return true;
+		} catch (IOException | TransformerException | TransformerFactoryConfigurationError e) {
+			logger.error("Exception thrown in writeXmlFile(Document doc, String filename)", e);
+		}
+		return false;
+	}
 
     /**
      * This method creates a new DOM document.

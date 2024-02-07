@@ -153,39 +153,35 @@ public final class FrostCrypt {
         return null;
     }
 
-    /**
-     * Computes the SHA-1 checksum of given file.
-     */
-    public synchronized String digest(File file) {
-        SHA1Digest stomach = new SHA1Digest();
-        byte[] poop = new byte[64];
-        FileChannel chan = null;
-        try {
-            chan = (new FileInputStream(file)).getChannel();
-        } catch (IOException e) {
-            logger.error("Exception thrown in digest(File file)", e);
-        }
-        byte[] temp = new byte[4 * 1024];
-        ByteBuffer _temp = ByteBuffer.wrap(temp);
-        try {
-            while (true) {
-                //if (y >= file.length()) break;
-                //if (y > file.length()) y = file.length();
-                int pos = _temp.position();
-                int read = chan.read(_temp);
-                if (read == -1)
-                    break;
-                stomach.update(temp, pos, read);
-                if (_temp.remaining() == 0)
-                    _temp.position(0);
-            }
-            chan.close();
-        } catch (IOException e) {
-            logger.error("Exception thrown in digest(File file)", e);
-        }
-        stomach.doFinal(poop, 0);
-        return (new String(Base64.encode(poop))).substring(0, 27);
-    }
+	/**
+	 * Computes the SHA-1 checksum of given file.
+	 */
+	public synchronized String digest(File file) {
+		SHA1Digest stomach = new SHA1Digest();
+		byte[] poop = new byte[64];
+
+		try (FileChannel chan = (new FileInputStream(file)).getChannel();) {
+			byte[] temp = new byte[4 * 1024];
+			ByteBuffer _temp = ByteBuffer.wrap(temp);
+			while (true) {
+				// if (y >= file.length()) break;
+				// if (y > file.length()) y = file.length();
+				int pos = _temp.position();
+				int read = chan.read(_temp);
+				if (read == -1) {
+					break;
+				}
+				stomach.update(temp, pos, read);
+				if (_temp.remaining() == 0) {
+					_temp.position(0);
+				}
+			}
+		} catch (IOException e) {
+			logger.error("Exception thrown in digest(File file)", e);
+		}
+		stomach.doFinal(poop, 0);
+		return (new String(Base64.encode(poop))).substring(0, 27);
+	}
 
     public synchronized String encrypt(String what, String publicKey) {
         try {
@@ -271,24 +267,22 @@ public final class FrostCrypt {
             return null;
         }
 
-        // encrypt content using AES
+		// encrypt content using AES
+		try (ByteArrayOutputStream plainOut = new ByteArrayOutputStream(
+				what.length + (what.length / 10) + rsaEncData.length);
+				CipherOutputStream cOut = new CipherOutputStream(plainOut, cipherAES);) {
+			// write RSA encrypted data
+			plainOut.write(rsaEncData);
 
-        ByteArrayOutputStream plainOut = new ByteArrayOutputStream(what.length + (what.length/10) +rsaEncData.length);
-        try {
-            // write RSA encrypted data
-            plainOut.write(rsaEncData);
+			// encrypt
+			cOut.write(what);
 
-            // encrypt
-            CipherOutputStream cOut = new CipherOutputStream(plainOut, cipherAES);
-            cOut.write(what);
-
-            cOut.close();
-        } catch (IOException e) {
-            logger.error("Error in encrypt, AES encryption", e);
-            return null;
-        }
-        return plainOut.toByteArray();
-    }
+			return plainOut.toByteArray();
+		} catch (IOException e) {
+			logger.error("Error in encrypt, AES encryption", e);
+			return null;
+		}
+	}
 
     public synchronized String decrypt(String what, String privateKey) {
         try {
@@ -367,28 +361,25 @@ public final class FrostCrypt {
             return null;
         }
 
-        // decrypt aes
-        ByteArrayOutputStream plainOut = new ByteArrayOutputStream(what.length - cipherRSAinSize);
-
-        ByteArrayInputStream bIn = new ByteArrayInputStream(what, cipherRSAinSize, what.length-cipherRSAinSize);
-        CipherInputStream cIn = new CipherInputStream(bIn, cipherAES);
-
-        try {
-            byte[] buf = new byte[1024];
-            while(true) {
-                int bLen = cIn.read(buf);
-                if( bLen < 0 ) {
-                    break; // eof
-                }
-                plainOut.write(buf, 0, bLen);
-            }
-            cIn.close();
-        } catch (Throwable e) {
-            logger.error("Error in decrypt, AES decryption", e);
-            return null;
-        }
-        return plainOut.toByteArray();
-    }
+		// decrypt aes
+		try (ByteArrayOutputStream plainOut = new ByteArrayOutputStream(what.length - cipherRSAinSize);
+				ByteArrayInputStream bIn = new ByteArrayInputStream(what, cipherRSAinSize,
+						what.length - cipherRSAinSize);
+				CipherInputStream cIn = new CipherInputStream(bIn, cipherAES);) {
+			byte[] buf = new byte[1024];
+			while (true) {
+				int bLen = cIn.read(buf);
+				if (bLen < 0) {
+					break; // eof
+				}
+				plainOut.write(buf, 0, bLen);
+			}
+			return plainOut.toByteArray();
+		} catch (IOException e) {
+			logger.error("Error in decrypt, AES decryption", e);
+			return null;
+		}
+	}
 
     public synchronized String detachedSign(String message, String key){
         try {
@@ -563,54 +554,43 @@ public final class FrostCrypt {
         }
         return null;
     }
-    
-    /**
-     * Computes the SHA256 checksum of a file.
-     */
-    public String computeChecksumSHA256(File file) {
-        try {
-            FileChannel chan = null;
-            try {
-                chan = (new FileInputStream(file)).getChannel();
-            } catch (Throwable e) {
-                logger.error("Exception thrown 1", e);
-                return null;
-            }
-            
-            MessageDigest sha256 = MessageDigest.getInstance("SHA256", "BC");
-            
-            byte[] temp = new byte[4 * 1024];
-            ByteBuffer _temp = ByteBuffer.wrap(temp);
-            try {
-                while (true) {
-                    //if (y >= file.length()) break;
-                    //if (y > file.length()) y = file.length();
-                    int pos = _temp.position();
-                    int read = chan.read(_temp);
-                    if (read == -1)
-                        break;
-                    sha256.update(temp, pos, read);
-                    if (_temp.remaining() == 0)
-                        _temp.position(0);
-                }
-                chan.close();
-            } catch (Throwable e) {
-                logger.error("Exception thrown 2", e);
-            }
-            
-            byte[] poop = sha256.digest();
-            
-            StringBuilder sb = new StringBuilder();
-            for (int i=0; i < poop.length; i++) {
-                sb.append(Integer.toString( ( poop[i] & 0xff ) + 0x100 , 16).substring(1));
-            }
-            return sb.toString().toUpperCase();
-            
-        } catch (NoSuchAlgorithmException ex) {
-            logger.error("Algorithm SHA256 not supported.", ex);
-        } catch (NoSuchProviderException ex) {
-            logger.error("Provider BC not supported.", ex);
-        }
-        return null;
-    }
+
+	/**
+	 * Computes the SHA256 checksum of a file.
+	 */
+	public String computeChecksumSHA256(File file) {
+		try (FileChannel chan = (new FileInputStream(file)).getChannel();) {
+			MessageDigest sha256 = MessageDigest.getInstance("SHA256", "BC");
+
+			byte[] temp = new byte[4 * 1024];
+			ByteBuffer _temp = ByteBuffer.wrap(temp);
+			while (true) {
+				// if (y >= file.length()) break;
+				// if (y > file.length()) y = file.length();
+				int pos = _temp.position();
+				int read = chan.read(_temp);
+				if (read == -1) {
+					break;
+				}
+				sha256.update(temp, pos, read);
+				if (_temp.remaining() == 0) {
+					_temp.position(0);
+				}
+			}
+
+			byte[] poop = sha256.digest();
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < poop.length; i++) {
+				sb.append(Integer.toString((poop[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			return sb.toString().toUpperCase();
+		} catch (IOException e) {
+			logger.error("IOException thrown.", e);
+		} catch (NoSuchAlgorithmException e) {
+			logger.error("Algorithm SHA256 not supported.", e);
+		} catch (NoSuchProviderException e) {
+			logger.error("Provider BC not supported.", e);
+		}
+		return null;
+	}
 }

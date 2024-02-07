@@ -21,6 +21,7 @@ package frost.util.gui.translation;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -73,46 +74,41 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
         return bundle.containsKey(key);
     }
 
-    /**
-     * Save the bundle to a file.
-     * Returns false if save was not successful.
-     */
-    public boolean saveBundleToFile(final String localeName) {
-        try {
-            final File externalBundleDir = new File(EXTERNAL_BUNDLE_DIR);
-            if( !externalBundleDir.isDirectory() ) {
-                externalBundleDir.mkdirs();
-            }
-            final String filename = EXTERNAL_BUNDLE_DIR + "langres_"+localeName+".properties";
-            final PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")));
+	/**
+	 * Save the bundle to a file. Returns false if save was not successful.
+	 */
+	public boolean saveBundleToFile(final String localeName) {
+		final File externalBundleDir = new File(EXTERNAL_BUNDLE_DIR);
+		if (!externalBundleDir.isDirectory()) {
+			externalBundleDir.mkdirs();
+		}
+		final String filename = EXTERNAL_BUNDLE_DIR + "langres_" + localeName + ".properties";
+		try (PrintWriter out = new PrintWriter(
+				new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")));) {
+			final TreeMap<String, String> sorter = new TreeMap<String, String>(bundle);
+			for (final String string : sorter.keySet()) {
+				String key = string;
+				String val = getString(key);
+				key = key.trim();
+				val = val.trim();
+				// change newlines in val into \n
+				final StringBuilder sbTmp = new StringBuilder();
+				for (int x = 0; x < val.length(); x++) {
+					final char c = val.charAt(x);
+					if (c == '\n') {
+						sbTmp.append("\\n");
+					} else {
+						sbTmp.append(c);
+					}
+				}
+				val = sbTmp.toString();
 
-            final TreeMap<String,String> sorter = new TreeMap<String,String>(bundle);
-
-            for( final String string : sorter.keySet() ) {
-                String key = string;
-                String val = getString(key);
-                key = key.trim();
-                val = val.trim();
-                // change newlines in val into \n
-                final StringBuilder sbTmp = new StringBuilder();
-                for(int x=0; x < val.length(); x++) {
-                    final char c = val.charAt(x);
-                    if( c == '\n' ) {
-                        sbTmp.append("\\n");
-                    } else {
-                        sbTmp.append(c);
-                    }
-                }
-                val = sbTmp.toString();
-
-                out.println(key + "=" + val);
-            }
-
-            out.close();
-            return true;
-        } catch(final Throwable t) {
-            logger.error("Error saving bundle.", t);
-            return false;
-        }
-    }
+				out.println(key + "=" + val);
+			}
+			return true;
+		} catch (IOException e) {
+			logger.error("Error saving bundle.", e);
+			return false;
+		}
+	}
 }

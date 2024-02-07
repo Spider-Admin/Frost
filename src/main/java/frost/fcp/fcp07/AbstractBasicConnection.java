@@ -80,48 +80,47 @@ public abstract class AbstractBasicConnection {
         }
     }
 
-    /**
-     * Writes a message together with data from the specified source file to the socket.
-     * Ensures that only 1 thread writes at any time (writeSocketLock).
-     * @param message     the message to send
-     * @param sourceFile  file containing the data to be send
-     */
-    public boolean sendMessageAndData(final List<String> message, final File sourceFile) {
+	/**
+	 * Writes a message together with data from the specified source file to the
+	 * socket. Ensures that only 1 thread writes at any time (writeSocketLock).
+	 * 
+	 * @param message    the message to send
+	 * @param sourceFile file containing the data to be send
+	 */
+	public boolean sendMessageAndData(final List<String> message, final File sourceFile) {
+		writeSocketLock.lock();
+		try {
+			logger.debug("### SEND_DATA >>>>>>>");
+			for (final String msgLine : message) {
+				fcpSocket.getFcpOut().println(msgLine);
+				logger.debug("{}", msgLine);
+			}
 
-        writeSocketLock.lock();
-        try {
-            logger.debug("### SEND_DATA >>>>>>>");
-            for( final String msgLine : message ) {
-                fcpSocket.getFcpOut().println(msgLine);
-                logger.debug("{}", msgLine);
-            }
+			fcpSocket.getFcpOut().println("DataLength=" + Long.toString(sourceFile.length()));
+			fcpSocket.getFcpOut().println("Data");
+			fcpSocket.getFcpOut().flush();
 
-            fcpSocket.getFcpOut().println("DataLength=" + Long.toString(sourceFile.length()));
-            fcpSocket.getFcpOut().println("Data");
+			// send file
+			try (BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));) {
+				while (true) {
+					final int d = fileInput.read();
+					if (d < 0) {
+						break; // EOF
+					}
+					fcpSocket.getFcpRawOut().write(d);
+				}
+			}
+			fcpSocket.getFcpRawOut().flush();
 
-            fcpSocket.getFcpOut().flush();
-
-            // send file
-            final BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
-            while( true ) {
-                final int d = fileInput.read();
-                if( d < 0 ) {
-                    break; // EOF
-                }
-                fcpSocket.getFcpRawOut().write(d);
-            }
-            fileInput.close();
-            fcpSocket.getFcpRawOut().flush();
-
-            logger.debug("### SEND_DATA <<<<<<<");
-            return false; // no error
-        } catch(final Throwable t) {
-            logger.error("Error sending file to socket", t);
-            return true; // error
-        } finally {
-            writeSocketLock.unlock();
-        }
-    }
+			logger.debug("### SEND_DATA <<<<<<<");
+			return false; // no error
+		} catch (final Throwable t) {
+			logger.error("Error sending file to socket", t);
+			return true; // error
+		} finally {
+			writeSocketLock.unlock();
+		}
+	}
 
     /**
      * Writes a message together with data from the specified byte array to the socket.

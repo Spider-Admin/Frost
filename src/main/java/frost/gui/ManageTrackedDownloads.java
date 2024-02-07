@@ -27,7 +27,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
@@ -280,16 +279,12 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 	}
 
 	/**
-	 * @param e
+	 * @param event
 	 */
-	private void addKeysButton_actionPerformed(final ActionEvent e) {
+	private void addKeysButton_actionPerformed(final ActionEvent event) {
 		// Open choose Directory dialog
 		final JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(
-			new java.io.File(
-				Core.frostSettings.getDefaultValue(SettingsClass.DIR_DOWNLOAD)
-			)
-		);
+		fileChooser.setCurrentDirectory(new File(Core.frostSettings.getDefaultValue(SettingsClass.DIR_DOWNLOAD)));
 		fileChooser.setDialogTitle(language.getString("AddNewDownloadsDialog.changeDirDialog.title"));
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		fileChooser.setAcceptAllFileFilterUsed(false);
@@ -297,28 +292,21 @@ public class ManageTrackedDownloads extends javax.swing.JDialog {
 			return;
 		}
 
-        try {
-            final File selectedFile = fileChooser.getSelectedFile();
-            final FileReader fileReader = new FileReader(selectedFile);
-            final BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String strLine;
-            try {
-                while ((strLine = bufferedReader.readLine()) != null) {
-                    if (strLine.startsWith("CHK@") && FreenetKeys.isValidKey(strLine)) {
-                        final String fileName = strLine.substring(strLine.lastIndexOf("/") + 1);
-                        trackDownloadKeysStorage.storeItem(new TrackDownloadKeys(strLine, fileName, "", selectedFile.length(), System
-                                .currentTimeMillis()));
-                    }
-                }
-            } finally {
-                bufferedReader.close();
-            }
-        } catch (final FileNotFoundException ex) {
-            logger.error("FileNotFoundException", ex);
-        } catch (final IOException ex) {
-            logger.error("IOException", ex);
-        }
-        loadTrackedDownloadsIntoTable();
+		final File selectedFile = fileChooser.getSelectedFile();
+		try (FileReader fileReader = new FileReader(selectedFile);
+				BufferedReader bufferedReader = new BufferedReader(fileReader);) {
+			String strLine;
+			while ((strLine = bufferedReader.readLine()) != null) {
+				if (strLine.startsWith("CHK@") && FreenetKeys.isValidKey(strLine)) {
+					final String fileName = strLine.substring(strLine.lastIndexOf("/") + 1);
+					trackDownloadKeysStorage.storeItem(new TrackDownloadKeys(strLine, fileName, "",
+							selectedFile.length(), System.currentTimeMillis()));
+				}
+			}
+		} catch (final IOException e) {
+			logger.error("IOException", e);
+		}
+		loadTrackedDownloadsIntoTable();
 	}
 
 	/**

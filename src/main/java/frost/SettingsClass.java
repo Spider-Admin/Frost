@@ -349,96 +349,81 @@ public class SettingsClass implements ExitSavable {
         return val;
     }
 
-    public boolean readSettingsFile() {
-        LineNumberReader settingsReader = null;
-        String line;
+	public boolean readSettingsFile() {
+		// maybe restore a .bak of the .ini file
+		if ((settingsFile.isFile() == false) || (settingsFile.length() == 0)) {
+			// try to restore .bak file
+			final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
+			final File bakFile = new File(configDirStr + "frost.ini.bak");
+			if (bakFile.isFile() && (bakFile.length() > 0)) {
+				bakFile.renameTo(settingsFile);
+			} else {
+				return false;
+			}
+		}
 
-        // maybe restore a .bak of the .ini file
-        if ((settingsFile.isFile() == false) || (settingsFile.length() == 0) ) {
-            // try to restore .bak file
-            final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
-            final File bakFile = new File(configDirStr + "frost.ini.bak");
-            if( bakFile.isFile() && (bakFile.length() > 0) ) {
-                bakFile.renameTo(settingsFile);
-            } else {
-                return false;
-            }
-        }
+		String line = null;
+		try (LineNumberReader settingsReader = new LineNumberReader(new FileReader(settingsFile));) {
+			while ((line = settingsReader.readLine()) != null) {
+				line = line.trim();
+				if ((line.length() != 0) && (line.startsWith("#") == false)) {
+					final StringTokenizer strtok = new StringTokenizer(line, "=");
+					String key = "";
+					String value = "";
+					Object objValue = value;
+					if (strtok.countTokens() >= 2) {
+						key = strtok.nextToken().trim();
+						value = strtok.nextToken().trim();
+						// to allow '=' in values
+						while (strtok.hasMoreElements()) {
+							value += "=" + strtok.nextToken();
+						}
+						if (value.startsWith("type.color(") && value.endsWith(")")) {
+							// this is a color
+							final String rgbPart = value.substring(11, value.length() - 1);
+							final StringTokenizer strtok2 = new StringTokenizer(rgbPart, ",");
 
-        try {
-            settingsReader = new LineNumberReader(new FileReader(settingsFile));
-        } catch (final Exception e) {
-            logger.warn("{} does not exist, will create it", settingsFile.getName());
-            return false;
-        }
-        try {
-            while ((line = settingsReader.readLine()) != null) {
-                line = line.trim();
-                if ((line.length() != 0) && (line.startsWith("#") == false)) {
-                    final StringTokenizer strtok = new StringTokenizer(line, "=");
-                    String key = "";
-                    String value = "";
-                    Object objValue = value;
-                    if (strtok.countTokens() >= 2) {
-                        key = strtok.nextToken().trim();
-                        value = strtok.nextToken().trim();
-                        // to allow '=' in values
-                        while (strtok.hasMoreElements()) {
-                            value += "=" + strtok.nextToken();
-                        }
-                        if (value.startsWith("type.color(") && value.endsWith(")")) {
-                            // this is a color
-                            final String rgbPart = value.substring(11, value.length() - 1);
-                            final StringTokenizer strtok2 = new StringTokenizer(rgbPart, ",");
+							if (strtok2.countTokens() == 3) {
+								try {
+									int red, green, blue;
+									red = Integer.parseInt(strtok2.nextToken().trim());
+									green = Integer.parseInt(strtok2.nextToken().trim());
+									blue = Integer.parseInt(strtok2.nextToken().trim());
+									final Color c = new Color(red, green, blue);
+									objValue = c;
+								} catch (NumberFormatException e) {
+									objValue = null;
+								}
+							} else {
+								objValue = null; // dont insert in settings, use default instead
+							}
+						}
+						// scan all path config values and set correct system file separator
+						else if (key.equals(SettingsClass.DIR_TEMP) || key.equals(DIR_LOCALDATA)
+								|| key.equals(DIR_STORE) || key.equals(DIR_DOWNLOAD) || key.equals(DIR_LAST_USED)) {
+							value = setSystemFileSeparator(value);
+							objValue = value;
+						} else {
+							// 'old' behaviour
+							objValue = value;
+						}
+						if (objValue != null) {
+							settingsHash.put(key, objValue);
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			logger.error("Exception thrown in readSettingsFile()", e);
+			return false;
+		}
 
-                            if (strtok2.countTokens() == 3) {
-                                try {
-                                    int red, green, blue;
-                                    red = Integer.parseInt(strtok2.nextToken().trim());
-                                    green = Integer.parseInt(strtok2.nextToken().trim());
-                                    blue = Integer.parseInt(strtok2.nextToken().trim());
-                                    final Color c = new Color(red, green, blue);
-                                    objValue = c;
-                                } catch (final Exception ex) {
-                                    objValue = null;
-                                }
-                            } else {
-                                objValue = null; // dont insert in settings, use default instead
-                            }
-                        }
-                        // scan all path config values and set correct system file separator
-                        else if (  key.equals(SettingsClass.DIR_TEMP)
-                                || key.equals(DIR_LOCALDATA)
-                                || key.equals(DIR_STORE)
-                                || key.equals(DIR_DOWNLOAD)
-                                || key.equals(DIR_LAST_USED)) {
-                            value = setSystemFileSeparator(value);
-                            objValue = value;
-                        } else {
-                            // 'old' behaviour
-                            objValue = value;
-                        }
-                        if (objValue != null) {
-                            settingsHash.put(key, objValue);
-                        }
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            logger.error("Exception thrown in readSettingsFile()", e);
-        }
-        try {
-            settingsReader.close();
-        } catch (final Exception e) {
-            logger.error("Exception thrown in readSettingsFile()", e);
-        }
+		doCleanup();
+		doChanges();
 
-        doCleanup();
-        doChanges();
-
-        logger.info("Read user configuration");
-        return true;
-    }
+		logger.info("Read user configuration");
+		return true;
+	}
 
     /**
      * Adjust values as needed.
@@ -479,58 +464,43 @@ public class SettingsClass implements ExitSavable {
         settingsHash.remove("compactDatabaseTables");
     }
 
-    private boolean writeSettingsFile() {
-        // ensure the config directory exists
-        final File configDir = new File("config");
-        if (!configDir.isDirectory()) {
-            configDir.mkdirs(); // if the config dir doesn't exist, we create it
-        }
+	private boolean writeSettingsFile() {
+		// ensure the config directory exists
+		final File configDir = new File("config");
+		if (!configDir.isDirectory()) {
+			configDir.mkdirs(); // if the config dir doesn't exist, we create it
+		}
 
-        // write to new file
-        final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
-        final File newFile = new File(configDirStr + "frost.ini.new");
-        final File oldFile = new File(configDirStr + "frost.ini.old");
-        final File bakFile = new File(configDirStr + "frost.ini.bak");
+		// write to new file
+		final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
+		final File newFile = new File(configDirStr + "frost.ini.new");
+		final File oldFile = new File(configDirStr + "frost.ini.old");
+		final File bakFile = new File(configDirStr + "frost.ini.bak");
 
-        final PrintWriter settingsWriter;
-        try {
-            settingsWriter = new PrintWriter(new FileWriter(newFile));
-        } catch (final IOException exception) {
-            logger.error("Exception thrown in writeSettingsFile()", exception);
-            return false;
-        }
+		try (PrintWriter settingsWriter = new PrintWriter(new FileWriter(newFile));) {
+			final TreeMap<String, Object> sortedSettings = new TreeMap<String, Object>(settingsHash); // sort the lines
+			final Iterator<String> i = sortedSettings.keySet().iterator();
+			while (i.hasNext()) {
+				final String key = i.next();
+				if (key.equals(DIR_CONFIG)) {
+					continue; // do not save the config dir, its unchangeable
+				}
 
-        final TreeMap<String,Object> sortedSettings = new TreeMap<String,Object>(settingsHash); // sort the lines
-        final Iterator<String> i = sortedSettings.keySet().iterator();
-        while (i.hasNext()) {
-            final String key = i.next();
-            if (key.equals(DIR_CONFIG)) {
-                continue; // do not save the config dir, its unchangeable
-            }
+				String val = null;
+				if (sortedSettings.get(key) instanceof Color) {
+					final Color c = (Color) sortedSettings.get(key);
+					val = new StringBuilder().append("type.color(").append(c.getRed()).append(",").append(c.getGreen())
+							.append(",").append(c.getBlue()).append(")").toString();
+				} else {
+					val = sortedSettings.get(key).toString();
+				}
 
-            String val = null;
-            if (sortedSettings.get(key) instanceof Color) {
-                final Color c = (Color) sortedSettings.get(key);
-                val = new StringBuilder()
-                        .append("type.color(")
-                        .append(c.getRed()).append(",")
-                        .append(c.getGreen()).append(",")
-                        .append(c.getBlue())
-                        .append(")")
-                        .toString();
-            } else {
-                val = sortedSettings.get(key).toString();
-            }
-
-            settingsWriter.println(key + "=" + val);
-        }
-
-        try {
-            settingsWriter.close();
-        } catch (final Exception e) {
-            logger.error("Exception thrown in writeSettingsFile", e);
-            return false;
-        }
+				settingsWriter.println(key + "=" + val);
+			}
+		} catch (final IOException e) {
+			logger.error("Exception thrown in writeSettingsFile", e);
+			return false;
+		}
 
         oldFile.delete();
 

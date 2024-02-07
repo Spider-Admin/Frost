@@ -224,9 +224,6 @@ public class FcpMultiRequestConnectionFileTransferTools {
             return null;
         }
 
-        final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
-
-
         final List<String> msg = getDefaultPutMessage(id, sourceFile, fileName, doMime, setTargetFileName, compress, freenetCompatibilityMode, prio);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
@@ -237,17 +234,17 @@ public class FcpMultiRequestConnectionFileTransferTools {
         }
         newSocket.getFcpOut().flush();
 
-        // write complete file to socket
-        final BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
-        while( true ) {
-            final int d = fileInput.read();
-            if( d < 0 ) {
-                break; // EOF
-            }
-            dataOutput.write(d);
-        }
-        fileInput.close();
-        dataOutput.flush();
+		// write complete file to socket
+		try (BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
+				BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));) {
+			while (true) {
+				final int d = fileInput.read();
+				if (d < 0) {
+					break; // EOF
+				}
+				dataOutput.write(d);
+			}
+		}
 
         // XXX: For some reason Freenet never responds with an OK-message?
 
@@ -258,8 +255,6 @@ public class FcpMultiRequestConnectionFileTransferTools {
 
         logger.debug("*PPUT** NodeMessage:");
         logger.debug("{}", nodeMsg);
-
-        dataOutput.close();
 
         newSocket.close();
 
@@ -305,21 +300,23 @@ public class FcpMultiRequestConnectionFileTransferTools {
             // data follow, first get datalength
             final long dataLength = nodeMsg.getLongValue("DataLength");
 
-            final BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(targetFile));
-            final byte[] b = new byte[4096];
-            long bytesLeft = dataLength;
-            long bytesWritten = 0;
-            while( bytesLeft > 0 ) {
-                final int count = newSocket.getFcpIn().read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
-                if( count < 0 ) {
-                    break;
-                } else {
-                    bytesLeft -= count;
-                }
-                fileOut.write(b, 0, count);
-                bytesWritten += count;
-            }
-            fileOut.close();
+			long bytesWritten = 0;
+			try (BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(targetFile));) {
+				final byte[] b = new byte[4096];
+				long bytesLeft = dataLength;
+
+				while (bytesLeft > 0) {
+					final int count = newSocket.getFcpIn().read(b, 0,
+							((bytesLeft > b.length) ? b.length : (int) bytesLeft));
+					if (count < 0) {
+						break;
+					} else {
+						bytesLeft -= count;
+					}
+					fileOut.write(b, 0, count);
+					bytesWritten += count;
+				}
+			}
             logger.debug("*GET** Wrote {} of {} bytes to file.", bytesWritten, dataLength);
 
             newSocket.close();
