@@ -206,38 +206,6 @@ public class Frost {
 
         final Core core = Core.getInstance();
 
-        final String jvmVendor = System.getProperty("java.vm.vendor");
-        final String jvmVersion = System.getProperty("java.vm.version");
-        if( jvmVendor != null && jvmVersion != null ) {
-            if( jvmVendor.indexOf("Sun ") < 0 ) {
-                // show dialog only if vendor or version changed
-                boolean skipInfoDialog = false;
-                final String lastUsedVendor = Core.frostSettings.getValue("lastUsedJvm.vendor");
-                final String lastUsedVersion = Core.frostSettings.getValue("lastUsedJvm.version");
-                if( lastUsedVendor != null
-                        && lastUsedVendor.length() > 0
-                        && lastUsedVersion != null
-                        && lastUsedVersion.length() > 0)
-                {
-                    if( lastUsedVendor.equals(jvmVendor) && lastUsedVersion.equals(jvmVersion) ) {
-                        skipInfoDialog = true;
-                    }
-                }
-                if( !skipInfoDialog ) {
-                    MiscToolkit.showMessage(
-                            "Frost was tested with Java from Sun. Your JVM vendor is "+jvmVendor+".\n"
-                                + "If Frost does not work as expected, get Suns Java from http://java.sun.com\n\n"
-                                + "(This information dialog will not be shown again until your JVM version changed.)",
-                            JOptionPane.WARNING_MESSAGE,
-                            "Untested Java version detected");
-                }
-            }
-            Core.frostSettings.setValue("lastUsedJvm.vendor", jvmVendor);
-            Core.frostSettings.setValue("lastUsedJvm.version", jvmVersion);
-        } else {
-            logger.error("JVM vendor or version property is not set!");
-        }
-
         initializeLookAndFeel();
 
         if (!initializeLockFile(Language.getInstance())) {
@@ -317,7 +285,7 @@ public class Frost {
         // write minimal content into file
         FileAccess.writeFile("frost-lock", runLockFile);
 
-        // try to aquire exclusive lock
+        // try to acquire exclusive lock
         try {
             // Get a file channel for the file
             lockChannel = new RandomAccessFile(runLockFile, "rw").getChannel();
