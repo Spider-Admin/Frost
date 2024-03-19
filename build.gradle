@@ -9,13 +9,13 @@ repositories {
 }
 
 tasks.withType(JavaCompile) {
-	options.release = 11
+	options.release = 17
 	options.encoding = "UTF-8"
 }
 
 application {
 	mainClass = "frost.Frost"
-	applicationDefaultJvmArgs = ["-Xmx256M"]
+	applicationDefaultJvmArgs = ["-Xmx256M", "--add-opens=java.base/java.io=ALL-UNNAMED"]
 }
 
 dependencies {
