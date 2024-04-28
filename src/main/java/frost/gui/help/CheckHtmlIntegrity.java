@@ -83,16 +83,16 @@ public class CheckHtmlIntegrity {
 
 					if ((htmlStr.indexOf("http://") > -1) || (htmlStr.indexOf("https://") > -1)
 							|| (htmlStr.indexOf("ftp://") > -1) || (htmlStr.indexOf("nntp://") > -1)) {
-						logger.warn("Unsecure HTML file in help.zip found: {}", zipFileEntryName);
+						logger.warn("Unsecure HTML file in {} found: {}", fileName, zipFileEntryName);
 						return isHtmlSecure;
 					}
 				}
 			}
 			// all files scanned, no unsecure found
-			logger.info("NO unsecure HTML file in help.zip found, all is ok.");
+			logger.info("NO unsecure HTML file in {} found, all is ok.", fileName);
 			isHtmlSecure = true;
 		} catch (IOException e) {
-			logger.error("Exception while reading help.zip. File is invalid.", e);
+			logger.error("Exception while reading {}. File is invalid.", fileName, e);
 		}
 		return isHtmlSecure;
 	}
