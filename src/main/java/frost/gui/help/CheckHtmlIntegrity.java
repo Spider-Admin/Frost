@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checks all HTML files in help.zip for 'http://', 'ftp://' links.
- * If those strings are found the help.zip is not used.
+ * Checks all HTML files in help.zip for external links. If those are found the
+ * help.zip is not used.
  *
  * @author bback
  */
@@ -81,8 +81,8 @@ public class CheckHtmlIntegrity {
 						htmlStr = new String(byteArrayOutputStream.toByteArray(), "UTF-8").toLowerCase();
 					}
 
-					if ((htmlStr.indexOf("http://") > -1) || (htmlStr.indexOf("ftp://") > -1)
-							|| (htmlStr.indexOf("nntp://") > -1)) {
+					if ((htmlStr.indexOf("http://") > -1) || (htmlStr.indexOf("https://") > -1)
+							|| (htmlStr.indexOf("ftp://") > -1) || (htmlStr.indexOf("nntp://") > -1)) {
 						logger.warn("Unsecure HTML file in help.zip found: {}", zipFileEntryName);
 						return isHtmlSecure;
 					}
