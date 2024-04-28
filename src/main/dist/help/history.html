@@ -1,50 +1,49 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
-<HTML>
-  <HEAD>
-    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <META http-equiv="Content-Style-Type" content="text/css">
-    <LINK rel="stylesheet" href="style.css" type="text/css">
-    <TITLE>Frost History</TITLE>
-  </HEAD>
-  <BODY>
-<H2>Frost History</H2>
-<PRE>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <link rel="stylesheet" href="style.css">
+  <title>Frost History</title>
+</head>
+<body>
+
+<h2>Frost History</h2>
 
 <h3>Future</h3>
 
 <b>Most important changes in no particular order:</b>
 <ul>
 <li>A very annoying bug has been fixed: sometimes, when a message was selected and the board the message
-belonged to was being updated, some of the incoming messages would cause the selected message to change. 
+belonged to was being updated, some of the incoming messages would cause the selected message to change.
 </li>
-<li>The specific versions of all third party libraries used by Frost are now clearly identified and 
+<li>The specific versions of all third party libraries used by Frost are now clearly identified and
 labelled. Thanks to that, we have been able to make the following updates:
 <ul>
-<li><B>Bcprov</B>: version v1.34 of this library for Java 1.4 has been replaced by version v1.39 for Java 1.5.</li>
-<li><B>Perst</B>: a custom compilation for Java 1.5 of v4.21 of the source code of this library was being used. That
-made sense back then as the standard distribution of that library needed at least Java 1.6 to run, but now that 
+<li><b>Bcprov</b>: version v1.34 of this library for Java 1.4 has been replaced by version v1.39 for Java 1.5.</li>
+<li><b>Perst</b>: a custom compilation for Java 1.5 of v4.21 of the source code of this library was being used. That
+made sense back then as the standard distribution of that library needed at least Java 1.6 to run, but now that
 Java 1.6 (or above) is needed to run Frost anyway, it has been replaced by the one contained in the standard
 distribution.</li></ul></li>
 <li>This will only be of interest to developers, but Ant has been replaced by Maven as the tool of
 choice to build Frost. As a result, the structure of the code in the SVN repository is now much
-cleaner (because the standard Maven directory layout has been adopted) and it will be easier to make 
+cleaner (because the standard Maven directory layout has been adopted) and it will be easier to make
 new releases in the future.</li>
-<li>All messages (NOT files) are uploaded now with the EarlyEncode FCP option set to true by default. 
-This allows Frost to detect data collisions 6 times faster than before. In any case, that behavior can 
+<li>All messages (NOT files) are uploaded now with the EarlyEncode FCP option set to true by default.
+This allows Frost to detect data collisions 6 times faster than before. In any case, that behavior can
 be controlled using the new fcp2.useEarlyEncode entry in the settings file. Thanks to Sadao for the patch.</li>
-<li>Now, when you are to compose a crypted reply to a crypted message that you sent to another user, the 
-local identity of yours that sent the message you are to reply to will be assumed to be new destination by 
-default but, in case you actually wanted to reply to the other user instead of to yourself, that will also 
-be offered as an alternative in the combo box of the message composition frame. Thanks to Sadao for 
+<li>Now, when you are to compose a crypted reply to a crypted message that you sent to another user, the
+local identity of yours that sent the message you are to reply to will be assumed to be new destination by
+default but, in case you actually wanted to reply to the other user instead of to yourself, that will also
+be offered as an alternative in the combo box of the message composition frame. Thanks to Sadao for
 highlighting the issue.</li>
-<li>Trailing white spaces are now removed from the end of hyperlinked keys in messages. Thanks to Sadao 
+<li>Trailing white spaces are now removed from the end of hyperlinked keys in messages. Thanks to Sadao
 for the patch.</li>
 <li>Multiple optimizations of the source code, improving performance and reducing memory usage.</li>
 </ul>
 
 <h3>2011.03.05</h3>
 <p>
-The new release of Frost includes a lot of changes. 
+The new release of Frost includes a lot of changes.
 Please see release_nodes.txt file included in the package for a comprehensive list of all changes.
 </p>
 
@@ -123,17 +122,17 @@ Please see release_nodes.txt file included in the package for a comprehensive li
 		</table>
 	</li>
 	<li>Corrections for readme.en.txt, provided by: Convict ? 19682?@ODNPfyzW6zsBykdOYM_SItF+oDo</li>
-	<li>On a replay to a message, all attached files and boards are now quoted as text in 
+	<li>On a replay to a message, all attached files and boards are now quoted as text in
 the quoted message so they wont be lost to users reading later follow-ups. (Based on the idea of an anonymous user)</li>
 	<li>Added function to prefix the filename of inserts in the AddNewUploadsDialog.</li>
 	<li>Bugfix for error when systray is not supported.</li>
-	<li>Fix for file sharing system: when the option is turned on (default) we drop file lists from 
-newly received identities or identities marked CHECK or BAD. Then only file lists from GOOD and OBSERVE people make 
+	<li>Fix for file sharing system: when the option is turned on (default) we drop file lists from
+newly received identities or identities marked CHECK or BAD. Then only file lists from GOOD and OBSERVE people make
 it into our file list store, and this prevents huge store files full of senseless faked files due to the spam attack.</li>
 	<li>Made increaseDownloadItemRuntime resistance against time drifts due heavy load.</li>
 	<li>Fixed bug, where the configured priority of a new download was not honored, but	always set to the default.</li>
 	<li>Show text field with a readable yellow background instead of a red background.</li>
-	<li>Added ability to enable / disable downloads before adding them to the queue. Via clickable checkboxes and 
+	<li>Added ability to enable / disable downloads before adding them to the queue. Via clickable checkboxes and
 context menu items</li>
 	<li>Added context menu items to AddNewUploadsDialog, to remove selected / not selected entries.</li>
 	<li>Added the ability to disable uploads before adding them to the queue</li>
@@ -143,15 +142,15 @@ context menu items</li>
 	<li>Extended FrostUploadItem to be configurable with a FreenetCompatibilityMode</li>
 	<li>Added context menu to AddNewUploadsDialog:<ul>
 			<li>Added context menu items to enable and disable compression</li>
-			<li>Added context menu items to set FreenetInsertMode for uploads. Note: This is front-end only. The 
+			<li>Added context menu items to set FreenetInsertMode for uploads. Note: This is front-end only. The
 mode is not honor by the back-end mode yet.</li>
    	</ul></li>
 	<li>Added ability to add and remove files from the AddNewUploadsDialog</li>
 	<li>Created AddNewUploadsDialog</li>
 	<li>Added fix requested by a Frost user: allow user to suppress initial warning window when filesharing is enabled.</li>
 	<li>Fix for NPE when sending a message. Happens only when persistence is switched off.</li>
-	<li>Implemented support for the TestDDA node request. This re-enables the DDA support in Frost that did not work 
-since the node made TestDDA mandatory. This commit intentionally breaks the GUI feature to change the download target 
+	<li>Implemented support for the TestDDA node request. This re-enables the DDA support in Frost that did not work
+since the node made TestDDA mandatory. This commit intentionally breaks the GUI feature to change the download target
 directory AFTER a download was started! We will need to address this issue somehow later.</li>
 	<li>Re-enabled the "always minimize to systray"	functionality.</li>
 	<li>Fix for NPE within systray support.</li>
@@ -160,11 +159,11 @@ directory AFTER a download was started! We will need to address this issue someh
 
 <h3>2011.01.07</h3>
 
-<p>List of most important changes:<br /><em>(Please see release_nodes.txt file included in the package, for a comprehensive list of all changes.)</em></p>
+<p>List of most important changes:<br><em>(Please see release_nodes.txt file included in the package, for a comprehensive list of all changes.)</em></p>
 <ul>
 	<li>Messages get inserted twice to speed up distribution and better availability</li>
-	<li>Download are associated with the currently selected message. When you add keys through the 
-quickload interface, the downloads are associated with the currently selected news message. Simply right-click 
+	<li>Download are associated with the currently selected message. When you add keys through the
+quickload interface, the downloads are associated with the currently selected news message. Simply right-click
 on a download and select "View associated message" to view the associated message.
 (This option is only shown if the download is associated with a message.)</li>
 	<li>Per-download download directory. For each download, you can now configure its own target directory.</li>
@@ -210,11 +209,9 @@ This will directly open the file in your frost interface in your system default 
   	<li>New cross platform system tray support</li>
 </ul>
 
-Even older versions:
----------------------
+<h3>Even older versions</h3>
 
-Information about even older versions can be found <A HREF="olderHistory.html">here</A>.
+Information about even older versions can be found <a href="olderHistory.html">here</a>.
 
-</PRE>
-</BODY>
-</HTML>
+</body>
+</html>
