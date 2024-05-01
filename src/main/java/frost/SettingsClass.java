@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -1065,4 +1066,8 @@ public class SettingsClass implements ExitSavable {
             throw new StorageException("Error while saving the settings.");
         }
     }
+
+	public String getBaseDirectory() {
+		return Paths.get("").toAbsolutePath() + File.separator;
+	}
 }
