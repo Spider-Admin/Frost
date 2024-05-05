@@ -73,7 +73,7 @@ public class HelpBrowser extends JPanel {
     private static Language language = Language.getInstance();
 
     private final String url_prefix;
-//    private String url_locale;
+
     private final String homePage;
 
     private BrowserHistory browserHistory = null;
@@ -97,13 +97,13 @@ public class HelpBrowser extends JPanel {
     int lastSearchPosEnd = 0;
     String lastSearchText = null;
 
-    public HelpBrowser(final JFrame parent, final String locale, final String zipfile, final String homePage) {
-        this.parent = parent;
-        this.url_prefix = zipfile;
-        this.homePage = homePage;
-        setHelpLocale(locale);
-        init();
-    }
+	public HelpBrowser(final JFrame parent, final String locale, final String urlPrefix, final String homePage) {
+		this.parent = parent;
+		this.url_prefix = urlPrefix;
+		this.homePage = homePage;
+		setHelpLocale(locale);
+		init();
+	}
 
     private void init() {
 
@@ -285,7 +285,6 @@ public class HelpBrowser extends JPanel {
     }
 
     void setHelpPage(String url) {
-
         if( url == null ) {
             url = homePage;
         }
@@ -293,6 +292,8 @@ public class HelpBrowser extends JPanel {
         if( url.startsWith(url_prefix) ) {
             url = url.substring(url_prefix.length());
         }
+
+		logger.debug("Show help page {}{}", url_prefix, url);
 
         try {
             editorPane.setPage(url_prefix + url);

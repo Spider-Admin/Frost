@@ -420,11 +420,8 @@ public class Core {
         splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
 
-        // check if help.zip contains only secure files (no http or ftp links at all)
-        {
-            final CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
-            isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
-        }
+		// check if help files contains only secure files (no external links at all)
+		isHelpHtmlSecure = CheckHtmlIntegrity.check(Core.frostSettings.getFullHelpPath());
 
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);

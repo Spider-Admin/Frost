@@ -926,17 +926,17 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         return new TranslationStartDialog(this);
     }
 
-    public void showHtmlHelp(final String item) {
-        if( Core.isHelpHtmlSecure() == false ) {
-            return;
-        }
-        if( helpBrowser == null ) {
-            helpBrowser = new HelpBrowserFrame(frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE), "help/help.zip");
-        }
-        // show first time or bring to front
-        helpBrowser.setVisible(true);
-        helpBrowser.showHelpPage(item);
-    }
+	public void showHtmlHelp(final String item) {
+		if (Core.isHelpHtmlSecure() == false) {
+			return;
+		}
+		if (helpBrowser == null) {
+			helpBrowser = new HelpBrowserFrame(frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE));
+		}
+		// show first time or bring to front
+		helpBrowser.setVisible(true);
+		helpBrowser.showHelpPage(item);
+	}
 
     /**
      * Start the search dialog with only the specified boards preselected as boards to search into.

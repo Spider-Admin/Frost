@@ -18,82 +18,53 @@
 */
 package frost.gui.help;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checks all HTML files in help.zip for external links. If those are found the
- * help.zip is not used.
- *
- * @author bback
+ * Checks all HTML files for external links. If those are found in the help
+ * files, the help will be disabled.
  */
 public class CheckHtmlIntegrity {
 
 	private static final Logger logger = LoggerFactory.getLogger(CheckHtmlIntegrity.class);
 
-    private boolean isHtmlSecure = false;
-
-    /**
-     * @return
-     */
-    public boolean isHtmlSecure() {
-        return isHtmlSecure;
-    }
-
-	/**
-	 * @param fileName
-	 * @return
-	 */
-	public boolean scanZipFile(String fileName) {
-		File file = new File(fileName);
-
-		if (!file.isFile() || (file.length() == 0)) {
-			logger.error("Zip file does not exist: {}", file.getPath());
-			return isHtmlSecure;
+	private static List<Path> listHTMLFiles(String searchPath) throws IOException {
+		try (Stream<Path> walk = Files.walk(Path.of(searchPath))) {
+			return walk.filter(path -> Files.isRegularFile(path)).filter(new FilterHTMLExtension())
+					.collect(Collectors.toList());
 		}
+	}
 
-		final byte[] zipData = new byte[4096];
-		try (ZipFile zipFile = new ZipFile(file);) {
-			final Enumeration<? extends ZipEntry> zipFileEntryEnumeration = zipFile.entries();
-			while (zipFileEntryEnumeration.hasMoreElements()) {
-				final ZipEntry zipFileEntry = zipFileEntryEnumeration.nextElement();
-				final String zipFileEntryName = zipFileEntry.getName();
-				if (zipFileEntryName.endsWith(".html") || zipFileEntryName.endsWith(".htm")) {
-					String htmlStr = "";
-					try (InputStream zipFileEntryInputStream = zipFile.getInputStream(zipFileEntry);
-							ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-									(int) zipFileEntry.getSize());) {
-						while (true) {
-							int len = zipFileEntryInputStream.read(zipData);
-							if (len < 0) {
-								break;
-							}
-							byteArrayOutputStream.write(zipData, 0, len);
-						}
-						htmlStr = new String(byteArrayOutputStream.toByteArray(), "UTF-8").toLowerCase();
-					}
-
-					if ((htmlStr.indexOf("http://") > -1) || (htmlStr.indexOf("https://") > -1)
-							|| (htmlStr.indexOf("ftp://") > -1) || (htmlStr.indexOf("nntp://") > -1)) {
-						logger.warn("Unsecure HTML file in {} found: {}", fileName, zipFileEntryName);
-						return isHtmlSecure;
-					}
+	public static Boolean check(String directory) {
+		Boolean isOK = true;
+		try {
+			List<Path> htmlFiles = listHTMLFiles(directory);
+			for (Path htmlFile : htmlFiles) {
+				String content = Files.readString(htmlFile, StandardCharsets.UTF_8).toLowerCase();
+				if (content.contains("http://") || content.contains("https://") || content.contains("ftp://")
+						|| content.contains("nntp://")) {
+					logger.warn("Unsecure HTML file found: {}", htmlFile);
+					isOK = false;
 				}
 			}
-			// all files scanned, no unsecure found
-			logger.info("NO unsecure HTML file in {} found, all is ok.", fileName);
-			isHtmlSecure = true;
 		} catch (IOException e) {
-			logger.error("Exception while reading {}. File is invalid.", fileName, e);
+			logger.error("IOException while checking HTML files in {}.", directory, e);
+			isOK = false;
 		}
-		return isHtmlSecure;
+		if (isOK) {
+			logger.info("No unsecure HTML file was found in {}", directory);
+		} else {
+			logger.warn("Help will be deactivated.");
+		}
+		return isOK;
 	}
 }

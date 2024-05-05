@@ -80,6 +80,7 @@ public class SettingsClass implements ExitSavable {
     public static final String DIR_TEMP = "temp.dir";
     public static final String DIR_LOCALDATA = "localdata.dir";
     public static final String DIR_STORE = "store.dir";
+	public static final String DIR_HELP = "help.dir";
 
     public static final String FREENET_VERSION = "freenetVersion";
 
@@ -858,6 +859,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(DIR_TEMP, "localdata" + fs + "temp" + fs);
         defaults.put(DIR_LOCALDATA, "localdata" + fs);
         defaults.put(DIR_STORE, "store" + fs);
+		defaults.put(DIR_HELP, "help" + fs);
 
         defaults.put(DIR_DOWNLOAD, "downloads" + fs);
         defaults.put(DIR_LAST_USED, "." + fs);
@@ -1069,5 +1071,9 @@ public class SettingsClass implements ExitSavable {
 
 	public String getBaseDirectory() {
 		return Paths.get("").toAbsolutePath() + File.separator;
+	}
+
+	public String getFullHelpPath() {
+		return getBaseDirectory() + getValue(DIR_HELP);
 	}
 }

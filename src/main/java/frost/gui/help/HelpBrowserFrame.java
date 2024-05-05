@@ -24,6 +24,7 @@ import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 import javax.swing.JFrame;
 
@@ -69,20 +70,21 @@ public class HelpBrowserFrame extends JFrame {
         }
     }
 
-     /**
-      * Shorthand for ziphelp usage
-      */
-    public HelpBrowserFrame(final String langlocale, final String zipfile) {
-        this(langlocale, "jar:file:" + zipfile + "!/", "index.html", true);
-    }
+	/**
+	 * Shorthand for help usage
+	 */
+	public HelpBrowserFrame(final String langlocale) {
+		this(langlocale, "file://localhost/" + Core.frostSettings.getFullHelpPath().replace(File.separator, "/"),
+				"index.html", true);
+	}
 
-    /**
-     * Complete for browser usage
-     */
-    public HelpBrowserFrame(final String langlocale, final String zipfile, final String startpage, boolean plugin) {
-        this.plugin = plugin;
+	/**
+	 * Complete for browser usage
+	 */
+	public HelpBrowserFrame(final String langlocale, final String urlPrefix, final String startpage, boolean plugin) {
+		this.plugin = plugin;
 
-        this.browser = new HelpBrowser(this, langlocale, zipfile, startpage);
+		this.browser = new HelpBrowser(this, langlocale, urlPrefix, startpage);
 
         setIconImage(MiscToolkit.loadImageIcon("/data/toolbar/help-browser.png").getImage());
 
