@@ -212,10 +212,6 @@ public class Frost {
             System.exit(1);
         }
 
-        if (!checkLibs()) {
-            System.exit(3);
-        }
-
         try {
             core.initialize();
         } catch (final Exception e) {
@@ -239,35 +235,6 @@ public class Frost {
                 + "; "+System.getProperty("os.arch"));
         envInfo.add("MaxMemory: "+Runtime.getRuntime().maxMemory());
         return envInfo;
-    }
-
-    /**
-     * This method checks for the presence of needed .jar files. If one of them
-     * is missing, it shows a Dialog warning the user of the situation.
-     * @return boolean true if all needed jars were present. False otherwise.
-     */
-    private boolean checkLibs() {
-        // check for needed .jar files by loading a class and catching the error
-        String jarFileName = "";
-        try {
-            // check for jcalendar.jar
-            jarFileName = "jcalendar.jar";
-            Class.forName("com.toedter.calendar.JDateChooser");
-            // check for perst15.jar
-            jarFileName = "perst15.jar";
-            Class.forName("org.garret.perst.Persistent");
-
-        } catch (final ClassNotFoundException e1) {
-            MiscToolkit.showMessage(
-                "Please start Frost using its start "
-                    + "scripts (frost.bat for Windows, frost.sh for Unix).\n"
-                    + "If Frost was working and you updated just frost.jar, try updating with frost.zip\n"
-                    + "ERROR: The jar file " + jarFileName + " is missing.",
-                JOptionPane.ERROR_MESSAGE,
-                "ERROR: The jar file " + jarFileName + " is missing.");
-            return false;
-        }
-        return true;
     }
 
     private static File runLockFile = new File("frost.lock");
