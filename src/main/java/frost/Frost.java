@@ -197,7 +197,7 @@ public class Frost {
      * Constructor
      */
     public Frost() {
-        logger.info("Starting Frost {}", getClass().getPackage().getSpecificationVersion());
+        logger.info("Starting Frost {}", SettingsClass.getVersion());
         logger.info("");
         for( final String s : getEnvironmentInformation() ) {
             logger.info(s);

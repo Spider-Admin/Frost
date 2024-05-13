@@ -28,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import frost.SettingsClass;
 import frost.util.gui.JDialogWithDetails;
 import frost.util.gui.MiscToolkit;
 
@@ -118,13 +119,10 @@ public class AboutBox extends JDialogWithDetails {
         setDetailsText(details.toString());
     }
 
-    private String getVersion() {
-        if (version == null) {
-            version =
-                language.getString("AboutBox.label.version")
-                    + ": "
-                    + getClass().getPackage().getSpecificationVersion();
-        }
-        return version;
-    }
+	private String getVersion() {
+		if (version == null) {
+			version = language.getString("AboutBox.label.version") + ": " + SettingsClass.getVersion();
+		}
+		return version;
+	}
 }

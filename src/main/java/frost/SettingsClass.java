@@ -1076,4 +1076,8 @@ public class SettingsClass implements ExitSavable {
 	public String getFullHelpPath() {
 		return getBaseDirectory() + getValue(DIR_HELP);
 	}
+
+	public static String getVersion() {
+		return SettingsClass.class.getPackage().getImplementationVersion();
+	}
 }

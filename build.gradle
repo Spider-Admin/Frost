@@ -11,6 +11,26 @@ repositories {
 	}
 }
 
+def repoVersion
+task buildInfo {
+	try {
+		def cmd = "git describe --always --dirty --tags"
+		def proc = cmd.execute()
+		repoVersion = proc.text.trim()
+	} catch (IOException e) {
+		repoVersion = "unknown-version"
+	}
+}
+compileJava.dependsOn buildInfo
+
+jar {
+	manifest {
+		attributes(
+			"Implementation-Version": "${repoVersion}"
+		)
+	}
+}
+
 tasks.withType(JavaCompile) {
 	options.release = 17
 	options.encoding = "UTF-8"
