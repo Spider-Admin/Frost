@@ -477,7 +477,7 @@ public class TOF implements PropertyChangeListener {
     /**
      * Clears the tofTable, reads in the messages to be displayed,
      * does check validity for each message and adds the messages to
-     * table. Additionaly it returns a Vector with all MessageObjects
+     * table. Additionally it returns a Vector with all MessageObjects
      * @param board The selected board.
      * @param daysToRead Maximum age of the messages to be displayed
      * @param table The tofTable.
@@ -487,7 +487,7 @@ public class TOF implements PropertyChangeListener {
         final int daysToRead = board.getMaxMessageDisplay();
 
         if( updateThread != null ) {
-            if( updateThread.toString().equals( board ) ) {
+            if( updateThread.toString().equals( board.getName() ) ) {
                 // already updating
                 return;
             } else {
