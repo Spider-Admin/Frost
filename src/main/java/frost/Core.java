@@ -167,9 +167,6 @@ public class Core {
             return false;
         }
 
-        // install our security manager that only allows connections to the configured FCP hosts
-        System.setSecurityManager(new FrostSecurityManager());
-
         // check if node is online and if we run on 0.7 testnet
         setFreenetOnline(false);
 
