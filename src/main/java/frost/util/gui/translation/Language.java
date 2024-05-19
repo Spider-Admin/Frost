@@ -111,7 +111,7 @@ public class Language {
                 locale = Locale.getDefault();
                 localeName = Locale.getDefault().getCountry();
             } else {
-                locale = new Locale(localeName);
+                locale = Locale.forLanguageTag(localeName);
             }
 
             boolean isExternal;
@@ -202,7 +202,7 @@ public class Language {
             if( fname.startsWith("langres_") && fname.endsWith(".properties") ) {
                 final String ln = fname.substring("langres_".length(), fname.length() - ".properties".length());
                 if( ln.length() == 2 ) {
-                    lst.add(new Locale(ln));
+                    lst.add(Locale.forLanguageTag(ln));
                 }
             }
         }

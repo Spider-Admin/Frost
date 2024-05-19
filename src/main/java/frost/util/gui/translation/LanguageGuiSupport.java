@@ -280,26 +280,26 @@ public class LanguageGuiSupport {
         languageEsperantoMenuItem.setText(language.getString("MainFrame.menu.language.esperanto"));
     }
 
-    public static List<Locale> getBuildInLocales() {
-        if( buildInLocales == null ) {
-            final ArrayList<Locale> lst = new ArrayList<Locale>();
-            lst.add(new Locale("bg"));
-            lst.add(new Locale("da"));
-            lst.add(new Locale("de"));
-            lst.add(new Locale("en"));
-            lst.add(new Locale("es"));
-            lst.add(new Locale("fr"));
-            lst.add(new Locale("it"));
-            lst.add(new Locale("ja"));
-            lst.add(new Locale("nl"));
-            lst.add(new Locale("ru"));
-            lst.add(new Locale("pl"));
-            lst.add(new Locale("sv"));
-            lst.add(new Locale("eo"));
-            buildInLocales = lst;
-        }
-        return buildInLocales;
-    }
+	public static List<Locale> getBuildInLocales() {
+		if (buildInLocales == null) {
+			final ArrayList<Locale> lst = new ArrayList<>();
+			lst.add(Locale.forLanguageTag("bg"));
+			lst.add(Locale.forLanguageTag("da"));
+			lst.add(Locale.forLanguageTag("de"));
+			lst.add(Locale.forLanguageTag("en"));
+			lst.add(Locale.forLanguageTag("es"));
+			lst.add(Locale.forLanguageTag("fr"));
+			lst.add(Locale.forLanguageTag("it"));
+			lst.add(Locale.forLanguageTag("ja"));
+			lst.add(Locale.forLanguageTag("nl"));
+			lst.add(Locale.forLanguageTag("ru"));
+			lst.add(Locale.forLanguageTag("pl"));
+			lst.add(Locale.forLanguageTag("sv"));
+			lst.add(Locale.forLanguageTag("eo"));
+			buildInLocales = lst;
+		}
+		return buildInLocales;
+	}
 
     class LanguageAction implements ActionListener {
         String langCode;
