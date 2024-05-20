@@ -558,6 +558,12 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     public void add(final MutableTreeNode mutableTreeNode, final boolean silent) {
         // add sorted
         final FrostMessageObject frostMessageObject = (FrostMessageObject)mutableTreeNode;
+
+		if (isNodeAncestor(frostMessageObject)) {
+			logger.warn("Invalid message \"{}\" is ignored!", frostMessageObject.getContent());
+			return;
+		}
+
         int[] ixs;
 
         if( getChildren() == null ) {
