@@ -51,15 +51,22 @@ public class TrackDownloadKeysStorage extends AbstractFrostStorage implements Ex
 	}
 
 	public void storeItem(final TrackDownloadKeys trackDownloadKeys) {
-		if( getStorage() == null ) {
+		if (getStorage() == null) {
 			return;
 		}
-		if( trackDownloadKeys.getStorage() == null ) {
-			if( addToIndices(trackDownloadKeys)) {
-				trackDownloadKeys.makePersistent(getStorage());
+		if (!beginExclusiveThreadTransaction()) {
+			return;
+		}
+		try {
+			if (trackDownloadKeys.getStorage() == null) {
+				if (addToIndices(trackDownloadKeys)) {
+					trackDownloadKeys.makePersistent(getStorage());
+				}
+			} else {
+				trackDownloadKeys.modify();
 			}
-		} else {
-			trackDownloadKeys.modify();
+		} finally {
+			endThreadTransaction();
 		}
 	}
 
