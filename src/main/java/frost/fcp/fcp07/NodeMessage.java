@@ -144,10 +144,10 @@ public class NodeMessage {
                     bytes.write(c);
                 }
             }
-        } catch (final Throwable e) {
-            logger.error("Throwable catched", e);
-            return null;
-        }
+		} catch (IOException e) {
+			logger.error("IOException catched", e);
+			return null;
+		}
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
