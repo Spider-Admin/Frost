@@ -21,6 +21,7 @@ package frost.gui;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.util.StringJoiner;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -99,25 +100,32 @@ public class AboutBox extends JDialogWithDetails {
         fillDetailsArea();
     }
 
-    private void fillDetailsArea() {
-        final StringBuilder details = new StringBuilder();
-        details.append(language.getString("AboutBox.text.development") + "\n\n");
-        details.append(language.getString("AboutBox.text.active") + "\n");
-        details.append("   Jan Gerritsen \n   (a*rtur@K7dLGJvoXF_QQeUhZq9bNp0lFx4)\n\n");
-        details.append("   José Manuel Arnesto \n   (kevloral@0aGR0ur6QBN_+RSuU47Es4X7HVs)\n\n");
-        details.append("   Karsten Graul \n   (bback@xgVRApPk+Yngy+jmtOeGzIbN_A0)\n\n");
-        details.append(language.getString("AboutBox.text.left") + "\n");
-        details.append("   S. Amoako (quit)\n");
-        details.append("   Roman Glebov (quit)\n");
-        details.append("   Jan-Thomas Czornack (quit)\n");
-        details.append("   Thomas Mueller (quit)\n");
-        details.append("   Jim Hunziker (quit)\n");
-        details.append("   Stefan Majewski (quit)\n");
-        details.append("   Edward Louis Severson IV (quit)\n");
-        details.append("   Ingo Franzki (old systray icon code)\n");
-        details.append("   Frédéric Scheer (splashscreen logo)\n");
-        setDetailsText(details.toString());
-    }
+	private void fillDetailsArea() {
+		StringJoiner details = new StringJoiner("\n");
+		details.add(language.getString("AboutBox.text.development"));
+		details.add("");
+		details.add(language.getString("AboutBox.text.active"));
+		details.add("   Jan Gerritsen");
+		details.add("   (a*rtur@K7dLGJvoXF_QQeUhZq9bNp0lFx4)");
+		details.add("");
+		details.add("   José Manuel Arnesto");
+		details.add("   (kevloral@0aGR0ur6QBN_+RSuU47Es4X7HVs)");
+		details.add("");
+		details.add("   Karsten Graul");
+		details.add("   (bback@xgVRApPk+Yngy+jmtOeGzIbN_A0)");
+		details.add("");
+		details.add(language.getString("AboutBox.text.left"));
+		details.add("   S. Amoako (quit)");
+		details.add("   Roman Glebov (quit)");
+		details.add("   Jan-Thomas Czornack (quit)");
+		details.add("   Thomas Mueller (quit)");
+		details.add("   Jim Hunziker (quit)");
+		details.add("   Stefan Majewski (quit)");
+		details.add("   Edward Louis Severson IV (quit)");
+		details.add("   Ingo Franzki (old systray icon code)");
+		details.add("   Frédéric Scheer (splashscreen logo)");
+		setDetailsText(details.toString());
+	}
 
 	private String getVersion() {
 		if (version == null) {
