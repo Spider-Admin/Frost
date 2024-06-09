@@ -105,6 +105,8 @@ public class AboutBox extends JDialogWithDetails {
 		details.add(language.getString("AboutBox.text.development"));
 		details.add("");
 		details.add(language.getString("AboutBox.text.active"));
+		details.add("   Spider-Admin@Z+d9Knmjd3hQeeZU6BOWPpAAxxs");
+		details.add("");
 		details.add("   Jan Gerritsen");
 		details.add("   (a*rtur@K7dLGJvoXF_QQeUhZq9bNp0lFx4)");
 		details.add("");
