@@ -19,6 +19,11 @@
 package frost;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,63 +35,44 @@ public class Startup {
 
 	private static final Logger logger = LoggerFactory.getLogger(Startup.class);
 
-    /**
-     * The Main method, check if allowed to run
-     * and starts the other startup work.
-     */
-    public static void startupCheck(final SettingsClass settings) {
-        checkDirectories(settings);
-        copyFiles();
-        cleanTempDir(settings);
+	/**
+	 * The Main method, check if allowed to run and starts the other startup work.
+	 */
+	public static void startupCheck(final SettingsClass settings) {
+		checkDirectories(settings);
+		copyFiles();
+		cleanTempDir(settings);
 
-        File oldJarFile;
+		ArrayList<String> obsoleteFiles = new ArrayList<>();
+		obsoleteFiles.add("exec/JSysTray.dll");
+		obsoleteFiles.add("exec");
+		obsoleteFiles.add("frost.sh");
+		obsoleteFiles.add("frost-debug.bat");
+		obsoleteFiles.add("frost-debug.sh");
+		obsoleteFiles.add("frost.jar");
+		obsoleteFiles.add("frost0.log");
+		obsoleteFiles.add("frost1.log");
+		obsoleteFiles.add("help/help.zip");
 
-        // remove fec-native.jar
-        oldJarFile = new File("lib/fec-native.jar");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove fecImpl.jar
-        oldJarFile = new File("lib/fecImpl.jar");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove genChkImpl.jar
-        oldJarFile = new File("lib/genChkImpl.jar");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove gnu-regexp-1.1.4.jar
-        oldJarFile = new File("lib/gnu-regexp-1.1.4.jar");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove xml-apis.jar
-        oldJarFile = new File("lib/xml-apis.jar");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove xercesImpl.jar
-        oldJarFile = new File("lib/xercesImpl.jar");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove datechooser.jar
-        oldJarFile = new File("lib/datechooser.jar");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove JSysTray.dll
-        oldJarFile = new File("exec/JSysTray.dll");
-        if( oldJarFile.isFile() ) {
-            oldJarFile.delete();
-        }
-        // remove obsolete exec directory
-        File dir = new File("exec");
-        if (dir.isDirectory()) {
-            dir.delete(); // fails if not empty
-        }
-    }
+		for (String filename : obsoleteFiles) {
+			new File(filename).delete();
+		}
+
+		ArrayList<String> questionableFiles = new ArrayList<>();
+		questionableFiles.add("frost.bat");
+		try {
+			for (String filename : questionableFiles) {
+				if (new File(filename).exists()) {
+					String content = Files.readString(Path.of(filename), StandardCharsets.UTF_8);
+					if (!content.contains("FROST_OPTS")) {
+						new File(filename).delete();
+					}
+				}
+			}
+		} catch (IOException e) {
+			logger.error("IO-Error!", e);
+		}
+	}
 
     // Copy some files from the jar file, if they don't exist
     private static void copyFiles() {
