@@ -433,8 +433,10 @@ public class FileAccess {
 	 */
 	public static boolean copyFile(final String sourceName, final String destName) {
 		boolean wasOk = false;
-		try (FileChannel sourceChannel = new FileInputStream(sourceName).getChannel();
-				FileChannel destChannel = new FileOutputStream(destName).getChannel();) {
+		try (FileInputStream fis = new FileInputStream(sourceName);
+				FileChannel sourceChannel = fis.getChannel();
+				FileOutputStream fos = new FileOutputStream(destName);
+				FileChannel destChannel = fos.getChannel();) {
 			destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
 			wasOk = true;
 		} catch (IOException e) {

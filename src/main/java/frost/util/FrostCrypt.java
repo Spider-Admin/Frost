@@ -160,7 +160,7 @@ public final class FrostCrypt {
 		SHA1Digest stomach = new SHA1Digest();
 		byte[] poop = new byte[64];
 
-		try (FileChannel chan = (new FileInputStream(file)).getChannel();) {
+		try (FileInputStream fis = new FileInputStream(file); FileChannel chan = fis.getChannel();) {
 			byte[] temp = new byte[4 * 1024];
 			ByteBuffer _temp = ByteBuffer.wrap(temp);
 			while (true) {
@@ -559,7 +559,7 @@ public final class FrostCrypt {
 	 * Computes the SHA256 checksum of a file.
 	 */
 	public String computeChecksumSHA256(File file) {
-		try (FileChannel chan = (new FileInputStream(file)).getChannel();) {
+		try (FileInputStream fis = new FileInputStream(file); FileChannel chan = fis.getChannel();) {
 			MessageDigest sha256 = MessageDigest.getInstance("SHA256", "BC");
 
 			byte[] temp = new byte[4 * 1024];
