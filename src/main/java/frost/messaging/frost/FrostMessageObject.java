@@ -380,7 +380,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     public String getDateAndTimeString() {
         if( dateAndTimeString == null ) {
             // Build a String of format yyyy.mm.dd hh:mm:ssGMT
-			final OffsetDateTime dateTime = getDateAndTime();
+			OffsetDateTime dateTime = getDateAndTime();
+
+			if (dateTime == null) {
+				dateTime = OffsetDateTime.now(DateFun.getTimeZone());
+			}
 
 			final String dateStr = DateFun.FORMAT_DATE_EXT.format(dateTime);
 			final String timeStr = DateFun.FORMAT_TIME_EXT.format(dateTime);
