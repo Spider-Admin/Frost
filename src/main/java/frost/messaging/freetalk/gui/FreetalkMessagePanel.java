@@ -48,6 +48,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -82,7 +83,6 @@ import frost.messaging.frost.boards.Board;
 import frost.messaging.frost.gui.messagetreetable.MessageTreeTableModel;
 import frost.storage.perst.messages.MessageStorage;
 import frost.util.CopyToClipboard;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.search.TableFindAction;
@@ -226,7 +226,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     }
 
     private class PopupMenuSubjectText
-        extends JSkinnablePopupMenu
+        extends JPopupMenu
         implements ActionListener, LanguageListener
     {
         JMenuItem copySubjectText = new JMenuItem();
@@ -263,7 +263,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     }
 
     private class PopupMenuMessageTable
-        extends JSkinnablePopupMenu
+        extends JPopupMenu
         implements ActionListener, LanguageListener {
 
         private final JMenuItem markAllMessagesReadItem = new JMenuItem();

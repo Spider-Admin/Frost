@@ -42,6 +42,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -65,7 +66,6 @@ import frost.messaging.freetalk.FreetalkFileAttachment;
 import frost.messaging.freetalk.FreetalkMessage;
 import frost.util.CopyToClipboard;
 import frost.util.FileAccess;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SmileyCache;
 import frost.util.gui.TextHighlighter;
 import frost.util.gui.search.FindAction;
@@ -453,7 +453,7 @@ public class FreetalkMessageTextPane extends JPanel {
         popupMenuTofText.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    private class PopupMenuAttachmentFile extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+    private class PopupMenuAttachmentFile extends JPopupMenu implements ActionListener, LanguageListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -563,7 +563,7 @@ public class FreetalkMessageTextPane extends JPanel {
         }
     }
 
-    private class PopupMenuHyperLink extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+    private class PopupMenuHyperLink extends JPopupMenu implements ActionListener, LanguageListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -733,7 +733,7 @@ public class FreetalkMessageTextPane extends JPanel {
         }
     }
 
-    private class PopupMenuTofText extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+    private class PopupMenuTofText extends JPopupMenu implements ActionListener, LanguageListener {
 
 		private static final long serialVersionUID = 1L;
 

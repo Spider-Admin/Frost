@@ -59,6 +59,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -97,7 +98,6 @@ import frost.util.DateFun;
 import frost.util.FileAccess;
 import frost.util.gui.ImmutableArea;
 import frost.util.gui.ImmutableAreasDocument;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.textpane.AntialiasedTextArea;
@@ -130,7 +130,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     private JSplitPane attachmentsSplitPane = null;
     private JScrollPane filesTableScrollPane;
 
-    private JSkinnablePopupMenu attFilesPopupMenu;
+    private JPopupMenu attFilesPopupMenu;
     private MessageBodyPopupMenu messageBodyPopupMenu;
 
     private final JButton Bsend = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/mail-forward.png"));
@@ -768,7 +768,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     }
 
     protected void initPopupMenu() {
-        attFilesPopupMenu = new JSkinnablePopupMenu();
+        attFilesPopupMenu = new JPopupMenu();
 
         final JMenuItem removeFiles = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
 
@@ -1195,7 +1195,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    private class MessageBodyPopupMenu extends JSkinnablePopupMenu implements ActionListener, ClipboardOwner {
+    private class MessageBodyPopupMenu extends JPopupMenu implements ActionListener, ClipboardOwner {
 
 		private static final long serialVersionUID = 1L;
 

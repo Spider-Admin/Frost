@@ -78,7 +78,7 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
     private final int ROW_HEIGHT_MARGIN = 4;
 
 //    private class PopupMenuTofTree
-//        extends JSkinnablePopupMenu
+//        extends JPopupMenu
 //        implements LanguageListener, ActionListener {
 //
 //        private final JMenuItem addBoardItem = new JMenuItem();
