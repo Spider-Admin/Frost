@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -83,6 +82,7 @@ import frost.util.Mixed;
 import frost.util.gui.FrostSwingWorker;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
@@ -271,6 +271,7 @@ public class IdentitiesBrowser extends JDialog {
 
 			identitiesScrollPane.addMouseListener(listener);
 			identitiesTable.addMouseListener(listener);
+			identitiesTable.addMouseListener(new SelectRowOnRightClick(identitiesTable));
 
 			identitiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				public void valueChanged(final ListSelectionEvent e) {
@@ -1330,15 +1331,6 @@ public class IdentitiesBrowser extends JDialog {
 	}
 
 	private void showUploadTablePopupMenu(final MouseEvent e) {
-		// select row where rightclick occurred if row under mouse is NOT selected
-		final Point p = e.getPoint();
-		final int y = identitiesTable.rowAtPoint(p);
-		if( y < 0 ) {
-			return;
-		}
-		if( !identitiesTable.getSelectionModel().isSelectedIndex(y) ) {
-			identitiesTable.getSelectionModel().setSelectionInterval(y, y);
-		}
 		getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 	}
 

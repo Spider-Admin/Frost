@@ -26,7 +26,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -93,6 +92,7 @@ import frost.util.CopyToClipboard;
 import frost.util.FileAccess;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.Language;
@@ -320,6 +320,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			modelTable.getScrollPane().addMouseListener(listener);
 			modelTable.getTable().addKeyListener(listener);
 			modelTable.getTable().addMouseListener(listener);
+			modelTable.getTable().addMouseListener(new SelectRowOnRightClick(modelTable.getTable()));
 			removeFinishedDownloadsCheckBox.addItemListener(listener);
 			showExternalGlobalQueueItems.addItemListener(listener);
 			downloadPrefixApplyButton.addActionListener(listener);
@@ -551,16 +552,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void showDownloadTablePopupMenu(final MouseEvent e) {
-		// select row where rightclick occurred if row under mouse is NOT
-		// selected
-		final Point p = e.getPoint();
-		final int y = modelTable.getTable().rowAtPoint(p);
-		if (y < 0) {
-			return;
-		}
-		if (!modelTable.getTable().getSelectionModel().isSelectedIndex(y)) {
-			modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
-		}
 		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
 

@@ -22,7 +22,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -59,6 +58,7 @@ import frost.util.FileAccess;
 import frost.util.FormatterUtils;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
@@ -137,6 +137,7 @@ public class SharedFilesPanel extends JPanel {
             modelTable.getScrollPane().addMouseListener(listener);
             modelTable.getTable().addKeyListener(listener);
             modelTable.getTable().addMouseListener(listener);
+			modelTable.getTable().addMouseListener(new SelectRowOnRightClick(modelTable.getTable()));
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
@@ -272,15 +273,6 @@ public class SharedFilesPanel extends JPanel {
     }
 
     private void showUploadTablePopupMenu(final MouseEvent e) {
-        // select row where rightclick occurred if row under mouse is NOT selected
-        final Point p = e.getPoint();
-        final int y = modelTable.getTable().rowAtPoint(p);
-        if( y < 0 ) {
-            return;
-        }
-        if( !modelTable.getTable().getSelectionModel().isSelectedIndex(y) ) {
-            modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
-        }
         getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
     }
 

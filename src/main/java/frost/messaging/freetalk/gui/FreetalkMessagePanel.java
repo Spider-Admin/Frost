@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -85,6 +84,7 @@ import frost.storage.perst.messages.MessageStorage;
 import frost.util.CopyToClipboard;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
@@ -727,6 +727,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             subjectPanel.add(subjectTextLabel);
             subjectPanel.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 3));
 
+			messageTable.addMouseListener(new SelectRowOnRightClick(messageTable));
             subjectTextLabel.addMouseListener(listener);
 
             // load message table layout
@@ -1243,15 +1244,6 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     }
 
     private void showMessageTablePopupMenu(final MouseEvent e) {
-        // select row where rightclick occurred if row under mouse is NOT selected
-        final Point p = e.getPoint();
-        final int y = messageTable.rowAtPoint(p);
-        if( y < 0 ) {
-            return;
-        }
-        if( !messageTable.getSelectionModel().isSelectedIndex(y) ) {
-            messageTable.getSelectionModel().setSelectionInterval(y, y);
-        }
         // show popup menu
         getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
     }

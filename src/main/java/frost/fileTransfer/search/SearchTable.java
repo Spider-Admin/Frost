@@ -20,7 +20,6 @@ package frost.fileTransfer.search;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -40,6 +39,7 @@ import frost.storage.perst.filelist.FileListStorage;
 import frost.util.CopyToClipboard;
 import frost.util.gui.CloseableTabbedPane;
 import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
@@ -68,6 +68,7 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
 
         final Listener l = new Listener();
         getTable().addMouseListener(l);
+		getTable().addMouseListener(new SelectRowOnRightClick(getTable()));
         getScrollPane().addMouseListener(l);
     }
 
@@ -185,15 +186,6 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
         }
 
         private void showSearchTablePopupMenu(final MouseEvent e) {
-            // select row where rightclick occurred if row under mouse is NOT selected
-            final Point p = e.getPoint();
-            final int y = getTable().rowAtPoint(p);
-            if( y < 0 ) {
-                return;
-            }
-            if( !getTable().getSelectionModel().isSelectedIndex(y) ) {
-                getTable().getSelectionModel().setSelectionInterval(y, y);
-            }
             getPopupMenuSearch().show(e.getComponent(), e.getX(), e.getY());
         }
     }

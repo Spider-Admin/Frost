@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -51,6 +50,7 @@ import frost.identities.LocalIdentity;
 import frost.messaging.frost.gui.MessagePanel.IdentityState;
 import frost.util.CopyToClipboard;
 import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
@@ -103,15 +103,6 @@ public class FileListFileDetailsDialog extends JDialog {
     }
 
     private void showUploadTablePopupMenu(final MouseEvent e) {
-        // select row where rightclick occurred if row under mouse is NOT selected
-        final Point p = e.getPoint();
-        final int y = modelTable.getTable().rowAtPoint(p);
-        if( y < 0 ) {
-            return;
-        }
-        if( !modelTable.getTable().getSelectionModel().isSelectedIndex(y) ) {
-            modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
-        }
         getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
     }
 
@@ -194,6 +185,7 @@ public class FileListFileDetailsDialog extends JDialog {
 
             modelTable.getScrollPane().addMouseListener(listener);
             modelTable.getTable().addMouseListener(listener);
+			modelTable.getTable().addMouseListener(new SelectRowOnRightClick(modelTable.getTable()));
         }
         return modelTable;
     }
