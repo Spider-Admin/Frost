@@ -179,8 +179,9 @@ public class MessageTransferHandler implements NodeMessageListener {
 		final long dataLength = nm.getLongValue("DataLength");
 		long bytesWritten = 0;
 
-		try (BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(task.getFile()));
-				BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocketIn();) {
+		// fcpIn is managed by FcpSocket. Do not close this stream here!
+		BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocketIn();
+		try (BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(task.getFile()));) {
 			final byte[] b = new byte[4096];
 			long bytesLeft = dataLength;
 			int count;
