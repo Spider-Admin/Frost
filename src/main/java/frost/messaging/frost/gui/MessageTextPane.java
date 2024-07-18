@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
-import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -769,7 +768,7 @@ public class MessageTextPane extends JPanel {
         private final JMenuItem openFileInBrowserItem = new JMenuItem();
         private final JMenuItem openAllFilesInBrowserItem = new JMenuItem();
 
-        public PopupMenuAttachmentFile() throws HeadlessException {
+        public PopupMenuAttachmentFile() {
             super();
             initialize();
         }
@@ -947,7 +946,7 @@ public class MessageTextPane extends JPanel {
         private String clickedKey = null;
         private List<String> allKeys = null;
 
-        public PopupMenuHyperLink() throws HeadlessException {
+        public PopupMenuHyperLink() {
             super();
             initialize();
         }

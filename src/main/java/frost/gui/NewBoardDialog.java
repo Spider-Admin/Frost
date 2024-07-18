@@ -21,7 +21,6 @@ package frost.gui;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -94,11 +93,7 @@ public class NewBoardDialog extends JDialog {
     private String boardName;
     private String boardDescription;
 
-    /**
-     * @param owner
-     * @throws HeadlessException
-     */
-    public NewBoardDialog(Frame owner) throws HeadlessException {
+    public NewBoardDialog(Frame owner) {
         super(owner);
         this.language = Language.getInstance();
         initialize();

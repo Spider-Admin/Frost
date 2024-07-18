@@ -23,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -465,7 +464,7 @@ public class FreetalkMessageTextPane extends JPanel {
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
 
-        public PopupMenuAttachmentFile() throws HeadlessException {
+        public PopupMenuAttachmentFile() {
             super();
             initialize();
         }
@@ -582,7 +581,7 @@ public class FreetalkMessageTextPane extends JPanel {
         private String clickedKey = null;
         private List<String> allKeys = null;
 
-        public PopupMenuHyperLink() throws HeadlessException {
+        public PopupMenuHyperLink() {
             super();
             initialize();
         }
