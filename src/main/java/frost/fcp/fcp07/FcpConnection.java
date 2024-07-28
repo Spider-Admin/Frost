@@ -397,17 +397,16 @@ public class FcpConnection {
             sendMessage(msg);
 
 			// write complete file to socket
-			try (BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
-					BufferedOutputStream dataOutput = new BufferedOutputStream(
-							fcpSocket.getFcpSock().getOutputStream());) {
+			try (BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));) {
 				while (true) {
 					final int d = fileInput.read();
 					if (d < 0) {
 						break; // EOF
 					}
-					dataOutput.write(d);
+					fcpSocket.getFcpRawOut().write(d);
 				}
 			}
+			fcpSocket.getFcpRawOut().flush();
 		}
 
         // receive and process node messages

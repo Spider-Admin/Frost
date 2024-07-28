@@ -235,16 +235,16 @@ public class FcpMultiRequestConnectionFileTransferTools {
         newSocket.getFcpOut().flush();
 
 		// write complete file to socket
-		try (BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
-				BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));) {
+		try (BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));) {
 			while (true) {
 				final int d = fileInput.read();
 				if (d < 0) {
 					break; // EOF
 				}
-				dataOutput.write(d);
+				newSocket.getFcpRawOut().write(d);
 			}
 		}
+		newSocket.getFcpRawOut().flush();
 
         // XXX: For some reason Freenet never responds with an OK-message?
 
