@@ -19,6 +19,8 @@ task buildInfo {
 		repoVersion = proc.text.trim()
 	} catch (IOException e) {
 		repoVersion = "unknown-version"
+		logger.error("Unable to determine version, use \"{}\" as version!", repoVersion)
+		logger.error("Cause: {}", e.getMessage())
 	}
 }
 compileJava.dependsOn buildInfo
