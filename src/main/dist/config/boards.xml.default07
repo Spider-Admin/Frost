@@ -28,7 +28,7 @@
       <publicKey><![CDATA[SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE]]></publicKey>
       <description><![CDATA[Announcement of new Frost versions]]></description>
     </FrostBoardTreeEntry>
-    <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
+    <FrostBoardTreeEntry isfolder="true" isexpanded="true" >
       <name>freenet</name>
       <FrostBoardTreeEntry>
         <name><![CDATA[freenet-announce]]></name>
@@ -40,12 +40,24 @@
         <description><![CDATA[All common freenet related stuff]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
+        <name><![CDATA[freenet_keyed]]></name>
+        <publicKey><![CDATA[SSK@mmqJJCIzU9B5EGNipwH8VpsHp~0oMGV5xq9vWNNbGAk,Ae4FMM0xj2KlwTMthKHXIg5HecsRJh2T6DippCvMIws,AQACAAE]]></publicKey>
+        <privateKey><![CDATA[SSK@fPu234im8x6ix6fjU-lXUjJSSepaCf0uz-05T07R-es,Ae4FMM0xj2KlwTMthKHXIg5HecsRJh2T6DippCvMIws,AQECAAE]]></privateKey>
+        <description><![CDATA[Replacement for the freenet board during spam/DoS attacks.]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
         <name><![CDATA[freenet.0.7.bugs]]></name>
         <description><![CDATA[Report bugs and problems with Freenet]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
         <name><![CDATA[frost]]></name>
         <description><![CDATA[Discussions about Frost]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[frost_keyed]]></name>
+        <publicKey><![CDATA[SSK@f1fCt228jhV7KJPncU7OVByq3mz0jnELTwZxsf~ivJs,V07~QKb7Og9EG5ZSiUGXzCZOAn~rd7DB5coCGf21uWc,AQACAAE]]></publicKey>
+        <privateKey><![CDATA[SSK@Mnj3E6UGYgCLvx5oKGf0m8H~Tj94k227JjHUduWIS1E,V07~QKb7Og9EG5ZSiUGXzCZOAn~rd7DB5coCGf21uWc,AQECAAE]]></privateKey>
+        <description><![CDATA[Replacement for the frost board during spam/DoS attacks.]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
         <name><![CDATA[thaw]]></name>
@@ -60,16 +72,27 @@
         <description><![CDATA[Announcement of new Fuqid versions]]></description>
       </FrostBoardTreeEntry>
     </FrostBoardTreeEntry>
-    <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
+    <FrostBoardTreeEntry isexpanded="true" isfolder="true">
+      <name>freesite</name>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[freesite-making]]></name>
+        <description><![CDATA[Discuss making any kind of freesites.]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[sites]]></name>
+        <description><![CDATA[Freesite inserts should be announced here.]]></description>
+      </FrostBoardTreeEntry>
+    </FrostBoardTreeEntry>
+    <FrostBoardTreeEntry isfolder="true" isexpanded="true" >
       <name>international</name>
-      <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
+      <FrostBoardTreeEntry isfolder="true" isexpanded="true" >
         <name>de</name>
         <FrostBoardTreeEntry>
           <name><![CDATA[de.freenet]]></name>
           <description><![CDATA[Die Anlaufstelle für alle und Deutsche ;-)]]></description>
         </FrostBoardTreeEntry>
       </FrostBoardTreeEntry>
-      <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
+      <FrostBoardTreeEntry isfolder="true" isexpanded="true" >
         <name>fr</name>
         <FrostBoardTreeEntry>
           <name><![CDATA[fr.accueil]]></name>
