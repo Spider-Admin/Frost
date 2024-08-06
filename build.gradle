@@ -40,7 +40,7 @@ tasks.withType(JavaCompile) {
 
 application {
 	mainClass = "frost.Frost"
-	applicationDefaultJvmArgs = ["-Xmx256M", "--add-opens=java.base/java.io=ALL-UNNAMED"]
+	applicationDefaultJvmArgs = ["-Xmx256M"]
 	executableDir = ""
 }
 
