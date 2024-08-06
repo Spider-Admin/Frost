@@ -1107,29 +1107,29 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             return super.getTableCellEditorComponent(table, value, isSelected, r, c);
         }
 
-        /**
-         * This is overridden to forward the event to the tree. This will
-         * return true if the click count >= 3, or the event is null.
-         */
-        @Override
-        public boolean isCellEditable(final EventObject e) {
-            if (e instanceof MouseEvent) {
-                final MouseEvent me = (MouseEvent)e;
+		/**
+		 * Allow collapse/expand of the messages using +/-. Overridden to forward the
+		 * event to the tree.
+		 */
+		@Override
+		public boolean isCellEditable(final EventObject e) {
+			if (e instanceof MouseEvent) {
+				MouseEvent me = (MouseEvent) e;
 				if ((me.getModifiersEx() == 0) || (me.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK)) {
-                    for (int counter = getColumnCount() - 1; counter >= 0; counter--) {
-                        if (getColumnClass(counter) == TreeTableModel.class) {
-							final MouseEvent newME = new MouseEvent(MessageTreeTable.this.tree, me.getID(),
-									me.getWhen(), me.getModifiersEx(), me.getX() - getCellRect(0, counter, true).x,
-									me.getY(), me.getClickCount(), me.isPopupTrigger());
-                            MessageTreeTable.this.tree.dispatchEvent(newME);
-                            break;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-        }
+					for (int counter = getColumnCount() - 1; counter >= 0; counter--) {
+						if (getColumnClass(counter) == TreeTableModel.class) {
+							MouseEvent newME = new MouseEvent(tree, me.getID(), me.getWhen(), me.getModifiersEx(),
+									me.getX() - getCellRect(0, counter, true).x, me.getY(), me.getClickCount(),
+									me.isPopupTrigger(), MouseEvent.BUTTON1);
+							tree.dispatchEvent(newME);
+							break;
+						}
+					}
+				}
+			}
+			return false;
+		}
+	}
 
     /**
      * Save the current column positions and column sizes for restore on next startup.
