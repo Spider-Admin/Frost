@@ -18,38 +18,41 @@
 */
 package frost.messaging.frost.gui.sentmessages;
 
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
 
 import frost.Core;
 import frost.MainFrame;
 import frost.SettingsClass;
 import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.gui.MessageWindow;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SelectRowOnRightClick;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
-@SuppressWarnings("serial")
-public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
+public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem>
+		implements LanguageListener, SimplePopupMenuListener {
+
+	private static final long serialVersionUID = 1L;
 
     private final SentMessagesTableModel tableModel;
     private final SentMessagesTableFormat tableFormat;
 
-    private PopupMenuSearch popupMenuSearch = null;
+	private DeleteMessageAction deleteMessageAction;
+	private PopupMenu popup;
+
     private final Language language = Language.getInstance();
 
     public SentMessagesTable() {
@@ -64,11 +67,16 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
         setupTableFont();
         getTable().setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
-        final Listener l = new Listener();
-        getTable().addMouseListener(l);
+		deleteMessageAction = new DeleteMessageAction();
+		popup = new PopupMenu();
+		popup.addPopupMenuListener(this);
+		getTable().setComponentPopupMenu(popup);
+		getTable().addMouseListener(new DoubleClickListener());
 		getTable().addMouseListener(new SelectRowOnRightClick(getTable()));
-        getScrollPane().addMouseListener(l);
-    }
+
+		language.addLanguageListener(this);
+		languageChanged(null);
+	}
 
     public void addSentMessage(final FrostMessageObject i) {
         tableModel.addFrostMessageObject(i);
@@ -88,14 +96,6 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
         tableModel.clear();
     }
 
-    private PopupMenuSearch getPopupMenuSearch() {
-        if (popupMenuSearch == null) {
-            popupMenuSearch = new PopupMenuSearch();
-            language.addLanguageListener(popupMenuSearch);
-        }
-        return popupMenuSearch;
-    }
-
     private void setupTableFont() {
         final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
         final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
@@ -108,129 +108,67 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem> {
         getTable().setFont(font);
     }
 
-    private void tableDoubleClick(final MouseEvent e) {
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		deleteMessageAction.setText(language.getString("SentMessages.table.popup.deleteMessage"));
+	}
 
-        final int row = getTable().rowAtPoint(e.getPoint());
-        if( row > -1 ) {
-            final SentMessagesTableItem item = getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostMessageObject sm = item.getFrostMessageObject();
-                final MessageWindow messageWindow = new MessageWindow(
-                        MainFrame.getInstance(),
-                        sm,
-                        MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().getSize(),
-                        false);
-                messageWindow.setVisible(true);
-            }
-        }
-    }
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		deleteMessageAction.setEnabled(!getSelectedItems().isEmpty());
+	}
 
-    private class Listener extends MouseAdapter implements MouseListener {
+	private class DoubleClickListener extends MouseAdapter {
 
-        public Listener() {
-            super();
-        }
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (e.getClickCount() == 2) {
+				int row = getTable().rowAtPoint(e.getPoint());
+				if (row > -1) {
+					SentMessagesTableItem item = getItemAt(row); // It may be null
+					if (item != null) {
+						FrostMessageObject sm = item.getFrostMessageObject();
+						MessageWindow messageWindow = new MessageWindow(MainFrame.getInstance(), sm,
+								MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().getSize(), false);
+						messageWindow.setVisible(true);
+					}
+				}
+			}
+		}
+	}
 
-        @Override
-        public void mousePressed(final MouseEvent e) {
+	private class DeleteMessageAction extends BaseAction {
 
-            if (e.getClickCount() == 2) {
-                if (e.getSource() == getTable()) {
-                    tableDoubleClick(e);
-                }
-            } else if (e.isPopupTrigger()) {
-                if ((e.getSource() == getTable())
-                    || (e.getSource() == getScrollPane())) {
-                    showSearchTablePopupMenu(e);
-                }
-            }
-        }
+		private static final long serialVersionUID = 1L;
 
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
+		public void actionPerformed(ActionEvent e) {
+			List<SentMessagesTableItem> selectedItems = getSelectedItems();
+			int answer;
+			if (selectedItems.size() == 1) {
+				answer = JOptionPane.showConfirmDialog(MainFrame.getInstance(),
+						language.getString("SentMessages.confirmDeleteOneMessageDialog.text"),
+						language.getString("SentMessages.confirmDeleteOneMessageDialog.title"),
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			} else {
+				answer = JOptionPane.showConfirmDialog(MainFrame.getInstance(),
+						language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", selectedItems.size()),
+						language.getString("SentMessages.confirmDeleteMessagesDialog.title"), JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+			}
 
-                if ((e.getSource() == getTable())
-                    || (e.getSource() == getScrollPane())) {
-                    showSearchTablePopupMenu(e);
-                }
-            }
-        }
+			if (answer == JOptionPane.YES_OPTION) {
+				tableModel.removeItems(selectedItems);
+				MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().updateSentMessagesCount();
+			}
+		}
+	}
 
-        private void showSearchTablePopupMenu(final MouseEvent e) {
-            getPopupMenuSearch().show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
+	private class PopupMenu extends JPopupMenu {
 
-    private class PopupMenuSearch extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+		private static final long serialVersionUID = 1L;
 
-        JMenuItem deleteItem = new JMenuItem();
-
-        public PopupMenuSearch() {
-            super();
-            initialize();
-        }
-
-        private void initialize() {
-            refreshLanguage();
-
-            deleteItem.addActionListener(this);
-        }
-
-        private void refreshLanguage() {
-            deleteItem.setText(language.getString("SentMessages.table.popup.deleteMessage"));
-        }
-
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == deleteItem) {
-                deleteSelectedMessages();
-            }
-        }
-
-        private void deleteSelectedMessages() {
-            final List<SentMessagesTableItem> selectedItems = getSelectedItems();
-            if( selectedItems.size() == 0 ) {
-                return;
-            }
-            int answer;
-            if( selectedItems.size() == 1 ) {
-                answer = JOptionPane.showConfirmDialog(
-                        MainFrame.getInstance(),
-                        language.getString("SentMessages.confirmDeleteOneMessageDialog.text"),
-                        language.getString("SentMessages.confirmDeleteOneMessageDialog.title"),
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-            } else {
-                answer = JOptionPane.showConfirmDialog(
-                        MainFrame.getInstance(),
-                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.size())),
-                        language.getString("SentMessages.confirmDeleteMessagesDialog.title"),
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-            }
-
-            if( answer != JOptionPane.YES_OPTION ) {
-                return;
-            }
-
-            tableModel.removeItems(selectedItems);
-            MainFrame.getInstance().getMessagingTab().getSentMessagesPanel().updateSentMessagesCount();
-        }
-
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
-
-        public void show(final Component invoker, final int x, final int y) {
-            removeAll();
-
-            if (getSelectedItems().size() == 0) {
-                return;
-            }
-
-            add(deleteItem);
-
-            super.show(invoker, x, y);
-        }
-    }
+		public PopupMenu() {
+			add(deleteMessageAction);
+		}
+	}
 }
