@@ -18,17 +18,16 @@
 */
 package frost.messaging.frost.gui.unsentmessages;
 
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
 
 import frost.Core;
 import frost.MainFrame;
@@ -36,20 +35,25 @@ import frost.SettingsClass;
 import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.FrostUnsentMessageObject;
 import frost.messaging.frost.gui.MessageWindow;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SelectRowOnRightClick;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
-@SuppressWarnings("serial")
-public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableItem> {
+public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableItem>
+		implements LanguageListener, SimplePopupMenuListener {
+
+	private static final long serialVersionUID = 1L;
 
     private final UnsentMessagesTableModel tableModel;
     private final UnsentMessagesTableFormat tableFormat;
 
-    private PopupMenu popupMenu = null;
+	private DeleteMessageAction deleteMessageAction;
+	private PopupMenu popup;
+
     private final Language language = Language.getInstance();
 
     public UnsentMessagesTable() {
@@ -64,11 +68,16 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
         setupTableFont();
         getTable().setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 
-        final Listener l = new Listener();
-        getTable().addMouseListener(l);
+		deleteMessageAction = new DeleteMessageAction();
+		popup = new PopupMenu();
+		popup.addPopupMenuListener(this);
+		getTable().setComponentPopupMenu(popup);
+		getTable().addMouseListener(new DoubleClickListener());
 		getTable().addMouseListener(new SelectRowOnRightClick(getTable()));
-        getScrollPane().addMouseListener(l);
-    }
+
+		language.addLanguageListener(this);
+		languageChanged(null);
+	}
 
     public void addUnsentMessage(final FrostUnsentMessageObject i) {
         tableModel.addFrostUnsentMessageObject(i);
@@ -97,14 +106,6 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
         tableModel.clear();
     }
 
-    private PopupMenu getPopupMenu() {
-        if (popupMenu == null) {
-            popupMenu = new PopupMenu();
-            language.addLanguageListener(popupMenu);
-        }
-        return popupMenu;
-    }
-
     private void setupTableFont() {
         final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
         final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
@@ -117,145 +118,81 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
         getTable().setFont(font);
     }
 
-    private void tableDoubleClick(final MouseEvent e) {
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		deleteMessageAction.setText(language.getString("UnsentMessages.table.popup.deleteMessage"));
+	}
 
-        final int row = getTable().rowAtPoint(e.getPoint());
-        if( row > -1 ) {
-            final UnsentMessagesTableItem item = getItemAt(row); //It may be null
-            if (item != null) {
-                final FrostMessageObject sm = item.getFrostUnsentMessageObject();
-                final MessageWindow messageWindow = new MessageWindow(
-                        MainFrame.getInstance(),
-                        sm,
-                        MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().getSize(),
-                        false); // no reply button for unsend messages
-                messageWindow.setVisible(true);
-            }
-        }
-    }
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		List<UnsentMessagesTableItem> selectedItems = getSelectedItems();
+		Boolean isUploading = false;
+		for (UnsentMessagesTableItem item : selectedItems) {
+			if (item.getState() == UnsentMessagesTableItem.STATE_UPLOADING) {
+				isUploading = true;
+			}
+		}
 
-    private class Listener extends MouseAdapter implements MouseListener {
+		deleteMessageAction.setEnabled(!selectedItems.isEmpty() && !isUploading);
+	}
 
-        public Listener() {
-            super();
-        }
+	private class DoubleClickListener extends MouseAdapter {
 
-        @Override
-        public void mousePressed(final MouseEvent e) {
-            if (e.getClickCount() == 2) {
-                if (e.getSource() == getTable()) {
-                    tableDoubleClick(e);
-                }
-            } else if (e.isPopupTrigger()) {
-                if ((e.getSource() == getTable())
-                    || (e.getSource() == getScrollPane())) {
-                    showTablePopupMenu(e);
-                }
-            }
-        }
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (e.getClickCount() == 2) {
+				int row = getTable().rowAtPoint(e.getPoint());
+				if (row > -1) {
+					UnsentMessagesTableItem item = getItemAt(row); // It may be null
+					if (item != null) {
+						FrostMessageObject sm = item.getFrostUnsentMessageObject();
+						MessageWindow messageWindow = new MessageWindow(MainFrame.getInstance(), sm,
+								MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().getSize(), false);
+						messageWindow.setVisible(true);
+					}
+				}
+			}
+		}
+	}
 
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
+	private class DeleteMessageAction extends BaseAction {
 
-                if ((e.getSource() == getTable())
-                    || (e.getSource() == getScrollPane())) {
-                    showTablePopupMenu(e);
-                }
-            }
-        }
+		private static final long serialVersionUID = 1L;
 
-        private void showTablePopupMenu(final MouseEvent e) {
-            getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
+		public void actionPerformed(ActionEvent e) {
+			List<UnsentMessagesTableItem> selectedItems = getSelectedItems();
+			int answer;
+			if (selectedItems.size() == 1) {
+				answer = JOptionPane.showConfirmDialog(MainFrame.getInstance(),
+						language.getString("UnsentMessages.confirmDeleteOneMessageDialog.text"),
+						language.getString("UnsentMessages.confirmDeleteOneMessageDialog.title"),
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			} else {
+				answer = JOptionPane.showConfirmDialog(MainFrame.getInstance(),
+						language.formatMessage("UnsentMessages.confirmDeleteMessagesDialog.text", selectedItems.size()),
+						language.getString("UnsentMessages.confirmDeleteMessagesDialog.title"),
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			}
 
-    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+			if (answer == JOptionPane.YES_OPTION) {
+				FrostUnsentMessageObject failedItem = tableModel.deleteItems(selectedItems);
+				if (failedItem != null) {
+					JOptionPane.showMessageDialog(MainFrame.getInstance(),
+							language.getString("UnsentMessages.deleteNotPossibleDialog.text"),
+							language.getString("UnsentMessages.deleteNotPossibleDialog.title"),
+							JOptionPane.ERROR_MESSAGE);
+				}
+				MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
+			}
+		}
+	}
 
-        JMenuItem deleteItem = new JMenuItem();
+	private class PopupMenu extends JPopupMenu {
 
-        public PopupMenu() {
-            super();
-            initialize();
-        }
+		private static final long serialVersionUID = 1L;
 
-        private void initialize() {
-            refreshLanguage();
-
-            deleteItem.addActionListener(this);
-        }
-
-        private void refreshLanguage() {
-            deleteItem.setText(language.getString("UnsentMessages.table.popup.deleteMessage"));
-        }
-
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == deleteItem) {
-                deleteSelectedMessages();
-            }
-        }
-
-        private void deleteSelectedMessages() {
-            final java.util.List<UnsentMessagesTableItem> selectedItems = getSelectedItems();
-            if( selectedItems.size() == 0 ) {
-                return;
-            }
-            int answer;
-            if( selectedItems.size() == 1 ) {
-                answer = JOptionPane.showConfirmDialog(
-                        MainFrame.getInstance(),
-                        language.getString("UnsentMessages.confirmDeleteOneMessageDialog.text"),
-                        language.getString("UnsentMessages.confirmDeleteOneMessageDialog.title"),
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-            } else {
-                answer = JOptionPane.showConfirmDialog(
-                        MainFrame.getInstance(),
-                        language.formatMessage("UnsentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.size())),
-                        language.getString("UnsentMessages.confirmDeleteMessagesDialog.title"),
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-            }
-
-            if( answer != JOptionPane.YES_OPTION ) {
-                return;
-            }
-
-            final FrostUnsentMessageObject failedItem = tableModel.deleteItems(selectedItems);
-            if( failedItem != null ) {
-                JOptionPane.showMessageDialog(
-                        MainFrame.getInstance(),
-                        language.getString("UnsentMessages.deleteNotPossibleDialog.text"),
-                        language.getString("UnsentMessages.deleteNotPossibleDialog.title"),
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            MainFrame.getInstance().getMessagingTab().getUnsentMessagesPanel().updateUnsentMessagesCount();
-        }
-
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
-
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            removeAll();
-
-            final java.util.List<UnsentMessagesTableItem> selectedItems = getSelectedItems();
-
-            if (selectedItems.size() == 0) {
-                return;
-            }
-
-            deleteItem.setEnabled(true);
-            add(deleteItem);
-
-            if (selectedItems.size() == 1) {
-                if( selectedItems.get(0).getFrostUnsentMessageObject().getCurrentUploadThread() != null ) {
-                    deleteItem.setEnabled(false);
-                }
-            }
-
-            super.show(invoker, x, y);
-        }
-    }
+		public PopupMenu() {
+			add(deleteMessageAction);
+		}
+	}
 }
