@@ -19,19 +19,11 @@
 package frost.gui.help;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -39,7 +31,6 @@ import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -47,15 +38,18 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.event.PopupMenuEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
-import javax.swing.text.JTextComponent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.CopyToClipboard;
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
+import frost.util.gui.action.CancelAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
@@ -65,8 +59,9 @@ import frost.util.gui.translation.LanguageListener;
  * @author Jantho
  * modified by notitaccu
  */
-@SuppressWarnings("serial")
-public class HelpBrowser extends JPanel {
+public class HelpBrowser extends JPanel implements LanguageListener, SimplePopupMenuListener {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(HelpBrowser.class);
 
@@ -75,6 +70,10 @@ public class HelpBrowser extends JPanel {
     private final String url_prefix;
 
     private final String homePage;
+
+	private CopyTextAction copyTextAction;
+	private CancelAction cancelAction;
+	private PopupMenuTofText popup;
 
     private BrowserHistory browserHistory = null;
 
@@ -130,26 +129,18 @@ public class HelpBrowser extends JPanel {
                 }
             }
         });
-        editorPane.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(final MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    showEditorPanePopupMenu(e);
-                }
-            }
-            @Override
-            public void mouseReleased(final MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    showEditorPanePopupMenu(e);
-                }
-            }
-        });
+
+		copyTextAction = new CopyTextAction();
+		cancelAction = new CancelAction();
+		popup = new PopupMenuTofText();
+		popup.addPopupMenuListener(this);
+		editorPane.setComponentPopupMenu(popup);
 
         final JScrollPane scrollPane = new JScrollPane(editorPane);
         scrollPane.setWheelScrollingEnabled(true);
 
         backButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-previous.png"));
-        backButton.addActionListener(new java.awt.event.ActionListener() {
+        backButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if( browserHistory.isBackwardPossible() ) {
                     setHelpPage(browserHistory.backwardPage());
@@ -158,7 +149,7 @@ public class HelpBrowser extends JPanel {
         });
 
         forwardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-next.png"));
-        forwardButton.addActionListener(new java.awt.event.ActionListener() {
+        forwardButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if( browserHistory.isForwardPossible() ) {
                     setHelpPage(browserHistory.forwardPage());
@@ -167,7 +158,7 @@ public class HelpBrowser extends JPanel {
         });
 
         homeButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-home.png"));
-        homeButton.addActionListener(new java.awt.event.ActionListener() {
+        homeButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 browserHistory.resetToHomepage(homePage);
                 setHelpPage(homePage);
@@ -179,14 +170,14 @@ public class HelpBrowser extends JPanel {
 
         BfindNext = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-down.png"));
         BfindNext.setDefaultCapable(true);
-        BfindNext.addActionListener(new java.awt.event.ActionListener() {
+        BfindNext.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 searchText(true); // search forward
             }
         });
 
         BfindPrev = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-up.png"));
-        BfindPrev.addActionListener(new java.awt.event.ActionListener() {
+        BfindPrev.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 searchText(false); // search backward
             }
@@ -217,12 +208,10 @@ public class HelpBrowser extends JPanel {
         helpHTMLEditorKit = new HelpHTMLEditorKit(url_prefix);
         editorPane.setEditorKit(helpHTMLEditorKit);
 
-        setHelpPage(homePage);
-    }
+		language.addLanguageListener(this);
+		languageChanged(null);
 
-    private void showEditorPanePopupMenu(final MouseEvent e) {
-        final JPopupMenu p = new PopupMenuTofText(editorPane);
-        p.show(e.getComponent(), e.getX(), e.getY());
+        setHelpPage(homePage);
     }
 
     private void searchText(final boolean forward) {
@@ -377,6 +366,9 @@ public class HelpBrowser extends JPanel {
      * we lose focus.
      */
     public class SelectionPreservingCaret extends DefaultCaret {
+
+		private static final long serialVersionUID = 1L;
+
         /*
          * The last SelectionPreservingCaret that lost focus
          */
@@ -454,61 +446,34 @@ public class HelpBrowser extends JPanel {
         }
     }
 
-    private class PopupMenuTofText
-    extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener, ClipboardOwner {
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		copyTextAction.setText(language.getString("Common.copy"));
+		cancelAction.setText(language.getString("Common.cancel"));
+	}
 
-        private Clipboard clipboard;
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		copyTextAction.setEnabled(editorPane.getSelectedText() != null);
+	}
 
-        private final JTextComponent sourceTextComponent;
+	private class CopyTextAction extends BaseAction {
 
-        private final JMenuItem copyItem = new JMenuItem();
-        private final JMenuItem cancelItem = new JMenuItem();
+		private static final long serialVersionUID = 1L;
 
-        public PopupMenuTofText(final JTextComponent sourceTextComponent) {
-            super();
-            this.sourceTextComponent = sourceTextComponent;
-            initialize();
-        }
+		public void actionPerformed(ActionEvent e) {
+			CopyToClipboard.copyText(editorPane.getSelectedText());
+		}
+	}
 
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyItem) {
-                // copy selected text
-                final StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
-                clipboard.setContents(selection, this);
-            }
-        }
+	private class PopupMenuTofText extends JPopupMenu {
 
-        private void initialize() {
-            languageChanged(null);
+		private static final long serialVersionUID = 1L;
 
-            final Toolkit toolkit = Toolkit.getDefaultToolkit();
-            clipboard = toolkit.getSystemClipboard();
-
-            copyItem.addActionListener(this);
-
-            add(copyItem);
-            addSeparator();
-            add(cancelItem);
-        }
-
-        public void languageChanged(final LanguageEvent event) {
-            copyItem.setText(language.getString("Common.copy"));
-            cancelItem.setText(language.getString("Common.cancel"));
-        }
-
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            if (sourceTextComponent.getSelectedText() != null) {
-                copyItem.setEnabled(true);
-            } else {
-                copyItem.setEnabled(false);
-            }
-            super.show(invoker, x, y);
-        }
-
-        public void lostOwnership(final Clipboard tclipboard, final Transferable contents) {
-            // Nothing here
-        }
-    }
+		public PopupMenuTofText() {
+			add(copyTextAction);
+			addSeparator();
+			add(cancelAction);
+		}
+	}
 }
