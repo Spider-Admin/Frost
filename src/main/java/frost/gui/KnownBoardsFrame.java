@@ -24,10 +24,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -45,9 +44,9 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -61,9 +60,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import frost.Core;
 import frost.MainFrame;
 import frost.SettingsClass;
@@ -74,15 +70,14 @@ import frost.messaging.frost.boards.Board;
 import frost.messaging.frost.boards.Folder;
 import frost.messaging.frost.boards.TofTree;
 import frost.storage.KnownBoardsXmlDAO;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.translation.Language;
 
-@SuppressWarnings("serial")
 public class KnownBoardsFrame extends JDialog {
 
-	private static final Logger logger = LoggerFactory.getLogger(KnownBoardsFrame.class);
+	private static final long serialVersionUID = 1L;
 
     private final Language language;
 
@@ -103,7 +98,12 @@ public class KnownBoardsFrame extends JDialog {
     private DescColumnRenderer descColRenderer;
     private ShowContentTooltipRenderer showContentTooltipRenderer;
 
-    private JSkinnablePopupMenu tablePopupMenu;
+	private AddBoardsAction addBoardsAction;
+	private AddBoardsToFolderAction addBoardsToFolderAction;
+	private HideBoardAction hideBoardAction;
+	private UnhideBoardAction unhideBoardAction;
+	private RemoveBoardAction removeBoardAction;
+	private TablePopupMenu tablePopupMenu;
 
     // a list of all boards, needed as data source when we filter in the table
     private List<KnownBoardsTableMember> allKnownBoardsList;
@@ -118,12 +118,7 @@ public class KnownBoardsFrame extends JDialog {
         this.tofTree = tofTree;
         language = Language.getInstance();
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            initialize();
-        }
-        catch( final Exception e ) {
-            logger.error("Exception thrown in constructor", e);
-        }
+		initialize();
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setSize((int) (parent.getWidth() * 0.75),
                 (int) (parent.getHeight() * 0.75));
@@ -164,8 +159,11 @@ public class KnownBoardsFrame extends JDialog {
         nameColRenderer = new NameColumnRenderer();
         descColRenderer = new DescColumnRenderer();
         showContentTooltipRenderer = new ShowContentTooltipRenderer();
-        boardsTable = new SortedTable<KnownBoardsTableMember>( tableModel ) {
-                @Override
+		boardsTable = new SortedTable<KnownBoardsTableMember>(tableModel) {
+
+			private static final long serialVersionUID = 1L;
+
+            @Override
                 public TableCellRenderer getCellRenderer(final int row, final int column) {
                     if( column == 0 ) {
                         return nameColRenderer;
@@ -220,26 +218,25 @@ public class KnownBoardsFrame extends JDialog {
                 }
             });
 
-        boardsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-                 public void valueChanged(final ListSelectionEvent e) {
-                     boardsTableListModel_valueChanged(e);
-                 } });
-        BboardActions.addActionListener( new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    if( boardsTable.getSelectedRowCount() > 0 ) {
-                        // don't show menu if nothing is selected
-                        tablePopupMenu.show(BboardActions, 5, 5);
-                    }
-                } });
-        Bimport.addActionListener( new java.awt.event.ActionListener() {
+		boardsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				checkActionsEnabled();
+			}
+		});
+		BboardActions.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tablePopupMenu.show(BboardActions, 5, 5);
+			}
+		});
+        Bimport.addActionListener( new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     import_actionPerformed(e);
                 } });
-        Bexport.addActionListener( new java.awt.event.ActionListener() {
+        Bexport.addActionListener( new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     export_actionPerformed(e);
                 } });
-        Bclose.addActionListener( new java.awt.event.ActionListener() {
+        Bclose.addActionListener( new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     dispose();
                 } });
@@ -287,50 +284,16 @@ public class KnownBoardsFrame extends JDialog {
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(mainPanel, null); // add Main panel
 
-        BboardActions.setEnabled(false);
+		addBoardsAction = new AddBoardsAction();
+		addBoardsToFolderAction = new AddBoardsToFolderAction();
+		hideBoardAction = new HideBoardAction();
+		unhideBoardAction = new UnhideBoardAction();
+		removeBoardAction = new RemoveBoardAction();
+		tablePopupMenu = new TablePopupMenu();
+		boardsTable.setComponentPopupMenu(tablePopupMenu);
 
-        initPopupMenu();
-    }
-
-    private void initPopupMenu() {
-        tablePopupMenu = new JSkinnablePopupMenu();
-        final JMenuItem addBoardsMenu = new JMenuItem(language.getString("KnownBoardsFrame.button.addBoards"));
-        final JMenuItem addBoardsToFolderMenu = new JMenuItem(language.getString("KnownBoardsFrame.button.addBoardsToFolder")+" ...");
-        final JMenuItem removeBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.button.removeBoard"));
-        final JMenuItem hideBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.button.hideBoard"));
-        final JMenuItem unhideBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.button.unhideBoard"));
-
-        addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                addBoards_actionPerformed(e);
-            } });
-        addBoardsToFolderMenu.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                addBoardsToFolder_actionPerformed(e);
-            } });
-        removeBoardEntry.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                deleteBoards_actionPerformed(e);
-            } });
-        hideBoardEntry.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                hideBoards_actionPerformed(e);
-            } });
-        unhideBoardEntry.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                unhideBoards_actionPerformed(e);
-            } });
-
-        tablePopupMenu.add(addBoardsMenu);
-        tablePopupMenu.add(addBoardsToFolderMenu);
-        tablePopupMenu.addSeparator();
-        tablePopupMenu.add(hideBoardEntry);
-        tablePopupMenu.add(unhideBoardEntry);
-        tablePopupMenu.addSeparator();
-        tablePopupMenu.add(removeBoardEntry);
-
-        boardsTable.addMouseListener(new TablePopupMenuMouseListener());
-    }
+		checkActionsEnabled();
+	}
 
     public void startDialog() {
         loadKnownBoardsIntoTable(CBshowHidden.isSelected());
@@ -373,7 +336,7 @@ public class KnownBoardsFrame extends JDialog {
                     && (((board.getPublicKey() == null) && (bpubkey == null)) ||
                         ((board.getPublicKey() != null) && board.getPublicKey().equals(bpubkey))) )
                 {
-                    // same boards, dont add
+                    // same boards, don't add
                     addMe = false;
                     break;
                 }
@@ -388,126 +351,6 @@ public class KnownBoardsFrame extends JDialog {
         updateBoardCountInTitle();
     }
 
-    private void addBoards_actionPerformed(final ActionEvent e) {
-        final int[] selectedRows = boardsTable.getSelectedRows();
-
-        if( selectedRows.length > 0 ) {
-            for( int z = selectedRows.length - 1; z > -1; z-- ) {
-                final int rowIx = selectedRows[z];
-
-                if( rowIx >= tableModel.getRowCount() ) {
-                    continue; // paranoia
-                }
-
-                // add the board(s) to board tree and remove it from table
-                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
-                tofTree.addNewBoard(row.getBoard());
-                tableModel.deleteRow(row);
-                allKnownBoardsList.remove(row);
-            }
-            boardsTable.clearSelection();
-
-            updateBoardCountInTitle();
-        }
-    }
-
-    private void addBoardsToFolder_actionPerformed(final ActionEvent e) {
-
-        final TargetFolderChooser tfc = new TargetFolderChooser(MainFrame.getInstance().getMessagingTab().getTofTreeModel());
-        final Folder targetFolder = tfc.startDialog();
-        if( targetFolder == null ) {
-            return;
-        }
-
-        final int[] selectedRows = boardsTable.getSelectedRows();
-        if( selectedRows.length > 0 ) {
-            for( int z = selectedRows.length - 1; z > -1; z-- ) {
-                final int rowIx = selectedRows[z];
-
-                if( rowIx >= tableModel.getRowCount() ) {
-                    continue; // paranoia
-                }
-
-                // add the board(s) to board tree and remove it from table
-                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
-                MainFrame.getInstance().getMessagingTab().getTofTreeModel().addNodeToTree(row.getBoard(), targetFolder);
-                tableModel.deleteRow(row);
-                allKnownBoardsList.remove(row);
-            }
-            boardsTable.clearSelection();
-
-            updateBoardCountInTitle();
-        }
-    }
-
-    private void deleteBoards_actionPerformed(final ActionEvent e) {
-        final int[] selectedRows = boardsTable.getSelectedRows();
-        if( selectedRows.length > 0 ) {
-            for( int z = selectedRows.length - 1; z > -1; z-- ) {
-                final int rowIx = selectedRows[z];
-
-                if( rowIx >= tableModel.getRowCount() ) {
-                    continue; // paranoia
-                }
-
-                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
-                tableModel.deleteRow(row);
-
-                allKnownBoardsList.remove(row);
-                // remove from global list of known boards
-                KnownBoardsManager.deleteKnownBoard(row.getBoard());
-            }
-            boardsTable.clearSelection();
-
-            updateBoardCountInTitle();
-        }
-    }
-
-    private void hideBoards_actionPerformed(final ActionEvent e) {
-        final int[] selectedRows = boardsTable.getSelectedRows();
-        if( selectedRows.length > 0 ) {
-            for( int z = selectedRows.length - 1; z > -1; z-- ) {
-                final int rowIx = selectedRows[z];
-
-                if( rowIx >= tableModel.getRowCount() ) {
-                    continue; // paranoia
-                }
-
-                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
-                addHiddenName(row.getBoard().getName());
-                row.getBoard().setHidden(true);
-            }
-            boardsTable.clearSelection();
-            if( !CBshowHidden.isSelected() ) {
-                removeHiddenBoards();
-            } else {
-                tableModel.tableEntriesChanged();
-            }
-            updateBoardCountInTitle();
-        }
-    }
-
-    private void unhideBoards_actionPerformed(final ActionEvent e) {
-        final int[] selectedRows = boardsTable.getSelectedRows();
-        if( selectedRows.length > 0 ) {
-            for( int z = selectedRows.length - 1; z > -1; z-- ) {
-                final int rowIx = selectedRows[z];
-
-                if( rowIx >= tableModel.getRowCount() ) {
-                    continue; // paranoia
-                }
-
-                final KnownBoardsTableMember row = tableModel.getRow(rowIx);
-                removeHiddenName(row.getBoard().getName());
-                row.getBoard().setHidden(false);
-            }
-            boardsTable.clearSelection();
-            tableModel.tableEntriesChanged();
-
-            updateBoardCountInTitle();
-        }
-    }
-
     private void removeHiddenBoards() {
         for( int row=tableModel.getRowCount()-1; row >= 0; row-- ) {
             final KnownBoardsTableMember memb = tableModel.getRow(row);
@@ -516,14 +359,6 @@ public class KnownBoardsFrame extends JDialog {
             }
         }
         updateBoardCountInTitle();
-    }
-
-    private void boardsTableListModel_valueChanged(final ListSelectionEvent e) {
-        if( boardsTable.getSelectedRowCount() > 0 ) {
-            BboardActions.setEnabled(true);
-        } else {
-            BboardActions.setEnabled(false);
-        }
     }
 
     private void import_actionPerformed(final ActionEvent e) {
@@ -728,7 +563,10 @@ public class KnownBoardsFrame extends JDialog {
         updateBoardCountInTitle();
     }
 
-    class NameColumnRenderer extends ShowContentTooltipRenderer {
+	private class NameColumnRenderer extends ShowContentTooltipRenderer {
+
+		private static final long serialVersionUID = 1L;
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -752,7 +590,10 @@ public class KnownBoardsFrame extends JDialog {
         }
     }
 
-    class DescColumnRenderer extends ShowColoredLinesRenderer {
+	private class DescColumnRenderer extends ShowColoredLinesRenderer {
+
+		private static final long serialVersionUID = 1L;
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -783,7 +624,10 @@ public class KnownBoardsFrame extends JDialog {
         }
     }
 
-    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
         public ShowColoredLinesRenderer() {
             super();
         }
@@ -808,7 +652,10 @@ public class KnownBoardsFrame extends JDialog {
         }
     }
 
-    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+	private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+
+		private static final long serialVersionUID = 1L;
+
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -831,27 +678,6 @@ public class KnownBoardsFrame extends JDialog {
             }
             setToolTipText(tooltip);
             return this;
-        }
-    }
-
-    class TablePopupMenuMouseListener implements MouseListener {
-        public void mouseReleased(final MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mousePressed(final MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mouseClicked(final MouseEvent event) {}
-        public void mouseEntered(final MouseEvent event) {}
-        public void mouseExited(final MouseEvent event) {}
-
-        protected void maybeShowPopup(final MouseEvent e) {
-            if( e.isPopupTrigger() ) {
-                if( boardsTable.getSelectedRowCount() > 0 ) {
-                    // don't show menu if nothing is selected
-                    tablePopupMenu.show(boardsTable, e.getX(), e.getY());
-                }
-            }
         }
     }
 
@@ -878,8 +704,10 @@ public class KnownBoardsFrame extends JDialog {
         hiddenNames.remove(n.toLowerCase());
     }
 
-    static public class KnownBoardsTableModel extends SortedTableModel<KnownBoardsTableMember>
-    {
+	private class KnownBoardsTableModel extends SortedTableModel<KnownBoardsTableMember> {
+
+		private static final long serialVersionUID = 1L;
+
         private Language language = null;
 
         protected final static String columnNames[] = new String[4];
@@ -946,4 +774,181 @@ public class KnownBoardsFrame extends JDialog {
             return null;
         }
     }
+
+	private void checkActionsEnabled() {
+		Boolean isEnabled = boardsTable.getSelectedRowCount() > 0;
+		addBoardsAction.setEnabled(isEnabled);
+		addBoardsToFolderAction.setEnabled(isEnabled);
+		hideBoardAction.setEnabled(isEnabled);
+		unhideBoardAction.setEnabled(isEnabled);
+		removeBoardAction.setEnabled(isEnabled);
+		BboardActions.setEnabled(isEnabled);
+	}
+
+	private class AddBoardsAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+			int[] selectedRows = boardsTable.getSelectedRows();
+
+			if (selectedRows.length > 0) {
+				for (int z = selectedRows.length - 1; z > -1; z--) {
+					int rowIx = selectedRows[z];
+
+					if (rowIx >= tableModel.getRowCount()) {
+						continue; // paranoia
+					}
+
+					// add the board(s) to board tree and remove it from table
+					KnownBoardsTableMember row = tableModel.getRow(rowIx);
+					tofTree.addNewBoard(row.getBoard());
+					tableModel.deleteRow(row);
+					allKnownBoardsList.remove(row);
+				}
+				boardsTable.clearSelection();
+
+				updateBoardCountInTitle();
+			}
+		}
+	}
+
+	private class AddBoardsToFolderAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+			TargetFolderChooser tfc = new TargetFolderChooser(
+					MainFrame.getInstance().getMessagingTab().getTofTreeModel());
+			Folder targetFolder = tfc.startDialog();
+			if (targetFolder == null) {
+				return;
+			}
+
+			int[] selectedRows = boardsTable.getSelectedRows();
+			if (selectedRows.length > 0) {
+				for (int z = selectedRows.length - 1; z > -1; z--) {
+					int rowIx = selectedRows[z];
+
+					if (rowIx >= tableModel.getRowCount()) {
+						continue; // paranoia
+					}
+
+					// add the board(s) to board tree and remove it from table
+					KnownBoardsTableMember row = tableModel.getRow(rowIx);
+					MainFrame.getInstance().getMessagingTab().getTofTreeModel().addNodeToTree(row.getBoard(),
+							targetFolder);
+					tableModel.deleteRow(row);
+					allKnownBoardsList.remove(row);
+				}
+				boardsTable.clearSelection();
+
+				updateBoardCountInTitle();
+			}
+		}
+	}
+
+	private class RemoveBoardAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+			int[] selectedRows = boardsTable.getSelectedRows();
+			if (selectedRows.length > 0) {
+				for (int z = selectedRows.length - 1; z > -1; z--) {
+					int rowIx = selectedRows[z];
+
+					if (rowIx >= tableModel.getRowCount()) {
+						continue; // paranoia
+					}
+
+					KnownBoardsTableMember row = tableModel.getRow(rowIx);
+					tableModel.deleteRow(row);
+
+					allKnownBoardsList.remove(row);
+					// remove from global list of known boards
+					KnownBoardsManager.deleteKnownBoard(row.getBoard());
+				}
+				boardsTable.clearSelection();
+
+				updateBoardCountInTitle();
+			}
+		}
+	}
+
+	private class HideBoardAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+			int[] selectedRows = boardsTable.getSelectedRows();
+			if (selectedRows.length > 0) {
+				for (int z = selectedRows.length - 1; z > -1; z--) {
+					int rowIx = selectedRows[z];
+
+					if (rowIx >= tableModel.getRowCount()) {
+						continue; // paranoia
+					}
+
+					KnownBoardsTableMember row = tableModel.getRow(rowIx);
+					addHiddenName(row.getBoard().getName());
+					row.getBoard().setHidden(true);
+				}
+				boardsTable.clearSelection();
+				if (!CBshowHidden.isSelected()) {
+					removeHiddenBoards();
+				} else {
+					tableModel.tableEntriesChanged();
+				}
+				updateBoardCountInTitle();
+			}
+		}
+	}
+
+	private class UnhideBoardAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+			int[] selectedRows = boardsTable.getSelectedRows();
+			if (selectedRows.length > 0) {
+				for (int z = selectedRows.length - 1; z > -1; z--) {
+					int rowIx = selectedRows[z];
+
+					if (rowIx >= tableModel.getRowCount()) {
+						continue; // paranoia
+					}
+
+					KnownBoardsTableMember row = tableModel.getRow(rowIx);
+					removeHiddenName(row.getBoard().getName());
+					row.getBoard().setHidden(false);
+				}
+				boardsTable.clearSelection();
+				tableModel.tableEntriesChanged();
+
+				updateBoardCountInTitle();
+			}
+		}
+	}
+
+	private class TablePopupMenu extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		public TablePopupMenu() {
+			addBoardsAction.setText(language.getString("KnownBoardsFrame.button.addBoards"));
+			addBoardsToFolderAction.setText(language.getString("KnownBoardsFrame.button.addBoardsToFolder") + " ...");
+			removeBoardAction.setText(language.getString("KnownBoardsFrame.button.removeBoard"));
+			hideBoardAction.setText(language.getString("KnownBoardsFrame.button.hideBoard"));
+			unhideBoardAction.setText(language.getString("KnownBoardsFrame.button.unhideBoard"));
+
+			add(addBoardsAction);
+			add(addBoardsToFolderAction);
+			addSeparator();
+			add(hideBoardAction);
+			add(unhideBoardAction);
+			addSeparator();
+			add(removeBoardAction);
+		}
+	}
 }
