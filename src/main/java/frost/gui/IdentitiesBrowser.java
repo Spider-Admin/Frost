@@ -25,11 +25,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -47,9 +46,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -59,6 +58,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -80,15 +80,15 @@ import frost.util.CopyToClipboard;
 import frost.util.DateFun;
 import frost.util.Mixed;
 import frost.util.gui.FrostSwingWorker;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SelectRowOnRightClick;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.translation.Language;
-import frost.util.gui.translation.LanguageEvent;
-import frost.util.gui.translation.LanguageListener;
 
-@SuppressWarnings("serial")
-public class IdentitiesBrowser extends JDialog {
+public class IdentitiesBrowser extends JDialog implements SimplePopupMenuListener {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger =  LoggerFactory.getLogger(IdentitiesBrowser.class);
 
@@ -114,8 +114,11 @@ public class IdentitiesBrowser extends JDialog {
 
 	private final boolean showColoredLines;
 
-	private PopupMenu popupMenu = null;
-	private final Listener listener = new Listener();
+	private ArrayList<Identity> selectedIds;
+	private CopyUniqueNameAction copyUniqueNameAction;
+	private CopyUniqueNameAndPublicKeyAction copyUniqueNameAndPublicKeyAction;
+	private ExportSelectedIdentitiesAction exportSelectedIdentitiesAction;
+	private PopupMenu popupMenu;
 
 	private final long minCleanupTime;
 
@@ -155,9 +158,8 @@ public class IdentitiesBrowser extends JDialog {
 	 * This method initializes this
 	 */
 	private void initialize() {
-		this.setTitle("IdentitiesBrowser.title");
-		this.setBounds(new java.awt.Rectangle(0,0,630,420));
-		this.setContentPane(getJContentPane());
+		setBounds(new Rectangle(0, 0, 630, 420));
+		setContentPane(getJContentPane());
 
 		getMarkGOODButton().setText("");
 		getMarkBADButton().setText("");
@@ -181,6 +183,14 @@ public class IdentitiesBrowser extends JDialog {
 		getCloseButton().setText(language.getString("IdentitiesBrowser.button.close"));
 		getImportButton().setText(language.getString("IdentitiesBrowser.button.import"));
 		getExportButton().setText(language.getString("IdentitiesBrowser.button.export"));
+
+		copyUniqueNameAction = new CopyUniqueNameAction();
+		copyUniqueNameAndPublicKeyAction = new CopyUniqueNameAndPublicKeyAction();
+		exportSelectedIdentitiesAction = new ExportSelectedIdentitiesAction();
+		popupMenu = new PopupMenu();
+		popupMenu.addPopupMenuListener(this);
+		identitiesTable.setComponentPopupMenu(popupMenu);
+		identitiesTable.addMouseListener(new SelectRowOnRightClick(identitiesTable));
 	}
 
 	private void updateTitle() {
@@ -197,8 +207,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( contentPane == null ) {
 			contentPane = new JPanel();
 			contentPane.setLayout(new BorderLayout());
-			contentPane.add(getFilterPanel(), java.awt.BorderLayout.SOUTH);
-			contentPane.add(getMainPanel(), java.awt.BorderLayout.CENTER);
+			contentPane.add(getFilterPanel(), BorderLayout.SOUTH);
+			contentPane.add(getMainPanel(), BorderLayout.CENTER);
 		}
 		return contentPane;
 	}
@@ -268,10 +278,6 @@ public class IdentitiesBrowser extends JDialog {
 			identitiesTable.getColumnModel().getColumn(3).setCellRenderer(showColoredLinesRenderer);
 			identitiesTable.getColumnModel().getColumn(4).setCellRenderer(showColoredLinesRenderer);
 			identitiesTable.getColumnModel().getColumn(5).setCellRenderer(showColoredLinesRenderer);
-
-			identitiesScrollPane.addMouseListener(listener);
-			identitiesTable.addMouseListener(listener);
-			identitiesTable.addMouseListener(new SelectRowOnRightClick(identitiesTable));
 
 			identitiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				public void valueChanged(final ListSelectionEvent e) {
@@ -381,21 +387,21 @@ public class IdentitiesBrowser extends JDialog {
 			mainPanel = new JPanel();
 			mainPanel.setLayout(new GridBagLayout());
 
-			// Identitiy list
+			// Identity list
 			final GridBagConstraints gridBagConstraints = new GridBagConstraints();
-			gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+			gridBagConstraints.fill = GridBagConstraints.BOTH;
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.gridy = 0;
 			gridBagConstraints.weightx = 1.0;
 			gridBagConstraints.weighty = 1.0;
 			gridBagConstraints.gridheight = 9;
-			gridBagConstraints.insets = new java.awt.Insets(5,5,5,5);
+			gridBagConstraints.insets = new Insets(5, 5, 5, 5);
 			mainPanel.add(getIdentitiesScrollPane(), gridBagConstraints);
 
 			// Trust buttons
 			final GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			gridBagConstraints1.gridx = 1;
-			gridBagConstraints1.insets = new java.awt.Insets(5,2,5,2);
+			gridBagConstraints1.insets = new Insets(5, 2, 5, 2);
 			gridBagConstraints1.gridy = 0;
 			mainPanel.add(getMarkGOODButton(), gridBagConstraints1);
 
@@ -406,7 +412,7 @@ public class IdentitiesBrowser extends JDialog {
 			mainPanel.add(getMarkCHECKButton(), gridBagConstraints1);
 
 			gridBagConstraints1.gridx += 1;
-			//gridBagConstraints1.insets = new java.awt.Insets(5,0,0,5);
+			// gridBagConstraints1.insets = new Insets(5, 0, 0, 5);
 			mainPanel.add(getMarkBADButton(), gridBagConstraints1);
 
 			// Button list
@@ -414,8 +420,8 @@ public class IdentitiesBrowser extends JDialog {
 			gridBagConstraints5.gridx = 1;
 			gridBagConstraints5.gridwidth = 4;
 			gridBagConstraints5.weighty = 0.0;
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTH;
-			gridBagConstraints5.insets = new java.awt.Insets(8,5,5,5);
+			gridBagConstraints5.anchor = GridBagConstraints.NORTH;
+			gridBagConstraints5.insets = new Insets(8, 5, 5, 5);
 			gridBagConstraints5.gridy = 1;
 			mainPanel.add(getDeleteButton(), gridBagConstraints5);
 
@@ -427,7 +433,7 @@ public class IdentitiesBrowser extends JDialog {
 
 			// Cleanup
 			gridBagConstraints5.gridy += 1;
-			gridBagConstraints5.insets = new java.awt.Insets(20,5,0,5);
+			gridBagConstraints5.insets = new Insets(20, 5, 0, 5);
 			String minDays = Long.toString((DateFun.toStartOfDayInMilli(OffsetDateTime.now(DateFun.getTimeZone()))
 					- DateFun.toStartOfDayInMilli(minCleanupTime, DateFun.getTimeZone())) / (1000 * 60 * 60 * 24) + 1);
 
@@ -436,8 +442,8 @@ public class IdentitiesBrowser extends JDialog {
 			mainPanel.add(clenupLastSeenLabel, gridBagConstraints5);
 
 			gridBagConstraints5.gridy += 1;
-			gridBagConstraints5.insets = new java.awt.Insets(3,5,0,5);
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
+			gridBagConstraints5.insets = new Insets(3, 5, 0, 5);
+			gridBagConstraints5.fill = GridBagConstraints.BOTH;
 			cleanupLastSeenTextField.setToolTipText(language.getString("IdentitiesBrowser.cleanup.lastSeenLabel.toolTip"));
 			cleanupLastSeenTextField.setText(minDays);
 			mainPanel.add(cleanupLastSeenTextField,gridBagConstraints5);
@@ -454,7 +460,7 @@ public class IdentitiesBrowser extends JDialog {
 
 			gridBagConstraints5.gridy += 1;
 			gridBagConstraints5.weighty = 1.0;
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.NONE;
+			gridBagConstraints5.fill = GridBagConstraints.NONE;
 			mainPanel.add(getCleanupButton(), gridBagConstraints5);
 		}
 		return mainPanel;
@@ -470,8 +476,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( closeButton == null ) {
 			closeButton = new JButton();
 			closeButton.setText("IdentitiesBrowser.button.close");
-			closeButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			closeButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					setVisible(false);
 					// update messages if a board is shown
 					MainFrame.getInstance().getMessagePanel().updateTableAfterChangeOfIdentityState();
@@ -490,8 +496,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( markGOODButton == null ) {
 			markGOODButton = new JButton();
 			markGOODButton.setText("G");
-			markGOODButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			markGOODButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
 						final InnerTableMember itm = identitiesTableModel.getRow(element);
@@ -516,8 +522,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( markOBSERVEButton == null ) {
 			markOBSERVEButton = new JButton();
 			markOBSERVEButton.setText("O");
-			markOBSERVEButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			markOBSERVEButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
 						final InnerTableMember itm = identitiesTableModel.getRow(element);
@@ -542,8 +548,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( markCHECKButton == null ) {
 			markCHECKButton = new JButton();
 			markCHECKButton.setText("C");
-			markCHECKButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			markCHECKButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
 						final InnerTableMember itm = identitiesTableModel.getRow(element);
@@ -568,8 +574,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( markBADButton == null ) {
 			markBADButton = new JButton();
 			markBADButton.setText("B");
-			markBADButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			markBADButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					for( final int element : selRows ) {
 						final InnerTableMember itm = identitiesTableModel.getRow(element);
@@ -594,8 +600,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( deleteButton == null ) {
 			deleteButton = new JButton();
 			deleteButton.setText("IdentitiesBrowser.button.delete");
-			deleteButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			deleteButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					final int[] selRows = getIdentitiesTable().getSelectedRows();
 					final int answer = JOptionPane.showConfirmDialog(
 							IdentitiesBrowser.this,
@@ -624,7 +630,7 @@ public class IdentitiesBrowser extends JDialog {
 		return deleteButton;
 	}
 
-	class InnerTableMember implements TableMember<InnerTableMember> {
+	private class InnerTableMember implements TableMember<InnerTableMember> {
 
 		Identity identity;
 		Integer msgCount;
@@ -675,7 +681,7 @@ public class IdentitiesBrowser extends JDialog {
 		}
 
 		private String buildHtmlName(final String n) {
-			// TODO: html mode wraps words with blanks, maybe replace blanks by &nbsp;
+			// TODO: HTML mode wraps words with blanks, maybe replace blanks by &nbsp;
 			String a = n.substring(0, n.indexOf("@"));
 			String b = n.substring(n.indexOf("@"));
 			String r = "<html><b>" + a + "</b>" + b + "</html>";
@@ -755,7 +761,9 @@ public class IdentitiesBrowser extends JDialog {
 		}
 	}
 
-	public class InnerTableModel extends SortedTableModel<InnerTableMember> {
+	private class InnerTableModel extends SortedTableModel<InnerTableMember> {
+
+		private static final long serialVersionUID = 1L;
 
 		protected final String columnNames[] = new String[6];
 
@@ -811,6 +819,8 @@ public class IdentitiesBrowser extends JDialog {
 
 	private class StringCellRenderer extends ShowColoredLinesRenderer {
 
+		private static final long serialVersionUID = 1L;
+
 		private Font boldFont = null;
 		private Font normalFont = null;
 		private final Color col_good    = new Color(0x00, 0x80, 0x00);
@@ -857,7 +867,7 @@ public class IdentitiesBrowser extends JDialog {
 			} else if( column == 1 ) {
 				final Identity id = tableMember.getIdentity();
 				// STATE
-				// state == good/bad/check/observe -> bold and coloured
+				// state == good/bad/check/observe -> bold and colored
 				if (Core.getIdentitiesManager().isMySelf(id.getUniqueName())) {
 					if( !Core.frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED) ) {
 						setText("ME");
@@ -961,8 +971,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( cleanupButton == null ) {
 			cleanupButton = new JButton();
 			cleanupButton.setText("IdentitiesBrowser.button.cleanup");
-			cleanupButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			cleanupButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 
 					long minLastSeenTimestamp = 0L;
 					int minReceivedMessageCount = 0;
@@ -1211,8 +1221,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( importButton == null ) {
 			importButton = new JButton();
 			importButton.setText("IdentitiesBrowser.button.import");
-			importButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			importButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					final File xmlFile = chooseXmlImportFile();
 					if( xmlFile == null ) {
 						return;
@@ -1257,8 +1267,8 @@ public class IdentitiesBrowser extends JDialog {
 		if( exportButton == null ) {
 			exportButton = new JButton();
 			exportButton.setText("IdentitiesBrowser.button.export");
-			exportButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(final java.awt.event.ActionEvent e) {
+			exportButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					final List<Identity> allIdentities = Core.getIdentitiesManager().getIdentities();
 					exportIdentities(allIdentities);
 				}
@@ -1300,6 +1310,9 @@ public class IdentitiesBrowser extends JDialog {
 	}
 
 	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
 		public ShowColoredLinesRenderer() {
 			super();
 		}
@@ -1323,73 +1336,28 @@ public class IdentitiesBrowser extends JDialog {
 		}
 	}
 
-	private PopupMenu getPopupMenu() {
-		if (popupMenu == null) {
-			popupMenu = new PopupMenu();
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		selectedIds = new ArrayList<>();
+		int[] selRows = getIdentitiesTable().getSelectedRows();
+		for (int x = selRows.length - 1; x >= 0; x--) {
+			InnerTableMember m = identitiesTableModel.getRow(selRows[x]);
+			selectedIds.add(m.getIdentity());
 		}
-		return popupMenu;
+
+		Boolean isEnabled = !selectedIds.isEmpty();
+		copyUniqueNameAction.setEnabled(isEnabled);
+		copyUniqueNameAndPublicKeyAction.setEnabled(isEnabled);
+		exportSelectedIdentitiesAction.setEnabled(isEnabled);
 	}
 
-	private void showUploadTablePopupMenu(final MouseEvent e) {
-		getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-	}
+	private class CopyUniqueNameAction extends BaseAction {
 
-	private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+		private static final long serialVersionUID = 1L;
 
-		private final JMenu copyToClipboardMenu = new JMenu();
-
-		private final JMenuItem copyUniqueName = new JMenuItem();
-		private final JMenuItem copyUniqueNameAndPublicKey = new JMenuItem();
-
-		private final JMenuItem exportSelectedIdentities = new JMenuItem();
-
-		public PopupMenu() {
-			super();
-			initialize();
-		}
-
-		private void initialize() {
-			refreshLanguage();
-
-			copyToClipboardMenu.add(copyUniqueName);
-			copyToClipboardMenu.add(copyUniqueNameAndPublicKey);
-
-			copyUniqueName.addActionListener(this);
-			copyUniqueNameAndPublicKey.addActionListener(this);
-			exportSelectedIdentities.addActionListener(this);
-		}
-
-		private void refreshLanguage() {
-			copyUniqueName.setText(language.getString("IdentitiesBrowser.popupmenu.copyUniqueName"));
-			copyUniqueNameAndPublicKey.setText(language.getString("IdentitiesBrowser.popupmenu.copyUniqueNameAndPublicKey"));
-
-			copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
-
-			exportSelectedIdentities.setText(language.getString("IdentitiesBrowser.popupmenu.exportSelectedIdentities"));
-		}
-
-		public void actionPerformed(final ActionEvent e) {
-
-			final int[] selRows = getIdentitiesTable().getSelectedRows();
-			final List<Identity> selectedIds = new ArrayList<Identity>();
-			for( int x=selRows.length-1; x>=0; x-- ) {
-				final InnerTableMember m = identitiesTableModel.getRow(selRows[x]);
-				final Identity id = m.getIdentity();
-				selectedIds.add(id);
-			}
-
-			if (e.getSource() == copyUniqueName) {
-				copyUniqueName(selectedIds);
-			} else if (e.getSource() == copyUniqueNameAndPublicKey) {
-				copyUniqueNameAndPublicKey(selectedIds);
-			} else if (e.getSource() == exportSelectedIdentities) {
-				exportIdentities(selectedIds);
-			}
-		}
-
-		private void copyUniqueName(final List<Identity> selectedIds) {
-			final StringBuilder sb = new StringBuilder();
-			for( final Identity id : selectedIds) {
+		public void actionPerformed(ActionEvent e) {
+			StringBuilder sb = new StringBuilder();
+			for (Identity id : selectedIds) {
 				sb.append(id.getUniqueName());
 				sb.append("\n");
 			}
@@ -1398,10 +1366,15 @@ public class IdentitiesBrowser extends JDialog {
 
 			CopyToClipboard.copyText(sb.toString());
 		}
+	}
 
-		private void copyUniqueNameAndPublicKey(final List<Identity> selectedIds) {
-			final StringBuilder sb = new StringBuilder();
-			for( final Identity id : selectedIds) {
+	private class CopyUniqueNameAndPublicKeyAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+			StringBuilder sb = new StringBuilder();
+			for (Identity id : selectedIds) {
 				sb.append(id.getUniqueName());
 				sb.append("\n");
 				sb.append(id.getPublicKey());
@@ -1413,50 +1386,38 @@ public class IdentitiesBrowser extends JDialog {
 
 			CopyToClipboard.copyText(sb.toString());
 		}
+	}
 
-		public void languageChanged(final LanguageEvent event) {
-			refreshLanguage();
+	private class ExportSelectedIdentitiesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+			exportIdentities(selectedIds);
 		}
+	}
 
-		@Override
-		public void show(final Component invoker, final int x, final int y) {
-			removeAll();
+	private class PopupMenu extends JPopupMenu {
 
-			final int selectedRowCount = identitiesTable.getSelectedRowCount();
+		private static final long serialVersionUID = 1L;
 
-			if( selectedRowCount == 0 ) {
-				return;
-			}
+		private JMenu copyToClipboardMenu;
+
+		public PopupMenu() {
+			copyToClipboardMenu = new JMenu();
+			copyToClipboardMenu.add(copyUniqueNameAction);
+			copyToClipboardMenu.add(copyUniqueNameAndPublicKeyAction);
+
+			copyUniqueNameAction.setText(language.getString("IdentitiesBrowser.popupmenu.copyUniqueName"));
+			copyUniqueNameAndPublicKeyAction
+					.setText(language.getString("IdentitiesBrowser.popupmenu.copyUniqueNameAndPublicKey"));
+			copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+			exportSelectedIdentitiesAction
+					.setText(language.getString("IdentitiesBrowser.popupmenu.exportSelectedIdentities"));
 
 			add(copyToClipboardMenu);
 			addSeparator();
-			add(exportSelectedIdentities);
-
-			super.show(invoker, x, y);
+			add(exportSelectedIdentitiesAction);
 		}
 	}
-
-	private class Listener extends MouseAdapter implements MouseListener {
-		public Listener() {
-			super();
-		}
-		@Override
-		public void mousePressed(final MouseEvent e) {
-			if (e.isPopupTrigger()) {
-				if ((e.getSource() == identitiesTable)
-						|| (e.getSource() == identitiesScrollPane)) {
-					showUploadTablePopupMenu(e);
-				}
-			}
-		}
-		@Override
-		public void mouseReleased(final MouseEvent e) {
-			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-				if ((e.getSource() == identitiesTable)
-						|| (e.getSource() == identitiesScrollPane)) {
-					showUploadTablePopupMenu(e);
-				}
-			}
-		}
-	}
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}
