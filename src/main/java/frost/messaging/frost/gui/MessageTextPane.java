@@ -78,7 +78,7 @@ import frost.messaging.frost.FileAttachment;
 import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.boards.Board;
 import frost.messaging.frost.boards.Folder;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.FileAccess;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SmileyCache;
@@ -777,9 +777,9 @@ public class MessageTextPane extends JPanel {
             if ((e.getSource() == saveAttachmentsItem) || (e.getSource() == saveAttachmentItem)) {
                 downloadAttachments();
             } else if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames( getItems().toArray() );
+                ClipboardUtil.copyKeysAndFilenames( getItems().toArray() );
             } else if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo( getItems().toArray() );
+                ClipboardUtil.copyExtendedInfo( getItems().toArray() );
             } else if (e.getSource() == openFileInBrowserItem) {
             	openFileInBrowser_actionWrapper( getItems() );
             } else if (e.getSource() == openAllFilesInBrowserItem) {
@@ -1144,7 +1144,7 @@ public class MessageTextPane extends JPanel {
             	// don't include a trailing \n if we only have one item
             	text = items.get(0);
             }
-            CopyToClipboard.copyText(text);
+            ClipboardUtil.copyText(text);
         }
 
     }
@@ -1205,7 +1205,7 @@ public class MessageTextPane extends JPanel {
 
             } else if (e.getSource() == copyItem) {
             	final String text = sourceTextComponent.getSelectedText();
-                CopyToClipboard.copyText(text);
+                ClipboardUtil.copyText(text);
 
             } else if(e.getSource() == downloadKeys ) {
             	addKeysInText(sourceTextComponent.getSelectedText());

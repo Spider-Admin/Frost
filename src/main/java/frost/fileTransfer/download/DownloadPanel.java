@@ -88,7 +88,7 @@ import frost.fileTransfer.common.FileListFileDetailsDialog;
 import frost.gui.AddNewDownloadsDialog;
 import frost.messaging.frost.boards.Board;
 import frost.messaging.frost.boards.TofTree;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.FileAccess;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
@@ -847,9 +847,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		public void actionPerformed(final ActionEvent e) {
 			if (e.getSource() == copyKeysAndNamesItem) {
-				CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+				ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
 			} else if (e.getSource() == copyExtendedInfoItem) {
-				CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems().toArray());
+				ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems().toArray());
 			} else if (e.getSource() == restartSelectedDownloadsItem) {
 				restartSelectedDownloads();
 			} else if (e.getSource() == useThisDownloadDirItem) {

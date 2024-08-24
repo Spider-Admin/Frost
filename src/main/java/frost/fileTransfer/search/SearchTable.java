@@ -36,7 +36,7 @@ import frost.MainFrame;
 import frost.SettingsClass;
 import frost.fileTransfer.common.FileListFileDetailsDialog;
 import frost.storage.perst.filelist.FileListStorage;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.gui.CloseableTabbedPane;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SelectRowOnRightClick;
@@ -248,10 +248,10 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
                 downloadAllKeys();
             }
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(getSelectedItems().toArray());
+                ClipboardUtil.copyKeysAndFilenames(getSelectedItems().toArray());
             }
             if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo(getSelectedItems().toArray());
+                ClipboardUtil.copyExtendedInfo(getSelectedItems().toArray());
             }
             if (e.getSource() == hideSelectedKeysItem) {
                 hideSelectedFiles();

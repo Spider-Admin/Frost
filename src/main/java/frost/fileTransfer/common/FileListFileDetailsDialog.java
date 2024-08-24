@@ -48,7 +48,7 @@ import frost.fileTransfer.search.SearchParameters;
 import frost.identities.Identity;
 import frost.identities.LocalIdentity;
 import frost.messaging.frost.gui.MessagePanel.IdentityState;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.translation.Language;
@@ -261,7 +261,7 @@ public class FileListFileDetailsDialog extends JDialog {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+                ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
             } else if (e.getSource() == showOwnerFilesItem) {
                 searchFilesOfOwner();
             } else if (e.getSource() == setGoodItem) {

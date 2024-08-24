@@ -63,7 +63,7 @@ import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.PersistenceManager;
 import frost.gui.AddNewUploadsDialog;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SelectRowOnRightClick;
@@ -418,9 +418,9 @@ public class UploadPanel extends JPanel {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+                ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
             } else if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems().toArray());
+                ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems().toArray());
             } else if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();
             } else if (e.getSource() == uploadSelectedFilesItem) {

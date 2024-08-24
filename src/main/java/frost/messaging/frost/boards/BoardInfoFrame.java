@@ -67,7 +67,7 @@ import frost.gui.SortedTable;
 import frost.gui.model.SortedTableModel;
 import frost.gui.model.TableMember;
 import frost.storage.perst.messages.MessageStorage;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.DateFun;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
@@ -529,7 +529,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
                 sb.append(boardName).append("  (").append(state).append(")  ").append(allMsgs).append("\n");
             }
-            CopyToClipboard.copyText(sb.toString());
+            ClipboardUtil.copyText(sb.toString());
         }
     }
 

@@ -63,7 +63,7 @@ import frost.fileTransfer.download.FrostDownloadItem;
 import frost.gui.SearchMessagesConfig;
 import frost.messaging.freetalk.FreetalkFileAttachment;
 import frost.messaging.freetalk.FreetalkMessage;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.FileAccess;
 import frost.util.gui.SmileyCache;
 import frost.util.gui.TextHighlighter;
@@ -473,9 +473,9 @@ public class FreetalkMessageTextPane extends JPanel {
             if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
                 downloadAttachments();
             } else if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames( getItems().toArray() );
+                ClipboardUtil.copyKeysAndFilenames( getItems().toArray() );
             } else if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo( getItems().toArray() );
+                ClipboardUtil.copyExtendedInfo( getItems().toArray() );
             }
         }
 
@@ -728,7 +728,7 @@ public class FreetalkMessageTextPane extends JPanel {
             	// don't include a trailing \n if we only have one item
             	text = items.get(0);
             }
-            CopyToClipboard.copyText(text);
+            ClipboardUtil.copyText(text);
         }
     }
 
@@ -754,7 +754,7 @@ public class FreetalkMessageTextPane extends JPanel {
             } else if (e.getSource() == copyItem) {
                 // copy selected text
                 final String text = sourceTextComponent.getSelectedText();
-                CopyToClipboard.copyText(text);
+                ClipboardUtil.copyText(text);
             }
         }
 

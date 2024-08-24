@@ -82,7 +82,7 @@ import frost.messaging.frost.FrostMessageObject;
 import frost.messaging.frost.boards.Board;
 import frost.messaging.frost.gui.messagetreetable.MessageTreeTableModel;
 import frost.storage.perst.messages.MessageStorage;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SelectRowOnRightClick;
 import frost.util.gui.search.TableFindAction;
@@ -243,7 +243,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copySubjectText) {
-                CopyToClipboard.copyText(subjectTextLabel.getText());
+                ClipboardUtil.copyText(subjectTextLabel.getText());
             }
         }
 

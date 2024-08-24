@@ -76,7 +76,7 @@ import frost.identities.Identity;
 import frost.messaging.frost.boards.Board;
 import frost.storage.IdentitiesXmlDAO;
 import frost.storage.perst.identities.IdentitiesStorage;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.DateFun;
 import frost.util.Mixed;
 import frost.util.gui.FrostSwingWorker;
@@ -1364,7 +1364,7 @@ public class IdentitiesBrowser extends JDialog implements SimplePopupMenuListene
 			// We remove the additional \n at the end
 			sb.deleteCharAt(sb.length() - 1);
 
-			CopyToClipboard.copyText(sb.toString());
+			ClipboardUtil.copyText(sb.toString());
 		}
 	}
 
@@ -1384,7 +1384,7 @@ public class IdentitiesBrowser extends JDialog implements SimplePopupMenuListene
 			sb.deleteCharAt(sb.length() - 1);
 			sb.deleteCharAt(sb.length() - 1);
 
-			CopyToClipboard.copyText(sb.toString());
+			ClipboardUtil.copyText(sb.toString());
 		}
 	}
 

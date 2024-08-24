@@ -87,7 +87,7 @@ import frost.messaging.frost.gui.messagetreetable.MessageTreeTable;
 import frost.messaging.frost.gui.messagetreetable.MessageTreeTableModel;
 import frost.messaging.frost.gui.messagetreetable.TreeTableModelAdapter;
 import frost.storage.perst.messages.MessageStorage;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SelectRowOnRightClick;
@@ -255,7 +255,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copySubjectText) {
-                CopyToClipboard.copyText(subjectTextLabel.getText());
+                ClipboardUtil.copyText(subjectTextLabel.getText());
             }
         }
 

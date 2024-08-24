@@ -26,7 +26,7 @@ import java.awt.datatransfer.Transferable;
 
 import frost.util.gui.translation.Language;
 
-public class CopyToClipboard {
+public class ClipboardUtil {
 
     private static Clipboard clipboard = null;
 

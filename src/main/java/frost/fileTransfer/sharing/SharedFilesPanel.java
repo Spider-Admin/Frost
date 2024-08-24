@@ -53,7 +53,7 @@ import frost.SettingsClass;
 import frost.fileTransfer.FileTransferManager;
 import frost.fileTransfer.filelist.FileListUploadThread;
 import frost.storage.perst.NewUploadFile;
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.FileAccess;
 import frost.util.FormatterUtils;
 import frost.util.gui.JSkinnablePopupMenu;
@@ -433,10 +433,10 @@ public class SharedFilesPanel extends JPanel {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysAndNamesItem) {
-                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+                ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
             }
             if (e.getSource() == copyExtendedInfoItem) {
-                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems().toArray());
+                ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems().toArray());
             }
             if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();

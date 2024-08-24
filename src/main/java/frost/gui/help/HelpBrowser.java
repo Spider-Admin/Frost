@@ -45,7 +45,7 @@ import javax.swing.text.DefaultCaret;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import frost.util.CopyToClipboard;
+import frost.util.ClipboardUtil;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SimplePopupMenuListener;
 import frost.util.gui.action.BaseAction;
@@ -462,7 +462,7 @@ public class HelpBrowser extends JPanel implements LanguageListener, SimplePopup
 		private static final long serialVersionUID = 1L;
 
 		public void actionPerformed(ActionEvent e) {
-			CopyToClipboard.copyText(editorPane.getSelectedText());
+			ClipboardUtil.copyText(editorPane.getSelectedText());
 		}
 	}
 
