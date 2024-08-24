@@ -26,24 +26,14 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,9 +49,9 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -70,13 +60,13 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.PopupMenuEvent;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
-import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 
 import org.slf4j.Logger;
@@ -93,6 +83,7 @@ import frost.gui.SmileyChooserDialog;
 import frost.gui.SortedTable;
 import frost.gui.model.SortedTableModel;
 import frost.gui.model.TableMember;
+import frost.gui.model.TableMember.BaseTableMember;
 import frost.identities.Identity;
 import frost.identities.LocalIdentity;
 import frost.messaging.frost.BoardAttachment;
@@ -102,27 +93,30 @@ import frost.messaging.frost.FrostUnsentMessageObject;
 import frost.messaging.frost.UnsentMessagesManager;
 import frost.messaging.frost.boards.Board;
 import frost.storage.perst.messages.MessageStorage;
+import frost.util.ClipboardUtil;
 import frost.util.DateFun;
 import frost.util.FileAccess;
 import frost.util.Mixed;
 import frost.util.gui.ImmutableArea;
 import frost.util.gui.ImmutableAreasDocument;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.SimplePopupMenuListener;
 import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.gui.action.BaseAction;
+import frost.util.gui.action.CancelAction;
 import frost.util.gui.textpane.AntialiasedTextArea;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 
-@SuppressWarnings("serial")
-public class MessageFrame extends JFrame implements AltEditCallbackInterface {
+public class MessageFrame extends JFrame
+		implements AltEditCallbackInterface, SimplePopupMenuListener, LanguageListener {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageFrame.class);
 
     private final Language language;
-
-    private final Listener listener = new Listener();
 
     private boolean initialized = false;
 
@@ -142,9 +136,17 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     private JScrollPane filesTableScrollPane;
     private JScrollPane boardsTableScrollPane;
 
-    private JSkinnablePopupMenu attFilesPopupMenu;
-    private JSkinnablePopupMenu attBoardsPopupMenu;
-    private MessageBodyPopupMenu messageBodyPopupMenu;
+	private RemoveFilesAction removeFilesAction;
+	private AttFilesPopupMenu attFilesPopupMenu;
+
+	private RemoveBoardsAction removeBoardsAction;
+	private AttBoardsPopupMenu attBoardsPopupMenu;
+
+	private CutAction cutAction;
+	private CopyAction copyAction;
+	private PasteAction pasteAction;
+	private CancelAction cancelAction;
+	private MessageBodyPopupMenu messageBodyPopupMenu;
 
     private final JButton Bsend = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/mail-forward.png"));
     private final JButton Bcancel = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png"));
@@ -282,10 +284,10 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         if( returnVal == JFileChooser.APPROVE_OPTION ) {
             final File[] selectedFiles = fc.getSelectedFiles();
             for( final File element : selectedFiles ) {
-                // for convinience remember last used directory
+                // for convenience remember last used directory
                 frostSettings.setValue(SettingsClass.DIR_LAST_USED, element.getPath());
 
-                // collect all choosed files + files in all choosed directories
+                // collect all chosen files + files in all chosen directories
                 final List<File> allFiles = FileAccess.getAllEntries(element);
                 for (int j = 0; j < allFiles.size(); j++) {
                     final File aFile = allFiles.get(j);
@@ -424,11 +426,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         oldSender = from;
 
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            initialize(newBoard, newSubject);
-        } catch (final Exception e) {
-            logger.error("Exception thrown in composeMessage(...)", e);
-        }
+		initialize(newBoard, newSubject);
 
         sign.setEnabled(false);
 
@@ -589,27 +587,17 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         composeMessage(newBoard, newSubject, inReplyTo, newText, true, toIds, fromId, msg);
     }
 
-    @Override
-    public void dispose() {
-        if (initialized) {
-            language.removeLanguageListener(listener);
-            initialized = false;
-        }
-        super.dispose();
-    }
+	@Override
+	public void dispose() {
+		if (initialized) {
+			language.removeLanguageListener(this);
+			initialized = false;
+		}
+		super.dispose();
+	}
 
-    private MessageBodyPopupMenu getMessageBodyPopupMenu() {
-        if (messageBodyPopupMenu == null) {
-            messageBodyPopupMenu = new MessageBodyPopupMenu(messageTextArea);
-        }
-        return messageBodyPopupMenu;
-    }
-
-    private void initialize(final Board targetBoard, final String subject) throws Exception {
+	private void initialize(Board targetBoard, String subject) {
         if (!initialized) {
-            refreshLanguage();
-            language.addLanguageListener(listener);
-
             final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/toolbar/mail-message-new.png");
             setIconImage(frameIcon.getImage());
             setResizable(true);
@@ -618,13 +606,11 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             boardsTable = new MFAttachedBoardsTable(boardsTableModel);
             boardsTableScrollPane = new JScrollPane(boardsTable);
             boardsTableScrollPane.setWheelScrollingEnabled(true);
-            boardsTable.addMouseListener(listener);
 
             filesTableModel = new MFAttachedFilesTableModel();
             filesTable = new MFAttachedFilesTable(filesTableModel);
             filesTableScrollPane = new JScrollPane(filesTable);
             filesTableScrollPane.setWheelScrollingEnabled(true);
-            filesTable.addMouseListener(listener);
 
             // FIXME: option to show own identities in list, or to hide them
             final List<Identity> budList = Core.getIdentitiesManager().getAllGOODIdentities();
@@ -664,7 +650,6 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             subjectTextField.setText(subject);
             messageTextArea.setLineWrap(true);
             messageTextArea.setWrapStyleWord(true);
-            messageTextArea.addMouseListener(listener);
 
             sign.setOpaque(false);
             encrypt.setOpaque(false);
@@ -672,32 +657,32 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             //------------------------------------------------------------------------
             // Actionlistener
             //------------------------------------------------------------------------
-            Bsend.addActionListener(new java.awt.event.ActionListener() {
+			Bsend.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     send_actionPerformed(e);
                 }
             });
-            Bcancel.addActionListener(new java.awt.event.ActionListener() {
+			Bcancel.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     windowIsClosing();
                 }
             });
-            BattachFile.addActionListener(new java.awt.event.ActionListener() {
+			BattachFile.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     attachFile_actionPerformed(e);
                 }
             });
-            BattachBoard.addActionListener(new java.awt.event.ActionListener() {
+			BattachBoard.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     attachBoards_actionPerformed(e);
                 }
             });
-            encrypt.addActionListener(new java.awt.event.ActionListener() {
+			encrypt.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     encrypt_actionPerformed(e);
                 }
             });
-            BchooseSmiley.addActionListener(new java.awt.event.ActionListener() {
+			BchooseSmiley.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     chooseSmiley_actionPerformed(e);
                 }
@@ -829,7 +814,23 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             getContentPane().setLayout(new BorderLayout());
             getContentPane().add(panelMain, BorderLayout.CENTER);
 
-            initPopupMenu();
+			removeFilesAction = new RemoveFilesAction();
+			attFilesPopupMenu = new AttFilesPopupMenu();
+			attFilesPopupMenu.addPopupMenuListener(this);
+			filesTable.setComponentPopupMenu(attFilesPopupMenu);
+
+			removeBoardsAction = new RemoveBoardsAction();
+			attBoardsPopupMenu = new AttBoardsPopupMenu();
+			attBoardsPopupMenu.addPopupMenuListener(this);
+			boardsTable.setComponentPopupMenu(attBoardsPopupMenu);
+
+			cutAction = new CutAction();
+			copyAction = new CopyAction();
+			pasteAction = new PasteAction();
+			cancelAction = new CancelAction();
+			messageBodyPopupMenu = new MessageBodyPopupMenu();
+			messageBodyPopupMenu.addPopupMenuListener(this);
+			messageTextArea.setComponentPopupMenu(messageBodyPopupMenu);
 
             pack();
 
@@ -844,30 +845,11 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             setSize( width, (int)(parentWindow.getHeight() * 0.75) ); // always set height to 75% of parent
             setLocationRelativeTo(parentWindow);
 
+			language.addLanguageListener(this);
+			languageChanged(null);
+
             initialized = true;
         }
-    }
-
-    protected void initPopupMenu() {
-        attFilesPopupMenu = new JSkinnablePopupMenu();
-        attBoardsPopupMenu = new JSkinnablePopupMenu();
-
-        final JMenuItem removeFiles = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
-        final JMenuItem removeBoards = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
-
-        removeFiles.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                removeSelectedItemsFromTable(filesTable);
-            }
-        });
-        removeBoards.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                removeSelectedItemsFromTable(boardsTable);
-            }
-        });
-
-        attFilesPopupMenu.add( removeFiles );
-        attBoardsPopupMenu.add( removeBoards );
     }
 
     private void positionDividers() {
@@ -897,23 +879,6 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             attachmentsSplitPane.setTopComponent(filesTableScrollPane);
             attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
         }
-    }
-
-    private void refreshLanguage() {
-        setTitle(language.getString("MessageFrame.createMessage.title"));
-
-        Bsend.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.sendMessage"));
-        Bcancel.setToolTipText(language.getString("Common.cancel"));
-        BattachFile.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addFileAttachments"));
-        BattachBoard.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addBoardAttachments"));
-
-        encrypt.setText(language.getString("MessageFrame.toolbar.encryptFor"));
-
-        Lboard.setText(language.getString("MessageFrame.board") + ": ");
-        Lfrom.setText(language.getString("MessageFrame.from") + ": ");
-        Lsubject.setText(language.getString("MessageFrame.subject") + ": ");
-
-        updateSignToolTip();
     }
 
     private void updateSignToolTip() {
@@ -1031,7 +996,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             return;
         }
 
-        // for convinience set last used user
+        // for convenience set last used user
         if( from.indexOf("@") < 0 ) {
             // only save anonymous usernames
             frostSettings.setValue(SettingsClass.LAST_USED_FROMNAME, from);
@@ -1228,14 +1193,20 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
 // DBG: 39 ; 119: '----- wegdami t@plewLcBTHKmPwpWakJNpUdvWSR8 ----- 2006.10.13 - 18:20:12GMT -----'
     }
 
-    class TextComboBoxEditor extends JTextField implements ComboBoxEditor {
-        boolean isSigned;
+	private class TextComboBoxEditor extends JTextField implements ComboBoxEditor {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean isSigned;
+
         public TextComboBoxEditor() {
             super();
         }
+
         public Component getEditorComponent() {
             return this;
         }
+
         public void setItem(final Object arg0) {
             if( arg0 instanceof LocalIdentity ) {
                 isSigned = true;
@@ -1244,9 +1215,11 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             }
             setText(arg0.toString());
         }
+
         public Object getItem() {
             return getText();
         }
+
         public boolean isSigned() {
             return isSigned;
         }
@@ -1310,8 +1283,8 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             ownIdentitiesComboBox.setEditable(true);
 
 //            ownIdentitiesComboBox.getEditor().selectAll();
-            ownIdentitiesComboBox.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(final java.awt.event.ItemEvent e) {
+			ownIdentitiesComboBox.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent e) {
                     if( e.getStateChange() == ItemEvent.DESELECTED ) {
                         return;
                     }
@@ -1335,7 +1308,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         return ownIdentitiesComboBox;
     }
 
-    class BuddyComparator implements Comparator<Identity> {
+	private class BuddyComparator implements Comparator<Identity> {
         public int compare(final Identity id1, final Identity id2) {
             final String s1 = id1.getUniqueName();
             final String s2 = id2.getUniqueName();
@@ -1343,159 +1316,9 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class Listener implements MouseListener, LanguageListener {
-        protected void maybeShowPopup(final MouseEvent e) {
-            if (e.isPopupTrigger()) {
-                if (e.getSource() == boardsTable) {
-                    attBoardsPopupMenu.show(boardsTable, e.getX(), e.getY());
-                }
-                if (e.getSource() == filesTable) {
-                    attFilesPopupMenu.show(filesTable, e.getX(), e.getY());
-                }
-                if (e.getSource() == messageTextArea) {
-                    getMessageBodyPopupMenu().show(messageTextArea, e.getX(), e.getY());
-                }
-            }
-        }
-        public void mouseClicked(final MouseEvent event) {}
-        public void mouseEntered(final MouseEvent event) {}
-        public void mouseExited(final MouseEvent event) {}
-        public void mousePressed(final MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mouseReleased(final MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
-    }
+	private class MFAttachedBoard extends BaseTableMember<MFAttachedBoard> {
 
-    private class MessageBodyPopupMenu
-        extends JSkinnablePopupMenu
-        implements ActionListener, ClipboardOwner {
-
-        private Clipboard clipboard;
-
-        private final JTextComponent sourceTextComponent;
-
-        private final JMenuItem cutItem = new JMenuItem();
-        private final JMenuItem copyItem = new JMenuItem();
-        private final JMenuItem pasteItem = new JMenuItem();
-        private final JMenuItem cancelItem = new JMenuItem();
-
-        public MessageBodyPopupMenu(final JTextComponent sourceTextComponent) {
-            super();
-            this.sourceTextComponent = sourceTextComponent;
-            initialize();
-        }
-
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == cutItem) {
-                cutSelectedText();
-            }
-            if (e.getSource() == copyItem) {
-                copySelectedText();
-            }
-            if (e.getSource() == pasteItem) {
-                pasteText();
-            }
-        }
-
-        private void copySelectedText() {
-            final StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
-            clipboard.setContents(selection, this);
-        }
-
-        private void cutSelectedText() {
-            final StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
-            clipboard.setContents(selection, this);
-
-            final int start = sourceTextComponent.getSelectionStart();
-            final int end = sourceTextComponent.getSelectionEnd();
-            try {
-                sourceTextComponent.getDocument().remove(start, end - start);
-            } catch (final BadLocationException ble) {
-                logger.error("Problem while cutting text.", ble);
-            }
-        }
-
-        private void pasteText() {
-            final Transferable clipboardContent = clipboard.getContents(this);
-            try {
-                final String text = (String) clipboardContent.getTransferData(DataFlavor.stringFlavor);
-
-                final Caret caret = sourceTextComponent.getCaret();
-                final int p0 = Math.min(caret.getDot(), caret.getMark());
-                final int p1 = Math.max(caret.getDot(), caret.getMark());
-
-                final Document document = sourceTextComponent.getDocument();
-
-                if (document instanceof PlainDocument) {
-                    ((PlainDocument) document).replace(p0, p1 - p0, text, null);
-                } else {
-                    if (p0 != p1) {
-                        document.remove(p0, p1 - p0);
-                    }
-                    document.insertString(p0, text, null);
-                }
-            } catch (final IOException ioe) {
-                logger.error("Problem while pasting text.", ioe);
-            } catch (final UnsupportedFlavorException ufe) {
-                logger.error("Problem while pasting text.", ufe);
-            } catch (final BadLocationException ble) {
-                logger.error("Problem while pasting text.", ble);
-            }
-        }
-
-        private void initialize() {
-            refreshLanguage();
-
-            final Toolkit toolkit = Toolkit.getDefaultToolkit();
-            clipboard = toolkit.getSystemClipboard();
-
-            cutItem.addActionListener(this);
-            copyItem.addActionListener(this);
-            pasteItem.addActionListener(this);
-
-            add(cutItem);
-            add(copyItem);
-            add(pasteItem);
-            addSeparator();
-            add(cancelItem);
-        }
-
-        private void refreshLanguage() {
-            cutItem.setText(language.getString("Common.cut"));
-            copyItem.setText(language.getString("Common.copy"));
-            pasteItem.setText(language.getString("Common.paste"));
-            cancelItem.setText(language.getString("Common.cancel"));
-        }
-
-        public void lostOwnership(final Clipboard nclipboard, final Transferable contents) {}
-
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            if (sourceTextComponent.getSelectedText() != null) {
-                cutItem.setEnabled(true);
-                copyItem.setEnabled(true);
-            } else {
-                cutItem.setEnabled(false);
-                copyItem.setEnabled(false);
-            }
-            final Transferable clipboardContent = clipboard.getContents(this);
-            if ((clipboardContent != null) &&
-                    (clipboardContent.isDataFlavorSupported(DataFlavor.stringFlavor))) {
-                pasteItem.setEnabled(true);
-            } else {
-                pasteItem.setEnabled(false);
-            }
-            super.show(invoker, x, y);
-        }
-    }
-
-    private class MFAttachedBoard extends TableMember.BaseTableMember<MFAttachedBoard> {
-        Board aBoard;
+		private Board aBoard;
 
         public MFAttachedBoard(final Board ab) {
             aBoard = ab;
@@ -1516,7 +1339,10 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedBoardsTable extends SortedTable<MFAttachedBoard> {
+	private class MFAttachedBoardsTable extends SortedTable<MFAttachedBoard> {
+
+		private static final long serialVersionUID = 1L;
+
         public MFAttachedBoardsTable(final MFAttachedBoardsTableModel m) {
             super(m);
             // set column sizes
@@ -1531,13 +1357,17 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedBoardsTableModel extends SortedTableModel<MFAttachedBoard> {
+	private class MFAttachedBoardsTableModel extends SortedTableModel<MFAttachedBoard> {
+
+		private static final long serialVersionUID = 1L;
+
         protected final Class<?> columnClasses[] = {
             String.class,
             String.class,
             String.class,
             String.class
         };
+
         protected final String columnNames[] = {
             language.getString("MessageFrame.boardAttachmentTable.boardname"),
             language.getString("MessageFrame.boardAttachmentTable.publicKey"),
@@ -1548,6 +1378,7 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         public MFAttachedBoardsTableModel() {
             super();
         }
+
         @Override
         public Class<?> getColumnClass(final int column) {
             if( (column >= 0) && (column < columnClasses.length) ) {
@@ -1555,10 +1386,12 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             }
             return null;
         }
+
         @Override
         public int getColumnCount() {
             return columnNames.length;
         }
+
         @Override
         public String getColumnName(final int column) {
             if( (column >= 0) && (column < columnNames.length) ) {
@@ -1566,16 +1399,19 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
             }
             return null;
         }
+
         @Override
         public boolean isCellEditable(final int row, final int col) {
             return false;
         }
+
         @Override
         public void setValueAt(final Object aValue, final int row, final int column) {}
     }
 
-    private class MFAttachedFile extends TableMember.BaseTableMember<MFAttachedFile>  {
-        File aFile;
+	private class MFAttachedFile extends BaseTableMember<MFAttachedFile> {
+
+		private File aFile;
 
         public MFAttachedFile(final File af) {
             aFile = af;
@@ -1595,6 +1431,9 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     }
 
 	private class MFAttachedFilesTable extends SortedTable<MFAttachedFile> {
+
+		private static final long serialVersionUID = 1L;
+
         public MFAttachedFilesTable(final MFAttachedFilesTableModel m) {
             super(m);
 
@@ -1611,7 +1450,9 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
         }
     }
 
-    private class MFAttachedFilesTableModel extends SortedTableModel<MFAttachedFile> {
+	private class MFAttachedFilesTableModel extends SortedTableModel<MFAttachedFile> {
+
+		private static final long serialVersionUID = 1L;
 
         protected final Class<?> columnClasses[] = {
             String.class,
@@ -1667,12 +1508,157 @@ public class MessageFrame extends JFrame implements AltEditCallbackInterface {
     public static synchronized int getOpenInstanceCount() {
         return openInstanceCount;
     }
+
     private static synchronized void incOpenInstanceCount() {
         openInstanceCount++;
     }
+
     private static synchronized void decOpenInstanceCount() {
         if( openInstanceCount > 0 ) { // paranoia
             openInstanceCount--;
         }
     }
+
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		Boolean canCopyOrCut = messageTextArea.getSelectedText() != null;
+
+		removeFilesAction.setEnabled(filesTable.getSelectedRowCount() > 0);
+		removeBoardsAction.setEnabled(boardsTable.getSelectedRowCount() > 0);
+		cutAction.setEnabled(canCopyOrCut);
+		copyAction.setEnabled(canCopyOrCut);
+		pasteAction.setEnabled(ClipboardUtil.hasText());
+	}
+
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		setTitle(language.getString("MessageFrame.createMessage.title"));
+
+		Bsend.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.sendMessage"));
+		Bcancel.setToolTipText(language.getString("Common.cancel"));
+		BattachFile.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addFileAttachments"));
+		BattachBoard.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addBoardAttachments"));
+
+		encrypt.setText(language.getString("MessageFrame.toolbar.encryptFor"));
+
+		Lboard.setText(language.getString("MessageFrame.board") + ": ");
+		Lfrom.setText(language.getString("MessageFrame.from") + ": ");
+		Lsubject.setText(language.getString("MessageFrame.subject") + ": ");
+
+		removeFilesAction.setText(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
+		removeBoardsAction.setText(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
+		cutAction.setText(language.getString("Common.cut"));
+		copyAction.setText(language.getString("Common.copy"));
+		pasteAction.setText(language.getString("Common.paste"));
+		cancelAction.setText(language.getString("Common.cancel"));
+
+		updateSignToolTip();
+	}
+
+	private class RemoveFilesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			removeSelectedItemsFromTable(filesTable);
+		}
+	}
+
+	private class AttFilesPopupMenu extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		public AttFilesPopupMenu() {
+			add(removeFilesAction);
+		}
+	}
+
+	private class RemoveBoardsAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			removeSelectedItemsFromTable(boardsTable);
+		}
+	}
+
+	private class AttBoardsPopupMenu extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		public AttBoardsPopupMenu() {
+			add(removeBoardsAction);
+		}
+	}
+
+	private class CutAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyText(messageTextArea.getSelectedText());
+
+			int start = messageTextArea.getSelectionStart();
+			int end = messageTextArea.getSelectionEnd();
+			try {
+				messageTextArea.getDocument().remove(start, end - start);
+			} catch (BadLocationException ex) {
+				logger.error("Problem while cutting text.", ex);
+			}
+		}
+	}
+
+	private class CopyAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyText(messageTextArea.getSelectedText());
+		}
+	}
+
+	private class PasteAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String text = ClipboardUtil.pasteText();
+
+			Caret caret = messageTextArea.getCaret();
+			int p0 = Math.min(caret.getDot(), caret.getMark());
+			int p1 = Math.max(caret.getDot(), caret.getMark());
+
+			Document document = messageTextArea.getDocument();
+			try {
+				if (document instanceof PlainDocument) {
+					((PlainDocument) document).replace(p0, p1 - p0, text, null);
+				} else {
+					if (p0 != p1) {
+						document.remove(p0, p1 - p0);
+					}
+					document.insertString(p0, text, null);
+				}
+			} catch (BadLocationException ex) {
+				logger.error("Problem while pasting text.", e);
+			}
+		}
+	}
+
+	private class MessageBodyPopupMenu extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		public MessageBodyPopupMenu() {
+			add(cutAction);
+			add(copyAction);
+			add(pasteAction);
+			addSeparator();
+			add(cancelAction);
+		}
+	}
 }
