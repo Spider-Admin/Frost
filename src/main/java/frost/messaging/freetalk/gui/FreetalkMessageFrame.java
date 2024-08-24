@@ -1,5 +1,5 @@
 /*
-MessageFrame.java / Frost
+FreetalkMessageFrame.java / Frost
 Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
 This program is free software; you can redistribute it and/or
