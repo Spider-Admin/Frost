@@ -1,5 +1,5 @@
 /*
-  CopyToClipboard.java / Frost
+  ClipboardUtil.java / Frost
   Copyright (C) 2007  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -20,33 +20,46 @@ package frost.util;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import frost.util.gui.translation.Language;
 
 public class ClipboardUtil {
 
-    private static Clipboard clipboard = null;
+	private static final Logger logger = LoggerFactory.getLogger(ClipboardUtil.class);
 
-    private static class DummyClipboardOwner implements ClipboardOwner {
-        public void lostOwnership(final Clipboard tclipboard, final Transferable contents) { }
-    }
+	private static Clipboard clipboard;
 
-    private static DummyClipboardOwner dummyClipboardOwner = new DummyClipboardOwner();
+	static {
+		clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	}
 
-    private static Clipboard getClipboard() {
-        if (clipboard == null) {
-            clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        }
-        return clipboard;
-    }
+	public static void copyText(String text) {
+		StringSelection selection = new StringSelection(text);
+		clipboard.setContents(selection, null);
+	}
 
-    public static void copyText(final String text) {
-        final StringSelection selection = new StringSelection(text);
-        getClipboard().setContents(selection, dummyClipboardOwner);
-    }
+	public static Boolean hasText() {
+		return clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor);
+	}
+
+	public static String pasteText() {
+		String result = "";
+		Transferable clipboardContent = clipboard.getContents(null);
+		try {
+			result = (String) clipboardContent.getTransferData(DataFlavor.stringFlavor);
+		} catch (UnsupportedFlavorException | IOException e) {
+			logger.error("Unable to get text from clipboard!", e);
+		}
+		return result;
+	}
 
     /**
      * This method copies the CHK keys and file names of the selected items (if any) to the clipboard.
