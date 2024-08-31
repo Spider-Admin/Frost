@@ -19,7 +19,6 @@
 package frost.fileTransfer.upload;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -30,11 +29,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,11 +45,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.event.PopupMenuEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,21 +64,40 @@ import frost.fileTransfer.FreenetPriority;
 import frost.fileTransfer.PersistenceManager;
 import frost.gui.AddNewUploadsDialog;
 import frost.util.ClipboardUtil;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SelectRowOnRightClick;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
-@SuppressWarnings("serial")
-public class UploadPanel extends JPanel {
+public class UploadPanel extends JPanel implements LanguageListener, SimplePopupMenuListener {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(UploadPanel.class);
 
-    private PopupMenuUpload popupMenuUpload = null;
+	private CopyKeysAndNamesAction copyKeysAndNamesAction;
+	private CopyExtendedInfoAction copyExtendedInfoAction;
+	private HashMap<FreenetPriority, ChangePriorityAction> changePriorityActions;
+	private JMenu changePriorityMenu;
+	private SetEnabledSelectedItemsAction enableSelectedAction;
+	private SetEnabledSelectedItemsAction disableSelectedAction;
+	private SetEnabledSelectedItemsAction invertEnabledSelectedAction;
+	private SetEnabledAllItemsAction enableAllAction;
+	private SetEnabledAllItemsAction disableAllAction;
+	private SetEnabledAllItemsAction invertEnabledAllAction;
+	private JMenu enabledMenu;
+	private StartSelectedNowAction startSelectedNowAction;
+	private GenerateCHKForSelectedFilesAction generateCHKForSelectedFilesAction;
+	private UploadSelectedFilesAction uploadSelectedFilesAction;
+	private RemoveSelectedFilesAction removeSelectedFilesAction;
+	private RemoveFromGlobalQueueAction removeFromGlobalQueueAction;
+	private OpenFileAction openFileAction;
+	private PopupMenuUpload popupMenuUpload;
 
     private final Listener listener = new Listener();
 
@@ -103,7 +122,7 @@ public class UploadPanel extends JPanel {
         super();
 
         language = Language.getInstance();
-        language.addLanguageListener(listener);
+		language.addLanguageListener(this);
     }
 
     public UploadTableFormat getTableFormat() {
@@ -112,8 +131,6 @@ public class UploadPanel extends JPanel {
 
     public void initialize() {
         if (!initialized) {
-            refreshLanguage();
-
             uploadToolBar.setRollover(true);
             uploadToolBar.setFloatable(false);
 
@@ -164,6 +181,32 @@ public class UploadPanel extends JPanel {
 
             assignHotkeys();
 
+			copyKeysAndNamesAction = new CopyKeysAndNamesAction();
+			copyExtendedInfoAction = new CopyExtendedInfoAction();
+			changePriorityMenu = new JMenu();
+			changePriorityActions = new HashMap<>();
+			for (FreenetPriority priority : FreenetPriority.values()) {
+				changePriorityActions.put(priority, new ChangePriorityAction(priority));
+			}
+			enabledMenu = new JMenu();
+			enableSelectedAction = new SetEnabledSelectedItemsAction(true);
+			disableSelectedAction = new SetEnabledSelectedItemsAction(false);
+			invertEnabledSelectedAction = new SetEnabledSelectedItemsAction(null);
+			enableAllAction = new SetEnabledAllItemsAction(true);
+			disableAllAction = new SetEnabledAllItemsAction(false);
+			invertEnabledAllAction = new SetEnabledAllItemsAction(null);
+			startSelectedNowAction = new StartSelectedNowAction();
+			generateCHKForSelectedFilesAction = new GenerateCHKForSelectedFilesAction();
+			uploadSelectedFilesAction = new UploadSelectedFilesAction();
+			removeSelectedFilesAction = new RemoveSelectedFilesAction();
+			removeFromGlobalQueueAction = new RemoveFromGlobalQueueAction();
+			openFileAction = new OpenFileAction();
+			popupMenuUpload = new PopupMenuUpload();
+			popupMenuUpload.addPopupMenuListener(this);
+			modelTable.getTable().setComponentPopupMenu(popupMenuUpload);
+
+			languageChanged(null);
+
             initialized = true;
         }
     }
@@ -172,33 +215,6 @@ public class UploadPanel extends JPanel {
         final JLabel dummyLabel = new JLabel(text);
         dummyLabel.doLayout();
         return dummyLabel.getPreferredSize();
-    }
-
-    private void refreshLanguage() {
-        uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
-
-        final String waiting = language.getString("UploadPane.toolbar.waiting");
-        final Dimension labelSize = calculateLabelSize(waiting + ": 00000");
-        uploadItemCountLabel.setPreferredSize(labelSize);
-        uploadItemCountLabel.setMinimumSize(labelSize);
-        uploadItemCountLabel.setText(waiting + ": " + uploadItemCount);
-        removeFinishedUploadsCheckBox.setText(language.getString("UploadPane.removeFinishedUploads"));
-        showExternalGlobalQueueItems.setText(language.getString("UploadPane.showExternalGlobalQueueItems"));
-        compressUploadsCheckBox.setText(language.getString("UploadPane.compressUploads"));
-    }
-
-    private PopupMenuUpload getPopupMenuUpload() {
-        if (popupMenuUpload == null) {
-            popupMenuUpload = new PopupMenuUpload();
-            language.addLanguageListener(popupMenuUpload);
-        }
-        return popupMenuUpload;
-    }
-
-    private void uploadTable_keyPressed(final KeyEvent e) {
-        if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
-            removeSelectedFiles();
-        }
     }
 
     /**
@@ -229,12 +245,6 @@ public class UploadPanel extends JPanel {
         }
     }
 
-
-    private void showUploadTablePopupMenu(final MouseEvent e) {
-        getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
-    }
-
-    
     private void openFile(FrostUploadItem ulItem) {
     	if (ulItem == null) {
 			return;
@@ -302,14 +312,17 @@ public class UploadPanel extends JPanel {
 
     private void assignHotkeys() {
 
-    	// assign keys 1-6 - set priority of selected items
-    	final Action setPriorityAction = new AbstractAction() {
-    		public void actionPerformed(final ActionEvent event) {
-				final FreenetPriority prio = FreenetPriority.getPriority(Integer.parseInt(event.getActionCommand()));
-    			final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
-    			changeItemPriorites(selectedItems, prio);
-    		}
-    	};
+		// assign keys 1-6 - set priority of selected items
+		Action setPriorityAction = new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
+			public void actionPerformed(ActionEvent event) {
+				FreenetPriority prio = FreenetPriority.getPriority(Integer.parseInt(event.getActionCommand()));
+				changeItemPriorites(modelTable.getSelectedItems(), prio);
+			}
+		};
+
     	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "SETPRIO");
     	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "SETPRIO");
     	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "SETPRIO");
@@ -318,351 +331,328 @@ public class UploadPanel extends JPanel {
     	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0), "SETPRIO");
     	getActionMap().put("SETPRIO", setPriorityAction);
 
-    	// Enter
-    	final Action setOpenFileAction = new AbstractAction() {
-    		public void actionPerformed(final ActionEvent event) {
-    			openFile(modelTable.getSelectedItem());
-    		}
-    	};
-    	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),"OpenFile");
-    	getActionMap().put("OpenFile", setOpenFileAction);
+       	getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),"OpenFile");
+    	getActionMap().put("OpenFile", openFileAction);
     }
 
-    private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+	private class Listener extends MouseAdapter
+			implements ActionListener, KeyListener, PropertyChangeListener, ItemListener {
 
-        private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyExtendedInfoItem = new JMenuItem();
-        private final JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
-        private final JMenuItem uploadSelectedFilesItem = new JMenuItem();
-        private final JMenuItem removeSelectedFilesItem = new JMenuItem();
-        private final JMenuItem showSharedFileItem = new JMenuItem();
-        private final JMenuItem startSelectedUploadsNow = new JMenuItem();
+		public void keyPressed(KeyEvent e) {
+			if (e.getSource() == modelTable.getTable() && e.getKeyChar() == KeyEvent.VK_DELETE
+					&& !modelTable.getTable().isEditing()) {
+				removeSelectedFiles();
+			}
+		}
 
-        private final JMenuItem disableAllDownloadsItem = new JMenuItem();
-        private final JMenuItem disableSelectedDownloadsItem = new JMenuItem();
-        private final JMenuItem enableAllDownloadsItem = new JMenuItem();
-        private final JMenuItem enableSelectedDownloadsItem = new JMenuItem();
-        private final JMenuItem invertEnabledAllItem = new JMenuItem();
-        private final JMenuItem invertEnabledSelectedItem = new JMenuItem();
+		public void keyReleased(KeyEvent e) {
+		}
 
-        private JMenu changePriorityMenu = null;
-        
-        private JMenuItem removeFromGqItem = null;
+		public void keyTyped(KeyEvent e) {
+		}
 
-        public PopupMenuUpload() {
-            super();
-            initialize();
-        }
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == uploadAddFilesButton) {
+				new AddNewUploadsDialog(MainFrame.getInstance()).startDialog();
+			}
+		}
 
-        private void initialize() {
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (e.getSource() == modelTable.getTable() && e.getClickCount() == 2) {
+				// Start file from download table. Is this a good idea?
+				openFile(modelTable.getSelectedItem());
+			}
+		}
 
-        	if( PersistenceManager.isPersistenceEnabled() ) {
-        		changePriorityMenu = new JMenu();
-        		for(final FreenetPriority priority : FreenetPriority.values()) {
-        			JMenuItem priorityMenuItem = new JMenuItem();
-        			priorityMenuItem.addActionListener(new java.awt.event.ActionListener() {
-        				public void actionPerformed(final ActionEvent actionEvent) {
-        					changeItemPriorites(modelTable.getSelectedItems(), priority);
-        				}
-        			});
-        			changePriorityMenu.add(priorityMenuItem);
-        		}
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
+				fontChanged();
+			}
+		}
 
-        		removeFromGqItem = new JMenuItem();
-        		removeFromGqItem.addActionListener(this);
-        	}
+		public void itemStateChanged(ItemEvent e) {
+			if (removeFinishedUploadsCheckBox.isSelected()) {
+				model.removeFinishedUploads();
+			}
+			if (!showExternalGlobalQueueItems.isSelected()) {
+				model.removeExternalUploads();
+			}
 
-            refreshLanguage();
+			Core.frostSettings.setValue(SettingsClass.UPLOAD_REMOVE_FINISHED,
+					removeFinishedUploadsCheckBox.isSelected());
+			Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD,
+					showExternalGlobalQueueItems.isSelected());
+		}
+	}
 
-            copyKeysAndNamesItem.addActionListener(this);
-            copyExtendedInfoItem.addActionListener(this);
-            removeSelectedFilesItem.addActionListener(this);
-            uploadSelectedFilesItem.addActionListener(this);
-            startSelectedUploadsNow.addActionListener(this);
-            generateChkForSelectedFilesItem.addActionListener(this);
-            showSharedFileItem.addActionListener(this);
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
 
-            enableAllDownloadsItem.addActionListener(this);
-            disableAllDownloadsItem.addActionListener(this);
-            enableSelectedDownloadsItem.addActionListener(this);
-            disableSelectedDownloadsItem.addActionListener(this);
-            invertEnabledAllItem.addActionListener(this);
-            invertEnabledSelectedItem.addActionListener(this);
-        }
+		String waiting = language.getString("UploadPane.toolbar.waiting");
+		Dimension labelSize = calculateLabelSize(waiting + ": 00000");
+		uploadItemCountLabel.setPreferredSize(labelSize);
+		uploadItemCountLabel.setMinimumSize(labelSize);
+		uploadItemCountLabel.setText(waiting + ": " + uploadItemCount);
 
-        private void refreshLanguage() {
-            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
-            copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
-            generateChkForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
-            uploadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
-            startSelectedUploadsNow.setText(language.getString("UploadPane.fileTable.popupmenu.startSelectedUploadsNow"));
-            removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
-            showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
+		removeFinishedUploadsCheckBox.setText(language.getString("UploadPane.removeFinishedUploads"));
+		showExternalGlobalQueueItems.setText(language.getString("UploadPane.showExternalGlobalQueueItems"));
+		compressUploadsCheckBox.setText(language.getString("UploadPane.compressUploads"));
 
-            enableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableAllUploads"));
-            disableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableAllUploads"));
-            enableSelectedDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableSelectedUploads"));
-            disableSelectedDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableSelectedUploads"));
-            invertEnabledAllItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.invertEnabledStateForAllUploads"));
-            invertEnabledSelectedItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.invertEnabledStateForSelectedUploads"));
+		copyKeysAndNamesAction.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+		copyExtendedInfoAction.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
 
-            if( PersistenceManager.isPersistenceEnabled() ) {
-                changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
-                
-                for(int itemNum = 0; itemNum < changePriorityMenu.getItemCount() ; itemNum++) {
-                	changePriorityMenu.getItem(itemNum).setText(FreenetPriority.getName(itemNum));
-                }
-                removeFromGqItem.setText(language.getString("UploadPane.fileTable.popupmenu.removeFromGlobalQueue"));
-            }
-        }
+		for (FreenetPriority priority : FreenetPriority.values()) {
+			changePriorityActions.get(priority).setText(priority.getName());
+		}
+		changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
 
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysAndNamesItem) {
-                ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
-            } else if (e.getSource() == copyExtendedInfoItem) {
-                ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems().toArray());
-            } else if (e.getSource() == removeSelectedFilesItem) {
-                removeSelectedFiles();
-            } else if (e.getSource() == uploadSelectedFilesItem) {
-                uploadSelectedFiles();
-            } else if (e.getSource() == generateChkForSelectedFilesItem) {
-                generateChkForSelectedFiles();
-            } else if (e.getSource() == showSharedFileItem) {
-            	openFile(modelTable.getSelectedItem());
-            } else if (e.getSource() == removeFromGqItem) {
-                removeSelectedUploadsFromGlobalQueue();
-            } else if (e.getSource() == enableAllDownloadsItem) {
-                enableAllDownloads();
-            } else if (e.getSource() == disableAllDownloadsItem) {
-                disableAllDownloads();
-            } else if (e.getSource() == enableSelectedDownloadsItem) {
-                enableSelectedDownloads();
-            } else if (e.getSource() == disableSelectedDownloadsItem) {
-                disableSelectedDownloads();
-            } else if (e.getSource() == invertEnabledAllItem) {
-                invertEnabledAll();
-            } else if (e.getSource() == invertEnabledSelectedItem) {
-                invertEnabledSelected();
-            } else if (e.getSource() == startSelectedUploadsNow ) {
-                startSelectedUploadsNow();
-            }
-        }
+		enableSelectedAction
+				.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableSelectedUploads"));
+		disableSelectedAction
+				.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableSelectedUploads"));
+		invertEnabledSelectedAction.setText(language
+				.getString("UploadPane.fileTable.popupmenu.enableUploads.invertEnabledStateForSelectedUploads"));
+		enableAllAction.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableAllUploads"));
+		disableAllAction.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableAllUploads"));
+		invertEnabledAllAction.setText(
+				language.getString("UploadPane.fileTable.popupmenu.enableUploads.invertEnabledStateForAllUploads"));
+		enabledMenu.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads") + "...");
 
-        private void removeSelectedUploadsFromGlobalQueue() {
-            if( FileTransferManager.inst().getPersistenceManager() == null ) {
-                return;
-            }
-            final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
-            final List<String> requestsToRemove = new ArrayList<String>();
-            final List<FrostUploadItem> itemsToUpdate = new ArrayList<FrostUploadItem>();
-            for(final FrostUploadItem item : selectedItems) {
-                if( FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
-                    requestsToRemove.add( item.getGqIdentifier() );
-                    itemsToUpdate.add(item);
-                    item.setInternalRemoveExpected(true);
-                }
-            }
-            FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
-            // after remove, update state of removed items
-            for(final FrostUploadItem item : itemsToUpdate) {
-                item.setState(FrostUploadItem.STATE_WAITING);
-                item.setEnabled(false);
-                item.setPriority(FreenetPriority.PAUSE);
-                item.fireValueChanged();
-            }
-        }
+		startSelectedNowAction.setText(language.getString("UploadPane.fileTable.popupmenu.startSelectedUploadsNow"));
+		generateCHKForSelectedFilesAction
+				.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
+		uploadSelectedFilesAction.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
+		removeSelectedFilesAction
+				.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
+		removeFromGlobalQueueAction.setText(language.getString("UploadPane.fileTable.popupmenu.removeFromGlobalQueue"));
+		openFileAction.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
+	}
 
-        /**
-         * Generate CHK for selected files
-         */
-        private void generateChkForSelectedFiles() {
-            model.generateChkItems(modelTable.getSelectedItems());
-        }
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
+		Boolean isSelected = !selectedItems.isEmpty();
+		Boolean isPersistenceEnabled = PersistenceManager.isPersistenceEnabled();
 
-        private void startSelectedUploadsNow() {
+		Boolean isItemInGlobalQueue = false;
+		for (FrostUploadItem frostUploadItem : selectedItems) {
+			if (FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(frostUploadItem)) {
+				isItemInGlobalQueue = true;
+			}
+		}
 
-            final List<FrostUploadItem> itemsToStart = new LinkedList<FrostUploadItem>();
-            
-            for( final FrostUploadItem frostUploadItem : modelTable.getSelectedItems() ) {
-                if( frostUploadItem.isExternal() ) {
-                    continue;
-                }
-                if( frostUploadItem.getState() != FrostUploadItem.STATE_WAITING ) {
-                    continue;
-                }
-                itemsToStart.add(frostUploadItem);
-            }
+		copyKeysAndNamesAction.setEnabled(isSelected);
+		copyExtendedInfoAction.setEnabled(isSelected);
+		changePriorityMenu.setEnabled(isSelected && isPersistenceEnabled);
+		enabledMenu.setEnabled(isSelected);
+		startSelectedNowAction.setEnabled(isSelected);
+		generateCHKForSelectedFilesAction.setEnabled(isSelected);
+		uploadSelectedFilesAction.setEnabled(isSelected);
+		removeSelectedFilesAction.setEnabled(isSelected);
+		removeFromGlobalQueueAction.setEnabled(isSelected && isPersistenceEnabled && isItemInGlobalQueue);
+		openFileAction.setEnabled(isSelected);
+	}
 
-            for(final FrostUploadItem ulItem : itemsToStart) {
-                ulItem.setEnabled(true);
-                FileTransferManager.inst().getUploadManager().startUpload(ulItem);
-            }
-        }
+	private class CopyKeysAndNamesAction extends BaseAction {
 
-        /**
-         * Reload selected files
-         */
-        private void uploadSelectedFiles() {
-            model.uploadItems(modelTable.getSelectedItems());
-        }
+		private static final long serialVersionUID = 1L;
 
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+		}
+	}
 
-        private void invertEnabledSelected() {
-            model.setItemsEnabled(null, modelTable.getSelectedItems());
-        }
+	private class CopyExtendedInfoAction extends BaseAction {
 
-        private void invertEnabledAll() {
-            model.setAllItemsEnabled(null);
-        }
+		private static final long serialVersionUID = 1L;
 
-        private void disableSelectedDownloads() {
-            model.setItemsEnabled(Boolean.FALSE, modelTable.getSelectedItems());
-        }
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems().toArray());
+		}
+	}
 
-        private void enableSelectedDownloads() {
-            model.setItemsEnabled(Boolean.TRUE, modelTable.getSelectedItems());
-        }
+	private class ChangePriorityAction extends BaseAction {
 
-        private void disableAllDownloads() {
-            model.setAllItemsEnabled(Boolean.FALSE);
-        }
+		private static final long serialVersionUID = 1L;
 
-        private void enableAllDownloads() {
-            model.setAllItemsEnabled(Boolean.TRUE);
-        }
+		private FreenetPriority priority;
 
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            removeAll();
+		public ChangePriorityAction(FreenetPriority priority) {
+			this.priority = priority;
+		}
 
-            final List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			changeItemPriorites(modelTable.getSelectedItems(), priority);
+		}
+	}
 
-            if( selectedItems.size() == 0 ) {
-                return;
-            }
+	private class SetEnabledSelectedItemsAction extends BaseAction {
 
-            // if at least 1 item is selected
-            add(copyKeysAndNamesItem);
-            add(copyExtendedInfoItem);
-            addSeparator();
+		private static final long serialVersionUID = 1L;
 
-            if( FileTransferManager.inst().getPersistenceManager() != null ) {
-                add(changePriorityMenu);
-                addSeparator();
-            }
+		private Boolean enabled;
 
-            final JMenu enabledSubMenu = new JMenu(language.getString("UploadPane.fileTable.popupmenu.enableUploads") + "...");
-            enabledSubMenu.add(enableSelectedDownloadsItem);
-            enabledSubMenu.add(disableSelectedDownloadsItem);
-            enabledSubMenu.add(invertEnabledSelectedItem);
-            enabledSubMenu.addSeparator();
+		public SetEnabledSelectedItemsAction(Boolean enabled) {
+			this.enabled = enabled;
+		}
 
-            enabledSubMenu.add(enableAllDownloadsItem);
-            enabledSubMenu.add(disableAllDownloadsItem);
-            enabledSubMenu.add(invertEnabledAllItem);
-            add(enabledSubMenu);
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			model.setItemsEnabled(enabled, modelTable.getSelectedItems());
+		}
+	}
 
-            add(startSelectedUploadsNow);
-            add(generateChkForSelectedFilesItem);
-            add(uploadSelectedFilesItem);
-            addSeparator();
-            add(removeSelectedFilesItem);
-            if(  FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null ) {
-                // add only if there are removable items selected
-                for(final FrostUploadItem frostUploadItem : selectedItems) {
-                    if(  FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(frostUploadItem) ) {
-                        add(removeFromGqItem);
-                        break;
-                    }
-                }
-            }
-            if( selectedItems.size() == 1 ) {
-                if( selectedItems.get(0).isSharedFile() ) {
-                    addSeparator();
-                    add(showSharedFileItem);
-                }
-            }
-            super.show(invoker, x, y);
-        }
-    }
+	private class SetEnabledAllItemsAction extends BaseAction {
 
-    private class Listener extends MouseAdapter
-        implements LanguageListener, KeyListener, ActionListener, MouseListener, PropertyChangeListener, ItemListener
-    {
-        public Listener() {
-            super();
-        }
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
-        public void keyPressed(final KeyEvent e) {
-            if (e.getSource() == modelTable.getTable()) {
-                uploadTable_keyPressed(e);
-            }
-        }
-        public void keyReleased(final KeyEvent e) {
-            // Nothing here
-        }
-        public void keyTyped(final KeyEvent e) {
-            // Nothing here
-        }
-        public void actionPerformed(final ActionEvent e) {
-        	if (e.getSource() == uploadAddFilesButton) {
-        		new AddNewUploadsDialog(MainFrame.getInstance()).startDialog();
-        	}
-        }
-        @Override
-        public void mousePressed(final MouseEvent e) {
-            if (e.getClickCount() == 2) {
-                if (e.getSource() == modelTable.getTable()) {
-                    // Start file from download table. Is this a good idea?
-                	openFile(modelTable.getSelectedItem());
-                }
-            } else if (e.isPopupTrigger()) {
-                if ((e.getSource() == modelTable.getTable())
-                    || (e.getSource() == modelTable.getScrollPane())) {
-                    showUploadTablePopupMenu(e);
-                }
-            }
-        }
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
+		private static final long serialVersionUID = 1L;
 
-                if ((e.getSource() == modelTable.getTable())
-                    || (e.getSource() == modelTable.getScrollPane())) {
-                    showUploadTablePopupMenu(e);
-                }
+		private Boolean enabled;
 
-            }
-        }
-        public void propertyChange(final PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
-                fontChanged();
-            }
-            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
-                fontChanged();
-            }
-            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
-                fontChanged();
-            }
-        }
-        public void itemStateChanged(final ItemEvent e) {
-            if( removeFinishedUploadsCheckBox.isSelected() ) {
-                Core.frostSettings.setValue(SettingsClass.UPLOAD_REMOVE_FINISHED, true);
-                model.removeFinishedUploads();
-            } else {
-                Core.frostSettings.setValue(SettingsClass.UPLOAD_REMOVE_FINISHED, false);
-            }
-            if( showExternalGlobalQueueItems.isSelected() ) {
-                Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, true);
-            } else {
-                Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, false);
-                model.removeExternalUploads();
-            }
-        }
-    }
+		public SetEnabledAllItemsAction(Boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			model.setAllItemsEnabled(enabled);
+		}
+	}
+
+	private class StartSelectedNowAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<FrostUploadItem> itemsToStart = new LinkedList<FrostUploadItem>();
+
+			for (FrostUploadItem frostUploadItem : modelTable.getSelectedItems()) {
+				if (frostUploadItem.isExternal() || frostUploadItem.getState() != FrostUploadItem.STATE_WAITING) {
+					continue;
+				}
+				itemsToStart.add(frostUploadItem);
+			}
+
+			for (FrostUploadItem ulItem : itemsToStart) {
+				ulItem.setEnabled(true);
+				FileTransferManager.inst().getUploadManager().startUpload(ulItem);
+			}
+		}
+	}
+
+	private class GenerateCHKForSelectedFilesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			model.generateChkItems(modelTable.getSelectedItems());
+		}
+	}
+
+	private class UploadSelectedFilesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			model.uploadItems(modelTable.getSelectedItems());
+		}
+	}
+
+	private class RemoveSelectedFilesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			removeSelectedFiles();
+		}
+	}
+
+	private class RemoveFromGlobalQueueAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (FileTransferManager.inst().getPersistenceManager() == null) {
+				return;
+			}
+			List<FrostUploadItem> selectedItems = modelTable.getSelectedItems();
+			List<String> requestsToRemove = new ArrayList<String>();
+			List<FrostUploadItem> itemsToUpdate = new ArrayList<FrostUploadItem>();
+			for (FrostUploadItem item : selectedItems) {
+				if (FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item)) {
+					requestsToRemove.add(item.getGqIdentifier());
+					itemsToUpdate.add(item);
+					item.setInternalRemoveExpected(true);
+				}
+			}
+			FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
+			// after remove, update state of removed items
+			for (FrostUploadItem item : itemsToUpdate) {
+				item.setState(FrostUploadItem.STATE_WAITING);
+				item.setEnabled(false);
+				item.setPriority(FreenetPriority.PAUSE);
+				item.fireValueChanged();
+			}
+		}
+	}
+
+	private class OpenFileAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			openFile(modelTable.getSelectedItem());
+		}
+	}
+
+	private class PopupMenuUpload extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		public PopupMenuUpload() {
+			add(copyKeysAndNamesAction);
+			add(copyExtendedInfoAction);
+			addSeparator();
+
+			for (FreenetPriority priority : FreenetPriority.values()) {
+				changePriorityMenu.add(changePriorityActions.get(priority));
+			}
+			add(changePriorityMenu);
+			addSeparator();
+
+			enabledMenu.add(enableSelectedAction);
+			enabledMenu.add(disableSelectedAction);
+			enabledMenu.add(invertEnabledSelectedAction);
+			enabledMenu.addSeparator();
+			enabledMenu.add(enableAllAction);
+			enabledMenu.add(disableAllAction);
+			enabledMenu.add(invertEnabledAllAction);
+			add(enabledMenu);
+
+			add(startSelectedNowAction);
+			add(generateCHKForSelectedFilesAction);
+			add(uploadSelectedFilesAction);
+			addSeparator();
+			add(removeSelectedFilesAction);
+			add(removeFromGlobalQueueAction);
+			addSeparator();
+			add(openFileAction);
+		}
+	}
 }
