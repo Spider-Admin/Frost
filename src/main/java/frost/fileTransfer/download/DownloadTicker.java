@@ -18,6 +18,8 @@
 package frost.fileTransfer.download;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 
 import frost.Core;
 import frost.SettingsClass;
@@ -90,9 +92,8 @@ public class DownloadTicker extends Thread {
 	@Override
     public void run() {
 		super.run();
-		long loopTempMillSeconds = 0; 
-		int seconds = 0;
-		long loopStartMillSeconds = (new java.util.Date()).getTime();
+		Instant loopEnd = null;
+		Instant loopStart = Instant.now();
 		while (true) {
 			Mixed.wait(1000);
 			
@@ -104,12 +105,11 @@ public class DownloadTicker extends Thread {
 				Mixed.wait(29000);
 			}
 
-			loopTempMillSeconds = (new java.util.Date()).getTime();
-			seconds = (int) (loopTempMillSeconds - loopStartMillSeconds) / 1000;
+			loopEnd = Instant.now();
+			long seconds = Duration.between(loopStart, loopEnd).toSeconds();
 			if( seconds >= 60 ) {
 				increaseDownloadItemRuntime(seconds);
-				
-				loopStartMillSeconds = loopTempMillSeconds;
+				loopStart = loopEnd;
 			}
 		}
 	}
@@ -118,7 +118,7 @@ public class DownloadTicker extends Thread {
 	 * Increase the runtime of shared, running download items.
 	 * Called each X seconds, adds the specified amount of seconds to the runtime.
 	 */
-	private void increaseDownloadItemRuntime(final int incSecs) {
+	private void increaseDownloadItemRuntime(final long incSecs) {
 	    // if we use persistence, check if we are currently connected
 	    if( FileTransferManager.inst().getPersistenceManager() != null ) {
 	        if( !FileTransferManager.inst().getPersistenceManager().isConnected() ) {

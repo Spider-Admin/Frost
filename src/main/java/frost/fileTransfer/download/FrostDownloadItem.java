@@ -548,7 +548,7 @@ public class FrostDownloadItem extends ModelItem<FrostDownloadItem> implements C
     /**
      * Adds the specified amount of seconds to the value
      */
-    public synchronized void addToRuntimeSecondsWithoutProgress(final int s) {
+    public synchronized void addToRuntimeSecondsWithoutProgress(final long s) {
         runtimeSecondsWithoutProgress += s;
     }
 
