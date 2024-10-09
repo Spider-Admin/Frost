@@ -76,13 +76,11 @@ import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 
-@SuppressWarnings("serial")
 public class TofTree extends JDragTree implements AutoSavable, ExitSavable, PropertyChangeListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(TofTree.class);
+	private static final long serialVersionUID = 1L;
 
-    private static final String FROST_ANNOUNCE_NAME = "frost-announce";
-    private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE";
+	private static final Logger logger = LoggerFactory.getLogger(TofTree.class);
 
     private boolean showBoardDescriptionToolTips;
     private boolean showBoardUpdatedCount;
@@ -97,9 +95,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
     private UnsentMessagesFolder unsentMessagesFolder = null;
     private SentMessagesFolder sentMessagesFolder = null;
 
-    private class PopupMenuTofTree
-        extends JSkinnablePopupMenu
-        implements LanguageListener, ActionListener {
+	private class PopupMenuTofTree extends JSkinnablePopupMenu implements LanguageListener, ActionListener {
+
+		private static final long serialVersionUID = 1L;
 
         private final JMenuItem addBoardItem = new JMenuItem();
         private final JMenuItem addFolderItem = new JMenuItem();
@@ -463,7 +461,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         }
     }
 
-    private class CellRenderer extends DefaultTreeCellRenderer {
+	private class CellRenderer extends DefaultTreeCellRenderer {
+
+		private static final long serialVersionUID = 1L;
 
         private final Border borderFlaggedAndStarredMsgs = BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.red),    // outside
@@ -885,29 +885,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             return loadWasOk;
         }
 
-        // check if the board 'frost-announce' is contained in the list, add it if not found
-        final String expectedPubkey = FREENET_07_FROST_ANNOUNCE_PUBKEY;
-
-        final List<Board> existingBoards = model.getAllBoards();
-        boolean boardFound = false;
-        for( final Board board : existingBoards ) {
-            if( board.getName().equals(FROST_ANNOUNCE_NAME) ) {
-                boardFound = true;
-                // check if pubkey is correct
-                if( (board.getPublicKey() == null) || (board.getPublicKey().equals(expectedPubkey) == false) ) {
-                    board.setPublicKey(expectedPubkey);
-                }
-                break;
-            }
-        }
-        if( !boardFound ) {
-            final Board newBoard = new Board(FROST_ANNOUNCE_NAME, "Announcement of new Frost versions");
-            newBoard.setPublicKey(expectedPubkey);
-            final Folder root = (Folder)model.getRoot();
-            model.addNodeToTree(newBoard, root);
-        }
-
         // check all boards for obsolete 0.7 encryption key and warn user
+        final List<Board> existingBoards = model.getAllBoards();
         final List<String> boardsWithObsoleteKeys = new ArrayList<String>();
         for( final Board board : existingBoards ) {
             if( (board.getPublicKey() != null) && board.getPublicKey().endsWith("AQABAAE") ) {
