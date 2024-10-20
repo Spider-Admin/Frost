@@ -24,13 +24,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -40,8 +40,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -56,9 +56,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import frost.Core;
 import frost.MainFrame;
 import frost.SettingsClass;
@@ -69,85 +66,26 @@ import frost.gui.model.TableMember;
 import frost.storage.perst.messages.MessageStorage;
 import frost.util.ClipboardUtil;
 import frost.util.DateFun;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 
-/**
- *
- * @author $Author: $
- * @version $Revision: $
- */
-@SuppressWarnings("serial")
-public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener {
+public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener, LanguageListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(BoardInfoFrame.class);
+	private static final long serialVersionUID = 1L;
 
     private final boolean showColoredLines;
 
-    /**
-     *
-     */
-    private class Listener implements MouseListener, LanguageListener {
-        public Listener() {
-            super();
-        }
+	private class Listener extends MouseAdapter {
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-         */
-        public void mouseClicked(final MouseEvent e) {
-            if (e.getClickCount() == 2) {
-                updateSelectedBoardButton_actionPerformed(null);
-            }
-        }
-
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-         */
-        public void mouseEntered(final MouseEvent e) {
-            //Nothing here
-        }
-
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-         */
-        public void mouseExited(final MouseEvent e) {
-            //Nothing here
-        }
-
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-         */
-        public void mousePressed(final MouseEvent e) {
-            maybeShowPopup(e);
-        }
-
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-         */
-        public void mouseReleased(final MouseEvent e) {
-            maybeShowPopup(e);
-        }
-
-        /**
-         * @param e
-         */
-        private void maybeShowPopup(final MouseEvent e) {
-            if( e.isPopupTrigger() ) {
-                getPopupMenu().show(boardTable, e.getX(), e.getY());
-            }
-        }
-
-        /* (non-Javadoc)
-         * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
-         */
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
-    }
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 2) {
+				updateSelectedBoardAction.actionPerformed(null);
+			}
+		}
+	}
 
     private MainFrame mainFrame;
     private TofTree tofTree = null;
@@ -166,71 +104,44 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private final JButton removeSelectedBoardsButton = new JButton();
     private final JButton Bclose = new JButton();
 
-    private JSkinnablePopupMenu popupMenu = null;
-    private final JMenuItem MIupdate = new JMenuItem();
-    private final JMenuItem MIupdateSelectedBoard = new JMenuItem();
-    private final JMenuItem MIupdateAllBoards = new JMenuItem();
-    private final JMenuItem MIcopyInfoToClipboard = new JMenuItem();
-    private final JMenuItem MIremoveSelectedBoards = new JMenuItem();
+	private CopyInfoToClipboardAction copyInfoToClipboardAction;
+	private UpdateSelectedBoardAction updateSelectedBoardAction;
+	private UpdateAllBoardsAction updateAllBoardsAction;
+	private RemoveSelectedBoardsAction removeSelectedBoardsAction;
+	private UpdateAction updateAction;
+	private PopupMenu popupMenu;
 
     private BoardInfoTableModel boardTableModel = null;
     private SortedTable<BoardInfoTableMember> boardTable = null;
 
-    /**
-     *
-     */
-    private void refreshLanguage() {
-        setTitle(language.getString("BoardInfoFrame.title"));
-
-        updateButton.setText(language.getString("BoardInfoFrame.button.update"));
-        updateSelectedBoardButton.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
-        updateAllBoardsButton.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
-        removeSelectedBoardsButton.setText(language.getString("BoardInfoFrame.button.removeSelectedBoards"));
-        Bclose.setText(language.getString("BoardInfoFrame.button.close"));
-
-        MIupdate.setText(language.getString("BoardInfoFrame.button.update"));
-        MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
-        MIupdateAllBoards.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
-        MIcopyInfoToClipboard.setText(language.getString("BoardInfoFrame.popupMenu.copyInfoToClipboard"));
-        MIremoveSelectedBoards.setText(language.getString("BoardInfoFrame.button.removeSelectedBoards"));
-    }
-
-    /**
-     * @param mainFrame
-     * @param tofTree
-     */
     public BoardInfoFrame(final MainFrame mainFrame, final TofTree tofTree) {
         super();
         this.mainFrame = mainFrame;
         this.tofTree = tofTree;
 
-        language = Language.getInstance();
-        refreshLanguage();
+		copyInfoToClipboardAction = new CopyInfoToClipboardAction();
+		updateSelectedBoardAction = new UpdateSelectedBoardAction();
+		updateAllBoardsAction = new UpdateAllBoardsAction();
+		removeSelectedBoardsAction = new RemoveSelectedBoardsAction();
+		updateAction = new UpdateAction();
+		popupMenu = new PopupMenu();
+
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            Init();
-        }
-        catch( final Exception e ) {
-            logger.error("Exception thrown in constructor", e);
-        }
+		Init();
 
         int width = (int) (mainFrame.getWidth() * 0.75);
         int height = (int) (mainFrame.getHeight() * 0.75);
 
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         if( width < 1000 ) {
-        	Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-
         	if( screenSize.width > 1300 ) {
         		width = 1200;
-
         	} else if( screenSize.width > 1000 ) {
         		width = (int) (mainFrame.getWidth() * 0.99);
         	}
         }
 
         if( height < 500 ) {
-        	Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-
         	if( screenSize.width > 900 ) {
         		height = 800;
         	} else {
@@ -238,19 +149,16 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         	}
         }
 
-        mainFrame.getWidth();
-
         setSize(width, height);
         setLocationRelativeTo(mainFrame);
 
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
-    }
 
-    /**
-     * @throws Exception
-     */
-    private void Init() throws Exception {
+		language = Language.getInstance();
+		languageChanged(null);
+	}
 
+	private void Init() {
         boardTableModel = new BoardInfoTableModel();
         boardTable = new SortedTable<BoardInfoTableMember>(boardTableModel);
 
@@ -275,54 +183,24 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         //------------------------------------------------------------------------
         // Actionlistener
         //------------------------------------------------------------------------
-        boardTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-                     public void valueChanged(final ListSelectionEvent e) {
-                         boardTableListModel_valueChanged(e);
-                     } });
+		boardTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				checkActionsEnabled();
+			}
+		});
 
-        // updateButton
-        ActionListener al = new java.awt.event.ActionListener() {
-                    public void actionPerformed(final ActionEvent e) {
-                        updateButton_actionPerformed();
-                    } };
-        updateButton.addActionListener(al);
-        MIupdate.addActionListener(al);
+		updateSelectedBoardButton.setAction(updateSelectedBoardAction);
+		updateAllBoardsButton.setAction(updateAllBoardsAction);
+		removeSelectedBoardsButton.setAction(removeSelectedBoardsAction);
+		updateButton.setAction(updateAction);
 
-        // updateSelectedBoardButton
-        al = new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                updateSelectedBoardButton_actionPerformed(e);
-            } };
-        updateSelectedBoardButton.addActionListener(al);
-        MIupdateSelectedBoard.addActionListener(al);
-
-        // updateAllBoardsButton
-        al = new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                updateAllBoardsButton_actionPerformed(e);
-            } };
-        updateAllBoardsButton.addActionListener(al);
-        MIupdateAllBoards.addActionListener(al);
-
-        al = new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                removeSelectedBoards_actionPerformed(e);
-            } };
-        removeSelectedBoardsButton.addActionListener(al);
-        MIremoveSelectedBoards.addActionListener(al);
-
-        MIcopyInfoToClipboard.addActionListener( new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                copyInfoToClipboard_actionPerformed(e);
-            }
-        });
-
-        // Bclose
-        al = new java.awt.event.ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                closeDialog();
-            } };
-        Bclose.addActionListener(al);
+		// Bclose
+		ActionListener al = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				closeDialog();
+			}
+		};
+		Bclose.addActionListener(al);
 
         //------------------------------------------------------------------------
         // Append objects
@@ -363,9 +241,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         buttonsPanel.add(Bclose);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        boardTable.addMouseListener(listener);
+		boardTable.addMouseListener(listener);
+		boardTable.setComponentPopupMenu(popupMenu);
 
-        updateButton_actionPerformed();
+		updateAction.actionPerformed(null);
 
         // set table column sizes
         final int[] newWidths = { 150,30,20,20,20,20,20,40 };
@@ -375,52 +254,14 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
     }
 
-    private JSkinnablePopupMenu getPopupMenu() {
-        if( popupMenu == null ) {
-            popupMenu = new JSkinnablePopupMenu();
-
-            popupMenu.add(MIcopyInfoToClipboard);
-            popupMenu.addSeparator();
-            popupMenu.add(MIupdateSelectedBoard);
-            popupMenu.add(MIupdateAllBoards);
-            popupMenu.addSeparator();
-            popupMenu.add(MIremoveSelectedBoards);
-            popupMenu.addSeparator();
-            popupMenu.add(MIupdate);
-        }
-        return popupMenu;
-    }
-
-    private void boardTableListModel_valueChanged(final ListSelectionEvent e) {
-        if( boardTable.getSelectedRowCount() > 0 ) {
-            setEnabledStateOfDynamicComponents(true);
-        } else {
-            setEnabledStateOfDynamicComponents(false);
-        }
-    }
-
-    private void setEnabledStateOfDynamicComponents(final boolean state) {
-        updateSelectedBoardButton.setEnabled(state);
-        MIupdateSelectedBoard.setEnabled(state);
-        removeSelectedBoardsButton.setEnabled(state);
-        MIremoveSelectedBoards.setEnabled(state);
-        MIcopyInfoToClipboard.setEnabled(state);
-    }
+	private void checkActionsEnabled() {
+		Boolean isEnabled = boardTable.getSelectedRowCount() > 0;
+		updateSelectedBoardAction.setEnabled(isEnabled);
+		removeSelectedBoardsAction.setEnabled(isEnabled);
+		copyInfoToClipboardAction.setEnabled(isEnabled);
+	}
 
     private static UpdateBoardInfoTableThread updateBoardInfoTableThread = null;
-
-    private void updateButton_actionPerformed() {
-        if( updateBoardInfoTableThread != null ) {
-            return;
-        }
-
-        ((BoardInfoTableModel)boardTable.getModel()).clearDataModel();
-
-        updateBoardInfoTableThread = new UpdateBoardInfoTableThread();
-        updateBoardInfoTableThread.start();
-
-        setEnabledStateOfDynamicComponents(false);
-    }
 
     private class UpdateBoardInfoTableThread extends Thread
     {
@@ -452,84 +293,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                         }});
             }
             updateBoardInfoTableThread = null;
-        }
-    }
-
-    /**
-     * @param e
-     */
-    private void removeSelectedBoards_actionPerformed(final ActionEvent e) {
-        final int[] selectedRows = boardTable.getSelectedRows();
-
-        final ArrayList<Board> boardsToDelete = new ArrayList<Board>();
-        for( final int rowIx : selectedRows ) {
-            if( rowIx >= boardTableModel.getRowCount() ) {
-                continue; // paranoia
-            }
-            final BoardInfoTableMember row = boardTableModel.getRow(rowIx);
-            boardsToDelete.add(row.getBoard());
-        }
-
-        for( final Board board : boardsToDelete ) {
-            mainFrame.getMessagingTab().getTofTree().removeNode(this, board);
-            updateButton_actionPerformed();
-        }
-    }
-
-    /**
-     * Tries to start update for all allowed boards.
-     * Gets list of board from tofTree, because the board table could be
-     * not yet finished to load.
-     */
-    private void updateAllBoardsButton_actionPerformed(final ActionEvent e) {
-        final List<Board> boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
-        for( final Board board : boards ) {
-            if( board.isManualUpdateAllowed() ) {
-                tofTree.updateBoard(board);
-            }
-            boardTableModel.fireTableDataChanged();
-        }
-    }
-
-    private void updateSelectedBoardButton_actionPerformed(final ActionEvent e) {
-        final int[] selectedRows = boardTable.getSelectedRows();
-
-        if( selectedRows.length > 0 ) {
-            for( final int rowIx : selectedRows ) {
-                if( rowIx >= boardTableModel.getRowCount() ) {
-                    continue; // paranoia
-                }
-
-                final BoardInfoTableMember row = (boardTableModel).getRow(rowIx);
-
-                if( row.getBoard().isManualUpdateAllowed() ) {
-                    tofTree.updateBoard(row.getBoard());
-                }
-                boardTableModel.fireTableCellUpdated(rowIx, 0);
-            }
-            boardTable.clearSelection();
-        }
-    }
-
-    private void copyInfoToClipboard_actionPerformed(final ActionEvent e) {
-        final int[] selectedRows = boardTable.getSelectedRows();
-
-        if( selectedRows.length > 0 ) {
-            final StringBuilder sb = new StringBuilder();
-            for( final int rowIx : selectedRows ) {
-                if( rowIx >= boardTableModel.getRowCount() ) {
-                    continue; // paranoia
-                }
-
-                final BoardInfoTableMember row = (boardTableModel).getRow(rowIx);
-
-                final String boardName = row.getBoard().getName();
-                final String state     = row.getBoard().getStateString();
-                final String allMsgs   = row.getAllMessageCount().toString();
-
-                sb.append(boardName).append("  (").append(state).append(")  ").append(allMsgs).append("\n");
-            }
-            ClipboardUtil.copyText(sb.toString());
         }
     }
 
@@ -567,7 +330,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
     public void startDialog() {
         tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
-        language.addLanguageListener(listener);
+		language.addLanguageListener(this);
         language.addLanguageListener(boardTableModel);
         setDialogShowing(true);
         setVisible(true);
@@ -575,7 +338,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
     protected void closeDialog() {
         tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
-        language.removeLanguageListener(listener);
+		language.removeLanguageListener(this);
         language.removeLanguageListener(boardTableModel);
         setDialogShowing(false);
         dispose();
@@ -666,8 +429,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
     }
 
-    static public class BoardInfoTableModel extends SortedTableModel<BoardInfoTableMember> implements LanguageListener
-    {
+	private class BoardInfoTableModel extends SortedTableModel<BoardInfoTableMember> implements LanguageListener {
+
+		private static final long serialVersionUID = 1L;
+
         private Language language = null;
 
         protected final static String columnNames[] = new String[8];
@@ -686,40 +451,27 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         public BoardInfoTableModel() {
             super();
             language = Language.getInstance();
-            refreshLanguage();
+			languageChanged(null);
         }
 
-        private void refreshLanguage() {
-            columnNames[0] = language.getString("BoardInfoFrame.table.board");
-            columnNames[1] = language.getString("BoardInfoFrame.table.state");
-            columnNames[2] = language.getString("BoardInfoFrame.table.messages");
-            columnNames[3] = language.getString("BoardInfoFrame.table.messagesToday");
-            columnNames[4] = language.getString("BoardInfoFrame.table.messagesFlagged");
-            columnNames[5] = language.getString("BoardInfoFrame.table.messagesStarred");
-            columnNames[6] = language.getString("BoardInfoFrame.table.messagesUnread");
-            columnNames[7] = language.getString("BoardInfoFrame.table.lastMsgDate");
+		public void languageChanged(LanguageEvent event) {
+			columnNames[0] = language.getString("BoardInfoFrame.table.board");
+			columnNames[1] = language.getString("BoardInfoFrame.table.state");
+			columnNames[2] = language.getString("BoardInfoFrame.table.messages");
+			columnNames[3] = language.getString("BoardInfoFrame.table.messagesToday");
+			columnNames[4] = language.getString("BoardInfoFrame.table.messagesFlagged");
+			columnNames[5] = language.getString("BoardInfoFrame.table.messagesStarred");
+			columnNames[6] = language.getString("BoardInfoFrame.table.messagesUnread");
+			columnNames[7] = language.getString("BoardInfoFrame.table.lastMsgDate");
 
-            fireTableStructureChanged();
-        }
+			fireTableStructureChanged();
+		}
 
-        /* (non-Javadoc)
-         * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-         */
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
-
-        /* (non-Javadoc)
-         * @see javax.swing.table.TableModel#isCellEditable(int, int)
-         */
         @Override
         public boolean isCellEditable(final int row, final int col) {
             return false;
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.table.TableModel#getColumnName(int)
-         */
         @Override
         public String getColumnName(final int column) {
             if( (column >= 0) && (column < columnNames.length) ) {
@@ -728,17 +480,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             return null;
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.table.TableModel#getColumnCount()
-         */
         @Override
         public int getColumnCount() {
             return columnNames.length;
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.table.TableModel#getColumnClass(int)
-         */
         @Override
         public Class<?> getColumnClass(final int column) {
             if( (column >= 0) && (column < columnClasses.length) ) {
@@ -748,7 +494,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
     }
 
-    private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer {
+	private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
         final Font boldFont;
         final Font origFont;
         final Border border;
@@ -822,4 +571,137 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     public static void setDialogShowing(final boolean val) {
         isShowing = val;
     }
+
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		setTitle(language.getString("BoardInfoFrame.title"));
+
+		Bclose.setText(language.getString("BoardInfoFrame.button.close"));
+
+		copyInfoToClipboardAction.setText(language.getString("BoardInfoFrame.popupMenu.copyInfoToClipboard"));
+		updateSelectedBoardAction.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
+		updateAllBoardsAction.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
+		removeSelectedBoardsAction.setText(language.getString("BoardInfoFrame.button.removeSelectedBoards"));
+		updateAction.setText(language.getString("BoardInfoFrame.button.update"));
+
+		updateAction.actionPerformed(null); // update labels
+	}
+
+	private class CopyInfoToClipboardAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int[] selectedRows = boardTable.getSelectedRows();
+
+			if (selectedRows.length > 0) {
+				StringBuilder sb = new StringBuilder();
+				for (int rowIx : selectedRows) {
+					BoardInfoTableMember row = (boardTableModel).getRow(rowIx);
+					sb.append(row.getBoard().getName());
+					sb.append("  (");
+					sb.append(row.getBoard().getStateString());
+					sb.append(")  ");
+					sb.append(row.getAllMessageCount());
+					sb.append("\n");
+				}
+				ClipboardUtil.copyText(sb.toString());
+			}
+		}
+	}
+
+	private class UpdateSelectedBoardAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int[] selectedRows = boardTable.getSelectedRows();
+
+			if (selectedRows.length > 0) {
+				for (int rowIx : selectedRows) {
+					BoardInfoTableMember row = boardTableModel.getRow(rowIx);
+
+					if (row.getBoard().isManualUpdateAllowed()) {
+						tofTree.updateBoard(row.getBoard());
+					}
+					boardTableModel.fireTableCellUpdated(rowIx, 0);
+				}
+				boardTable.clearSelection();
+			}
+		}
+	}
+
+	/**
+	 * Tries to start update for all allowed boards. Gets list of board from
+	 * tofTree, because the board table could be not yet finished to load.
+	 */
+	private class UpdateAllBoardsAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<Board> boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
+			for (Board board : boards) {
+				if (board.isManualUpdateAllowed()) {
+					tofTree.updateBoard(board);
+				}
+				boardTableModel.fireTableDataChanged();
+			}
+		}
+	}
+
+	private class RemoveSelectedBoardsAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int[] selectedRows = boardTable.getSelectedRows();
+
+			for (int rowIx : selectedRows) {
+				BoardInfoTableMember row = boardTableModel.getRow(rowIx);
+				mainFrame.getMessagingTab().getTofTree().removeNode(BoardInfoFrame.this, row.getBoard());
+			}
+
+			updateAction.actionPerformed(null);
+		}
+	}
+
+	private class UpdateAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (updateBoardInfoTableThread != null) {
+				return;
+			}
+
+			boardTable.getModel().clearDataModel();
+
+			updateBoardInfoTableThread = new UpdateBoardInfoTableThread();
+			updateBoardInfoTableThread.start();
+
+			checkActionsEnabled();
+		}
+	}
+
+	private class PopupMenu extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		public PopupMenu() {
+			add(copyInfoToClipboardAction);
+			addSeparator();
+			add(updateSelectedBoardAction);
+			add(updateAllBoardsAction);
+			addSeparator();
+			add(removeSelectedBoardsAction);
+			addSeparator();
+			add(updateAction);
+		}
+	}
 }
