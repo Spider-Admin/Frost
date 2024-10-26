@@ -200,7 +200,7 @@ public class SearchMessagesResultTable extends SortedTable<FrostSearchResultMess
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             final SearchMessagesTableModel model = (SearchMessagesTableModel) getModel();
-            final FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject) model.getRow(row);
+			final FrostSearchResultMessageObject msg = model.getRow(row);
 
             // get the original model column index (maybe columns were reordered by user)
             final TableColumn tableColumn = getColumnModel().getColumn(column);

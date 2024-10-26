@@ -289,7 +289,7 @@ public class UnsentMessagesTableFormat extends SortedTableFormat<UnsentMessagesT
 
             if( !isSelected ) {
                 setForeground(Color.BLACK);
-                UnsentMessagesTableItem item = (UnsentMessagesTableItem) modelTable.getItemAt(row);
+				UnsentMessagesTableItem item = modelTable.getItemAt(row);
                 if( item != null ) {
                     if( item.getFrostUnsentMessageObject().containsAttachments() ) {
                         setForeground(Color.BLUE);

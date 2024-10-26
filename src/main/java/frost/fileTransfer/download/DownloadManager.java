@@ -101,8 +101,7 @@ public class DownloadManager implements ExitSavable {
 		int waitingItems = 0;
 		int runningItems = 0;
 		for (int x = 0; x < model.getItemCount(); x++) {
-			final FrostDownloadItem dlItem = (FrostDownloadItem) model
-					.getItemAt(x);
+			final FrostDownloadItem dlItem = model.getItemAt(x);
 			if (dlItem == null) {
 				continue;
 			}
@@ -130,8 +129,7 @@ public class DownloadManager implements ExitSavable {
 		while (true) {
 			boolean loopAgain = false;
 			for (int x = 0; x < getModel().getItemCount(); x++) {
-				final FrostDownloadItem dlItem = (FrostDownloadItem) getModel()
-						.getItemAt(x);
+				final FrostDownloadItem dlItem = getModel().getItemAt(x);
 				if (dlItem.getFileName().equalsIgnoreCase(newFilename)) {
 					loopAgain = true;
 					// we have a duplicate filename

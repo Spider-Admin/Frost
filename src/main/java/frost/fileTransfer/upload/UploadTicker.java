@@ -177,7 +177,7 @@ public class UploadTicker extends Thread {
             boolean threadLaunched = false;
 
             for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
-                final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+				final FrostUploadItem ulItem = model.getItemAt(i);
                 // encode if requested by user
                 if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED) {
                     // next state will be IDLE (=default)

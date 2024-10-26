@@ -129,7 +129,7 @@ public class DownloadTicker extends Thread {
 
 	    final DownloadModel model = FileTransferManager.inst().getDownloadManager().getModel();
 	    for(int x=0; x < model.getItemCount(); x++ ) {
-	        final FrostDownloadItem item = (FrostDownloadItem)model.getItemAt(x);
+			final FrostDownloadItem item = model.getItemAt(x);
 	        if( item == null ) {
 	            continue;
 	        }

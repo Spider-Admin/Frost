@@ -616,7 +616,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         contentAreaPanel.removeAll();
 
         if (Olbdata instanceof ListBoxData) {
-            final ListBoxData lbdata = (ListBoxData) Olbdata;
+			final ListBoxData lbdata = Olbdata;
             final JPanel newPanel = lbdata.getPanel();
             contentAreaPanel.add(newPanel, BorderLayout.CENTER);
             newPanel.revalidate();

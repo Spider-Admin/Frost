@@ -456,8 +456,8 @@ public class AddNewDownloadsDialog extends javax.swing.JFrame {
 			downloadDirRecentMenu.addSeparator();
 			final ListIterator<String> iter = dirs.listIterator(dirs.size());
 			while (iter.hasPrevious()) {
-				final String dir = (String) iter.previous();
-				
+				final String dir = iter.previous();
+
 				item = new JMenuItem(dir);
 				item.addActionListener( new java.awt.event.ActionListener() {
 					public void actionPerformed(final ActionEvent actionEvent) {

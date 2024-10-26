@@ -100,7 +100,7 @@ public class SortedTable<T extends TableMember<T>> extends JTable
         if( !(getModel() instanceof SortedTableModel<?> ))
             return lst;
 
-        SortedTableModel<T> model = (SortedTableModel<T>)getModel();
+		SortedTableModel<T> model = getModel();
         int selectedRows[] = getSelectedRows();
         for( int x=0; x<selectedRows.length; x++ )
         {
@@ -131,7 +131,7 @@ public class SortedTable<T extends TableMember<T>> extends JTable
     protected void initSortHeader() {
         Enumeration<TableColumn> enumeration = getColumnModel().getColumns();
         while (enumeration.hasMoreElements()) {
-            TableColumn column = (TableColumn) enumeration.nextElement();
+			TableColumn column = enumeration.nextElement();
             column.setHeaderRenderer(columnHeadersRenderer);
         }
         getTableHeader().addMouseListener(new HeaderMouseListener());

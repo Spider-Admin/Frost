@@ -137,13 +137,13 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
         // initially get all items from model
         for(int x=0; x < uploadModel.getItemCount(); x++) {
-            final FrostUploadItem ul = (FrostUploadItem) uploadModel.getItemAt(x);
+			final FrostUploadItem ul = uploadModel.getItemAt(x);
             if( ul.getGqIdentifier() != null ) {
                 uploadModelItems.put(ul.getGqIdentifier(), ul);
             }
         }
         for(int x=0; x < downloadModel.getItemCount(); x++) {
-            final FrostDownloadItem ul = (FrostDownloadItem) downloadModel.getItemAt(x);
+			final FrostDownloadItem ul = downloadModel.getItemAt(x);
             if( ul.getGqIdentifier() != null ) {
                 downloadModelItems.put(ul.getGqIdentifier(), ul);
             }

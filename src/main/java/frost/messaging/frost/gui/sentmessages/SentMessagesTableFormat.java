@@ -265,7 +265,7 @@ public class SentMessagesTableFormat extends SortedTableFormat<SentMessagesTable
 
             if( !isSelected ) {
                 setForeground(Color.BLACK);
-                SentMessagesTableItem item = (SentMessagesTableItem) modelTable.getItemAt(row);
+				SentMessagesTableItem item = modelTable.getItemAt(row);
                 if( item != null ) {
                     if( item.getFrostMessageObject().containsAttachments() ) {
                         setForeground(Color.BLUE);

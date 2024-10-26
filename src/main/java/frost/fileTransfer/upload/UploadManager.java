@@ -65,7 +65,7 @@ public class UploadManager implements ExitSavable {
         int waitingItems = 0;
         int runningItems = 0;
         for (int x = 0; x < model.getItemCount(); x++) {
-            final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(x);
+			final FrostUploadItem ulItem = model.getItemAt(x);
             if (ulItem.getState() != FrostUploadItem.STATE_DONE
                     && ulItem.getState() != FrostUploadItem.STATE_FAILED)
             {
@@ -237,7 +237,7 @@ public class UploadManager implements ExitSavable {
         final long currentTime = System.currentTimeMillis();
 
         for (int i = 0; i < model.getItemCount(); i++) {
-            final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+			final FrostUploadItem ulItem = model.getItemAt(i);
 
             // don't start disabled items
             final boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());

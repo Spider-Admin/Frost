@@ -52,7 +52,7 @@ public class PerstAttachments extends Persistent {
             fileAttachments = store.createScalableList(fileAttachmentList.size());
             final Iterator<FileAttachment> fileAttachmentIterator = fileAttachmentList.iterator();
             while(  fileAttachmentIterator.hasNext() ) {
-                final FileAttachment ba = (FileAttachment)fileAttachmentIterator.next();
+				final FileAttachment ba = fileAttachmentIterator.next();
                 final PerstFileAttachment pba = new PerstFileAttachment(ba);
                 fileAttachments.add(pba);
             }

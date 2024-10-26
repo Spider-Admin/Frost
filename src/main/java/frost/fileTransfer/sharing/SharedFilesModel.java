@@ -59,7 +59,7 @@ public class SharedFilesModel extends SortedModel<FrostSharedFileItem> implement
      */
     public synchronized boolean addNewSharedFile(final FrostSharedFileItem itemToAdd, final boolean replacePathIfFileExists) {
         for (int x = 0; x < getItemCount(); x++) {
-            final FrostSharedFileItem item = (FrostSharedFileItem) getItemAt(x);
+			final FrostSharedFileItem item = getItemAt(x);
             // add if file is not shared already
             if( itemToAdd.getSha().equals(item.getSha()) ) {
                 // is already in list
@@ -97,7 +97,7 @@ public class SharedFilesModel extends SortedModel<FrostSharedFileItem> implement
      */
     public synchronized boolean containsItemWithSha(final String sha) {
         for (int x = 0; x < getItemCount(); x++) {
-            final FrostSharedFileItem sfItem = (FrostSharedFileItem) getItemAt(x);
+			final FrostSharedFileItem sfItem = getItemAt(x);
             if (sfItem.getSha() != null && sfItem.getSha().equals(sha)) {
                 return true;
             }

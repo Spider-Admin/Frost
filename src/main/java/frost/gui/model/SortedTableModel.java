@@ -229,7 +229,7 @@ public class SortedTableModel<T extends TableMember<T>> extends DefaultTableMode
         {
             T obj = rows.get(row);
             if (obj instanceof TableMember)
-                deleteRow((T)obj);
+				deleteRow(obj);
         }
     }
 
@@ -245,7 +245,7 @@ public class SortedTableModel<T extends TableMember<T>> extends DefaultTableMode
     {
         if (row>=getRowCount() || row<0) return null;
 
-        T obj = (T)rows.get(row);
+		T obj = rows.get(row);
         if (obj == null)
             return null;
         else
