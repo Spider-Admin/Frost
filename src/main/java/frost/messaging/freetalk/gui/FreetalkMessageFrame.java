@@ -1346,7 +1346,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    private class MFAttachedBoardsTable extends SortedTable {
+	private class MFAttachedBoardsTable extends SortedTable<MFAttachedBoard> {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1364,7 +1364,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    private class MFAttachedBoardsTableModel extends SortedTableModel {
+	private class MFAttachedBoardsTableModel extends SortedTableModel<MFAttachedBoard> {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1432,8 +1432,10 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    @SuppressWarnings("serial")
-	private class MFAttachedFilesTable extends SortedTable {
+	private class MFAttachedFilesTable extends SortedTable<MFAttachedFile> {
+
+		private static final long serialVersionUID = 1L;
+
         public MFAttachedFilesTable(final MFAttachedFilesTableModel m) {
             super(m);
             // set column sizes
@@ -1448,7 +1450,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
         }
     }
 
-    private class MFAttachedFilesTableModel extends SortedTableModel {
+	private class MFAttachedFilesTableModel extends SortedTableModel<MFAttachedFile> {
 
 		private static final long serialVersionUID = 1L;
 
