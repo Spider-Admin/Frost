@@ -57,7 +57,7 @@ public class XMLTools {
 
     private static DocumentBuilderFactory nonValidatingFactory = DocumentBuilderFactory.newInstance();
 
-    {
+	static {
         nonValidatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", Boolean.TRUE);
         nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",Boolean.FALSE);
         nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",Boolean.FALSE);
