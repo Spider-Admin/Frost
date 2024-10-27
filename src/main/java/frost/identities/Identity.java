@@ -39,6 +39,8 @@ import frost.util.XMLizable;
  */
 public class Identity extends Persistent implements XMLizable {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = LoggerFactory.getLogger(Identity.class);
 
     private static transient final int GOOD    = 1;
@@ -166,7 +168,10 @@ public class Identity extends Persistent implements XMLizable {
         super.deallocate();
     }
 
-    class PerstIdentityPublicKey extends Persistent {
+	class PerstIdentityPublicKey extends Persistent {
+
+		private static final long serialVersionUID = 1L;
+
         private String perstPublicKey;
         public PerstIdentityPublicKey() {}
         public PerstIdentityPublicKey(final String pk) {

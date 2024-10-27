@@ -27,6 +27,8 @@ import frost.identities.LocalIdentity;
 
 public class IdentitiesStorageRoot extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     public static final transient int MIGRATION_LEVEL_1 = 1;
 
     private IPersistentList<Identity> identities;

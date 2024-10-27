@@ -22,6 +22,8 @@ import org.garret.perst.Persistent;
 
 public class FrostFileListFileObjectOwner extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     protected FrostFileListFileObject fileListFileObject;
 
     protected String name;

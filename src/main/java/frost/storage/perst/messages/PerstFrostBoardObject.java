@@ -30,6 +30,8 @@ import frost.messaging.frost.boards.Board;
  */
 public class PerstFrostBoardObject extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     private transient Board refBoard = null;
 
     private String boardName;

@@ -23,6 +23,9 @@ import org.garret.perst.Persistent;
 import frost.messaging.frost.BoardAttachment;
 
 public class PerstBoardAttachment extends Persistent {
+
+	private static final long serialVersionUID = 1L;
+
     String name;
     String pubKey;
     String privKey;

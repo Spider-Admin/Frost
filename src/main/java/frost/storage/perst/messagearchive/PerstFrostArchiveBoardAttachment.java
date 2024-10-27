@@ -24,6 +24,8 @@ import frost.messaging.frost.BoardAttachment;
 
 public class PerstFrostArchiveBoardAttachment extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     String name;
     String pubKey;
     String privKey;

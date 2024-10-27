@@ -22,7 +22,9 @@ import org.garret.perst.Index;
 import org.garret.perst.Persistent;
 
 public class IndexSlotsStorageRoot extends Persistent {
-    
+
+	private static final long serialVersionUID = 1L;
+
     public IndexSlotsStorageRoot() {}
     
     Index<IndexSlot> slotsIndexIL; // int,long index for iteration over int

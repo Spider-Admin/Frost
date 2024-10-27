@@ -33,6 +33,8 @@ import frost.util.DateFun;
 
 public class PerstFrostArchiveMessageObject extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     @Override
     public boolean recursiveLoading() {
         // load Links manually

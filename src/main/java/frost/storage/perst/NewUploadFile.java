@@ -27,6 +27,8 @@ import org.garret.perst.Persistent;
  */
 public class NewUploadFile extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     protected String filePath;
     protected String from;
     protected boolean replacePathIfFileExists;

@@ -36,6 +36,8 @@ import frost.util.DateFun;
 
 public class FrostFileListFileObject extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = LoggerFactory.getLogger(FrostFileListFileObject.class);
 
     private String sha = null;  // SHA of the file

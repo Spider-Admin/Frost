@@ -21,7 +21,9 @@ package frost.storage.perst;
 import org.garret.perst.Persistent;
 
 public class PerstKnownBoard extends Persistent {
-    
+
+	private static final long serialVersionUID = 1L;
+
     private String boardName;
     private String publicKey;
     private String privateKey;

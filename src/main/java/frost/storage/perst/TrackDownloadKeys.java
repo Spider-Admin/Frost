@@ -25,6 +25,8 @@ import org.garret.perst.Persistent;
  */
 public class TrackDownloadKeys extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
 	private String chkKey;
 	private String fileName;
 	private String boardName;

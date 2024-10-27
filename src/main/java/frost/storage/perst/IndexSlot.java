@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 public class IndexSlot extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger logger = LoggerFactory.getLogger(IndexSlot.class);
 
     private int indexName;

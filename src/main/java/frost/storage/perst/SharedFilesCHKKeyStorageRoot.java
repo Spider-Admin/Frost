@@ -22,7 +22,9 @@ import org.garret.perst.Index;
 import org.garret.perst.Persistent;
 
 public class SharedFilesCHKKeyStorageRoot extends Persistent {
-    
+
+	private static final long serialVersionUID = 1L;
+
     public SharedFilesCHKKeyStorageRoot() {}
     
     Index<SharedFilesCHKKey> chkKeys;

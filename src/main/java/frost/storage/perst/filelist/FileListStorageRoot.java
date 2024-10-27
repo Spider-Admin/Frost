@@ -27,6 +27,8 @@ import frost.fileTransfer.FrostFileListFileObject;
 
 public class FileListStorageRoot extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     // bit constants for storageStatus
     public static transient final int OLD_07_CHK_KEYS_REMOVED = 2;
 

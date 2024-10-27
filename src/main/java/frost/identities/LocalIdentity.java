@@ -32,6 +32,8 @@ import frost.util.XMLTools;
  */
 public class LocalIdentity extends Identity {
 
+	private static final long serialVersionUID = 1L;
+
     private String privateKey;
     private String signature;
 

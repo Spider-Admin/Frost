@@ -31,10 +31,12 @@ import frost.messaging.frost.boards.Board;
 import frost.util.DateFun;
 
 /**
- * Holds all nessecary data for a FrostMessageObject and allows
- * to be stored in a perst Storage.
+ * Holds all nessecary data for a FrostMessageObject and allows to be stored in
+ * a perst Storage.
  */
 public class PerstFrostMessageObject extends Persistent {
+
+	private static final long serialVersionUID = 1L;
 
     String messageId;
     String inReplyTo;

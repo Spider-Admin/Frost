@@ -24,6 +24,8 @@ import org.garret.perst.Storage;
 
 public class ArchiveMessageStorageRoot extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     private Index<PerstFrostArchiveBoardObject> boardsByName;
 
     public ArchiveMessageStorageRoot() {}

@@ -25,6 +25,8 @@ import org.garret.perst.Persistent;
  */
 public class SharedFilesCHKKey extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     // Question: how to ensure own CHK keys, track them once uploaded if we ever see them again! 
     // Answer: Ignore lost keys, we resend them after some days!
     //         Handle own received keys like any other keys, we don't even know that this was our key.

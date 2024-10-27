@@ -26,6 +26,8 @@ import frost.storage.perst.PerstString;
 
 public class MessageContentStorageRoot extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     private Index<PerstString> contentByMsgOid;
     private Index<PerstString> publickeyByMsgOid;
     private Index<PerstString> signatureByMsgOid;

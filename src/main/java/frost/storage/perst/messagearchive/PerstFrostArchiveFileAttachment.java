@@ -24,6 +24,8 @@ import frost.messaging.frost.FileAttachment;
 
 public class PerstFrostArchiveFileAttachment extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     String name;
     long size;
     String chkKey;

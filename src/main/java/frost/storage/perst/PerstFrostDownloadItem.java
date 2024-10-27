@@ -27,10 +27,12 @@ import frost.fileTransfer.download.FrostDownloadItem;
 import frost.storage.perst.filelist.FileListStorage;
 
 /**
- * Class to make FrostDownloadItem persistent.
- * FrostDownloadItem itself extends ModelItem and cannot extend Persistent.
+ * Class to make FrostDownloadItem persistent. FrostDownloadItem itself extends
+ * ModelItem and cannot extend Persistent.
  */
 public class PerstFrostDownloadItem extends Persistent {
+
+	private static final long serialVersionUID = 1L;
 
     public String fileName;
     public String prefix;

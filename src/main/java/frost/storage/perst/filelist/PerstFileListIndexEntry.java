@@ -26,6 +26,8 @@ import frost.fileTransfer.FrostFileListFileObjectOwner;
 
 public class PerstFileListIndexEntry extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     private IPersistentList<FrostFileListFileObjectOwner> fileOwnersWithText;
 
     public PerstFileListIndexEntry() {}

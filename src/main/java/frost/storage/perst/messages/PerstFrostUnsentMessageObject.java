@@ -33,6 +33,8 @@ import frost.messaging.frost.boards.Board;
 
 public class PerstFrostUnsentMessageObject extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     private String messageId;
     private String inReplyTo;
 
@@ -72,7 +74,9 @@ public class PerstFrostUnsentMessageObject extends Persistent {
         super.deallocate();
     }
 
-    class PerstFrostUnsentBoardAttachment extends Persistent {
+	class PerstFrostUnsentBoardAttachment extends Persistent {
+
+		private static final long serialVersionUID = 1L;
 
         String name;
         String pubKey;
@@ -89,7 +93,10 @@ public class PerstFrostUnsentMessageObject extends Persistent {
         }
     }
 
-    class PerstFrostUnsentFileAttachment extends Persistent {
+	class PerstFrostUnsentFileAttachment extends Persistent {
+
+		private static final long serialVersionUID = 1L;
+
         String name;
         long size;
         String chkKey;

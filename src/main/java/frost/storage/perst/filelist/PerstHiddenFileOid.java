@@ -24,6 +24,9 @@ import org.garret.perst.Persistent;
  * Holds the perst oid for of a hidden filelist file.
  */
 public class PerstHiddenFileOid extends Persistent {
+
+	private static final long serialVersionUID = 1L;
+
     int hiddenFileOid;
 
     public PerstHiddenFileOid() {}

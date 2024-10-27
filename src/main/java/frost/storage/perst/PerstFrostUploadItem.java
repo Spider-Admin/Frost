@@ -37,6 +37,8 @@ import frost.util.gui.translation.Language;
 
 public class PerstFrostUploadItem extends Persistent {
 
+	private static final long serialVersionUID = 1L;
+
     public String filePath;
     public String fileName;
     public String fileNamePrefix;
