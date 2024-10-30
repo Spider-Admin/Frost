@@ -1,0 +1,28 @@
+name: Continuous Integration
+on: [push, pull_request]
+
+jobs:
+
+  build:
+    name: Build + Test (${{matrix.operating-system}})
+    strategy:
+      matrix:
+        operating-system: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{matrix.operating-system}}
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v4.2.2
+    - uses: ./.github/actions/setup-java
+    - uses: gradle/actions/setup-gradle@v4.1.0
+    - run: ./gradlew build
+
+  update-dependency-graph:
+    name: Update dependency graph
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4.2.2
+    - uses: ./.github/actions/setup-java
+    - uses: gradle/actions/dependency-submission@v4.1.0
