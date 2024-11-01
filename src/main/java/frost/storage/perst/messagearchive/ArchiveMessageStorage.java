@@ -92,24 +92,19 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
         return msgCount;
     }
 
-    private void addBoard(final String boardName) {
+	private void addBoardIfNotExists(String boardName) {
+		if (storageRoot.getBoardsByName().get(boardName) != null) {
+			logger.debug("Ignore duplicate board {}", boardName);
+			return;
+		}
 
-        if( boardName == null ) {
-            return;
-        }
+		PerstFrostArchiveBoardObject pfbo = new PerstFrostArchiveBoardObject(getStorage(), boardName);
+		storageRoot.getBoardsByName().put(boardName, pfbo);
 
-        // prevent duplicate board names
-        if( storageRoot.getBoardsByName().contains(boardName) ) {
-            return; // dup!
-        }
+		logger.info("Added archive board: {}", boardName);
 
-        final PerstFrostArchiveBoardObject pfbo = new PerstFrostArchiveBoardObject(getStorage(), boardName);
-        storageRoot.getBoardsByName().put(boardName, pfbo);
-
-        logger.info("Added archive board: {}", boardName);
-
-        commit();
-    }
+		commit();
+	}
 
     /**
      * Called by cleanup during startup, no transaction locking needed.
@@ -145,16 +140,12 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
 
         // add to indices, check for duplicate msgId
 
-        PerstFrostArchiveBoardObject bo = storageRoot.getBoardsByName().get(boardName);
-        if( bo == null ) {
-            // create new board
-            addBoard(boardName);
-            bo = storageRoot.getBoardsByName().get(boardName);
-            if( bo == null ) {
-                logger.error("still no board???");
-                return INSERT_ERROR;
-            }
-        }
+		addBoardIfNotExists(boardName);
+		PerstFrostArchiveBoardObject bo = storageRoot.getBoardsByName().get(boardName);
+		if (bo == null) {
+			logger.error("still no board???");
+			return INSERT_ERROR;
+		}
 
         final PerstFrostArchiveMessageObject pmo = new PerstFrostArchiveMessageObject(mo, getStorage());
 
