@@ -86,11 +86,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         return true;
     }
 
-    public void silentClose() {
-        close();
-        storageRoot = null;
-    }
-
     public void exitSave() {
         close();
         storageRoot = null;

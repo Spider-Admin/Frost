@@ -82,11 +82,6 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
         logger.info("MessageArchiveStorage closed.");
     }
 
-    public void silentClose() {
-        close();
-        storageRoot = null;
-    }
-
     public int getMessageCount() {
         int msgCount = 0;
         for(final PerstFrostArchiveBoardObject bo : storageRoot.getBoardsByName()) {

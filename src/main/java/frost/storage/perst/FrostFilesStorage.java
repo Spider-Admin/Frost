@@ -105,20 +105,6 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
         logger.info("FrostFilesStorage closed.");
     }
 
-    // only used for migration
-    public void savePerstFrostDownloadFiles(final List<PerstFrostDownloadItem> downloadFiles) {
-        beginExclusiveThreadTransaction();
-        try {
-            for( final PerstFrostDownloadItem pi : downloadFiles ) {
-                pi.makePersistent(getStorage());
-                storageRoot.downloadFiles.add(pi);
-            }
-            storageRoot.downloadFiles.modify();
-        } finally {
-            endThreadTransaction();
-        }
-    }
-
     /**
      * Removes all items from the given List and deallocates each item from Storage.
      * @param plst  IPersistentList of persistent items
@@ -164,18 +150,6 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
         return downloadItems;
     }
 
-    // only used for migration
-    public void savePerstFrostUploadFiles(final List<PerstFrostUploadItem> uploadFiles) {
-        beginExclusiveThreadTransaction();
-        try {
-            for( final PerstFrostUploadItem pi : uploadFiles ) {
-                storageRoot.uploadFiles.add(pi);
-            }
-        } finally {
-            endThreadTransaction();
-        }
-    }
-
     public void saveUploadFiles(final List<FrostUploadItem> uploadFiles) {
         beginExclusiveThreadTransaction();
         try {
@@ -207,20 +181,6 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
             endThreadTransaction();
         }
         return uploadItems;
-    }
-
-    // only used for migration
-    public void savePerstFrostSharedFiles(final List<PerstFrostSharedFileItem> sfFiles) {
-        beginExclusiveThreadTransaction();
-        try {
-            for( final PerstFrostSharedFileItem pi : sfFiles ) {
-                pi.makePersistent(getStorage());
-                storageRoot.sharedFiles.add(pi);
-            }
-            storageRoot.sharedFiles.modify();
-        } finally {
-            endThreadTransaction();
-        }
     }
 
     public void saveSharedFiles(final List<FrostSharedFileItem> sfFiles) {

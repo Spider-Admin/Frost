@@ -51,11 +51,6 @@ public class MessageStorageRoot extends Persistent {
         return retval;
     }
 
-    public void initUniqueBoardId(final int id) {
-        nextUniqueBoardId = id;
-        modify();
-    }
-
     public Index<PerstFrostBoardObject> getBoardsByName() {
         return boardsByName;
     }

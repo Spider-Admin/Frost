@@ -178,14 +178,6 @@ public abstract class AbstractFrostStorage {
         return false;
     }
 
-    public int gc() {
-        if( storage == null ) {
-            return 0;
-        } else {
-            return storage.gc();
-        }
-    }
-
     public synchronized void commit() {
         if( storage != null ) {
             storage.commit();

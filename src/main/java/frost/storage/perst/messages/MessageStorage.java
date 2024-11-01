@@ -20,7 +20,6 @@ package frost.storage.perst.messages;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -114,40 +113,6 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         close();
         storageRoot = null;
         logger.info("MessagesStorage closed.");
-    }
-
-    public void silentClose() {
-        close();
-        storageRoot = null;
-    }
-
-    public boolean importBoards(final Hashtable<String, Integer> boardPrimaryKeysByName) {
-        if( !beginExclusiveThreadTransaction() ) {
-            return false;
-        }
-        try {
-            int highestBoardId = 0;
-            Index<PerstFrostBoardObject> boardsByName = storageRoot.getBoardsByName();
-            Index<PerstFrostBoardObject> boardsById = storageRoot.getBoardsById();
-            for( final String boardName : boardPrimaryKeysByName.keySet() ) {
-                final Integer boardId = boardPrimaryKeysByName.get(boardName);
-
-                // prevent duplicate board names
-                if( boardsByName.contains(boardName) ) {
-                    continue; // dup!
-                }
-                final PerstFrostBoardObject pfbo = new PerstFrostBoardObject(getStorage(), boardName, boardId.intValue());
-                boardsByName.put(boardName, pfbo);
-                boardsById.put(boardId, pfbo);
-
-                highestBoardId = Math.max(highestBoardId, boardId.intValue());
-            }
-
-            storageRoot.initUniqueBoardId(highestBoardId+1);
-            return true;
-        } finally {
-            endThreadTransaction();
-        }
     }
 
     /**
