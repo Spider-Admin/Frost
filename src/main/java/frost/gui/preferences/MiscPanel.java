@@ -194,16 +194,16 @@ class MiscPanel extends JPanel {
                 usePersistenceCheckBox.setSelected(false);
             }
         }
-        
-        final String broserAddress = browserAddressTextField.getText();
-        if( broserAddress.length() > 0) {
-        	if( ! broserAddress.matches( "^https?://.+")) {
-        		logger.warn("Unrecognized URI format: {}", broserAddress);
-        		browserAddressTextField.setText("");
-        	} else if( ! broserAddress.endsWith("/") ){
-        		browserAddressTextField.setText(broserAddress + "/");
-        	}
-        }
+
+		final String browserAddress = browserAddressTextField.getText();
+		if (browserAddress.length() > 0) {
+			if (!browserAddress.matches("^https?://.+")) {
+				logger.warn("Unrecognized URI format: {}", browserAddress);
+				browserAddressTextField.setText("");
+			} else if (!browserAddress.endsWith("/")) {
+				browserAddressTextField.setText(browserAddress + "/");
+			}
+		}
 
         saveSettings();
     }

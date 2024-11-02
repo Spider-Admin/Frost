@@ -873,6 +873,7 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
 
+		defaults.put(FREENET_FCP_ADDRESS, "127.0.0.1:9481");
         defaults.put(FCP2_USE_DDA, "false");
         defaults.put(FCP2_USE_PERSISTENCE, "true");
         defaults.put(FCP2_USE_ONE_CONNECTION_FOR_MESSAGES, "true");
@@ -1048,6 +1049,8 @@ public class SettingsClass implements ExitSavable {
         defaults.put(PERST_COMPACT_STORAGES, "false");
         defaults.put(PERST_EXPORT_STORAGES,  "false");
 
+		defaults.put(BROWSER_ADDRESS, "http://127.0.0.1:8888/");
+
         settingsHash.putAll(defaults);
     }
 
@@ -1079,5 +1082,14 @@ public class SettingsClass implements ExitSavable {
 
 	public static String getVersion() {
 		return SettingsClass.class.getPackage().getImplementationVersion();
+	}
+
+	public static String generateFproxyAddress(String fcpAddress) {
+		String[] parts = fcpAddress.split(":");
+		if (parts.length == 2) {
+			return "http://" + parts[0] + ":8888/";
+		} else {
+			return "";
+		}
 	}
 }

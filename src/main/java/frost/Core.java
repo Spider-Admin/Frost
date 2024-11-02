@@ -286,15 +286,14 @@ public class Core {
         // set used version
         final int freenetVersion = 7;
         frostSettings.setValue(SettingsClass.FREENET_VERSION, freenetVersion);
-        // init availableNodes with correct port
-        if( startdlg.getOwnHostAndPort() != null ) {
-            // user set own host:port
-            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, startdlg.getOwnHostAndPort());
-        } else {
-            // 0.7 darknet
-            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, "127.0.0.1:9481");
-        }
-    }
+
+		// Init FCP and FPROXY settings
+		String fcpAddress = startdlg.getOwnHostAndPort();
+		if (fcpAddress != null) {
+			frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, fcpAddress);
+			frostSettings.setValue(SettingsClass.BROWSER_ADDRESS, SettingsClass.generateFproxyAddress(fcpAddress));
+		}
+	}
 
     private void compactPerstStorages(final Splashscreen splashscreen) throws Exception {
         try {
