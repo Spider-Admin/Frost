@@ -38,6 +38,9 @@ public class FrostFileListFileObjectOwner extends Persistent {
     protected long lastReceived = 0;
     protected long lastUploaded = 0;
 
+	public FrostFileListFileObjectOwner() {
+	}
+
     public FrostFileListFileObjectOwner(
             final String newName,
             final String newOwner,

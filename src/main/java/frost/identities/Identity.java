@@ -65,11 +65,10 @@ public class Identity extends Persistent implements XMLizable {
 
     private PerstIdentityPublicKey pPublicKey;
 
-    /**
-     * @param el
-     * @throws Exception
-     */
-    protected Identity(final Element el) throws Exception {
+	public Identity() {
+	}
+
+	protected Identity(final Element el) throws Exception {
         try {
             loadXMLElement(el);
         } catch (final SAXException e) {

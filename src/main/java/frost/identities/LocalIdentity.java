@@ -80,19 +80,14 @@ public class LocalIdentity extends Identity {
         signature =  XMLTools.getChildElementsCDATAValue(el, "signature");
     }
 
-    /**
-     * @param name
-     * @param keys
-     */
+	public LocalIdentity() {
+	}
+
     private LocalIdentity(final String name, final String[] keys) {
         super(name, keys[1], true);
         this.privateKey = keys[0];
     }
 
-    /**
-     * @param el
-     * @throws Exception
-     */
     private LocalIdentity(final Element el) throws Exception {
         // finally calls loadXMLElement of this class!
         super(el);

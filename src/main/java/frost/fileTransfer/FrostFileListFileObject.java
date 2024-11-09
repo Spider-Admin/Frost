@@ -68,6 +68,9 @@ public class FrostFileListFileObject extends Persistent {
 
     private transient List<FrostDownloadItem> listeners;
 
+	public FrostFileListFileObject() {
+	}
+
     /**
      * Used if item is loaded from database.
      */
