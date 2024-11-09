@@ -402,7 +402,8 @@ public class SettingsClass implements ExitSavable {
 						}
 						// scan all path config values and set correct system file separator
 						else if (key.equals(SettingsClass.DIR_TEMP) || key.equals(DIR_LOCALDATA)
-								|| key.equals(DIR_STORE) || key.equals(DIR_DOWNLOAD) || key.equals(DIR_LAST_USED)) {
+								|| key.equals(DIR_STORE) || key.equals(DIR_DOWNLOAD) || key.equals(DIR_LAST_USED)
+								|| key.equals(DIR_HELP)) {
 							value = setSystemFileSeparator(value);
 							objValue = value;
 						} else {
