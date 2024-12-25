@@ -19,25 +19,21 @@
 package frost.fileTransfer.common;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
 
 import frost.Core;
 import frost.MainFrame;
@@ -49,17 +45,19 @@ import frost.identities.Identity;
 import frost.identities.LocalIdentity;
 import frost.messaging.frost.gui.MessagePanel.IdentityState;
 import frost.util.ClipboardUtil;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SelectRowOnRightClick;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
-@SuppressWarnings("serial")
-public class FileListFileDetailsDialog extends JDialog {
+public class FileListFileDetailsDialog extends JDialog implements LanguageListener, SimplePopupMenuListener {
 
-    Language language = Language.getInstance();
+	private static final long serialVersionUID = 1L;
+
+	private Language language;
 
     private JPanel jContentPane = null;
     private JPanel buttonPanel = null;
@@ -70,44 +68,53 @@ public class FileListFileDetailsDialog extends JDialog {
     private FileListFileDetailsTableModel model = null;
     private FileListFileDetailsTableFormat tableFormat = null;
 
-    private PopupMenu popupMenu = null;
-    private final Listener listener = new Listener();
+	private CopyKeysAndNamesAction copyKeysAndNamesAction;
+	private JMenu copyToClipboardMenu;
+	private ChangeTrustStateAction changeTrustStateGoodAction;
+	private ChangeTrustStateAction changeTrustStateObserveAction;
+	private ChangeTrustStateAction changeTrustStateCheckAction;
+	private ChangeTrustStateAction changeTrustStateBadAction;
+	private ShowOwnerFilesAction showOwnerFilesAction;
+	private PopupMenu popupMenu;
 
-    private final boolean isOwnerSearchAllowed;
+    private boolean isOwnerSearchAllowed;
 
-    public FileListFileDetailsDialog(final Frame owner) {
-        this(owner, false);
-    }
+	public FileListFileDetailsDialog(Frame owner, boolean allowOwnerSearch) {
+		super(owner);
+		this.isOwnerSearchAllowed = allowOwnerSearch;
 
-    public FileListFileDetailsDialog(final Frame owner, final boolean allowOwnerSearch) {
-        super(owner);
-        initialize(owner);
-        isOwnerSearchAllowed = allowOwnerSearch;
-    }
+		language = Language.getInstance();
+		language.addLanguageListener(this);
 
-    /**
-     * This method initializes this
-     */
-    private void initialize(final Frame owner) {
-        this.setContentPane(getJContentPane());
-        this.setTitle(language.getString("FileListFileDetailsDialog.title"));
-        loadLayout();
-        setLocationRelativeTo(owner);
-    }
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-    private PopupMenu getPopupMenu() {
-        if (popupMenu == null) {
-            popupMenu = new PopupMenu();
-        }
-        return popupMenu;
-    }
+		setContentPane(getJContentPane());
+		setTitle(language.getString("FileListFileDetailsDialog.title"));
+		loadLayout();
+		setLocationRelativeTo(owner);
 
-    private void showUploadTablePopupMenu(final MouseEvent e) {
-        getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-    }
+		copyKeysAndNamesAction = new CopyKeysAndNamesAction();
+		copyToClipboardMenu = new JMenu();
+		changeTrustStateGoodAction = new ChangeTrustStateAction(IdentityState.GOOD);
+		changeTrustStateObserveAction = new ChangeTrustStateAction(IdentityState.OBSERVE);
+		changeTrustStateCheckAction = new ChangeTrustStateAction(IdentityState.CHECK);
+		changeTrustStateBadAction = new ChangeTrustStateAction(IdentityState.BAD);
+		showOwnerFilesAction = new ShowOwnerFilesAction();
+		popupMenu = new PopupMenu();
+		popupMenu.addPopupMenuListener(this);
+		modelTable.getTable().setComponentPopupMenu(popupMenu);
+		modelTable.getTable().addMouseListener(new SelectRowOnRightClick(modelTable.getTable()));
 
-    private void loadLayout() {
+		languageChanged(null);
+	}
 
+	@Override
+	public void dispose() {
+		language.removeLanguageListener(this);
+		super.dispose();
+	}
+
+	private void loadLayout() {
         int lastHeight = Core.frostSettings.getIntValue("FileListFileDetailsDialog.height");
         int lastWidth = Core.frostSettings.getIntValue("FileListFileDetailsDialog.width");
 
@@ -182,10 +189,6 @@ public class FileListFileDetailsDialog extends JDialog {
             tableFormat = new FileListFileDetailsTableFormat();
             model = new FileListFileDetailsTableModel(tableFormat);
             modelTable = new SortedModelTable<FileListFileDetailsItem>(model);
-
-            modelTable.getScrollPane().addMouseListener(listener);
-            modelTable.getTable().addMouseListener(listener);
-			modelTable.getTable().addMouseListener(new SelectRowOnRightClick(modelTable.getTable()));
         }
         return modelTable;
     }
@@ -216,183 +219,107 @@ public class FileListFileDetailsDialog extends JDialog {
         setVisible(true);
     }
 
-    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		copyKeysAndNamesAction.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+		copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+		changeTrustStateGoodAction.setText(language.getString("MessagePane.messageTable.popupmenu.setToGood"));
+		changeTrustStateObserveAction.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
+		changeTrustStateCheckAction.setText(language.getString("MessagePane.messageTable.popupmenu.setToCheck"));
+		changeTrustStateBadAction.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
+		showOwnerFilesAction.setText(language.getString("FileListFileDetailsDialog.popupmenu.searchFilesOfOwner"));
+	}
 
-        private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
+		Boolean isSelected = !selectedItems.isEmpty();
+		Boolean isOneSelected = selectedItems.size() == 1;
 
-        private final JMenu copyToClipboardMenu = new JMenu();
+		Identity ownerId = null;
+		Boolean isLocalOwner = false;
+		if (isOneSelected) {
+			ownerId = selectedItems.get(0).getOwnerIdentity();
+			isLocalOwner = ownerId instanceof LocalIdentity;
+		}
 
-        private final JMenuItem showOwnerFilesItem = new JMenuItem();
+		copyToClipboardMenu.setEnabled(isSelected);
+		changeTrustStateGoodAction.setEnabled(isOneSelected && !isLocalOwner && !ownerId.isGOOD());
+		changeTrustStateObserveAction.setEnabled(isOneSelected && !isLocalOwner && !ownerId.isOBSERVE());
+		changeTrustStateCheckAction.setEnabled(isOneSelected && !isLocalOwner && !ownerId.isCHECK());
+		changeTrustStateBadAction.setEnabled(isOneSelected && !isLocalOwner && !ownerId.isBAD());
+		showOwnerFilesAction.setEnabled(isOneSelected && isOwnerSearchAllowed);
+	}
 
-        private final JMenuItem setBadItem = new JMenuItem();
-        private final JMenuItem setCheckItem = new JMenuItem();
-        private final JMenuItem setGoodItem = new JMenuItem();
-        private final JMenuItem setObserveItem = new JMenuItem();
+	private class CopyKeysAndNamesAction extends BaseAction {
 
-        public PopupMenu() {
-            super();
-            initialize();
-        }
+		private static final long serialVersionUID = 1L;
 
-        private void initialize() {
-            refreshLanguage();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+		}
+	}
 
-            copyToClipboardMenu.add(copyKeysAndNamesItem);
+	private class ChangeTrustStateAction extends BaseAction {
 
-            copyKeysAndNamesItem.addActionListener(this);
-            showOwnerFilesItem.addActionListener(this);
-            setGoodItem.addActionListener(this);
-            setBadItem.addActionListener(this);
-            setCheckItem.addActionListener(this);
-            setObserveItem.addActionListener(this);
-        }
+		private static final long serialVersionUID = 1L;
 
-        private void refreshLanguage() {
-            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+		private IdentityState identityState;
 
-            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+		public ChangeTrustStateAction(IdentityState identityState) {
+			this.identityState = identityState;
+		}
 
-            showOwnerFilesItem.setText(language.getString("FileListFileDetailsDialog.popupmenu.searchFilesOfOwner"));
-            setGoodItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToGood"));
-            setBadItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
-            setCheckItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToCheck"));
-            setObserveItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
-        }
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
+			FileListFileDetailsItem item = selectedItems.get(0);
+			if (identityState == IdentityState.GOOD) {
+				item.getOwnerIdentity().setGOOD();
+			} else if (identityState == IdentityState.CHECK) {
+				item.getOwnerIdentity().setCHECK();
+			} else if (identityState == IdentityState.OBSERVE) {
+				item.getOwnerIdentity().setOBSERVE();
+			} else if (identityState == IdentityState.BAD) {
+				item.getOwnerIdentity().setBAD();
+			}
+			modelTable.fireTableRowsUpdated(0, modelTable.getRowCount() - 1);
+			// also update message panel to reflect the identity change
+			MainFrame.getInstance().getMessagePanel().updateTableAfterChangeOfIdentityState();
+		}
+	}
 
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysAndNamesItem) {
-                ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
-            } else if (e.getSource() == showOwnerFilesItem) {
-                searchFilesOfOwner();
-            } else if (e.getSource() == setGoodItem) {
-                changeTrustState(IdentityState.GOOD);
-            } else if (e.getSource() == setBadItem) {
-                changeTrustState(IdentityState.BAD);
-            } else if (e.getSource() == setCheckItem) {
-                changeTrustState(IdentityState.CHECK);
-            } else if (e.getSource() == setObserveItem) {
-                changeTrustState(IdentityState.OBSERVE);
-            }
-        }
+	private class ShowOwnerFilesAction extends BaseAction {
 
-        private void changeTrustState(final IdentityState is) {
-            final List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.size() == 1) {
-                final FileListFileDetailsItem item =  selectedItems.get(0);
-                if( is == IdentityState.GOOD ) {
-                    item.getOwnerIdentity().setGOOD();
-                } else if( is == IdentityState.CHECK ) {
-                    item.getOwnerIdentity().setCHECK();
-                } else if( is == IdentityState.OBSERVE ) {
-                    item.getOwnerIdentity().setOBSERVE();
-                } else if( is == IdentityState.BAD ) {
-                    item.getOwnerIdentity().setBAD();
-                }
-                modelTable.fireTableRowsUpdated(0, modelTable.getRowCount()-1);
-                // also update message panel to reflect the identity change
-                MainFrame.getInstance().getMessagePanel().updateTableAfterChangeOfIdentityState();
-            }
-        }
+		private static final long serialVersionUID = 1L;
 
-        private void searchFilesOfOwner() {
-            final List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.size() == 1) {
-                final FileListFileDetailsItem item = selectedItems.get(0);
-                final String owner = item.getOwnerIdentity().getUniqueName();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
+			FileListFileDetailsItem item = selectedItems.get(0);
+			String owner = item.getOwnerIdentity().getUniqueName();
 
-                final SearchParameters sp = new SearchParameters(false);
-                sp.setOwnerString(owner);
-                FileTransferManager.inst().getSearchManager().getPanel().startNewSearch(sp);
-            }
-        }
+			SearchParameters sp = new SearchParameters(false);
+			sp.setOwnerString(owner);
+			FileTransferManager.inst().getSearchManager().getPanel().startNewSearch(sp);
+		}
+	}
 
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
+	private class PopupMenu extends JPopupMenu {
 
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            removeAll();
+		private static final long serialVersionUID = 1L;
 
-            final List<FileListFileDetailsItem> selectedItems = modelTable.getSelectedItems();
-
-            if( selectedItems.size() == 0 ) {
-                return;
-            }
-
-            // if at least 1 item is selected
-            add(copyToClipboardMenu);
-
-            if (selectedItems.size() == 1) {
-
-                addSeparator();
-
-                add(setGoodItem);
-                add(setObserveItem);
-                add(setCheckItem);
-                add(setBadItem);
-                setGoodItem.setEnabled(false);
-                setObserveItem.setEnabled(false);
-                setCheckItem.setEnabled(false);
-                setBadItem.setEnabled(false);
-
-                final FileListFileDetailsItem item =  selectedItems.get(0);
-                final Identity ownerId = item.getOwnerIdentity();
-
-                if( ownerId instanceof LocalIdentity ) {
-                    // keep all off
-                } else if (ownerId.isGOOD()) {
-                    setObserveItem.setEnabled(true);
-                    setCheckItem.setEnabled(true);
-                    setBadItem.setEnabled(true);
-                } else if (ownerId.isCHECK()) {
-                    setObserveItem.setEnabled(true);
-                    setGoodItem.setEnabled(true);
-                    setBadItem.setEnabled(true);
-                } else if (ownerId.isBAD()) {
-                    setObserveItem.setEnabled(true);
-                    setGoodItem.setEnabled(true);
-                    setCheckItem.setEnabled(true);
-                } else if (ownerId.isOBSERVE()) {
-                    setGoodItem.setEnabled(true);
-                    setCheckItem.setEnabled(true);
-                    setBadItem.setEnabled(true);
-                } else {
-                    // keep all off
-                }
-            }
-
-            if( isOwnerSearchAllowed && selectedItems.size() == 1 ) {
-                addSeparator();
-                add(showOwnerFilesItem);
-            }
-
-            super.show(invoker, x, y);
-        }
-    }
-
-    private class Listener extends MouseAdapter implements MouseListener {
-        public Listener() {
-            super();
-        }
-        @Override
-        public void mousePressed(final MouseEvent e) {
-            if (e.isPopupTrigger()) {
-                if ((e.getSource() == modelTable.getTable())
-                    || (e.getSource() == modelTable.getScrollPane())) {
-                    showUploadTablePopupMenu(e);
-                }
-            }
-        }
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-                if ((e.getSource() == modelTable.getTable())
-                    || (e.getSource() == modelTable.getScrollPane())) {
-                    showUploadTablePopupMenu(e);
-                }
-            }
-        }
-    }
-
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+		public PopupMenu() {
+			copyToClipboardMenu.add(copyKeysAndNamesAction);
+			add(copyToClipboardMenu);
+			addSeparator();
+			add(changeTrustStateGoodAction);
+			add(changeTrustStateObserveAction);
+			add(changeTrustStateCheckAction);
+			add(changeTrustStateBadAction);
+			addSeparator();
+			add(showOwnerFilesAction);
+		}
+	}
+}

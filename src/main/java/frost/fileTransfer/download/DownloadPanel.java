@@ -100,8 +100,9 @@ import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
-@SuppressWarnings("serial")
 public class DownloadPanel extends JPanel implements SettingsUpdater {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(DownloadPanel.class);
 
@@ -671,6 +672,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		// assign keys 1-6 - set priority of selected items
 		final Action setPriorityAction = new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(final ActionEvent event) {
 				final FreenetPriority prio = FreenetPriority.getPriority(Integer.parseInt(event.getActionCommand()));
 				final List<FrostDownloadItem> selectedItems = modelTable.getSelectedItems();
@@ -694,6 +698,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		// Enter
 		final Action setOpenFileAction = new AbstractAction() {
+
+			private static final long serialVersionUID = 1L;
+
 			public void actionPerformed(final ActionEvent event) {
 				openFile(modelTable.getSelectedItem());
 			}
@@ -706,6 +713,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * Renderer draws background of DONE items in green.
 	 */
 	private class CellRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
 
 		private final Color col_green = new Color(0x00, 0x80, 0x00);
 
@@ -734,6 +743,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private class PopupMenuDownload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+
+		private static final long serialVersionUID = 1L;
 
 		private final JMenuItem detailsItem = new JMenuItem();
 		private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
@@ -952,7 +963,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			if (!selectedItems.get(0).isSharedFile()) {
 				return;
 			}
-			new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(selectedItems.get(0).getFileListFileObject());
+			new FileListFileDetailsDialog(MainFrame.getInstance(), false)
+					.startDialog(selectedItems.get(0).getFileListFileObject());
 		}
 
 		private void invertEnabledSelected() {

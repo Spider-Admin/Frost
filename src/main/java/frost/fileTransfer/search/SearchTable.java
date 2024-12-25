@@ -45,10 +45,11 @@ import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
-@SuppressWarnings("serial")
 public class SearchTable extends SortedModelTable<FrostSearchItem> {
 
-    private final SearchModel searchModel;
+	private static final long serialVersionUID = 1L;
+
+	private final SearchModel searchModel;
     private final CloseableTabbedPane tabPane;
     private final String searchText;
 
@@ -132,7 +133,8 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
         if (selectedItems.size() != 1) {
             return;
         }
-        new FileListFileDetailsDialog(MainFrame.getInstance(), true).startDialog(selectedItems.get(0).getFrostFileListFileObject());
+		new FileListFileDetailsDialog(MainFrame.getInstance(), true)
+				.startDialog(selectedItems.get(0).getFrostFileListFileObject());
     }
 
     /**
@@ -190,11 +192,11 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
         }
     }
 
-    private class PopupMenuSearch
-    extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener {
+	private class PopupMenuSearch extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
-        JMenuItem cancelItem = new JMenuItem();
+		private static final long serialVersionUID = 1L;
+
+		JMenuItem cancelItem = new JMenuItem();
         JMenuItem downloadAllKeysItem = new JMenuItem();
         JMenuItem downloadSelectedKeysItem = new JMenuItem();
 
