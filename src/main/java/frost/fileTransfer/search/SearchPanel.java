@@ -36,7 +36,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
@@ -52,10 +51,11 @@ import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 
-@SuppressWarnings("serial")
 public class SearchPanel extends JPanel implements LanguageListener {
 
-    private final Language language = Language.getInstance();
+	private static final long serialVersionUID = 1L;
+
+	private final Language language = Language.getInstance();
 
     private SearchSimpleToolBar searchSimpleToolBar;
     private SearchAdvancedToolBar searchAdvancedToolBar;
@@ -134,21 +134,20 @@ public class SearchPanel extends JPanel implements LanguageListener {
         searchAdvancedToolBar.refreshLanguage();
     }
 
-    public void startNewSearch(final SearchParameters searchParams) {
+	public void startNewSearch(SearchParameters searchParams) {
+		String tabText = searchParams.getTabText();
 
-        final String tabText = searchParams.getTabText();
+		SearchModel searchModel = new SearchModel(new SearchTableFormat());
+		SearchTable searchTable = new SearchTable(searchModel, searchTabs, tabText);
+		tableFindAction.install(searchTable.getTable());
 
-        final SearchModel model = new SearchModel(new SearchTableFormat());
-        final SearchTable modelTable = new SearchTable(model, searchTabs, tabText);
-        tableFindAction.install( modelTable.getTable() );
+		ProxyPanel pp = new ProxyPanel(searchTable, searchModel);
 
-        final ProxyPanel pp = new ProxyPanel(modelTable.getScrollPane(), model, modelTable.getTable());
+		searchTabs.addTab(tabText + " (...)", pp);
 
-        searchTabs.addTab(tabText + " (...)", pp);
-
-        final SearchThread searchThread = new SearchThread(searchParams, modelTable, pp);
-        searchThread.start();
-    }
+		SearchThread searchThread = new SearchThread(searchParams, searchTable, pp);
+		searchThread.start();
+	}
 
     private JSkinnablePopupMenu buildSearchOptionsMenu() {
         final JSkinnablePopupMenu searchOptionsMenu = new JSkinnablePopupMenu();
@@ -188,9 +187,11 @@ public class SearchPanel extends JPanel implements LanguageListener {
         return searchOptionsMenu;
     }
 
-    private class SearchSimpleToolBar extends JToolBar implements ActionListener {
+	private class SearchSimpleToolBar extends JToolBar implements ActionListener {
 
-        private JTranslatableComboBox searchComboBox = null;
+		private static final long serialVersionUID = 1L;
+
+		private JTranslatableComboBox searchComboBox = null;
         private final JButton searchButton = new JButton(searchIcon);
         private final JTextField searchTextField = new JTextField(30);
         private final JButton toggleModeButtonToAdvanced = new JButton(">>");
@@ -268,11 +269,17 @@ public class SearchPanel extends JPanel implements LanguageListener {
         }
     }
 
-    private class SearchAdvancedToolBar extends JToolBar implements ActionListener {
+	private class SearchAdvancedToolBar extends JToolBar implements ActionListener {
 
-        // own JTextField, needed to do the first layout when components are not yet shown
-        class ChangedJtextfield extends JTextField {
-            int ownPreferredWidth = -1;
+		private static final long serialVersionUID = 1L;
+
+		// own JTextField, needed to do the first layout when components are not yet
+		// shown
+		private class ChangedJtextfield extends JTextField {
+
+			private static final long serialVersionUID = 1L;
+
+			int ownPreferredWidth = -1;
             public ChangedJtextfield(final int i) {
                 super(i);
             }
@@ -507,18 +514,22 @@ public class SearchPanel extends JPanel implements LanguageListener {
         }
     }
 
-    /**
-     * Own closeable tabbed pane to get notified if a tab was closed.
-     * Needed to explicitely clear the tablemodel.
-     */
-    private class SearchCloseableTabbedPane extends CloseableTabbedPane {
-        public SearchCloseableTabbedPane() {
-            super();
-        }
+	/**
+	 * Own closable tabbed pane to get notified if a tab was closed. Needed to
+	 * explicitly clear the tablemodel.
+	 */
+	private class SearchCloseableTabbedPane extends CloseableTabbedPane {
+
+		private static final long serialVersionUID = 1L;
+
+		public SearchCloseableTabbedPane() {
+			super();
+		}
+
         @Override
         protected void tabWasClosed(final Component c) {
             if( c instanceof ProxyPanel ) {
-                // explicitely clear the model after tab was closed to make life easier for the gc
+                // explicitly clear the model after tab was closed to make life easier for the gc
                 final ProxyPanel pp = (ProxyPanel)c;
                 pp.tabWasClosed(); // stop search thread
                 pp.getModel().clear();
@@ -526,31 +537,39 @@ public class SearchPanel extends JPanel implements LanguageListener {
         }
     }
 
-    /**
-     * Panel component that holds a SearchModel.
-     * Is added to a tabbed pane.
-     */
-    public class ProxyPanel extends JPanel {
-        SearchModel model;
-        SearchThread thread = null;
-        JTable table;
-        public ProxyPanel(final Component c, final SearchModel m, final JTable table) {
-            model = m;
-            this.table = table;
-            setLayout(new BorderLayout());
-            add(c, BorderLayout.CENTER);
-        }
-        public void setSearchThread(final SearchThread t) {
-            thread = t;
-        }
-        public void tabWasClosed() {
-            if( thread != null ) {
-                thread.requestCancel();
-            }
-            tableFindAction.deinstall(table);
-        }
-        public SearchModel getModel() {
-            return model;
-        }
-    }
+	/**
+	 * Panel component that holds a SearchModel. Is added to a tabbed pane.
+	 */
+	public class ProxyPanel extends JPanel {
+
+		private static final long serialVersionUID = 1L;
+
+		private SearchTable searchTable;
+		private SearchModel searchModel;
+		private SearchThread thread;
+
+		public ProxyPanel(SearchTable searchTable, SearchModel searchModel) {
+			this.searchTable = searchTable;
+			this.searchModel = searchModel;
+			setLayout(new BorderLayout());
+			add(searchTable.getScrollPane(), BorderLayout.CENTER);
+		}
+
+		public void setSearchThread(SearchThread t) {
+			thread = t;
+		}
+
+		public void tabWasClosed() {
+			if (thread != null) {
+				thread.requestCancel();
+			}
+			tableFindAction.deinstall(searchTable.getTable());
+			language.removeLanguageListener(searchTable);
+			language.removeLanguageListener((LanguageListener) searchModel.getTableFormat());
+		}
+
+		public SearchModel getModel() {
+			return searchModel;
+		}
+	}
 }

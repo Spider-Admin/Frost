@@ -21,15 +21,14 @@ package frost.fileTransfer.search;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
 
 import frost.Core;
 import frost.MainFrame;
@@ -38,14 +37,16 @@ import frost.fileTransfer.common.FileListFileDetailsDialog;
 import frost.storage.perst.filelist.FileListStorage;
 import frost.util.ClipboardUtil;
 import frost.util.gui.CloseableTabbedPane;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.SelectRowOnRightClick;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.model.SortedModelTable;
 
-public class SearchTable extends SortedModelTable<FrostSearchItem> {
+public class SearchTable extends SortedModelTable<FrostSearchItem>
+		implements LanguageListener, SimplePopupMenuListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -53,13 +54,24 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
     private final CloseableTabbedPane tabPane;
     private final String searchText;
 
-    private PopupMenuSearch popupMenuSearch = null;
-    private final Language language = Language.getInstance();
+	private CopyKeysAndNamesAction copyKeysAndNamesAction;
+	private CopyExtendedInfoAction copyExtendedInfoAction;
+	private JMenu copyToClipboardMenu;
+	private DownloadSelectedKeysAction downloadSelectedKeysAction;
+	private DownloadAllKeysAction downloadAllKeysAction;
+	private HideSelectedKeysAction hideSelectedKeysAction;
+	private DetailsAction detailsAction;
+	private PopupMenuSearch popupMenuSearch;
 
-    private final java.util.List<FrostSearchItem> searchItems = new LinkedList<FrostSearchItem>();
+	private final Language language;
 
-    public SearchTable(final SearchModel m, final CloseableTabbedPane t, final String searchText) {
-        super(m);
+    private final List<FrostSearchItem> searchItems = new LinkedList<FrostSearchItem>();
+
+	public SearchTable(SearchModel m, CloseableTabbedPane t, String searchText) {
+		super(m);
+
+		language = Language.getInstance();
+		language.addLanguageListener(this);
 
         searchModel = m;
         tabPane = t;
@@ -67,11 +79,22 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
 
         setupTableFont();
 
-        final Listener l = new Listener();
-        getTable().addMouseListener(l);
+		copyKeysAndNamesAction = new CopyKeysAndNamesAction();
+		copyExtendedInfoAction = new CopyExtendedInfoAction();
+		copyToClipboardMenu = new JMenu();
+		downloadSelectedKeysAction = new DownloadSelectedKeysAction();
+		downloadAllKeysAction = new DownloadAllKeysAction();
+		hideSelectedKeysAction = new HideSelectedKeysAction();
+		detailsAction = new DetailsAction();
+		popupMenuSearch = new PopupMenuSearch();
+		popupMenuSearch.addPopupMenuListener(this);
+		getTable().setComponentPopupMenu(popupMenuSearch);
+
+		getTable().addMouseListener(new DoubleClickListener());
 		getTable().addMouseListener(new SelectRowOnRightClick(getTable()));
-        getScrollPane().addMouseListener(l);
-    }
+
+		languageChanged(null);
+	}
 
     public void addSearchItem(final FrostSearchItem i) {
         searchItems.add(i);
@@ -81,7 +104,7 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
      * Called if the searchthread finished.
      */
     public void searchFinished(final Component tabComponent) {
-        // add all chached items to model
+		// add all cached items to model
         for( final FrostSearchItem fsi : searchItems ) {
             searchModel.addSearchItem(fsi);
         }
@@ -96,14 +119,6 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
         searchItems.clear();
     }
 
-    private PopupMenuSearch getPopupMenuSearch() {
-        if (popupMenuSearch == null) {
-            popupMenuSearch = new PopupMenuSearch();
-            language.addLanguageListener(popupMenuSearch);
-        }
-        return popupMenuSearch;
-    }
-
     private void setupTableFont() {
         final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
         final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
@@ -114,27 +129,6 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
             font = new Font("SansSerif", fontStyle, fontSize);
         }
         getTable().setFont(font);
-    }
-
-    private void searchTableDoubleClick(final MouseEvent e) {
-        // if double click was on the sourceCount cell then maybe show details
-        final int row = getTable().rowAtPoint(e.getPoint());
-        final int col = getTable().columnAtPoint(e.getPoint());
-
-        if( row > -1 && col == 8 ) {
-            showDetails();
-            return;
-        }
-        addItemsToDownloadTable( getSelectedItems() );
-    }
-
-    private void showDetails() {
-        final List<FrostSearchItem> selectedItems = getSelectedItems();
-        if (selectedItems.size() != 1) {
-            return;
-        }
-		new FileListFileDetailsDialog(MainFrame.getInstance(), true)
-				.startDialog(selectedItems.get(0).getFrostFileListFileObject());
     }
 
     /**
@@ -156,180 +150,147 @@ public class SearchTable extends SortedModelTable<FrostSearchItem> {
         }
     }
 
-    private class Listener extends MouseAdapter implements MouseListener {
+	private class DoubleClickListener extends MouseAdapter {
 
-        public Listener() {
-            super();
-        }
+		@Override
+		public void mousePressed(final MouseEvent e) {
+			if (e.getClickCount() == 2 && e.getSource() == getTable()) {
+				// if double click was on the sourceCount cell then maybe show details
+				int row = getTable().rowAtPoint(e.getPoint());
+				int col = getTable().columnAtPoint(e.getPoint());
+				if (row > -1 && col == 8) {
+					detailsAction.actionPerformed(null);
+					return;
+				}
 
-        @Override
-        public void mousePressed(final MouseEvent e) {
-            if (e.getClickCount() == 2) {
-                if (e.getSource() == getTable()) {
-                    searchTableDoubleClick(e);
-                }
-            } else if (e.isPopupTrigger()) {
-                if ((e.getSource() == getTable())
-                    || (e.getSource() == getScrollPane())) {
-                    showSearchTablePopupMenu(e);
-                }
-            }
-        }
+				addItemsToDownloadTable(getSelectedItems());
+			}
+		}
+	}
 
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		copyKeysAndNamesAction.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+		copyExtendedInfoAction.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+		copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+		downloadSelectedKeysAction.setText(language.getString("SearchPane.resultTable.popupmenu.downloadSelectedKeys"));
+		downloadAllKeysAction.setText(language.getString("SearchPane.resultTable.popupmenu.downloadAllKeys"));
+		hideSelectedKeysAction.setText(language.getString("SearchPane.resultTable.popupmenu.hideSelectedKeys"));
+		detailsAction.setText(language.getString("Common.details"));
+	}
 
-                if ((e.getSource() == getTable())
-                    || (e.getSource() == getScrollPane())) {
-                    showSearchTablePopupMenu(e);
-                }
-            }
-        }
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		List<FrostSearchItem> selectedItems = getSelectedItems();
+		Boolean isSelected = !selectedItems.isEmpty();
+		Boolean isOneSelected = selectedItems.size() == 1;
 
-        private void showSearchTablePopupMenu(final MouseEvent e) {
-            getPopupMenuSearch().show(e.getComponent(), e.getX(), e.getY());
-        }
-    }
+		copyToClipboardMenu.setEnabled(isSelected);
+		downloadSelectedKeysAction.setEnabled(isSelected);
+		hideSelectedKeysAction.setEnabled(isSelected);
+		detailsAction.setEnabled(isOneSelected);
+	}
 
-	private class PopupMenuSearch extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+	private class CopyKeysAndNamesAction extends BaseAction {
 
 		private static final long serialVersionUID = 1L;
 
-		JMenuItem cancelItem = new JMenuItem();
-        JMenuItem downloadAllKeysItem = new JMenuItem();
-        JMenuItem downloadSelectedKeysItem = new JMenuItem();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyKeysAndFilenames(getSelectedItems().toArray());
+		}
+	}
 
-        private final JMenu copyToClipboardMenu = new JMenu();
-        private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyExtendedInfoItem = new JMenuItem();
+	private class CopyExtendedInfoAction extends BaseAction {
 
-        private final JMenuItem hideSelectedKeysItem = new JMenuItem();
+		private static final long serialVersionUID = 1L;
 
-        private final JMenuItem detailsItem = new JMenuItem();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyExtendedInfo(getSelectedItems().toArray());
+		}
+	}
 
-        public PopupMenuSearch() {
-            super();
-            initialize();
-        }
+	private class DownloadSelectedKeysAction extends BaseAction {
 
-        private void initialize() {
-            refreshLanguage();
+		private static final long serialVersionUID = 1L;
 
-            copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyExtendedInfoItem);
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			addItemsToDownloadTable(getSelectedItems());
+		}
+	}
 
-            downloadSelectedKeysItem.addActionListener(this);
-            downloadAllKeysItem.addActionListener(this);
+	private class DownloadAllKeysAction extends BaseAction {
 
-            copyKeysAndNamesItem.addActionListener(this);
-            copyExtendedInfoItem.addActionListener(this);
+		private static final long serialVersionUID = 1L;
 
-            hideSelectedKeysItem.addActionListener(this);
-            detailsItem.addActionListener(this);
-        }
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			addItemsToDownloadTable(null);
+		}
+	}
 
-        private void refreshLanguage() {
-            downloadSelectedKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadSelectedKeys"));
-            downloadAllKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadAllKeys"));
-            cancelItem.setText(language.getString("Common.cancel"));
+	private class HideSelectedKeysAction extends BaseAction {
 
-            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
-            copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
-            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+		private static final long serialVersionUID = 1L;
 
-            hideSelectedKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.hideSelectedKeys"));
-            detailsItem.setText(language.getString("Common.details"));
-        }
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<FrostSearchItem> selectedItems = getSelectedItems();
 
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == downloadSelectedKeysItem) {
-                downloadSelectedKeys();
-            }
-            if (e.getSource() == downloadAllKeysItem) {
-                downloadAllKeys();
-            }
-            if (e.getSource() == copyKeysAndNamesItem) {
-                ClipboardUtil.copyKeysAndFilenames(getSelectedItems().toArray());
-            }
-            if (e.getSource() == copyExtendedInfoItem) {
-                ClipboardUtil.copyExtendedInfo(getSelectedItems().toArray());
-            }
-            if (e.getSource() == hideSelectedKeysItem) {
-                hideSelectedFiles();
-            }
-            if (e.getSource() == detailsItem) {
-                showDetails();
-            }
-        }
+			// update the filelistfiles in database (but not in Swing thread)
+			new Thread() {
+				@Override
+				public void run() {
 
-        private void downloadAllKeys() {
-            addItemsToDownloadTable( null );
-        }
+					if (FileListStorage.inst().beginExclusiveThreadTransaction()) {
+						try {
+							for (int x = selectedItems.size() - 1; x >= 0; x--) {
+								FrostSearchItem si = selectedItems.get(x);
+								if (si.getFrostFileListFileObject() != null) {
+									FileListStorage.inst().markFileListFileHidden(si.getFrostFileListFileObject());
+								}
+							}
+						} finally {
+							FileListStorage.inst().endThreadTransaction();
+						}
+					}
+				}
+			}.start();
 
-        private void downloadSelectedKeys() {
-            addItemsToDownloadTable( getSelectedItems() );
-        }
+			// remove from table
+			model.removeItems(selectedItems);
+		}
+	}
 
-        private void hideSelectedFiles() {
-            final List<FrostSearchItem> selectedItems = getSelectedItems();
-            if (selectedItems == null || selectedItems.size() == 0) {
-                return;
-            }
+	private class DetailsAction extends BaseAction {
 
-            // update the filelistfiles in database (but not in Swing thread)
-            new Thread() {
-                @Override
-                public void run() {
-                    if( FileListStorage.inst().beginExclusiveThreadTransaction() ) {
-                        try {
-                            for (int x=selectedItems.size() -1; x >= 0; x--) {
-                                final FrostSearchItem si =  selectedItems.get(x);
-                                if (si.getFrostFileListFileObject() != null) {
-                                    FileListStorage.inst().markFileListFileHidden(si.getFrostFileListFileObject());
-                                }
-                            }
-                        } finally {
-                            FileListStorage.inst().endThreadTransaction();
-                        }
-                    }
-                }
-            }.start();
+		private static final long serialVersionUID = 1L;
 
-            // remove from table
-            model.removeItems(selectedItems);
-        }
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<FrostSearchItem> selectedItems = getSelectedItems();
+			new FileListFileDetailsDialog(MainFrame.getInstance(), true)
+					.startDialog(selectedItems.get(0).getFrostFileListFileObject());
+		}
+	}
 
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
+	private class PopupMenuSearch extends JPopupMenu {
 
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            removeAll();
+		private static final long serialVersionUID = 1L;
 
-            final List<FrostSearchItem> selectedItems = getSelectedItems();
-
-            if (selectedItems.size() > 0) {
-                add(copyToClipboardMenu);
-                addSeparator();
-            }
-
-            if (selectedItems.size() != 0) {
-                // If at least 1 item is selected
-                add(downloadSelectedKeysItem);
-                addSeparator();
-            }
-            add(downloadAllKeysItem);
-            addSeparator();
-            add(hideSelectedKeysItem);
-
-            if (selectedItems.size() == 1) {
-                addSeparator();
-                add(detailsItem);
-            }
-
-            super.show(invoker, x, y);
-        }
-    }
+		public PopupMenuSearch() {
+			copyToClipboardMenu.add(copyKeysAndNamesAction);
+			copyToClipboardMenu.add(copyExtendedInfoAction);
+			add(copyToClipboardMenu);
+			addSeparator();
+			add(downloadSelectedKeysAction);
+			add(downloadAllKeysAction);
+			addSeparator();
+			add(hideSelectedKeysAction);
+			addSeparator();
+			add(detailsAction);
+		}
+	}
 }
