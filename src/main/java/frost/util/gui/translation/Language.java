@@ -131,13 +131,15 @@ public class Language {
         }
     }
 
-    /**
-     * Adds an <code>LanguageListener</code> to the Language.
-     * @param listener the <code>LanguageListener</code> to be added
-     */
-    public void addLanguageListener(final LanguageListener listener) {
-        listenerList.add(LanguageListener.class, listener);
-    }
+	/**
+	 * Adds an <code>LanguageListener</code> to the Language.
+	 * 
+	 * @param listener the <code>LanguageListener</code> to be added
+	 */
+	public void addLanguageListener(final LanguageListener listener) {
+		listenerList.add(LanguageListener.class, listener);
+		logger.debug("Added listener {}.", listener.getClass().getName());
+	}
 
     /**
      * Returns an array of all the <code>LanguageListener</code>s added
@@ -150,13 +152,16 @@ public class Language {
         return (listenerList.getListeners(LanguageListener.class));
     }
 
-    /**
-     * Removes an <code>LanguageListener</code> from the Language.
-     * @param listener the <code>LanguageListener</code> to be removed
-     */
-    public void removeLanguageListener(final LanguageListener listener) {
-        listenerList.remove(LanguageListener.class, listener);
-    }
+	/**
+	 * Removes an <code>LanguageListener</code> from the Language.
+	 * 
+	 * @param listener the <code>LanguageListener</code> to be removed
+	 */
+	public void removeLanguageListener(final LanguageListener listener) {
+		listenerList.remove(LanguageListener.class, listener);
+		logger.debug("Removed listener {}, {} remaining.", listener.getClass().getName(),
+				listenerList.getListenerCount());
+	}
 
     /**
      * Notifies all listeners that have registered interest for
