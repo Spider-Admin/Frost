@@ -1,13 +1,11 @@
 <included>
+
 	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator" />
 
 	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%date{"HH:mm:ss,SSS"} %-5level %logger{10} - %message%n</pattern>
 		</encoder>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>INFO</level>
-		</filter>
 	</appender>
 
 	<appender name="LogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -40,4 +38,5 @@
 		<appender-ref ref="LogFile" />
 		<appender-ref ref="ImportantLogFile" />
 	</root>
+
 </included>
