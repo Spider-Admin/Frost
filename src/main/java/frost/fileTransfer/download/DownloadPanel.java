@@ -861,7 +861,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		public void actionPerformed(final ActionEvent e) {
 			if (e.getSource() == copyKeysAndNamesItem) {
-				ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+				ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems());
 			} else if (e.getSource() == copyExtendedInfoItem) {
 				ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems());
 			} else if (e.getSource() == restartSelectedDownloadsItem) {

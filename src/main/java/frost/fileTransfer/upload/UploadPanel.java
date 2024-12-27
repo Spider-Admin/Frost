@@ -467,7 +467,7 @@ public class UploadPanel extends JPanel implements LanguageListener, SimplePopup
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+			ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems());
 		}
 	}
 

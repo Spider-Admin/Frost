@@ -257,7 +257,7 @@ public class FileListFileDetailsDialog extends JDialog implements LanguageListen
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+			ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems());
 		}
 	}
 

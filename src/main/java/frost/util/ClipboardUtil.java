@@ -66,21 +66,13 @@ public class ClipboardUtil {
      * This method copies the CHK keys and file names of the selected items (if any) to the clipboard.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyKeysAndFilenames(final Object[] items) {
-        if (items == null || items.length == 0) {
-            return;
-        }
+	public static <T extends CopyToClipboardItem> void copyKeysAndFilenames(List<T> list) {
         final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
         final StringBuilder textToCopy = new StringBuilder();
-        CopyToClipboardItem item;
-        for (final Object ditem : items) {
-            if( !(ditem instanceof CopyToClipboardItem) ) {
-                continue;
-            }
-            item = (CopyToClipboardItem) ditem;
+		for (T item : list) {
             appendKeyAndFilename(textToCopy, item.getKey(), item.getFileName(), keyNotAvailableMessage);
             // for a single item don't append newline
-            if( items.length > 1 ) {
+			if (list.size() > 1) {
                 textToCopy.append("\n");
             }
         }

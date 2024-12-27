@@ -433,7 +433,7 @@ public class SharedFilesPanel extends JPanel {
 
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysAndNamesItem) {
-                ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
+				ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems());
             }
             if (e.getSource() == copyExtendedInfoItem) {
 				ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems());

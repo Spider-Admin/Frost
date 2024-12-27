@@ -777,7 +777,7 @@ public class MessageTextPane extends JPanel {
             if ((e.getSource() == saveAttachmentsItem) || (e.getSource() == saveAttachmentItem)) {
                 downloadAttachments();
             } else if (e.getSource() == copyKeysAndNamesItem) {
-                ClipboardUtil.copyKeysAndFilenames( getItems().toArray() );
+				ClipboardUtil.copyKeysAndFilenames(getItems());
             } else if (e.getSource() == copyExtendedInfoItem) {
 				ClipboardUtil.copyExtendedInfo(getItems());
             } else if (e.getSource() == openFileInBrowserItem) {
