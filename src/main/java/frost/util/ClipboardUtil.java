@@ -25,6 +25,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,21 +93,13 @@ public class ClipboardUtil {
      * the size in bytes.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyExtendedInfo(final Object[] items) {
-        if (items == null || items.length == 0) {
-            return;
-        }
+	public static <T extends CopyToClipboardItem> void copyExtendedInfo(List<T> list) {
         final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
         final String fileMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.file")+" ";
         final String keyMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.key")+" ";
         final String bytesMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
         final StringBuilder textToCopy = new StringBuilder();
-        CopyToClipboardItem item;
-        for (final Object ditem : items) {
-            if( !(ditem instanceof CopyToClipboardItem) ) {
-                continue;
-            }
-            item = (CopyToClipboardItem) ditem;
+		for (T item : list) {
             String key = item.getKey();
             if (key == null) {
                 key = keyNotAvailableMessage;

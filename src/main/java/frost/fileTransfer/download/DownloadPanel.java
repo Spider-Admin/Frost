@@ -166,6 +166,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * text field.
 	 */
 	protected class HandleMultiLineKeysDocument extends PlainDocument {
+
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void insertString(final int offs, String str, final AttributeSet a) throws BadLocationException {
 			str = str.replace('\n', ';');
@@ -860,7 +863,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			if (e.getSource() == copyKeysAndNamesItem) {
 				ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems().toArray());
 			} else if (e.getSource() == copyExtendedInfoItem) {
-				ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems().toArray());
+				ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems());
 			} else if (e.getSource() == restartSelectedDownloadsItem) {
 				restartSelectedDownloads();
 			} else if (e.getSource() == useThisDownloadDirItem) {

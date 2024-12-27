@@ -475,7 +475,7 @@ public class FreetalkMessageTextPane extends JPanel {
             } else if (e.getSource() == copyKeysAndNamesItem) {
                 ClipboardUtil.copyKeysAndFilenames( getItems().toArray() );
             } else if (e.getSource() == copyExtendedInfoItem) {
-                ClipboardUtil.copyExtendedInfo( getItems().toArray() );
+				ClipboardUtil.copyExtendedInfo(getItems());
             }
         }
 

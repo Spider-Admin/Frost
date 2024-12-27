@@ -207,7 +207,7 @@ public class SearchTable extends SortedModelTable<FrostSearchItem>
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			ClipboardUtil.copyExtendedInfo(getSelectedItems().toArray());
+			ClipboardUtil.copyExtendedInfo(getSelectedItems());
 		}
 	}
 
