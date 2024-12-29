@@ -108,7 +108,7 @@ public class DownloadTicker extends Thread {
 			loopEnd = Instant.now();
 			long seconds = Duration.between(loopStart, loopEnd).toSeconds();
 			if( seconds >= 60 ) {
-				increaseDownloadItemRuntime(seconds);
+				increaseDownloadItemRuntime(Math.toIntExact(seconds));
 				loopStart = loopEnd;
 			}
 		}
@@ -118,7 +118,7 @@ public class DownloadTicker extends Thread {
 	 * Increase the runtime of shared, running download items.
 	 * Called each X seconds, adds the specified amount of seconds to the runtime.
 	 */
-	private void increaseDownloadItemRuntime(final long incSecs) {
+	private void increaseDownloadItemRuntime(int incSecs) {
 	    // if we use persistence, check if we are currently connected
 	    if( FileTransferManager.inst().getPersistenceManager() != null ) {
 	        if( !FileTransferManager.inst().getPersistenceManager().isConnected() ) {
