@@ -69,17 +69,12 @@ public class SharedFilesManager implements PropertyChangeListener, ExitSavable {
         MainFrame.getInstance().selectTabbedPaneTab("MainFrame.tabbedPane.sharing");
     }
 
-    /**
-     * @return
-     */
-    public SharedFilesPanel getPanel() {
-        if (panel == null) {
-            panel = new SharedFilesPanel(fileTransferManager);
-            panel.setModel(getModel());
-            panel.initialize();
-        }
-        return panel;
-    }
+	public SharedFilesPanel getPanel() {
+		if (panel == null) {
+			panel = new SharedFilesPanel(fileTransferManager, getModel());
+		}
+		return panel;
+	}
 
     public void selectModelItem(final FrostSharedFileItem sfItem) {
         final int row = model.indexOf(sfItem);

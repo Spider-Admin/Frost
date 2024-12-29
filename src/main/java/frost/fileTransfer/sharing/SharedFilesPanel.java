@@ -19,7 +19,6 @@
 package frost.fileTransfer.sharing;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -28,7 +27,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -40,9 +38,10 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
+import javax.swing.event.PopupMenuEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,9 +55,10 @@ import frost.storage.perst.NewUploadFile;
 import frost.util.ClipboardUtil;
 import frost.util.FileAccess;
 import frost.util.FormatterUtils;
-import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.SelectRowOnRightClick;
+import frost.util.gui.SimplePopupMenuListener;
+import frost.util.gui.action.BaseAction;
 import frost.util.gui.search.TableFindAction;
 import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
@@ -67,19 +67,21 @@ import frost.util.model.ModelTable;
 import frost.util.model.SortedModelListener;
 import frost.util.model.SortedModelTable;
 
-/**
- * 
- * @author $Author: $
- * @version $Revision: $
- */
-@SuppressWarnings("serial")
-public class SharedFilesPanel extends JPanel {
+public class SharedFilesPanel extends JPanel implements LanguageListener, SimplePopupMenuListener {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(SharedFilesPanel.class);
-	
-    private PopupMenu popupMenuUpload = null;
 
-    private final Listener listener = new Listener();
+	private CopyKeysAndNamesAction copyKeysAndNamesAction;
+	private CopyExtendedInfoAction copyExtendedInfoAction;
+	private JMenu copyToClipboardMenu;
+	private RemoveSelectedFilesAction removeSelectedFilesAction;
+	private UploadSelectedFilesAction uploadSelectedFilesAction;
+	private PropertiesAction propertiesAction;
+	private PopupMenu popupMenu;
+
+	private Listener listener = new Listener();
 
     private SharedFilesModel model = null;
 
@@ -95,56 +97,72 @@ public class SharedFilesPanel extends JPanel {
 
     private SortedModelTable<FrostSharedFileItem> modelTable;
 
-    private boolean initialized = false;
+	protected SharedFilesPanel(FileTransferManager fileTransferManager, SharedFilesModel model) {
+		super();
 
-    /**
-     * @param fileTransferManager
-     */
-    protected SharedFilesPanel(FileTransferManager fileTransferManager) {
-        super();
+		this.fileTransferManager = fileTransferManager;
+		this.model = model;
 
-        this.fileTransferManager = fileTransferManager;
-        
-        language = Language.getInstance();
-        language.addLanguageListener(listener);
-    }
+		language = Language.getInstance();
+		language.addLanguageListener(this);
 
-    public void initialize() {
-        if (!initialized) {
-            refreshLanguage();
+		// create the top panel
+		MiscToolkit.configureButton(addSharedFilesButton);
 
-            // create the top panel
-            MiscToolkit.configureButton(addSharedFilesButton);
+		sharedFilesToolBar.setRollover(true);
+		sharedFilesToolBar.setFloatable(false);
 
-            sharedFilesToolBar.setRollover(true);
-            sharedFilesToolBar.setFloatable(false);
+		sharedFilesToolBar.add(addSharedFilesButton);
+		sharedFilesToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
+		sharedFilesToolBar.add(Box.createHorizontalGlue());
+		sharedFilesToolBar.add(sharedFilesCountLabel);
 
-            sharedFilesToolBar.add(addSharedFilesButton);
-            sharedFilesToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
-            sharedFilesToolBar.add(Box.createHorizontalGlue());
-            sharedFilesToolBar.add(sharedFilesCountLabel);
+		// create the main upload panel
+		modelTable = new SortedModelTable<FrostSharedFileItem>(model);
+		new TableFindAction().install(modelTable.getTable());
+		setLayout(new BorderLayout());
+		add(sharedFilesToolBar, BorderLayout.NORTH);
+		add(modelTable.getScrollPane(), BorderLayout.CENTER);
+		fontChanged();
 
-            // create the main upload panel
-            modelTable = new SortedModelTable<FrostSharedFileItem>(model);
-            new TableFindAction().install(modelTable.getTable());
-            setLayout(new BorderLayout());
-            add(sharedFilesToolBar, BorderLayout.NORTH);
-            add(modelTable.getScrollPane(), BorderLayout.CENTER);
-            fontChanged();
+		copyKeysAndNamesAction = new CopyKeysAndNamesAction();
+		copyExtendedInfoAction = new CopyExtendedInfoAction();
+		copyToClipboardMenu = new JMenu();
+		removeSelectedFilesAction = new RemoveSelectedFilesAction();
+		uploadSelectedFilesAction = new UploadSelectedFilesAction();
+		propertiesAction = new PropertiesAction();
+		popupMenu = new PopupMenu();
+		popupMenu.addPopupMenuListener(this);
+		modelTable.getTable().setComponentPopupMenu(popupMenu);
 
-            // listeners
-            addSharedFilesButton.addActionListener(listener);
-            modelTable.getScrollPane().addMouseListener(listener);
-            modelTable.getTable().addKeyListener(listener);
-            modelTable.getTable().addMouseListener(listener);
-			modelTable.getTable().addMouseListener(new SelectRowOnRightClick(modelTable.getTable()));
-            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
-            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
-            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
+		modelTable.getTable().addMouseListener(new SelectRowOnRightClick(modelTable.getTable()));
+		addSharedFilesButton.addActionListener(listener);
+		modelTable.getTable().addKeyListener(listener);
+		modelTable.getTable().addMouseListener(listener);
 
-            initialized = true;
-        }
-    }
+		Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
+		Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
+		Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
+
+		model.addOrderedModelListener(new SortedModelListener<FrostSharedFileItem>() {
+			public void modelCleared() {
+				updateSharedFilesItemCount();
+			}
+
+			public void itemAdded(int position, FrostSharedFileItem item) {
+				updateSharedFilesItemCount();
+			}
+
+			public void itemChanged(int position, FrostSharedFileItem item) {
+			}
+
+			public void itemsRemoved(int[] positions, List<FrostSharedFileItem> items) {
+				updateSharedFilesItemCount();
+			}
+		});
+
+		languageChanged(null);
+	}
 
     public SharedFilesTableFormat getTableFormat() {
         return (SharedFilesTableFormat) modelTable.getTableFormat();
@@ -162,43 +180,6 @@ public class SharedFilesPanel extends JPanel {
         final JLabel dummyLabel = new JLabel(text);
         dummyLabel.doLayout();
         return dummyLabel.getPreferredSize();
-    }
-
-    private void refreshLanguage() {
-        addSharedFilesButton.setToolTipText(language.getString("SharedFilesPane.toolbar.tooltip.browse") + "...");
-
-        final String waiting = language.getString("SharedFilesPane.toolbar.files");
-        final Dimension labelSize = calculateLabelSize(waiting + ": 00000  (9876MB)");
-        sharedFilesCountLabel.setPreferredSize(labelSize);
-        sharedFilesCountLabel.setMinimumSize(labelSize);
-        sharedFilesCountLabel.setText(waiting + ": " + sharedFilesCount);
-
-    }
-
-    private PopupMenu getPopupMenuUpload() {
-        if (popupMenuUpload == null) {
-            popupMenuUpload = new PopupMenu();
-            language.addLanguageListener(popupMenuUpload);
-        }
-        return popupMenuUpload;
-    }
-
-    private void uploadTable_keyPressed(final KeyEvent e) {
-        if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
-            removeSelectedFiles();
-        }
-    }
-
-    private void removeSelectedFiles() {
-        final List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
-        model.removeItems(selectedItems);
-
-        modelTable.getTable().clearSelection();
-
-        // currently running upload items are removed during next startup
-
-        // notify list upload thread that user changed something
-        FileListUploadThread.getInstance().userActionOccured();
     }
 
     public void uploadAddFilesButton_actionPerformed(final ActionEvent e) {
@@ -272,10 +253,6 @@ public class SharedFilesPanel extends JPanel {
         }
     }
 
-    private void showUploadTablePopupMenu(final MouseEvent e) {
-        getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
-    }
-
     private void fontChanged() {
         final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
         final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
@@ -288,73 +265,6 @@ public class SharedFilesPanel extends JPanel {
             font = new Font("SansSerif", fontStyle, fontSize);
         }
         modelTable.setFont(font);
-    }
-
-    public void setModel(final SharedFilesModel model) {
-        this.model = model;
-
-        model.addOrderedModelListener(new SortedModelListener<FrostSharedFileItem>() {
-            public void modelCleared() {
-                updateSharedFilesItemCount();
-            }
-            public void itemAdded(final int position, final FrostSharedFileItem item) {
-                updateSharedFilesItemCount();
-            }
-            public void itemChanged(final int position, final FrostSharedFileItem item) {
-            }
-            public void itemsRemoved( int[] positions, List<FrostSharedFileItem> items) {
-                updateSharedFilesItemCount();
-            }
-        });
-    }
-
-    private void showProperties() {
-        final List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
-        if( selectedItems.size() == 0 ) {
-            return;
-        }
-
-        final List<FrostSharedFileItem> items = new LinkedList<FrostSharedFileItem>();
-        for( final FrostSharedFileItem item : selectedItems ) {
-            items.add(item);
-        }
-        final FrostSharedFileItem defaultItem = items.get(0);
-        final SharedFilesPropertiesDialog dlg = new SharedFilesPropertiesDialog(MainFrame.getInstance());
-
-        String singleFilename = null;
-        int fileCount = 0;
-
-        if( items.size() == 1 ) {
-            singleFilename = defaultItem.getFile().getName();
-        } else {
-            fileCount = items.size();
-        }
-
-        final boolean okClicked = dlg.startDialog(singleFilename, fileCount, defaultItem);
-        if( !okClicked ) {
-            return;
-        }
-
-        for( final FrostSharedFileItem item : items ) {
-            // check if item was really changed, calling a setter will mark the item changed
-            String oldStr, newStr;
-
-            oldStr = item.getComment();
-            newStr = dlg.getComment();
-            if( !stringsEqual(oldStr, newStr) ) {
-                item.setComment( dlg.getComment() );
-            }
-
-            oldStr = item.getKeywords();
-            newStr = dlg.getKeywords();
-            if( !stringsEqual(oldStr, newStr) ) {
-                item.setKeywords( dlg.getKeywords() );
-            }
-
-            if( item.getRating() != dlg.getRating() ) {
-                item.setRating( dlg.getRating() );
-            }
-        }
     }
 
     private void updateSharedFilesItemCount() {
@@ -393,167 +303,202 @@ public class SharedFilesPanel extends JPanel {
         }
     }
 
-    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+	private class Listener extends MouseAdapter implements KeyListener, ActionListener, PropertyChangeListener {
 
-        private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyExtendedInfoItem = new JMenuItem();
-        private final JMenuItem uploadSelectedFilesItem = new JMenuItem();
-        private final JMenuItem removeSelectedFilesItem = new JMenuItem();
-        private final JMenuItem propertiesItem = new JMenuItem();
+		public void keyPressed(KeyEvent e) {
+			if (e.getSource() == modelTable.getTable() && e.getKeyChar() == KeyEvent.VK_DELETE
+					&& !modelTable.getTable().isEditing()) {
+				removeSelectedFilesAction.actionPerformed(null);
+			}
+		}
 
-        private final JMenu copyToClipboardMenu = new JMenu();
+		public void keyReleased(KeyEvent e) {
+		}
 
-        public PopupMenu() {
-            super();
-            initialize();
-        }
+		public void keyTyped(KeyEvent e) {
+		}
 
-        private void initialize() {
-            refreshLanguage();
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == addSharedFilesButton) {
+				uploadAddFilesButton_actionPerformed(e);
+			}
+		}
 
-            copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyExtendedInfoItem);
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1
+					&& e.getSource() == modelTable.getTable()) {
+				// Start file from download table. Is this a good idea?
+				propertiesAction.actionPerformed(null);
+			}
+		}
 
-            copyKeysAndNamesItem.addActionListener(this);
-            copyExtendedInfoItem.addActionListener(this);
-            removeSelectedFilesItem.addActionListener(this);
-            uploadSelectedFilesItem.addActionListener(this);
-            propertiesItem.addActionListener(this);
-        }
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
+				fontChanged();
+			}
+		}
+	}
 
-        private void refreshLanguage() {
-            propertiesItem.setText(language.getString("Common.properties"));
-            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
-            copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
-            uploadSelectedFilesItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.uploadSelectedFiles"));
-            removeSelectedFilesItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.removeSelectedFiles"));
+	@Override
+	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+		List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
+		Boolean isSelected = !selectedItems.isEmpty();
 
-            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
-        }
+		// if all selected items are valid, then show long menu
+		Boolean isAllValid = true;
+		for (FrostSharedFileItem sfItem : selectedItems) {
+			if (!sfItem.isValid()) {
+				isAllValid = false;
+				break;
+			}
+		}
 
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysAndNamesItem) {
-				ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems());
-            }
-            if (e.getSource() == copyExtendedInfoItem) {
-				ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems());
-            }
-            if (e.getSource() == removeSelectedFilesItem) {
-                removeSelectedFiles();
-            }
-            if (e.getSource() == uploadSelectedFilesItem) {
-                uploadSelectedFiles();
-            }
-            if( e.getSource() == propertiesItem ) {
-                showProperties();
-            }
-        }
+		copyToClipboardMenu.setEnabled(isSelected && isAllValid);
+		removeSelectedFilesAction.setEnabled(isSelected);
+		uploadSelectedFilesAction.setEnabled(isSelected && isAllValid);
+		propertiesAction.setEnabled(isSelected && isAllValid);
+	}
 
-        /**
-         * Reload selected files
-         */
-        private void uploadSelectedFiles() {
-            model.requestItems(modelTable.getSelectedItems());
-        }
+	@Override
+	public void languageChanged(LanguageEvent event) {
+		addSharedFilesButton.setToolTipText(language.getString("SharedFilesPane.toolbar.tooltip.browse") + "...");
 
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
+		String waiting = language.getString("SharedFilesPane.toolbar.files");
+		Dimension labelSize = calculateLabelSize(waiting + ": 00000  (9876MB)");
+		sharedFilesCountLabel.setPreferredSize(labelSize);
+		sharedFilesCountLabel.setMinimumSize(labelSize);
+		sharedFilesCountLabel.setText(waiting + ": " + sharedFilesCount);
 
-        @Override
-        public void show(final Component invoker, final int x, final int y) {
-            removeAll();
+		copyKeysAndNamesAction.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+		copyExtendedInfoAction.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+		copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+		removeSelectedFilesAction
+				.setText(language.getString("SharedFilesPane.fileTable.popupmenu.removeSelectedFiles"));
+		uploadSelectedFilesAction
+				.setText(language.getString("SharedFilesPane.fileTable.popupmenu.uploadSelectedFiles"));
+		propertiesAction.setText(language.getString("Common.properties"));
+	}
 
-            final List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
+	private class CopyKeysAndNamesAction extends BaseAction {
 
-            if( selectedItems.size() == 0 ) {
-                return;
-            }
+		private static final long serialVersionUID = 1L;
 
-            // if all selected items are valid, then show long menu
-            boolean allValid = true;
-            for( final FrostSharedFileItem sfItem : selectedItems ) {
-                if( !sfItem.isValid() ) {
-                    allValid = false;
-                    break;
-                }
-            }
-            if( allValid ) {
-                add(copyToClipboardMenu);
-                addSeparator();
-                add(removeSelectedFilesItem);
-                addSeparator();
-                add(uploadSelectedFilesItem);
-                addSeparator();
-                add(propertiesItem);
-            } else {
-                // we have either valid+invalid items selected, or multiple invalid items
-                // allow removal
-                add(removeSelectedFilesItem);
-            }
-            super.show(invoker, x, y);
-        }
-    }
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyKeysAndFilenames(modelTable.getSelectedItems());
+		}
+	}
 
-    private class Listener
-        extends MouseAdapter
-        implements LanguageListener, KeyListener, ActionListener, MouseListener, PropertyChangeListener {
+	private class CopyExtendedInfoAction extends BaseAction {
 
-        public Listener() {
-            super();
-        }
-        public void languageChanged(final LanguageEvent event) {
-            refreshLanguage();
-        }
-        public void keyPressed(final KeyEvent e) {
-            if (e.getSource() == modelTable.getTable()) {
-                uploadTable_keyPressed(e);
-            }
-        }
-        public void keyReleased(final KeyEvent e) {
-            // Nothing here
-        }
-        public void keyTyped(final KeyEvent e) {
-            // Nothing here
-        }
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == addSharedFilesButton) {
-                uploadAddFilesButton_actionPerformed(e);
-            }
-        }
-        @Override
-        public void mousePressed(final MouseEvent e) {
-            if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1 ) {
-                if (e.getSource() == modelTable.getTable()) {
-                    // Start file from download table. Is this a good idea?
-                    showProperties();
-                }
-            } else if (e.isPopupTrigger()) {
-                if ((e.getSource() == modelTable.getTable())
-                    || (e.getSource() == modelTable.getScrollPane())) {
-                    showUploadTablePopupMenu(e);
-                }
-            }
-        }
-        @Override
-        public void mouseReleased(final MouseEvent e) {
-            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-                if ((e.getSource() == modelTable.getTable())
-                    || (e.getSource() == modelTable.getScrollPane())) {
-                    showUploadTablePopupMenu(e);
-                }
-            }
-        }
-        public void propertyChange(final PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
-                fontChanged();
-            }
-            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
-                fontChanged();
-            }
-            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
-                fontChanged();
-            }
-        }
-    }
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			ClipboardUtil.copyExtendedInfo(modelTable.getSelectedItems());
+		}
+	}
+
+	private class RemoveSelectedFilesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
+			model.removeItems(selectedItems);
+			modelTable.getTable().clearSelection();
+
+			// currently running upload items are removed during next startup
+
+			// notify list upload thread that user changed something
+			FileListUploadThread.getInstance().userActionOccured();
+		}
+	}
+
+	private class UploadSelectedFilesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			model.requestItems(modelTable.getSelectedItems());
+		}
+	}
+
+	private class PropertiesAction extends BaseAction {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<FrostSharedFileItem> selectedItems = modelTable.getSelectedItems();
+
+			List<FrostSharedFileItem> items = new LinkedList<FrostSharedFileItem>();
+			for (FrostSharedFileItem item : selectedItems) {
+				items.add(item);
+			}
+			FrostSharedFileItem defaultItem = items.get(0);
+			SharedFilesPropertiesDialog dlg = new SharedFilesPropertiesDialog(MainFrame.getInstance());
+
+			String singleFilename = null;
+			int fileCount = 0;
+
+			if (items.size() == 1) {
+				singleFilename = defaultItem.getFile().getName();
+			} else {
+				fileCount = items.size();
+			}
+
+			boolean okClicked = dlg.startDialog(singleFilename, fileCount, defaultItem);
+			if (!okClicked) {
+				return;
+			}
+
+			for (FrostSharedFileItem item : items) {
+				// check if item was really changed, calling a setter will mark the item changed
+				String oldStr, newStr;
+
+				oldStr = item.getComment();
+				newStr = dlg.getComment();
+				if (!stringsEqual(oldStr, newStr)) {
+					item.setComment(dlg.getComment());
+				}
+
+				oldStr = item.getKeywords();
+				newStr = dlg.getKeywords();
+				if (!stringsEqual(oldStr, newStr)) {
+					item.setKeywords(dlg.getKeywords());
+				}
+
+				if (item.getRating() != dlg.getRating()) {
+					item.setRating(dlg.getRating());
+				}
+			}
+		}
+	}
+
+	private class PopupMenu extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		public PopupMenu() {
+			copyToClipboardMenu.add(copyKeysAndNamesAction);
+			copyToClipboardMenu.add(copyExtendedInfoAction);
+			add(copyToClipboardMenu);
+			addSeparator();
+			add(removeSelectedFilesAction);
+			addSeparator();
+			add(uploadSelectedFilesAction);
+			addSeparator();
+			add(propertiesAction);
+		}
+	}
 }
