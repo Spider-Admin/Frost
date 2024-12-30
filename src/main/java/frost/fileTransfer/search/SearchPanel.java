@@ -366,11 +366,11 @@ public class SearchPanel extends JPanel implements LanguageListener {
                 } else if (c instanceof Filler) {
                     // count width of all rigid areas, but not the width of the glue!
                     if (((Filler)c).getMaximumSize().getWidth() != Short.MAX_VALUE) {
-                        nonJtextfieldComponentsWidth += c.getMaximumSize().getWidth();
+						nonJtextfieldComponentsWidth += Double.valueOf(c.getMaximumSize().getWidth()).intValue();
                     }
                 } else {
-                    // count width of all other components
-                    nonJtextfieldComponentsWidth += c.getMaximumSize().getWidth();
+					// count width of all other components
+					nonJtextfieldComponentsWidth += Double.valueOf(c.getMaximumSize().getWidth()).intValue();
                 }
             }
 
