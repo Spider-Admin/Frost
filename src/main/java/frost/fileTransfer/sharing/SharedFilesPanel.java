@@ -81,13 +81,13 @@ public class SharedFilesPanel extends JPanel implements LanguageListener, Simple
 	private PropertiesAction propertiesAction;
 	private PopupMenu popupMenu;
 
-	private Listener listener = new Listener();
+	private transient Listener listener = new Listener();
 
-    private SharedFilesModel model = null;
+	private transient SharedFilesModel model;
 
-    private FileTransferManager fileTransferManager;
-    
-    private Language language = null;
+	private transient FileTransferManager fileTransferManager;
+
+	private transient Language language;
 
     private final JToolBar sharedFilesToolBar = new JToolBar();
     private final JButton addSharedFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-open.png"));
