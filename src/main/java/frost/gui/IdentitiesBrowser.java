@@ -92,7 +92,7 @@ public class IdentitiesBrowser extends JDialog implements SimplePopupMenuListene
 
 	private static final Logger logger =  LoggerFactory.getLogger(IdentitiesBrowser.class);
 
-	private Language language = null;
+	private transient Language language;
 
 	private JPanel contentPane = null;
 	private JScrollPane identitiesScrollPane = null;
@@ -110,7 +110,7 @@ public class IdentitiesBrowser extends JDialog implements SimplePopupMenuListene
 
 	private final JFrame parent;
 
-	private List<InnerTableMember> allTableMembers;
+	private transient List<InnerTableMember> allTableMembers;
 
 	private final boolean showColoredLines;
 
@@ -122,7 +122,7 @@ public class IdentitiesBrowser extends JDialog implements SimplePopupMenuListene
 
 	private final long minCleanupTime;
 
-	private ProgressMonitor progressMonitor;
+	private transient ProgressMonitor progressMonitor;
 
 	private JTextField lookupTextField = null;
 
