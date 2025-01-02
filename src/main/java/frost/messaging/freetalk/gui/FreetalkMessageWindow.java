@@ -57,11 +57,11 @@ public class FreetalkMessageWindow extends JFrame {
     private FreetalkMessageTextPane messageTextPane;
     private MessageWindowTopPanel topPanel;
 
-    private Listener listener;
+	private transient Listener listener;
 
-    private final Language language = Language.getInstance();
+	private transient Language language = Language.getInstance();
 
-    private SearchMessagesConfig searchMessagesConfig = null;
+	private transient SearchMessagesConfig searchMessagesConfig;
 
     private final boolean showReplyButton;
 

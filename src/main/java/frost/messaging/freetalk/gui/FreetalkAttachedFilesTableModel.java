@@ -39,8 +39,8 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
 
 	private static final long serialVersionUID = 1L;
 
-	private Language language = null;
-    NumberFormat numberFormat = NumberFormat.getInstance();
+	private transient Language language;
+	private NumberFormat numberFormat = NumberFormat.getInstance();
 
     protected final static String columnNames[] = new String[3];
 

@@ -83,7 +83,7 @@ public class FreetalkMessageTextPane extends JPanel {
 
 	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageTextPane.class);
 
-    private final Language language = Language.getInstance();
+	private transient Language language = Language.getInstance();
 
     private AntialiasedTextPane messageTextArea = null;
     private JSplitPane messageSplitPane = null;
@@ -103,13 +103,13 @@ public class FreetalkMessageTextPane extends JPanel {
 
     private final Component parentFrame;
 
-    private PropertyChangeListener propertyChangeListener;
+	private transient PropertyChangeListener propertyChangeListener;
 
-    private SearchMessagesConfig searchMessagesConfig = null;
-    private TextHighlighter textHighlighter = null;
+	private transient SearchMessagesConfig searchMessagesConfig;
+	private transient TextHighlighter textHighlighter;
     private static Color highlightColor = new Color(0x20, 0xFF, 0x20); // light green
     private static Color idLineHighlightColor = Color.LIGHT_GRAY;
-    private final TextHighlighter idLineTextHighlighter = new TextHighlighter(idLineHighlightColor);
+	private transient TextHighlighter idLineTextHighlighter = new TextHighlighter(idLineHighlightColor);
 
     public FreetalkMessageTextPane(final Component parentFrame) {
         this(parentFrame, null);
@@ -579,7 +579,7 @@ public class FreetalkMessageTextPane extends JPanel {
         private final JMenuItem downloadAllFiles = new JMenuItem();
 
         private String clickedKey = null;
-        private List<String> allKeys = null;
+		private transient List<String> allKeys;
 
         public PopupMenuHyperLink() {
             super();

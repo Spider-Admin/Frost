@@ -111,9 +111,9 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 
 	private static final Logger logger = LoggerFactory.getLogger(FreetalkMessageFrame.class);
 
-    private final Language language;
+	private transient Language language;
 
-    private final Listener listener = new Listener();
+	private transient Listener listener = new Listener();
 
     private boolean initialized = false;
 
@@ -121,7 +121,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 
     private FreetalkBoard board;
     private String repliedMsgId;
-    private final SettingsClass frostSettings;
+	private transient SettingsClass frostSettings;
 
     private MFAttachedFilesTable filesTable;
     private MFAttachedFilesTableModel filesTableModel;
@@ -150,7 +150,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
     private final JButton BchooseSmiley = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/face-smile.png"));
 
     private final AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
-    private ImmutableArea headerArea = null;
+	private transient ImmutableArea headerArea;
 //    private TextHighlighter textHighlighter = null;
     private String oldSender = null;
     private String currentSignature = null;
@@ -1199,7 +1199,7 @@ public class FreetalkMessageFrame extends JFrame implements AltEditCallbackInter
 
 		private static final long serialVersionUID = 1L;
 
-        private Clipboard clipboard;
+		private transient Clipboard clipboard;
 
         private final JTextComponent sourceTextComponent;
 

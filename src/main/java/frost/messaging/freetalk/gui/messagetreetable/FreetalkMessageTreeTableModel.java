@@ -68,7 +68,7 @@ public class FreetalkMessageTreeTableModel extends DefaultTreeModel implements F
 
 	private static final long serialVersionUID = 1L;
 
-    private Language language = null;
+	private transient Language language;
 
     public final static int COLUMN_INDEX_FLAGGED = 0;
     public final static int COLUMN_INDEX_STARRED = 1;

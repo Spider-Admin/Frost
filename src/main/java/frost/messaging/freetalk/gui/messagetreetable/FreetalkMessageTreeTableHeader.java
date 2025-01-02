@@ -43,7 +43,7 @@ public class FreetalkMessageTreeTableHeader extends JTableHeader {
     private static Icon ascendingIcon = MiscToolkit.loadImageIcon("/data/SortedTable_ascending.png");
     private static Icon descendingIcon = MiscToolkit.loadImageIcon("/data/SortedTable_descending.png");
 
-    private final ArrowRenderer arrowRenderer = new ArrowRenderer();
+	private transient ArrowRenderer arrowRenderer = new ArrowRenderer();
 
     public FreetalkMessageTreeTableHeader(final FreetalkMessageTreeTable t) {
         super(t.getColumnModel());

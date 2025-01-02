@@ -72,9 +72,9 @@ public class FreetalkTreeTableModelAdapter extends AbstractTableModel {
 
 	private static final Logger logger =  LoggerFactory.getLogger(FreetalkTreeTableModelAdapter.class);
 
-    final JTree tree;
-    final FreetalkMessageTreeTable treeTable;
-    final FreetalkTreeTableModel treeTableModel;
+	private JTree tree;
+	private FreetalkMessageTreeTable treeTable;
+	private transient FreetalkTreeTableModel treeTableModel;
 
     private int collapsedToRow = -1;
 
