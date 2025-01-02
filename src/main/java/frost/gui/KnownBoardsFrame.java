@@ -79,7 +79,7 @@ public class KnownBoardsFrame extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-    private final Language language;
+	private transient Language language;
 
     private final TofTree tofTree;
 
@@ -106,7 +106,7 @@ public class KnownBoardsFrame extends JDialog {
 	private TablePopupMenu tablePopupMenu;
 
     // a list of all boards, needed as data source when we filter in the table
-    private List<KnownBoardsTableMember> allKnownBoardsList;
+	private transient List<KnownBoardsTableMember> allKnownBoardsList;
 
     private final boolean showColoredLines;
 
@@ -708,7 +708,7 @@ public class KnownBoardsFrame extends JDialog {
 
 		private static final long serialVersionUID = 1L;
 
-        private Language language = null;
+		private transient Language language;
 
         protected final static String columnNames[] = new String[4];
 
