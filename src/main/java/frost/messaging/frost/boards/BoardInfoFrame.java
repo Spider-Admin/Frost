@@ -88,10 +88,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener,
 	}
 
     private MainFrame mainFrame;
-    private TofTree tofTree = null;
+	private TofTree tofTree;
     private static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
-    private Language language = null;
-    private final Listener listener = new Listener();
+	private transient Language language;
+	private transient Listener listener = new Listener();
 
     private final JPanel mainPanel = new JPanel(new BorderLayout());
     private final JPanel boardTablePanel = new JPanel(new BorderLayout());
@@ -433,7 +433,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener,
 
 		private static final long serialVersionUID = 1L;
 
-        private Language language = null;
+		private transient Language language;
 
         protected final static String columnNames[] = new String[8];
 
@@ -498,9 +498,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener,
 
 		private static final long serialVersionUID = 1L;
 
-        final Font boldFont;
-        final Font origFont;
-        final Border border;
+		private Font boldFont;
+		private Font origFont;
+		private transient Border border;
 
         public BoardInfoTableCellRenderer(final int horizontalAlignment) {
             super();
