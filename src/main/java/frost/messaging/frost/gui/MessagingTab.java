@@ -70,11 +70,6 @@ import frost.util.gui.translation.Language;
 import frost.util.gui.translation.LanguageEvent;
 import frost.util.gui.translation.LanguageListener;
 
-/**
- *
- * @author $Author: $
- * @version $Revision: $
- */
 public class MessagingTab extends JPanel implements LanguageListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(MessagingTab.class);
@@ -119,13 +114,10 @@ public class MessagingTab extends JPanel implements LanguageListener {
     private SearchMessagesDialog searchMessagesDialog = null;
 
     private final MainFrame mainFrame;
-    private final Language language;
+	private transient Language language;
 
     String forceSelectMessageId = null;
 
-    /**
-     * @param mainFrame
-     */
     public MessagingTab(final MainFrame mainFrame) {
         this.mainFrame = mainFrame;
 
