@@ -99,11 +99,11 @@ public class UploadPanel extends JPanel implements LanguageListener, SimplePopup
 	private OpenFileAction openFileAction;
 	private PopupMenuUpload popupMenuUpload;
 
-    private final Listener listener = new Listener();
+	private transient Listener listener = new Listener();
 
-    private UploadModel model = null;
+	private transient UploadModel model;
 
-    private Language language = null;
+	private transient Language language;
 
     private final JToolBar uploadToolBar = new JToolBar();
     private final JButton uploadAddFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-open.png"));
