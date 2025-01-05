@@ -74,8 +74,8 @@ public class ManageTrackedDownloads extends JDialog implements SimplePopupMenuLi
 
 	private static final long serialVersionUID = 1L;
 
-    private final Language language;
-	private final TrackDownloadKeysStorage trackDownloadKeysStorage;
+	private transient final Language language;
+	private transient final TrackDownloadKeysStorage trackDownloadKeysStorage;
 
 	private TrackedDownloadsModel trackedDownloadsModel;
 	private TrackedDownloadsTable trackedDownloadsTable;
@@ -248,7 +248,7 @@ public class ManageTrackedDownloads extends JDialog implements SimplePopupMenuLi
 
 		private static final long serialVersionUID = 1L;
 
-		private Language language = null;
+		private transient Language language;
 
 		protected final static String columnNames[] = new String[5];
 
@@ -330,9 +330,10 @@ public class ManageTrackedDownloads extends JDialog implements SimplePopupMenuLi
 	}
 
 	private class TrackedDownloadsTable extends SortedTable<TrackedDownloadTableMember> {
+
 		private static final long serialVersionUID = 1L;
 
-		final TableCellRenderer sizeColumnRenderer;
+		private transient final TableCellRenderer sizeColumnRenderer;
 
 		public TrackedDownloadsTable(final TrackedDownloadsModel trackDownloadsModel) {
 			super(trackDownloadsModel);
