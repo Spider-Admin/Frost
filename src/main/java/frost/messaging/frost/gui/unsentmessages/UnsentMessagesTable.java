@@ -48,13 +48,13 @@ public class UnsentMessagesTable extends SortedModelTable<UnsentMessagesTableIte
 
 	private static final long serialVersionUID = 1L;
 
-    private final UnsentMessagesTableModel tableModel;
-    private final UnsentMessagesTableFormat tableFormat;
+	private transient UnsentMessagesTableModel tableModel;
+	private transient UnsentMessagesTableFormat tableFormat;
 
 	private DeleteMessageAction deleteMessageAction;
 	private PopupMenu popup;
 
-    private final Language language = Language.getInstance();
+	private transient Language language = Language.getInstance();
 
     public UnsentMessagesTable() {
         this(new UnsentMessagesTableModel(new UnsentMessagesTableFormat()));
