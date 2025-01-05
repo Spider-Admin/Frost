@@ -50,7 +50,7 @@ public class SearchTable extends SortedModelTable<FrostSearchItem>
 
 	private static final long serialVersionUID = 1L;
 
-	private final SearchModel searchModel;
+	private transient SearchModel searchModel;
     private final CloseableTabbedPane tabPane;
     private final String searchText;
 
@@ -63,9 +63,9 @@ public class SearchTable extends SortedModelTable<FrostSearchItem>
 	private DetailsAction detailsAction;
 	private PopupMenuSearch popupMenuSearch;
 
-	private final Language language;
+	private transient Language language;
 
-    private final List<FrostSearchItem> searchItems = new LinkedList<FrostSearchItem>();
+	private transient List<FrostSearchItem> searchItems = new LinkedList<FrostSearchItem>();
 
 	public SearchTable(SearchModel m, CloseableTabbedPane t, String searchText) {
 		super(m);
