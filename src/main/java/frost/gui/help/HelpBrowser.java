@@ -75,7 +75,7 @@ public class HelpBrowser extends JPanel implements LanguageListener, SimplePopup
 	private CancelAction cancelAction;
 	private PopupMenuTofText popup;
 
-    private BrowserHistory browserHistory = null;
+	private transient BrowserHistory browserHistory;
 
     // Global Variables
     JFrame parent;
