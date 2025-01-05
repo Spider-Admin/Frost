@@ -57,16 +57,16 @@ public class FileListFileDetailsDialog extends JDialog implements LanguageListen
 
 	private static final long serialVersionUID = 1L;
 
-	private Language language;
+	private transient Language language;
 
     private JPanel jContentPane = null;
     private JPanel buttonPanel = null;
     private JPanel mainPanel = null;
     private JButton Bclose = null;
 
-    private SortedModelTable<FileListFileDetailsItem> modelTable = null;
-    private FileListFileDetailsTableModel model = null;
-    private FileListFileDetailsTableFormat tableFormat = null;
+	private SortedModelTable<FileListFileDetailsItem> modelTable;
+	private transient FileListFileDetailsTableModel model;
+	private transient FileListFileDetailsTableFormat tableFormat;
 
 	private CopyKeysAndNamesAction copyKeysAndNamesAction;
 	private JMenu copyToClipboardMenu;
