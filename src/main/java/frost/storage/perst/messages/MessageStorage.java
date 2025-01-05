@@ -306,11 +306,11 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 			final OffsetDateTime localDate = OffsetDateTime.now(DateFun.getTimeZone()).minusDays(maxDaysBack);
 			final long minDateTime = DateFun.toStartOfDayInMilli(localDate);
             // normal messages in date range
-            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
+            final Iterator<?> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
             // unread messages in range
-            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
+            final Iterator<?> i2 = bo.getUnreadMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
             // join all results
-            final Iterator<PerstFrostMessageObject> i = getStorage().join( new Iterator[] {i1, i2} );
+            final Iterator<?> i = getStorage().join( new Iterator<?>[] {i1, i2} );
 
             int count = 0;
 
@@ -388,10 +388,9 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return insertMessage(mo, true);
     }
 
-    /**
-     * Insert the message directly, without an enclosing transaction.
-     * @param useTransaction TODO
-     */
+	/**
+	 * Insert the message directly, without an enclosing transaction.
+	 */
     public int insertMessage(final FrostMessageObject mo, final boolean useTransaction) {
         if( useTransaction ) {
             if( !beginExclusiveThreadTransaction() ) {
@@ -616,26 +615,26 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 return;
             }
 
-            final Iterator<PerstFrostMessageObject> i;
+            final Iterator<?> i;
 
             // normal messages in date range
-            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(startDate, endDate, GenericIndex.ASCENT_ORDER);
+            final Iterator<?> i1 = bo.getMessageIndex().iterator(startDate, endDate, GenericIndex.ASCENT_ORDER);
 
             if( searchInDisplayedMessages ) {
                 // add ALL unread messages, also those which are not in date range
-                final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
+                final Iterator<?> i2 = bo.getUnreadMessageIndex().iterator();
                 // add ALL flagged and starred messages, also those which are not in date range
-                final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
-                final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
+                final Iterator<?> i3 = bo.getStarredMessageIndex().iterator();
+                final Iterator<?> i4 = bo.getFlaggedMessageIndex().iterator();
 
                 // join all results
-                i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
+                i = getStorage().join(new Iterator<?>[] {i1, i2, i3, i4} );
             } else {
                 i = i1;
             }
 
             while(i.hasNext()) {
-                final PerstFrostMessageObject p = i.next();
+                final PerstFrostMessageObject p = (PerstFrostMessageObject) i.next();
                 if(!showDeleted && p.isDeleted) {
                     continue;
                 }
@@ -695,7 +694,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 return;
             }
 
-            Iterator<PerstFrostMessageObject> i;
+            Iterator<?> i;
             if( whatToShow == SHOW_UNREAD_ONLY ) {
                 // ALL new messages
                 i = bo.getUnreadMessageIndex().iterator();
@@ -705,19 +704,19 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 i = bo.getStarredMessageIndex().iterator();
             } else {
                 // normal messages in date range
-                final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
+                final Iterator<?> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, GenericIndex.ASCENT_ORDER);
                 // add ALL unread messages, also those which are not in date range
-                final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
+                final Iterator<?> i2 = bo.getUnreadMessageIndex().iterator();
                 // add ALL flagged and starred messages, also those which are not in date range
-                final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
-                final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
+                final Iterator<?> i3 = bo.getStarredMessageIndex().iterator();
+                final Iterator<?> i4 = bo.getFlaggedMessageIndex().iterator();
 
                 // join all results
-                i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
+                i = getStorage().join(new Iterator<?>[] {i1, i2, i3, i4} );
             }
 
             while(i.hasNext()) {
-                final PerstFrostMessageObject p = i.next();
+                final PerstFrostMessageObject p = (PerstFrostMessageObject) i.next();
                 if(!showDeleted && p.isDeleted) {
                     continue;
                 }
@@ -875,10 +874,9 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return insertSentMessage(sentMo, true);
     }
 
-    /**
-     * Insert the message directly, without an enclosing transaction.
-     * @param useTransaction TODO
-     */
+	/**
+	 * Insert the message directly, without an enclosing transaction.
+	 */
     public boolean insertSentMessage(final FrostMessageObject sentMo, final boolean useTransaction) {
         if( useTransaction ) {
             if( !beginExclusiveThreadTransaction() ) {
