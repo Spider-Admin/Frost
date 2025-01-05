@@ -116,7 +116,7 @@ public class MessageFrame extends JFrame
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageFrame.class);
 
-    private final Language language;
+	private transient Language language;
 
     private boolean initialized = false;
 
@@ -124,7 +124,7 @@ public class MessageFrame extends JFrame
 
     private Board board;
     private String repliedMsgId;
-    private final SettingsClass frostSettings;
+	private transient SettingsClass frostSettings;
 
     private MFAttachedBoardsTable boardsTable;
     private MFAttachedFilesTable filesTable;
@@ -165,7 +165,7 @@ public class MessageFrame extends JFrame
     private final JButton BchooseSmiley = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/face-smile.png"));
 
     private final AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
-    private ImmutableArea headerArea = null;
+	private transient ImmutableArea headerArea;
 //    private TextHighlighter textHighlighter = null;
     private String oldSender = null;
     private String currentSignature = null;
