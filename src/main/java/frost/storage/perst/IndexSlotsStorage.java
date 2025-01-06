@@ -1,5 +1,5 @@
 /*
-  GlobalIndexSlotsStorage.java / Frost
+  IndexSlotsStorage.java / Frost
   Copyright (C) 2007  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -82,9 +82,9 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
             // Storage was not initialized yet
             storageRoot = new IndexSlotsStorageRoot();
             // unique compound index of indexName and msgDate
-            storageRoot.slotsIndexIL = getStorage().createIndex(new Class[] { Integer.class, Long.class }, true);
+            storageRoot.slotsIndexIL = getStorage().createIndex(new Class<?>[] { Integer.class, Long.class }, true);
             // index for cleanup
-            storageRoot.slotsIndexLI = getStorage().createIndex(new Class[] { Long.class, Integer.class }, true);
+            storageRoot.slotsIndexLI = getStorage().createIndex(new Class<?>[] { Long.class, Integer.class }, true);
             getStorage().setRoot(storageRoot);
             commit(); // commit transaction
         }
