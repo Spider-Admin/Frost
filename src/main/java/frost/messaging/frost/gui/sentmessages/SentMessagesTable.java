@@ -47,13 +47,13 @@ public class SentMessagesTable extends SortedModelTable<SentMessagesTableItem>
 
 	private static final long serialVersionUID = 1L;
 
-    private final SentMessagesTableModel tableModel;
-    private final SentMessagesTableFormat tableFormat;
+	private transient SentMessagesTableModel tableModel;
+	private transient SentMessagesTableFormat tableFormat;
 
 	private DeleteMessageAction deleteMessageAction;
 	private PopupMenu popup;
 
-    private final Language language = Language.getInstance();
+	private transient Language language = Language.getInstance();
 
     public SentMessagesTable() {
         this(new SentMessagesTableModel(new SentMessagesTableFormat()));
