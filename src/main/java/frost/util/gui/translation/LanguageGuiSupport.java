@@ -25,11 +25,11 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 
 import frost.Core;
@@ -46,10 +46,10 @@ public class LanguageGuiSupport {
 
     private final Language language = Language.getInstance();
 
-    private static List<Locale> buildInLocales = null;
+	private static List<Locale> buildInLocales;
 
-    private final List<JRadioButtonMenuItem> buildinLanguageMenuItemsList;
-    private final HashMap<String,JRadioButtonMenuItem> buildinLanguageMenuItemsMap;
+	private final List<JRadioButtonMenuItem> buildinLanguageMenuItemsList;
+	private final Map<String, JRadioButtonMenuItem> buildinLanguageMenuItemsMap;
     private final JRadioButtonMenuItem languageDefaultMenuItem;
     private final JRadioButtonMenuItem languageBulgarianMenuItem;
     private final JRadioButtonMenuItem languageDutchMenuItem;
@@ -117,7 +117,7 @@ public class LanguageGuiSupport {
         languageSwedishMenuItem.addActionListener(   new LanguageAction("sv", false));
         languageEsperantoMenuItem.addActionListener( new LanguageAction("eo", false));
 
-        buildinLanguageMenuItemsList = new ArrayList<JRadioButtonMenuItem>();
+		buildinLanguageMenuItemsList = new ArrayList<>();
         buildinLanguageMenuItemsList.add(languageDefaultMenuItem);
         buildinLanguageMenuItemsList.add(languageBulgarianMenuItem);
         buildinLanguageMenuItemsList.add(languageDanishMenuItem);
@@ -133,7 +133,7 @@ public class LanguageGuiSupport {
         buildinLanguageMenuItemsList.add(languageSwedishMenuItem);
         buildinLanguageMenuItemsList.add(languageEsperantoMenuItem);
 
-        buildinLanguageMenuItemsMap = new HashMap<String,JRadioButtonMenuItem>();
+		buildinLanguageMenuItemsMap = new HashMap<>();
         buildinLanguageMenuItemsMap.put("default", languageDefaultMenuItem);
         buildinLanguageMenuItemsMap.put("da", languageDanishMenuItem);
         buildinLanguageMenuItemsMap.put("de", languageGermanMenuItem);
@@ -169,7 +169,7 @@ public class LanguageGuiSupport {
     public void updateLanguageMenu() {
         // clear all
         languageMenu.removeAll();
-        final List<AbstractButton> l = new ArrayList<AbstractButton>();
+		final List<AbstractButton> l = new ArrayList<>();
         for(final Enumeration<AbstractButton> e=languageMenuButtonGroup.getElements();e.hasMoreElements(); ) {
             l.add( e.nextElement() );
         }
@@ -214,7 +214,7 @@ public class LanguageGuiSupport {
         languageMenu.add(languageSpanishMenuItem);
         languageMenu.add(languageSwedishMenuItem);
 
-        final List<Locale> externalLocales = Language.getExternalLocales();
+		final List<Locale> externalLocales = Language.getExternalLocales();
         if( externalLocales.size() > 0 ) {
             languageMenu.addSeparator();
 
@@ -234,9 +234,9 @@ public class LanguageGuiSupport {
 
         if( anItemIsSelected == false && isExternal == false ) {
             // select buildin item
-            final Object languageItem = buildinLanguageMenuItemsMap.get(configuredLang);
+			JRadioButtonMenuItem languageItem = buildinLanguageMenuItemsMap.get(configuredLang);
             if (languageItem != null) {
-                languageMenuButtonGroup.setSelected(((JMenuItem) languageItem).getModel(), true);
+				languageMenuButtonGroup.setSelected(languageItem.getModel(), true);
                 anItemIsSelected = true;
             }
         }
@@ -282,7 +282,7 @@ public class LanguageGuiSupport {
 
 	public static List<Locale> getBuildInLocales() {
 		if (buildInLocales == null) {
-			final ArrayList<Locale> lst = new ArrayList<>();
+			final List<Locale> lst = new ArrayList<>();
 			lst.add(Locale.forLanguageTag("bg"));
 			lst.add(Locale.forLanguageTag("da"));
 			lst.add(Locale.forLanguageTag("de"));
@@ -301,13 +301,16 @@ public class LanguageGuiSupport {
 		return buildInLocales;
 	}
 
-    class LanguageAction implements ActionListener {
-        String langCode;
-        boolean isExternal;
+	private class LanguageAction implements ActionListener {
+
+		private String langCode;
+		private boolean isExternal;
+
         public LanguageAction(final String langCode, final boolean isExternal) {
             this.langCode = langCode;
             this.isExternal = isExternal;
         }
+
         public void actionPerformed(final ActionEvent e) {
             setLanguageResource(langCode, isExternal);
         }
