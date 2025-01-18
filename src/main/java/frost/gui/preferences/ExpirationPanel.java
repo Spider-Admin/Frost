@@ -36,11 +36,12 @@ import frost.SettingsClass;
 import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
-@SuppressWarnings("serial")
-class ExpirationPanel extends JPanel {
+public class ExpirationPanel extends JPanel {
 
-    private SettingsClass settings = null;
-    private Language language = null;
+	private static final long serialVersionUID = 1L;
+
+	private transient SettingsClass settings;
+	private transient Language language;
 
     private final JLabel LcleanupIntervalDays = new JLabel();
     private final JTextField TfCleanupIntervalDays = new JTextField(8);
