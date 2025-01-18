@@ -104,24 +104,20 @@ import frost.util.gui.translation.LanguageGuiSupport;
 import frost.util.gui.translation.LanguageListener;
 import frost.util.translate.TranslationStartDialog;
 
-/**
- *
- * @author $Author: $
- * @version $Revision: $
- */
-@SuppressWarnings("serial")
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
 
     private final ImageIcon frameIconDefault = MiscToolkit.loadImageIcon("/data/jtc.jpg");
     private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
 
-    private MessagingTab messagingTab = null;
-    private FreetalkMessageTab freetalkMessageTab = null;
+	private MessagingTab messagingTab;
+	private transient FreetalkMessageTab freetalkMessageTab;
 
-    private HelpBrowserFrame helpBrowser = null;
-    private MemoryMonitor memoryMonitor = null;
+	private HelpBrowserFrame helpBrowser;
+	private MemoryMonitor memoryMonitor;
 
     private long todaysDateMillis = 0;
 
@@ -131,7 +127,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     private long counter = 55;
 
-    private static java.util.List<StartupMessage> queuedStartupMessages = new LinkedList<StartupMessage>();
+	private static List<StartupMessage> queuedStartupMessages = new LinkedList<>();
 
     //File Menu
     private final JMenu fileMenu = new JMenu();
@@ -148,7 +144,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     //Language Menu
     private final JMenu languageMenu = new JMenu();
 
-    private final Language language;
+	private final transient Language language;
 
     // The main menu
     private JMenuBar menuBar;
@@ -174,9 +170,9 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     private final JMenu tofMenu = new JMenu();
 
-    private GlassPane glassPane = null;
+	private GlassPane glassPane;
 
-    private final List<JRadioButtonMenuItem> lookAndFeels = new ArrayList<JRadioButtonMenuItem>();
+	private final transient List<JRadioButtonMenuItem> lookAndFeels = new ArrayList<>();
 
     public MainFrame(final SettingsClass settings, final String title) {
 
@@ -690,7 +686,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             public void run() {
                 while (true) {
                     Mixed.wait(1000);
-                    // TODO: refactor this method in Core. lots of work :)
+                    // TODO: Refactor this method in Core. lots of work :)
                     timer_actionPerformed();
                 }
             }
@@ -1063,9 +1059,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         queuedStartupMessages = null;
     }
 
-    /**
-     * @return
-     */
     public MessagingTab getMessagingTab() {
         if (messagingTab == null) {
             messagingTab = new MessagingTab(this);
@@ -1073,9 +1066,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         return messagingTab;
     }
 
-    /**
-     * @return
-     */
     public FreetalkMessageTab getFreetalkMessageTab() {
         if (freetalkMessageTab == null) {
             freetalkMessageTab = new FreetalkMessageTab(this);
