@@ -23,6 +23,9 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -36,10 +39,11 @@ import frost.Core;
 import frost.identities.LocalIdentity;
 import frost.util.gui.translation.Language;
 
-@SuppressWarnings("serial")
 public class SharedFilesOwnerDialog extends JDialog {
 
-    public static int OK = 1;
+	private static final long serialVersionUID = 1L;
+
+	public static int OK = 1;
     public static int CANCEL = 2;
 
     private final String title;
@@ -64,11 +68,8 @@ public class SharedFilesOwnerDialog extends JDialog {
     private final Frame parent;
     private boolean replacePathIfFileExists = false;
 
-    private final Language language = Language.getInstance();
+	private final transient Language language = Language.getInstance();
 
-    /**
-     * This is the default constructor
-     */
     public SharedFilesOwnerDialog(final Frame newParent, final String newTitle) {
         super(newParent);
         title = newTitle;
@@ -93,14 +94,14 @@ public class SharedFilesOwnerDialog extends JDialog {
     /**
      * This method initializes jContentPane
      *
-     * @return javax.swing.JPanel
+     * @return JPanel
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
             jContentPane = new JPanel();
             jContentPane.setLayout(new BorderLayout());
-            jContentPane.add(getButtonPanel(), java.awt.BorderLayout.SOUTH);
-            jContentPane.add(getMainPanel(), java.awt.BorderLayout.CENTER);
+            jContentPane.add(getButtonPanel(), BorderLayout.SOUTH);
+            jContentPane.add(getMainPanel(), BorderLayout.CENTER);
         }
         return jContentPane;
     }
@@ -108,12 +109,12 @@ public class SharedFilesOwnerDialog extends JDialog {
     /**
      * This method initializes buttonPanel
      *
-     * @return javax.swing.JPanel
+     * @return JPanel
      */
     private JPanel getButtonPanel() {
         if( buttonPanel == null ) {
             final FlowLayout flowLayout = new FlowLayout();
-            flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
+            flowLayout.setAlignment(FlowLayout.RIGHT);
             buttonPanel = new JPanel();
             buttonPanel.setLayout(flowLayout);
             buttonPanel.add(getBok(), null);
@@ -125,7 +126,7 @@ public class SharedFilesOwnerDialog extends JDialog {
     /**
      * This method initializes mainPanel
      *
-     * @return javax.swing.JPanel
+     * @return JPanel
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
@@ -141,9 +142,9 @@ public class SharedFilesOwnerDialog extends JDialog {
                 final GridBagConstraints gridBagConstraints = new GridBagConstraints();
                 gridBagConstraints.gridy = 0;
                 gridBagConstraints.gridx = 0;
-                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-                gridBagConstraints.insets = new java.awt.Insets(5,5,5,5);
-                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+                gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+                gridBagConstraints.insets = new Insets(5,5,5,5);
+                gridBagConstraints.fill = GridBagConstraints.NONE;
 
                 mainPanel.add(LaskForIdentity, gridBagConstraints);
             }
@@ -152,9 +153,9 @@ public class SharedFilesOwnerDialog extends JDialog {
                 gridBagConstraints.gridx = 0;
                 gridBagConstraints.gridy = 1;
                 gridBagConstraints.weightx = 1.0;
-                gridBagConstraints.insets = new java.awt.Insets(2,20,10,5);
-                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+                gridBagConstraints.insets = new Insets(2,20,10,5);
+                gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+                gridBagConstraints.fill = GridBagConstraints.NONE;
 
                 mainPanel.add(getCBidentities(), gridBagConstraints);
             }
@@ -162,9 +163,9 @@ public class SharedFilesOwnerDialog extends JDialog {
                 final GridBagConstraints gridBagConstraints = new GridBagConstraints();
                 gridBagConstraints.gridx = 0;
                 gridBagConstraints.gridy = 2;
-                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-                gridBagConstraints.insets = new java.awt.Insets(5,5,5,5);
-                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+                gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+                gridBagConstraints.insets = new Insets(5,5,5,5);
+                gridBagConstraints.fill = GridBagConstraints.NONE;
 
                 mainPanel.add(LaskIfToReplace, gridBagConstraints);
             }
@@ -173,13 +174,13 @@ public class SharedFilesOwnerDialog extends JDialog {
                 gridBagConstraints.gridx = 0;
                 gridBagConstraints.gridy = 3;
                 gridBagConstraints.weightx = 1.0;
-                gridBagConstraints.insets = new java.awt.Insets(2,20,0,5);
-                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+                gridBagConstraints.insets = new Insets(2,20,0,5);
+                gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+                gridBagConstraints.fill = GridBagConstraints.NONE;
 
                 mainPanel.add(RBignoreExistingFile, gridBagConstraints);
                 gridBagConstraints.gridy = 4;
-                gridBagConstraints.insets = new java.awt.Insets(2,20,10,5);
+                gridBagConstraints.insets = new Insets(2,20,10,5);
                 mainPanel.add(RBreplaceExistingFilePath, gridBagConstraints);
             }
             BGaskIfToReplace = new ButtonGroup();
@@ -194,13 +195,13 @@ public class SharedFilesOwnerDialog extends JDialog {
     /**
      * This method initializes Bok
      *
-     * @return javax.swing.JButton
+     * @return JButton
      */
     private JButton getBcancel() {
         if( Bcancel == null ) {
             Bcancel = new JButton(language.getString("Common.cancel"));
-            Bcancel.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
+            Bcancel.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
                     returnCode = CANCEL;
                     setVisible(false);
                 }
@@ -212,13 +213,13 @@ public class SharedFilesOwnerDialog extends JDialog {
     /**
      * This method initializes jButton
      *
-     * @return javax.swing.JButton
+     * @return JButton
      */
     private JButton getBok() {
         if( Bok == null ) {
             Bok = new JButton(language.getString("Common.ok"));
-            Bok.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
+            Bok.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
                     returnCode = OK;
                     choosedIdentity = (String)getCBidentities().getSelectedItem();
                     replacePathIfFileExists = RBreplaceExistingFilePath.isSelected();
@@ -232,7 +233,7 @@ public class SharedFilesOwnerDialog extends JDialog {
     /**
      * This method initializes CBidentities
      *
-     * @return javax.swing.JComboBox
+     * @return JComboBox
      */
 	private JComboBox<String> getCBidentities() {
         if( CBidentities == null ) {
