@@ -20,15 +20,23 @@ package frost.util.translate;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListSelectionModel;
@@ -43,6 +51,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.EtchedBorder;
 
 import frost.MainFrame;
 import frost.util.gui.MiscToolkit;
@@ -50,15 +59,11 @@ import frost.util.gui.translation.FrostResourceBundle;
 import frost.util.gui.translation.LanguageGuiSupport;
 import frost.util.gui.translation.TranslateableFrostResourceBundle;
 
-/**
- *
- * @author $Author: $
- * @version $Revision: $
- */
-@SuppressWarnings("serial")
 public class TranslationDialog extends JFrame {
 
-    private JPanel jContentPane = null;
+	private static final long serialVersionUID = 1L;
+
+	private JPanel jContentPane = null;
     private JLabel jLabel = null;
     private JList<String> Lkeys = null;
     private JLabel Lsource = null;
@@ -80,18 +85,15 @@ public class TranslationDialog extends JFrame {
 
     private final ButtonGroup radioButtons;
 
-    private FrostResourceBundle rootBundle;
-    private FrostResourceBundle sourceBundle;
-    private String sourceLanguageName;
-    private TranslateableFrostResourceBundle targetBundle;
-    private String targetLanguageName;
+	private transient FrostResourceBundle rootBundle;
+	private transient FrostResourceBundle sourceBundle;
+	private String sourceLanguageName;
+	private transient TranslateableFrostResourceBundle targetBundle;
+	private String targetLanguageName;
 
     private final ImageIcon missingIcon;
     private final ImageIcon existingIcon;
 
-    /**
-     * This is the default constructor
-     */
     public TranslationDialog() {
         super();
         initialize();
@@ -123,64 +125,64 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes jContentPane
      *
-     * @return javax.swing.JPanel
+     * @return JPanel
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
             final GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-            gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints5.fill = GridBagConstraints.BOTH;
             gridBagConstraints5.gridy = 1;
             gridBagConstraints5.weightx = 1.0;
             gridBagConstraints5.weighty = 0.4;
-            gridBagConstraints5.insets = new java.awt.Insets(5,5,5,5);
+            gridBagConstraints5.insets = new Insets(5,5,5,5);
             gridBagConstraints5.gridx = 0;
             final GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
-            gridBagConstraints41.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints41.fill = GridBagConstraints.BOTH;
             gridBagConstraints41.gridy = 5;
             gridBagConstraints41.weightx = 1.0;
             gridBagConstraints41.weighty = 0.2;
-            gridBagConstraints41.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints41.anchor = GridBagConstraints.NORTHWEST;
             gridBagConstraints41.gridwidth = 2;
-            gridBagConstraints41.insets = new java.awt.Insets(5,5,5,5);
+            gridBagConstraints41.insets = new Insets(5,5,5,5);
             gridBagConstraints41.gridx = 0;
             final GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-            gridBagConstraints3.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints3.fill = GridBagConstraints.BOTH;
             gridBagConstraints3.gridy = 3;
             gridBagConstraints3.weightx = 1.0;
             gridBagConstraints3.weighty = 0.2;
             gridBagConstraints3.gridwidth = 2;
-            gridBagConstraints3.insets = new java.awt.Insets(5,5,5,5);
-            gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints3.insets = new Insets(5,5,5,5);
+            gridBagConstraints3.anchor = GridBagConstraints.NORTHWEST;
             gridBagConstraints3.gridx = 0;
             final GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
             gridBagConstraints7.gridx = 1;
-            gridBagConstraints7.insets = new java.awt.Insets(5,0,5,5);
-            gridBagConstraints7.fill = java.awt.GridBagConstraints.VERTICAL;
-            gridBagConstraints7.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints7.insets = new Insets(5,0,5,5);
+            gridBagConstraints7.fill = GridBagConstraints.VERTICAL;
+            gridBagConstraints7.anchor = GridBagConstraints.NORTHWEST;
             gridBagConstraints7.gridy = 1;
             final GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 0;
-            gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints6.fill = GridBagConstraints.HORIZONTAL;
             gridBagConstraints6.gridwidth = 2;
             gridBagConstraints6.gridy = 6;
             final GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 0;
-            gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints4.insets = new java.awt.Insets(5,5,0,0);
+            gridBagConstraints4.anchor = GridBagConstraints.NORTHWEST;
+            gridBagConstraints4.insets = new Insets(5,5,0,0);
             gridBagConstraints4.gridy = 4;
             Ltranslation = new JLabel();
             Ltranslation.setText("Translation");
             final GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.gridx = 0;
-            gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints2.insets = new java.awt.Insets(5,5,0,0);
+            gridBagConstraints2.anchor = GridBagConstraints.NORTHWEST;
+            gridBagConstraints2.insets = new Insets(5,5,0,0);
             gridBagConstraints2.gridy = 2;
             Lsource = new JLabel();
             Lsource.setText("Source");
             final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
-            gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints.insets = new java.awt.Insets(5,5,0,0);
+            gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
+            gridBagConstraints.insets = new Insets(5,5,0,0);
             gridBagConstraints.gridy = 0;
             jLabel = new JLabel();
             jLabel.setText("Translateable keys");
@@ -198,9 +200,6 @@ public class TranslationDialog extends JFrame {
         return jContentPane;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.JFrame#processWindowEvent(java.awt.event.WindowEvent)
-     */
     @Override
     protected void processWindowEvent(final WindowEvent e) {
         if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
@@ -212,15 +211,18 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes Lkeys
      *
-     * @return javax.swing.JList
+     * @return JList
      */
     private JList<String> getLkeys() {
         if( Lkeys == null ) {
             Lkeys = new JList<String>();
             Lkeys.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             Lkeys.setCellRenderer(new ListRenderer());
-            Lkeys.setSelectionModel(new DefaultListSelectionModel() {
-                @Override
+			Lkeys.setSelectionModel(new DefaultListSelectionModel() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
                 public void setSelectionInterval(final int index0, final int index1) {
                     final int oldIndex = getMinSelectionIndex();
                     super.setSelectionInterval(index0, index1);
@@ -242,12 +244,12 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes TAsource
      *
-     * @return javax.swing.JTextArea
+     * @return JTextArea
      */
     private JTextArea getTAsource() {
         if( TAsource == null ) {
             TAsource = new JTextArea();
-            TAsource.setPreferredSize(new java.awt.Dimension(0,16));
+            TAsource.setPreferredSize(new Dimension(0,16));
             TAsource.setLineWrap(true);
             TAsource.setEditable(false);
             TAsource.setWrapStyleWord(true);
@@ -259,12 +261,12 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes jTextArea
      *
-     * @return javax.swing.JTextArea
+     * @return JTextArea
      */
     private JTextArea getTAtranslation() {
         if( TAtranslation == null ) {
             TAtranslation = new JTextArea();
-            TAtranslation.setPreferredSize(new java.awt.Dimension(0,16));
+            TAtranslation.setPreferredSize(new Dimension(0,16));
             TAtranslation.setLineWrap(true);
             TAtranslation.setWrapStyleWord(true);
         }
@@ -274,12 +276,12 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes Pbuttons
      *
-     * @return javax.swing.JPanel
+     * @return JPanel
      */
     private JPanel getPbuttons() {
         if( Pbuttons == null ) {
             final FlowLayout flowLayout = new FlowLayout();
-            flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
+            flowLayout.setAlignment(FlowLayout.RIGHT);
             Pbuttons = new JPanel();
             Pbuttons.setLayout(flowLayout);
             Pbuttons.add(getBsave(), null);
@@ -291,42 +293,42 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes jPanel
      *
-     * @return javax.swing.JPanel
+     * @return JPanel
      */
     private JPanel getJPanel() {
         if( jPanel == null ) {
             final GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
             gridBagConstraints12.gridx = 0;
-            gridBagConstraints12.insets = new java.awt.Insets(0,5,5,5);
-            gridBagConstraints12.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints12.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints12.insets = new Insets(0,5,5,5);
+            gridBagConstraints12.fill = GridBagConstraints.HORIZONTAL;
+            gridBagConstraints12.anchor = GridBagConstraints.NORTHWEST;
             gridBagConstraints12.gridy = 1;
             final GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
             gridBagConstraints11.gridy = 2;
-            gridBagConstraints11.insets = new java.awt.Insets(0,5,0,5);
-            gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints11.insets = new Insets(0,5,0,5);
+            gridBagConstraints11.anchor = GridBagConstraints.NORTHWEST;
+            gridBagConstraints11.fill = GridBagConstraints.HORIZONTAL;
             final GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
             gridBagConstraints10.gridx = 0;
-            gridBagConstraints10.insets = new java.awt.Insets(5,5,5,5);
-            gridBagConstraints10.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints10.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints10.insets = new Insets(5,5,5,5);
+            gridBagConstraints10.fill = GridBagConstraints.HORIZONTAL;
+            gridBagConstraints10.anchor = GridBagConstraints.NORTHWEST;
             gridBagConstraints10.gridy = 0;
             final GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
             gridBagConstraints9.gridx = 0;
-            gridBagConstraints9.insets = new java.awt.Insets(0,5,0,5);
-            gridBagConstraints9.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints9.insets = new Insets(0,5,0,5);
+            gridBagConstraints9.anchor = GridBagConstraints.NORTHWEST;
             gridBagConstraints9.weighty = 1.0;
-            gridBagConstraints9.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints9.fill = GridBagConstraints.NONE;
             gridBagConstraints9.gridy = 4;
             final GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
             gridBagConstraints8.gridx = 0;
-            gridBagConstraints8.insets = new java.awt.Insets(5,5,0,5);
-            gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints8.insets = new Insets(5,5,0,5);
+            gridBagConstraints8.anchor = GridBagConstraints.NORTHWEST;
             gridBagConstraints8.gridy = 3;
             jPanel = new JPanel();
             jPanel.setLayout(new GridBagLayout());
-            jPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED));
+            jPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
             jPanel.add(getBdeleteKey(), gridBagConstraints11);
             jPanel.add(getRBshowAll(), gridBagConstraints8);
             jPanel.add(getRBshowMissing(), gridBagConstraints9);
@@ -339,7 +341,7 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes jScrollPane
      *
-     * @return javax.swing.JScrollPane
+     * @return JScrollPane
      */
     private JScrollPane getJScrollPane() {
         if( jScrollPane == null ) {
@@ -352,7 +354,7 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes jScrollPane1
      *
-     * @return javax.swing.JScrollPane
+     * @return JScrollPane
      */
     private JScrollPane getJScrollPane1() {
         if( jScrollPane1 == null ) {
@@ -365,7 +367,7 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes jScrollPane2
      *
-     * @return javax.swing.JScrollPane
+     * @return JScrollPane
      */
     private JScrollPane getJScrollPane2() {
         if( jScrollPane2 == null ) {
@@ -378,15 +380,15 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes BdeleteKey
      *
-     * @return javax.swing.JButton
+     * @return JButton
      */
     private JButton getBdeleteKey() {
         if( BdeleteKey == null ) {
             BdeleteKey = new JButton();
             BdeleteKey.setText("Delete key");
-            BdeleteKey.setMnemonic(java.awt.event.KeyEvent.VK_D);
-            BdeleteKey.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
+            BdeleteKey.setMnemonic(KeyEvent.VK_D);
+            BdeleteKey.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
                     final String selectedKey = getLkeys().getSelectedValue();
                     deleteKey(selectedKey);
                 }
@@ -398,14 +400,14 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes RBshowAll
      *
-     * @return javax.swing.JRadioButton
+     * @return JRadioButton
      */
     private JRadioButton getRBshowAll() {
         if( RBshowAll == null ) {
             RBshowAll = new JRadioButton();
             RBshowAll.setText("Show all keys");
-            RBshowAll.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(final java.awt.event.ItemEvent e) {
+            RBshowAll.addItemListener(new ItemListener() {
+                public void itemStateChanged(final ItemEvent e) {
                     showKeysChanged();
                 }
             });
@@ -416,14 +418,14 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes RBshowMissing
      *
-     * @return javax.swing.JRadioButton
+     * @return JRadioButton
      */
     private JRadioButton getRBshowMissing() {
         if( RBshowMissing == null ) {
             RBshowMissing = new JRadioButton();
             RBshowMissing.setText("Show missing keys");
-            RBshowMissing.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(final java.awt.event.ItemEvent e) {
+            RBshowMissing.addItemListener(new ItemListener() {
+                public void itemStateChanged(final ItemEvent e) {
                     showKeysChanged();
                 }
             });
@@ -434,15 +436,15 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes BapplyChanges
      *
-     * @return javax.swing.JButton
+     * @return JButton
      */
     private JButton getBapplyChanges() {
         if( BapplyChanges == null ) {
             BapplyChanges = new JButton();
             BapplyChanges.setText("Apply changes");
-            BapplyChanges.setMnemonic(java.awt.event.KeyEvent.VK_A);
-            BapplyChanges.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
+            BapplyChanges.setMnemonic(KeyEvent.VK_A);
+            BapplyChanges.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
                     final String selectedKey = getLkeys().getSelectedValue();
                     if( selectedKey == null ) {
                         return;
@@ -458,15 +460,15 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes BrevertChanges
      *
-     * @return javax.swing.JButton
+     * @return JButton
      */
     private JButton getBrevertChanges() {
         if( BrevertChanges == null ) {
             BrevertChanges = new JButton();
             BrevertChanges.setText("Revert changes");
-            BrevertChanges.setMnemonic(java.awt.event.KeyEvent.VK_R);
-            BrevertChanges.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
+            BrevertChanges.setMnemonic(KeyEvent.VK_R);
+            BrevertChanges.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
                     revertChanges();
                 }
             });
@@ -477,15 +479,15 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes Bsave
      *
-     * @return javax.swing.JButton
+     * @return JButton
      */
     private JButton getBsave() {
         if( Bsave == null ) {
             Bsave = new JButton();
             Bsave.setText("Save");
-            Bsave.setMnemonic(java.awt.event.KeyEvent.VK_S);
-            Bsave.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
+            Bsave.setMnemonic(KeyEvent.VK_S);
+            Bsave.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
                     saveBundle(false);
                 }
             });
@@ -496,15 +498,15 @@ public class TranslationDialog extends JFrame {
     /**
      * This method initializes Bclose
      *
-     * @return javax.swing.JButton
+     * @return JButton
      */
     private JButton getBclose() {
         if( Bclose == null ) {
             Bclose = new JButton();
             Bclose.setText("Close");
-            Bclose.setMnemonic(java.awt.event.KeyEvent.VK_C);
-            Bclose.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
+            Bclose.setMnemonic(KeyEvent.VK_C);
+            Bclose.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
                     closeDialog();
                 }
             });
@@ -512,9 +514,6 @@ public class TranslationDialog extends JFrame {
         return Bclose;
     }
 
-    /**
-     *
-     */
     private void closeDialog() {
         final int answer = JOptionPane.showConfirmDialog(
                 this,
@@ -536,13 +535,6 @@ public class TranslationDialog extends JFrame {
         dispose();
     }
 
-    /**
-     * @param rootResBundle
-     * @param sourceResBundle
-     * @param sourceLangName
-     * @param targetResBundle
-     * @param targetLangName
-     */
     public void startDialog(
             final FrostResourceBundle rootResBundle,
             final FrostResourceBundle sourceResBundle,
@@ -569,9 +561,6 @@ public class TranslationDialog extends JFrame {
         setVisible(true);
     }
 
-    /**
-     * @return
-     */
     private List<String> getAllKeys() {
         final TreeMap<String,String> sorter = new TreeMap<String,String>();
         for( final String string : rootBundle.getKeys() ) {
@@ -586,9 +575,6 @@ public class TranslationDialog extends JFrame {
         return itemList;
     }
 
-    /**
-     * @return
-     */
     private List<String> getMissingKeys() {
         final TreeMap<String,String> sorter = new TreeMap<String,String>();
         for( final String string : rootBundle.getKeys() ) {
@@ -605,10 +591,6 @@ public class TranslationDialog extends JFrame {
         return itemList;
     }
 
-    /**
-     * @param quiet
-     * @return
-     */
     private boolean saveBundle(final boolean quiet) {
         final boolean wasOk = targetBundle.saveBundleToFile(targetLanguageName);
         if( wasOk == false ) {
@@ -627,9 +609,6 @@ public class TranslationDialog extends JFrame {
         return wasOk;
     }
 
-    /**
-     *
-     */
     private void showKeysChanged() {
         final List<String> items;
         if( getRBshowAll().isSelected() ) {
@@ -640,10 +619,6 @@ public class TranslationDialog extends JFrame {
         getLkeys().setModel(new ItemListModel(items));
     }
 
-    /**
-     * @param selectedKey
-     * @param ix
-     */
     private void applyChanges(final String selectedKey, final int ix) {
         final String txt = getTAtranslation().getText().trim();
         if( txt.length() == 0 ) {
@@ -665,9 +640,6 @@ public class TranslationDialog extends JFrame {
         }
     }
 
-    /**
-     *
-     */
     private void revertChanges() {
         final String selectedKey = getLkeys().getSelectedValue();
         if( selectedKey == null ) {
@@ -682,9 +654,6 @@ public class TranslationDialog extends JFrame {
         getTAtranslation().setText(val);
     }
 
-    /**
-     * @param selectedKey
-     */
     private void deleteKey(final String selectedKey) {
         if( selectedKey == null ) {
             return;
@@ -696,9 +665,6 @@ public class TranslationDialog extends JFrame {
         ((ItemListModel)getLkeys().getModel()).itemChanged(ix);
     }
 
-    /**
-     *
-     */
     private void keySelectionChanged() {
         final String selectedKey = getLkeys().getSelectedValue();
         if( selectedKey == null ) {
@@ -717,63 +683,43 @@ public class TranslationDialog extends JFrame {
         getTAtranslation().setText(txt);
     }
 
-    /**
-     *
-     */
-    private class ItemListModel extends AbstractListModel<String> {
+	private class ItemListModel extends AbstractListModel<String> {
 
-        private List<String> items;
+		private static final long serialVersionUID = 1L;
 
-        /**
-         * @param i
-         */
+		private transient List<String> items;
+
         public ItemListModel(final List<String> i) {
             super();
             items = i;
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.ListModel#getSize()
-         */
         public int getSize() {
             return items.size();
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.ListModel#getElementAt(int)
-         */
         public String getElementAt(final int x) {
             return items.get(x);
         }
 
-        /**
-         * @param ix
-         */
         public void itemChanged(final int ix) {
             fireContentsChanged(this, ix, ix);
         }
 
-        /**
-         * @param ix
-         */
         public void removeItem(final int ix) {
             items.remove(ix);
             fireIntervalRemoved(this, ix, ix);
         }
     }
 
-    /**
-     *
-     */
-    private class ListRenderer extends DefaultListCellRenderer {
+	private class ListRenderer extends DefaultListCellRenderer {
 
-        public ListRenderer() {
+		private static final long serialVersionUID = 1L;
+
+		public ListRenderer() {
             super();
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.DefaultListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
-         */
         @Override
         public Component getListCellRendererComponent(
 				final JList<?> list,
