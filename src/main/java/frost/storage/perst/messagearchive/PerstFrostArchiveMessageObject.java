@@ -41,33 +41,34 @@ public class PerstFrostArchiveMessageObject extends Persistent {
         return false;
     }
 
-    String messageId;
-    String inReplyTo;
+	private String messageId;
+	private String inReplyTo;
 
-    long dateAndTime;
-    int msgIndex;
+	private long dateAndTime;
+	private int msgIndex;
 
-    String fromName;
+	private String fromName;
 
-    String subject;
-    String recipientName;
-    int signatureStatus;
+	private String subject;
+	private String recipientName;
+	private int signatureStatus;
 
-    boolean isReplied;
-    boolean isFlagged;
-    boolean isStarred;
+	private boolean isReplied;
+	private boolean isFlagged;
+	private boolean isStarred;
 
-    int idLinePos;
-    int idLineLen;
+	private int idLinePos;
+	private int idLineLen;
 
-    Link<PerstFrostArchiveBoardAttachment> boardAttachments;
-    Link<PerstFrostArchiveFileAttachment> fileAttachments;
+	private Link<PerstFrostArchiveBoardAttachment> boardAttachments;
+	private Link<PerstFrostArchiveFileAttachment> fileAttachments;
 
-    String content;
-    String publicKey;
-//    String signature;
+	private String content;
+	private String publicKey;
+	// private String signature;
 
-    public PerstFrostArchiveMessageObject() {}
+	public PerstFrostArchiveMessageObject() {
+	}
 
     public PerstFrostArchiveMessageObject(final FrostMessageObject mo, final Storage store) {
 
