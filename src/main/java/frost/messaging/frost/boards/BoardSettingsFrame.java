@@ -26,6 +26,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 
 import javax.swing.ButtonGroup;
@@ -51,18 +53,15 @@ import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
 /**
- * Settingsdialog for a single Board or a folder.
+ * Settingsdialog for a single board or a folder.
  */
-@SuppressWarnings("serial")
 public class BoardSettingsFrame extends JDialog {
 
-    private class Listener implements ActionListener {
+	private static final long serialVersionUID = 1L;
+
+	private class Listener implements ActionListener {
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == publicBoardRadioButton) { // Public board radio button
-                radioButton_actionPerformed(e);
-            } else if (e.getSource() == secureBoardRadioButton) { // Private board radio button
-                radioButton_actionPerformed(e);
-            } else if (e.getSource() == generateKeyButton) { // Generate key
+			if (e.getSource() == generateKeyButton) { // Generate key
                 generateKeyButton_actionPerformed(e);
             } else if (e.getSource() == okButton) { // Ok
                 okButton_actionPerformed(e);
@@ -74,11 +73,11 @@ public class BoardSettingsFrame extends JDialog {
         }
     }
 
-    private final Language language;
-    private final AbstractNode node;
-    private final JFrame parentFrame;
+	private final transient Language language;
+	private final AbstractNode node;
+	private final JFrame parentFrame;
 
-    private final Listener listener = new Listener();
+	private final transient Listener listener = new Listener();
 
     private final JCheckBox autoUpdateEnabled = new JCheckBox();
     private final JButton cancelButton = new JButton();
@@ -145,10 +144,6 @@ public class BoardSettingsFrame extends JDialog {
     private final JTextArea descriptionTextArea = new JTextArea(3, 40);
     private JScrollPane descriptionScrollPane;
 
-    /**
-     * @param parentFrame
-     * @param board
-     */
     public BoardSettingsFrame(final JFrame parentFrame, final AbstractNode node) {
         super(parentFrame);
 
@@ -162,7 +157,17 @@ public class BoardSettingsFrame extends JDialog {
         //pack();
         setSize(430,615);
         setLocationRelativeTo(parentFrame);
-    }
+
+		ItemListener itemListener = new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				changeJRadioButtonState();
+			}
+		};
+		maxMessageDisplay_set.addItemListener(itemListener);
+		maxMessageDownload_set.addItemListener(itemListener);
+		hideMessageCount_set.addItemListener(itemListener);
+		secureBoardRadioButton.addItemListener(itemListener);
+	}
 
     /**
      * Close window and do not save settings
@@ -197,15 +202,12 @@ public class BoardSettingsFrame extends JDialog {
         }
     }
 
-    private void overrideSettingsCheckBox_actionPerformed(final ActionEvent e) {
-        setPanelEnabled(settingsPanel, overrideSettingsCheckBox.isSelected());
-    }
+	private void overrideSettingsCheckBox_actionPerformed(final ActionEvent e) {
+		setOverridePanelEnabled(overrideSettingsCheckBox.isSelected());
+	}
 
     //------------------------------------------------------------------------
 
-    /**Return exitState
-     * @return
-     */
     public boolean getExitState() {
         return exitState;
     }
@@ -390,10 +392,10 @@ public class BoardSettingsFrame extends JDialog {
         // Adds listeners
         overrideSettingsCheckBox.addActionListener(listener);
 
-        setPanelEnabled(settingsPanel, (node.isBoard())?((Board)node).isConfigured():false);
+		setOverridePanelEnabled(node.isBoard() && ((Board) node).isConfigured());
 
-        return settingsPanel;
-    }
+		return settingsPanel;
+	}
 
     private void initialize() {
         final JPanel contentPanel = new JPanel();
@@ -449,20 +451,21 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridy = 4;
         contentPanel.add(cancelButton, constraints);
 
-        descriptionLabel.setEnabled(false);
-        descriptionTextArea.setEnabled(false);
-        publicBoardRadioButton.setSelected(true);
-        privateKeyTextField.setEnabled(false);
-        publicKeyTextField.setEnabled(false);
-        generateKeyButton.setEnabled(false);
-
         // Adds listeners
         okButton.addActionListener(listener);
         cancelButton.addActionListener(listener);
 
         loadKeypair();
         loadBoardSettings();
-    }
+
+		Boolean isBoard = node.isBoard();
+		publicBoardRadioButton.setEnabled(isBoard);
+		secureBoardRadioButton.setEnabled(isBoard);
+		descriptionLabel.setEnabled(isBoard);
+		descriptionTextArea.setEnabled(isBoard);
+
+		changeJRadioButtonState();
+	}
 
     private JPanel getKeysPanel() {
         final JPanel keysPanel = new JPanel();
@@ -524,119 +527,110 @@ public class BoardSettingsFrame extends JDialog {
         constraints.weightx = 1.0;
         keysPanel.add(publicKeyTextField, constraints);
 
-        // Adds listeners
-        publicBoardRadioButton.addActionListener(listener);
-        secureBoardRadioButton.addActionListener(listener);
-        generateKeyButton.addActionListener(listener);
+		generateKeyButton.addActionListener(listener);
 
         return keysPanel;
     }
 
-    /**
-     * Set initial values for board settings.
-     */
-    private void loadBoardSettings() {
-        if( node.isFolder() ) {
+	/**
+	 * Set initial values for board settings.
+	 */
+	private void loadBoardSettings() {
+		if (node.isFolder()) {
+			overrideSettingsCheckBox.setSelected(false);
+			autoUpdateEnabled.setSelected(true);
+			maxMessageDisplay_default.setSelected(true);
+			maxMessageDownload_default.setSelected(true);
+			signedOnly_default.setSelected(true);
+			hideBad_default.setSelected(true);
+			hideCheck_default.setSelected(true);
+			hideObserve_default.setSelected(true);
+			hideMessageCount_default.setSelected(true);
+			storeSentMessages_default.setSelected(true);
+		} else if (node.isBoard()) {
+			final Board board = (Board) node;
+			if (board.getDescription() != null) {
+				descriptionTextArea.setText(board.getDescription());
+			}
 
-            descriptionLabel.setEnabled(false);
-            descriptionTextArea.setEnabled(false);
-            overrideSettingsCheckBox.setSelected(false);
+			overrideSettingsCheckBox.setSelected(board.isConfigured());
 
-        } else if( node.isBoard() ) {
-            final Board board = (Board)node;
-            descriptionLabel.setEnabled(true);
-            descriptionTextArea.setEnabled(true);
-            // its a single board
-            if (board.getDescription() != null) {
-                descriptionTextArea.setText(board.getDescription());
-            }
+			if (!board.isConfigured()) {
+				autoUpdateEnabled.setSelected(true);
+			} else {
+				autoUpdateEnabled.setSelected(board.getAutoUpdateEnabled());
+			}
 
-            overrideSettingsCheckBox.setSelected(board.isConfigured());
+			if (!board.isConfigured() || board.getMaxMessageDisplayObj() == null) {
+				maxMessageDisplay_default.setSelected(true);
+			} else {
+				maxMessageDisplay_set.setSelected(true);
+				maxMessageDisplay_value.setText("" + board.getMaxMessageDisplay());
+			}
 
-            if (!board.isConfigured() || (board.getMaxMessageDisplayObj() == null)) {
-                maxMessageDisplay_default.setSelected(true);
-            } else {
-                maxMessageDisplay_set.setSelected(true);
-                maxMessageDisplay_value.setText("" + board.getMaxMessageDisplay());
-            }
+			if (!board.isConfigured() || board.getMaxMessageDownloadObj() == null) {
+				maxMessageDownload_default.setSelected(true);
+			} else {
+				maxMessageDownload_set.setSelected(true);
+				maxMessageDownload_value.setText("" + board.getMaxMessageDownload());
+			}
 
-            if (!board.isConfigured() || (board.getMaxMessageDownloadObj() == null)) {
-                maxMessageDownload_default.setSelected(true);
-            } else {
-                maxMessageDownload_set.setSelected(true);
-                maxMessageDownload_value.setText("" + board.getMaxMessageDownload());
-            }
+			if (!board.isConfigured() || board.getShowSignedOnlyObj() == null) {
+				signedOnly_default.setSelected(true);
+			} else if (board.getShowSignedOnly()) {
+				signedOnly_true.setSelected(true);
+			} else {
+				signedOnly_false.setSelected(true);
+			}
 
-            if (!board.isConfigured()) {
-                autoUpdateEnabled.setSelected(true); // default
-            } else if (board.getAutoUpdateEnabled()) {
-                autoUpdateEnabled.setSelected(true);
-            } else {
-                autoUpdateEnabled.setSelected(false);
-            }
+			if (!board.isConfigured() || board.getHideBadObj() == null) {
+				hideBad_default.setSelected(true);
+			} else if (board.getHideBad()) {
+				hideBad_true.setSelected(true);
+			} else {
+				hideBad_false.setSelected(true);
+			}
 
-            if (!board.isConfigured() || (board.getShowSignedOnlyObj() == null)) {
-                signedOnly_default.setSelected(true);
-            } else if (board.getShowSignedOnly()) {
-                signedOnly_true.setSelected(true);
-            } else {
-                signedOnly_false.setSelected(true);
-            }
+			if (!board.isConfigured() || board.getHideCheckObj() == null) {
+				hideCheck_default.setSelected(true);
+			} else if (board.getHideCheck()) {
+				hideCheck_true.setSelected(true);
+			} else {
+				hideCheck_false.setSelected(true);
+			}
 
-            if (!board.isConfigured() || (board.getHideBadObj() == null)) {
-                hideBad_default.setSelected(true);
-            } else if (board.getHideBad()) {
-                hideBad_true.setSelected(true);
-            } else {
-                hideBad_false.setSelected(true);
-            }
+			if (!board.isConfigured() || board.getHideObserveObj() == null) {
+				hideObserve_default.setSelected(true);
+			} else if (board.getHideObserve()) {
+				hideObserve_true.setSelected(true);
+			} else {
+				hideObserve_false.setSelected(true);
+			}
 
-            if (!board.isConfigured() || (board.getHideCheckObj() == null)) {
-                hideCheck_default.setSelected(true);
-            } else if (board.getHideCheck()) {
-                hideCheck_true.setSelected(true);
-            } else {
-                hideCheck_false.setSelected(true);
-            }
+			if (!board.isConfigured() || board.getHideMessageCountObj() == null) {
+				hideMessageCount_default.setSelected(true);
+			} else {
+				hideMessageCount_set.setSelected(true);
+				hideMessageCount_value.setText("" + board.getHideMessageCount());
+			}
 
-            if (!board.isConfigured() || (board.getHideObserveObj() == null)) {
-                hideObserve_default.setSelected(true);
-            } else if (board.getHideObserve()) {
-                hideObserve_true.setSelected(true);
-            } else {
-                hideObserve_false.setSelected(true);
-            }
+			if (!board.isConfigured() || board.getStoreSentMessagesObj() == null) {
+				storeSentMessages_default.setSelected(true);
+			} else if (board.getStoreSentMessages()) {
+				storeSentMessages_true.setSelected(true);
+			} else {
+				storeSentMessages_false.setSelected(true);
+			}
+		}
+	}
 
-            if (!board.isConfigured() || (board.getHideMessageCountObj() == null)) {
-                hideMessageCount_default.setSelected(true);
-            } else {
-                hideMessageCount_set.setSelected(true);
-                hideMessageCount_value.setText("" + board.getHideMessageCount());
-            }
-
-            if (!board.isConfigured() || (board.getStoreSentMessagesObj() == null)) {
-                storeSentMessages_default.setSelected(true);
-            } else if (board.getStoreSentMessages()) {
-                storeSentMessages_true.setSelected(true);
-            } else {
-                storeSentMessages_false.setSelected(true);
-            }
-        }
-    }
-
-    /**
-     * Loads keypair
-     */
-    private void loadKeypair() {
-
-        if( node.isFolder() ) {
-            privateKeyTextField.setEnabled(false);
-            publicKeyTextField.setEnabled(false);
-            generateKeyButton.setEnabled(false);
-            publicBoardRadioButton.setEnabled(false);
-            secureBoardRadioButton.setEnabled(false);
-
-        } else if( node.isBoard() ) {
+	/**
+	 * Loads keypair
+	 */
+	private void loadKeypair() {
+		if (node.isFolder()) {
+			publicBoardRadioButton.setSelected(true);
+		} else if (node.isBoard()) {
             final Board board = (Board)node;
             final String privateKey = board.getPrivateKey();
             final String publicKey = board.getPublicKey();
@@ -653,20 +647,13 @@ public class BoardSettingsFrame extends JDialog {
                 publicKeyTextField.setText(language.getString("BoardSettings.text.keyNotAvailable"));
             }
 
-            if (board.isWriteAccessBoard() || board.isReadAccessBoard()) {
-                privateKeyTextField.setEnabled(true);
-                publicKeyTextField.setEnabled(true);
-                generateKeyButton.setEnabled(true);
-                secureBoardRadioButton.setSelected(true);
-            } else { // its a public board
-                privateKeyTextField.setEnabled(false);
-                publicKeyTextField.setEnabled(false);
-                generateKeyButton.setEnabled(false);
-                publicBoardRadioButton.setSelected(true);
-            }
-        }
-    }
-
+			if (board.isWriteAccessBoard() || board.isReadAccessBoard()) {
+				secureBoardRadioButton.setSelected(true);
+			} else { // its a public board
+				publicBoardRadioButton.setSelected(true);
+			}
+		}
+	}
 
     /**
      * Close window and save settings
@@ -882,31 +869,12 @@ public class BoardSettingsFrame extends JDialog {
         ok();
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
-     */
     @Override
     protected void processWindowEvent(final WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             dispose();
         }
         super.processWindowEvent(e);
-    }
-
-    /**
-     * radioButton Action Listener (OK)
-     * @param e
-     */
-    private void radioButton_actionPerformed(final ActionEvent e) {
-        if (publicBoardRadioButton.isSelected()) {
-            privateKeyTextField.setEnabled(false);
-            publicKeyTextField.setEnabled(false);
-            generateKeyButton.setEnabled(false);
-        } else {
-            privateKeyTextField.setEnabled(true);
-            publicKeyTextField.setEnabled(true);
-            generateKeyButton.setEnabled(true);
-        }
     }
 
     private void refreshLanguage() {
@@ -969,13 +937,30 @@ public class BoardSettingsFrame extends JDialog {
         return exitState;
     }
 
-    private void setPanelEnabled(final JPanel panel, final boolean enabled) {
-        final int componentCount = panel.getComponentCount();
+	private void changeJRadioButtonState() {
+		maxMessageDisplay_value.setEnabled(maxMessageDisplay_set.isSelected());
+		maxMessageDownload_value.setEnabled(maxMessageDownload_set.isSelected());
+		hideMessageCount_value.setEnabled(hideMessageCount_set.isSelected());
+
+		Boolean isSecureBoard = secureBoardRadioButton.isSelected();
+		privateKeyLabel.setEnabled(isSecureBoard);
+		privateKeyTextField.setEnabled(isSecureBoard);
+		publicKeyLabel.setEnabled(isSecureBoard);
+		publicKeyTextField.setEnabled(isSecureBoard);
+		generateKeyButton.setEnabled(isSecureBoard);
+	}
+
+    private void setOverridePanelEnabled(final boolean enabled) {
+        final int componentCount = settingsPanel.getComponentCount();
         for (int x = 0; x < componentCount; x++) {
-            final Component c = panel.getComponent(x);
+            final Component c = settingsPanel.getComponent(x);
             if (c != overrideSettingsCheckBox) {
                 c.setEnabled(enabled);
-            }
-        }
-    }
+			}
+		}
+
+		if (enabled) {
+			changeJRadioButtonState();
+		}
+	}
 }
