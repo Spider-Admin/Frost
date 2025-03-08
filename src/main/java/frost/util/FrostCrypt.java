@@ -233,9 +233,9 @@ public final class FrostCrypt {
             BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
             RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(Modulus, Exponent);
 
-            KeyFactory fact = KeyFactory.getInstance("RSA", "BC");
+			KeyFactory fact = KeyFactory.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME);
             PublicKey pubKey = fact.generatePublic(pubKeySpec);
-            cipherRSA = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+			cipherRSA = Cipher.getInstance("RSA/ECB/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
             cipherRSA.init(Cipher.ENCRYPT_MODE, pubKey);
             cipherRSAinSize = cipherRSA.getBlockSize();
             cipherRSAoutSize = cipherRSA.getOutputSize(cipherRSAinSize);
@@ -322,9 +322,9 @@ public final class FrostCrypt {
                     new BigInteger(Base64.decode(keycutter.nextToken())),
                     new BigInteger(Base64.decode(keycutter.nextToken())));
 
-            KeyFactory fact = KeyFactory.getInstance("RSA", "BC");
+			KeyFactory fact = KeyFactory.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME);
             PrivateKey privKey = fact.generatePrivate(privKeySpec);
-            cipherRSA = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+			cipherRSA = Cipher.getInstance("RSA/ECB/PKCS1Padding", BouncyCastleProvider.PROVIDER_NAME);
             cipherRSA.init(Cipher.DECRYPT_MODE, privKey);
             cipherRSAinSize = cipherRSA.getBlockSize();
             cipherRSAoutSize = cipherRSA.getOutputSize(cipherRSAinSize);
@@ -508,7 +508,7 @@ public final class FrostCrypt {
                 return null;
             }
             SecretKeySpec sessionKey = new SecretKeySpec(aesKey, "AES");
-            cipherAES = Cipher.getInstance("AES", "BC");
+			cipherAES = Cipher.getInstance("AES", BouncyCastleProvider.PROVIDER_NAME);
             cipherAES.init(mode, sessionKey);
 
         } catch(Throwable t) {
@@ -538,7 +538,7 @@ public final class FrostCrypt {
         try {
             byte[] food = message;
             
-            MessageDigest sha256 = MessageDigest.getInstance("SHA256", "BC");
+			MessageDigest sha256 = MessageDigest.getInstance("SHA256", BouncyCastleProvider.PROVIDER_NAME);
             sha256.update(food);
             byte[] poop = sha256.digest();
             
@@ -560,7 +560,7 @@ public final class FrostCrypt {
 	 */
 	public String computeChecksumSHA256(File file) {
 		try (FileInputStream fis = new FileInputStream(file); FileChannel chan = fis.getChannel();) {
-			MessageDigest sha256 = MessageDigest.getInstance("SHA256", "BC");
+			MessageDigest sha256 = MessageDigest.getInstance("SHA256", BouncyCastleProvider.PROVIDER_NAME);
 
 			byte[] temp = new byte[4 * 1024];
 			ByteBuffer _temp = ByteBuffer.wrap(temp);
