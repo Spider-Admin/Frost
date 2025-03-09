@@ -26,6 +26,7 @@ import java.util.Comparator;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -296,11 +297,14 @@ class SharedFilesTableFormat extends SortedTableFormat<FrostSharedFileItem> impl
         refreshLanguage();
     }
 
-    @SuppressWarnings("serial")
 	private class ShowContentTooltipRenderer extends BaseRenderer {
-        public ShowContentTooltipRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowContentTooltipRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             JTable table,
@@ -323,12 +327,16 @@ class SharedFilesTableFormat extends SortedTableFormat<FrostSharedFileItem> impl
         }
     }
 
-    @SuppressWarnings("serial")
 	private class RightAlignRenderer extends BaseRenderer {
-        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
-        public RightAlignRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		private final EmptyBorder border = new EmptyBorder(0, 0, 0, 3);
+
+		public RightAlignRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             JTable table,
@@ -477,12 +485,15 @@ class SharedFilesTableFormat extends SortedTableFormat<FrostSharedFileItem> impl
             return item1.getFile().getPath().compareToIgnoreCase(item2.getFile().getPath());
         }
     }
-    
-    @SuppressWarnings("serial")
+
 	private class BaseRenderer extends DefaultTableCellRenderer {
-        public BaseRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		public BaseRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             JTable table,

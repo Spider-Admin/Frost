@@ -24,6 +24,8 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -41,10 +43,11 @@ import frost.gui.RatingStringProvider;
 /**
  * Configure comment, rating and keywords for one or multiple FrostSharedFileItems. 
  */
-@SuppressWarnings("serial")
 public class SharedFilesPropertiesDialog extends JDialog {
 
-    private JPanel jContentPane = null;
+	private static final long serialVersionUID = 1L;
+
+	private JPanel jContentPane = null;
     private JPanel buttonPanel = null;
     private JPanel mainPanel = null;
     private JButton Bok = null;
@@ -86,7 +89,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes jContentPane
      * 
-     * @return javax.swing.JPanel
+     * @return JPanel
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
@@ -101,7 +104,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes buttonPanel	
      * 	
-     * @return javax.swing.JPanel	
+     * @return JPanel	
      */
     private JPanel getButtonPanel() {
         if( buttonPanel == null ) {
@@ -118,7 +121,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes mainPanel	
      * 	
-     * @return javax.swing.JPanel	
+     * @return JPanel	
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
@@ -190,14 +193,14 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes Bok	
      * 	
-     * @return javax.swing.JButton	
+     * @return JButton	
      */
     private JButton getBok() {
         if( Bok == null ) {
             Bok = new JButton();
             Bok.setText("Ok");
-            Bok.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+            Bok.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
                     String str;
 
                     str = getTFcomment().getText().trim(); 
@@ -228,14 +231,14 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes Bcancel	
      * 	
-     * @return javax.swing.JButton	
+     * @return JButton	
      */
     private JButton getBcancel() {
         if( Bcancel == null ) {
             Bcancel = new JButton();
             Bcancel.setText("Cancel");
-            Bcancel.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+            Bcancel.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
                     exitState = false;
                     setVisible(false);
                 }
@@ -247,7 +250,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes CBrating	
      * 	
-     * @return javax.swing.JComboBox	
+     * @return JComboBox	
      */
 	private JComboBox<String> getCBrating() {
         if( CBrating == null ) {
@@ -262,7 +265,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes TFcomment	
      * 	
-     * @return javax.swing.JTextField	
+     * @return JTextField	
      */
     private JTextField getTFcomment() {
         if( TFcomment == null ) {
@@ -276,7 +279,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
     /**
      * This method initializes TFkeywords	
      * 	
-     * @return javax.swing.JTextField	
+     * @return JTextField	
      */
     private JTextField getTFkeywords() {
         if( TFkeywords == null ) {
@@ -286,15 +289,20 @@ public class SharedFilesPropertiesDialog extends JDialog {
         }
         return TFkeywords;
     }
-    
-    /**
-     * This document restricts the size of the text to a specific length.
-     */
-    protected class RestrictSizeDocument extends PlainDocument {
-        int maxChars;
-        public RestrictSizeDocument(int maxChars) {
-            this.maxChars = maxChars;
-        }
+
+	/**
+	 * This document restricts the size of the text to a specific length.
+	 */
+	protected class RestrictSizeDocument extends PlainDocument {
+
+		private static final long serialVersionUID = 1L;
+
+		private int maxChars;
+
+		public RestrictSizeDocument(int maxChars) {
+			this.maxChars = maxChars;
+		}
+
         @Override
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
             

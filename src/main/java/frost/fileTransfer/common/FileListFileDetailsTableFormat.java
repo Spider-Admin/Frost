@@ -346,11 +346,14 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
         }
     }
 
-    @SuppressWarnings("serial")
 	private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
-        public ShowContentTooltipRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowContentTooltipRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -373,11 +376,14 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
         }
     }
 
-    @SuppressWarnings("serial")
 	private class IdentityStateRenderer extends ShowColoredLinesRenderer {
-        public IdentityStateRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		public IdentityStateRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -408,11 +414,14 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat<FileListFi
         }
     }
 
-    @SuppressWarnings("serial")
 	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
-        public ShowColoredLinesRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowColoredLinesRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,

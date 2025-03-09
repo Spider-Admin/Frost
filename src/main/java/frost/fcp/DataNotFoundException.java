@@ -18,10 +18,11 @@
 */
 package frost.fcp;
 
-@SuppressWarnings("serial")
 public class DataNotFoundException extends FcpToolsException {
-    
-    public DataNotFoundException() {
+
+	private static final long serialVersionUID = 1L;
+
+	public DataNotFoundException() {
         super("Data Not Found.");
     }
 }

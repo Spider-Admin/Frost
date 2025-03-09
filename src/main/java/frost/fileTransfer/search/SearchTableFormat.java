@@ -26,6 +26,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
@@ -293,11 +294,14 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
         return true;
     }
 
-    @SuppressWarnings("serial")
 	private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
-        public ShowContentTooltipRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowContentTooltipRenderer() {
             super();
         }
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -320,12 +324,16 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
         }
     }
 
-    @SuppressWarnings("serial")
 	private class RightAlignRenderer extends ShowColoredLinesRenderer {
-        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
-        public RightAlignRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		private final EmptyBorder border = new EmptyBorder(0, 0, 0, 3);
+
+		public RightAlignRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -348,12 +356,14 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
      * depending on state of search item.
      * States are: NONE, DOWNLOADED, DOWNLOADING, UPLOADING
      */
-    @SuppressWarnings("serial")
 	private class FileNameRenderer extends ShowContentTooltipRenderer {
 
-        public FileNameRenderer() {
-            super();
-        }
+		private static final long serialVersionUID = 1L;
+
+		public FileNameRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -389,14 +399,16 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
         }
     }
 
-    @SuppressWarnings("serial")
 	private class SourceCountRenderer extends ShowColoredLinesRenderer {
 
-        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
+		private static final long serialVersionUID = 1L;
 
-        public SourceCountRenderer() {
-            super();
-        }
+		private final EmptyBorder border = new EmptyBorder(0, 0, 0, 3);
+
+		public SourceCountRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -427,11 +439,14 @@ public class SearchTableFormat extends SortedTableFormat<FrostSearchItem> implem
         }
     }
 
-    @SuppressWarnings("serial")
 	private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
-        public ShowColoredLinesRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowColoredLinesRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,

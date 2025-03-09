@@ -32,6 +32,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -110,11 +111,14 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
     	}
     }
 
-    @SuppressWarnings("serial")
 	private class BaseRenderer extends DefaultTableCellRenderer {
-        public BaseRenderer() {
-            super();
-        }
+
+		private static final long serialVersionUID = 1L;
+
+		public BaseRenderer() {
+			super();
+		}
+
         @Override
         public Component getTableCellRendererComponent(
             final JTable table,
@@ -146,10 +150,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-    @SuppressWarnings("serial")
 	private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
-    	
-        public BlocksProgressRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public BlocksProgressRenderer() {
             super();
             setMinimum(0);
             setMaximum(100);
@@ -196,11 +201,12 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-	@SuppressWarnings("serial")
 	private class RightAlignRenderer extends BaseRenderer {
-		
-        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
-        
+
+		private static final long serialVersionUID = 1L;
+
+		private final EmptyBorder border = new EmptyBorder(0, 0, 0, 3);
+
         public RightAlignRenderer() {
             super();
         }
@@ -221,10 +227,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
 		}
 	}
 
-    @SuppressWarnings("serial")
 	private class ShowContentTooltipRenderer extends BaseRenderer {
-    	
-        public ShowContentTooltipRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowContentTooltipRenderer() {
             super();
         }
         
@@ -249,10 +256,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-    @SuppressWarnings("serial")
 	private class ShowNameTooltipRenderer extends BaseRenderer {
-    	
-        public ShowNameTooltipRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowNameTooltipRenderer() {
             super();
         }
         
@@ -294,10 +302,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-    @SuppressWarnings("serial")
 	private class ShowStateContentTooltipRenderer extends BaseRenderer {
-    	
-        public ShowStateContentTooltipRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public ShowStateContentTooltipRenderer() {
             super();
         }
         
@@ -323,10 +332,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-    @SuppressWarnings("serial")
 	private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
-    	
-        public IsEnabledRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public IsEnabledRenderer() {
             super();
             setHorizontalAlignment(SwingConstants.CENTER);
         }
@@ -364,10 +374,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-    @SuppressWarnings("serial")
 	private class IsSharedRenderer extends BaseRenderer {
-    	
-        public IsSharedRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public IsSharedRenderer() {
             super();
         }
         
@@ -396,10 +407,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-    @SuppressWarnings("serial")
 	private class IsRequestedRenderer extends BaseRenderer {
-    	
-        public IsRequestedRenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public IsRequestedRenderer() {
             super();
         }
         
@@ -428,10 +440,11 @@ class DownloadTableFormat extends SortedTableFormat<FrostDownloadItem> implement
         }
     }
 
-    @SuppressWarnings("serial")
 	private class IsDDARenderer extends BaseRenderer {
-    	
-        public IsDDARenderer() {
+
+		private static final long serialVersionUID = 1L;
+
+		public IsDDARenderer() {
             super();
         }
         

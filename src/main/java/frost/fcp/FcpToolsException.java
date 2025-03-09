@@ -18,8 +18,10 @@
  */
 package frost.fcp;
 
-@SuppressWarnings("serial")
 public class FcpToolsException extends Exception {
+
+	private static final long serialVersionUID = 1L;
+
 	public FcpToolsException(String s) {
 		super(s);
 	}
