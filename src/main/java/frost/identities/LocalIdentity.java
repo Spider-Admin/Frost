@@ -83,15 +83,15 @@ public class LocalIdentity extends Identity {
 	public LocalIdentity() {
 	}
 
-    private LocalIdentity(final String name, final String[] keys) {
-        super(name, keys[1], true);
-        this.privateKey = keys[0];
-    }
+	public LocalIdentity(final String name, final String[] keys) {
+		super(name, keys[1], true);
+		this.privateKey = keys[0];
+	}
 
-    private LocalIdentity(final Element el) throws Exception {
-        // finally calls loadXMLElement of this class!
-        super(el);
-    }
+	private LocalIdentity(final Element el) throws Exception {
+		// finally calls loadXMLElement of this class!
+		super(el);
+	}
 
     /**
      * Create a new Identity, read from the specified XML element.
