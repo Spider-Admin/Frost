@@ -269,14 +269,14 @@ public final class FrostCrypt {
 
 		// encrypt content using AES
 		try (ByteArrayOutputStream plainOut = new ByteArrayOutputStream(
-				what.length + (what.length / 10) + rsaEncData.length);
-				CipherOutputStream cOut = new CipherOutputStream(plainOut, cipherAES);) {
+				what.length + (what.length / 10) + rsaEncData.length);) {
 			// write RSA encrypted data
 			plainOut.write(rsaEncData);
 
 			// encrypt
-			cOut.write(what);
-
+			try (CipherOutputStream cOut = new CipherOutputStream(plainOut, cipherAES);) {
+				cOut.write(what);
+			}
 			return plainOut.toByteArray();
 		} catch (IOException e) {
 			logger.error("Error in encrypt, AES encryption", e);
