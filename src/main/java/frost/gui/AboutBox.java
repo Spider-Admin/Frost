@@ -33,19 +33,16 @@ import frost.SettingsClass;
 import frost.util.gui.JDialogWithDetails;
 import frost.util.gui.MiscToolkit;
 
-/**
- * @author $Author: kevloral $
- * @version $Revision: 3313 $
- */
-@SuppressWarnings("serial")
 public class AboutBox extends JDialogWithDetails {
 
-    private final static String product = "Frost";
+	private static final long serialVersionUID = 1L;
 
-    // because a growing amount of users use CVS version:
-    private String version = null;
+	private final static String product = "Frost";
 
-	private final static String copyright = "Copyright 2001 - 2024 Frost development team";
+	// because a growing amount of users use CVS version:
+	private String version = null;
+
+	private final static String copyright = "Copyright 2001 - 2025 Frost development team";
 	private final static String comments2 = "https://jtcfrost.sourceforge.net/";
 
     private final JPanel imagePanel = new JPanel();
